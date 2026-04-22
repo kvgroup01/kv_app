@@ -16,6 +16,7 @@ import {
   DialogFooter 
 } from '../../../components/ui/dialog';
 import { Input } from '../../../components/ui/input';
+import { CONFIG } from '../../../lib/constants';
 
 export default function OrcamentoNovo() {
   const navigate = useNavigate();
@@ -45,14 +46,15 @@ export default function OrcamentoNovo() {
            toast.success("Orçamento gerado com sucesso!");
         }
       },
-      onError: (err) => {
-        toast.error("Houve um problema ao gerar o Orçamento.");
+      onError: (err: any) => {
+        console.error("Erro ao criar orçamento:", err);
+        toast.error(`Erro ao gerar Orçamento: ${err.message || 'Erro desconhecido'}`);
       }
     });
   };
 
-  const domain = import.meta.env.VITE_APP_URL || window.location.origin;
-  const linkPublico = `\${domain}/orcamento/\${successToken}`;
+  const linkPublico = `${import.meta.env.VITE_APP_URL}/orcamento/${successToken}`;
+  const linkInterno = `/orcamento/${successToken}`;
 
   const copyLink = () => {
     navigator.clipboard.writeText(linkPublico);
@@ -95,19 +97,26 @@ export default function OrcamentoNovo() {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="flex items-center space-x-2 my-4 bg-muted/30 p-2 border rounded-md">
-            <Input 
-              readOnly 
-              value={linkPublico} 
-              className="bg-transparent border-none focus-visible:ring-0 shadow-none font-medium truncate" 
-            />
-            <Button size="sm" variant="secondary" onClick={copyLink}>
-              <Copy className="h-4 w-4 mr-2" /> Copiar
-            </Button>
+          <div className="flex flex-col space-y-2 my-4">
+            <div className="flex items-center space-x-2 bg-muted/30 p-2 border rounded-md">
+              <Input 
+                readOnly 
+                value={linkPublico} 
+                className="bg-transparent border-none focus-visible:ring-0 shadow-none font-medium truncate" 
+              />
+              <Button size="sm" variant="secondary" onClick={copyLink}>
+                <Copy className="h-4 w-4 mr-2" /> Copiar
+              </Button>
+            </div>
+            {import.meta.env.VITE_APP_URL !== window.location.origin && (
+              <p className="text-[10px] text-muted-foreground px-1">
+                Link de produção. Para testar aqui no AI Studio, use o botão "Ver Orçamento" abaixo.
+              </p>
+            )}
           </div>
 
           <DialogFooter className="flex flex-col sm:flex-row sm:justify-start gap-2 border-t pt-4">
-            <Button variant="outline" onClick={() => window.open(`/orcamento/\${successToken}`, '_blank')} className="w-full sm:w-auto">
+            <Button variant="outline" onClick={() => window.open(linkInterno, '_blank')} className="w-full sm:w-auto">
               <ExternalLink className="h-4 w-4 mr-2" />
               Ver Orçamento
             </Button>

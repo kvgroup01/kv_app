@@ -45,9 +45,24 @@ export default function OrcamentoPublico() {
   }, [orcamento]);
 
   const copyPix = () => {
-    if (orcamento?.pix_chave) {
-      navigator.clipboard.writeText(orcamento.pix_chave);
-      toast.success('Chave PIX copiada!');
+    if (qrCodeData && orcamento?.pix_chave) {
+      // Re-gerar o payload puro (sem ser base64 de imagem)
+      const generatePayload = async () => {
+        try {
+          const { gerarPayloadPix } = await import('../../lib/utils');
+          const payload = gerarPayloadPix(
+            orcamento.pix_chave, 
+            orcamento.valor_total, 
+            'Gestor de Trafego', 
+            'Sao Paulo'
+          );
+          navigator.clipboard.writeText(payload);
+          toast.success('PIX Copia e Cola copiado!');
+        } catch (err) {
+          toast.error('Erro ao copiar payload PIX');
+        }
+      };
+      generatePayload();
     }
   };
 
@@ -113,7 +128,7 @@ export default function OrcamentoPublico() {
           <div className="flex flex-col md:flex-row justify-between md:items-end gap-6">
             <div>
               <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Proposta Comercial</h1>
-              <p className="text-muted-foreground mt-1">Acordo de prestação de serviços</p>
+              <p className="text-slate-600 font-medium mt-1">Acordo de prestação de serviços</p>
             </div>
             <div className="text-left md:text-right text-sm space-y-1 text-slate-600">
               <p>Data de emissão: <span className="font-medium text-slate-900">{fmtDataString(orcamento.$createdAt)}</span></p>
@@ -121,13 +136,13 @@ export default function OrcamentoPublico() {
             </div>
           </div>
 
-          <div className="bg-slate-100/50 p-4 rounded-lg border border-slate-200">
-            <p className="text-sm text-slate-500 uppercase tracking-widest font-semibold mb-1">Faturado para</p>
-            <p className="text-xl font-medium text-slate-900">{orcamento.cliente_nome}</p>
+          <div className="bg-slate-100 p-5 rounded-xl border border-slate-200">
+            <p className="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-1">Faturado para</p>
+            <p className="text-2xl font-bold text-slate-900">{orcamento.cliente_nome}</p>
           </div>
 
           <div>
-            <div className="flex justify-between text-xs uppercase font-semibold text-slate-500 border-b pb-2 mb-4">
+            <div className="flex justify-between text-xs uppercase font-bold text-slate-500 border-b-2 border-slate-100 pb-3 mb-4">
                <span>Descrição do Serviço</span>
                <div className="flex gap-4 md:gap-16">
                  <span className="hidden md:inline-block">Qtd</span>
@@ -162,8 +177,8 @@ export default function OrcamentoPublico() {
           {!isPago && orcamento.status !== 'cancelado' && (
             <div className="pt-6">
                <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-6 md:p-8 flex flex-col items-center text-center">
-                  <h3 className="font-semibold text-lg text-blue-950 mb-2">Pague com PIX</h3>
-                  <p className="text-blue-800/80 text-sm mb-6 max-w-sm">Escaneie o código abaixo com o aplicativo do seu banco para processar a aprovação imediata.</p>
+                  <h3 className="font-bold text-xl text-blue-950 mb-2">Pague com PIX</h3>
+                  <p className="text-blue-900 font-medium text-sm mb-6 max-w-sm">Escaneie o código abaixo com o aplicativo do seu banco para processar a aprovação imediata.</p>
                   
                   {qrCodeData ? (
                     <div className="bg-white p-2 rounded-xl shadow-sm border border-slate-200 mb-6">
@@ -173,11 +188,22 @@ export default function OrcamentoPublico() {
                     <Skeleton className="w-[200px] h-[200px] rounded-xl mb-6" />
                   )}
 
-                  <div className="flex items-center gap-2 bg-blue-100/50 border border-blue-200 text-blue-900 px-4 py-2 rounded-lg break-all max-w-full">
-                     <span className="font-mono text-sm max-w-[200px] md:max-w-xs truncate" title={orcamento.pix_chave}>{orcamento.pix_chave}</span>
-                     <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-blue-200 hover:text-blue-900" onClick={copyPix}>
-                       <Copy className="h-4 w-4" />
-                     </Button>
+                  <div className="w-full space-y-2">
+                    <p className="text-[10px] text-blue-900/60 uppercase font-bold text-left ml-1">PIX Copia e Cola</p>
+                    <div className="flex items-center gap-2 bg-blue-100/50 border border-blue-200 text-blue-900 px-4 py-3 rounded-lg break-all max-w-full group hover:bg-blue-100 transition-colors">
+                       <span className="font-mono text-sm max-w-[200px] md:max-w-xs truncate opacity-70" title="Clique para copiar o código PIX completo">
+                         {orcamento.pix_chave} (Código gerado)
+                       </span>
+                       <Button 
+                         size="sm" 
+                         variant="ghost" 
+                         className="ml-auto h-8 gap-2 hover:bg-blue-200 hover:text-blue-900 text-blue-700" 
+                         onClick={copyPix}
+                       >
+                         <Copy className="h-4 w-4" />
+                         <span className="text-xs font-bold">Copiar Código</span>
+                       </Button>
+                    </div>
                   </div>
                </div>
 
@@ -197,7 +223,7 @@ export default function OrcamentoPublico() {
           )}
 
         </CardContent>
-        <div className="bg-slate-100 p-4 text-center text-xs text-slate-500 border-t">
+        <div className="bg-slate-50 p-6 text-center text-xs text-slate-500 font-medium border-t border-slate-100">
            <p className="flex justify-center items-center gap-1"><Receipt className="w-3 h-3" /> Gerado de forma automatizada por Dashboard KV</p>
         </div>
       </Card>

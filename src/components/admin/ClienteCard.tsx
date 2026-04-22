@@ -14,6 +14,7 @@ import {
 } from '../ui/dropdown-menu';
 import type { Cliente } from '../../lib/types';
 import { cn } from '../../lib/utils';
+import { CONFIG } from '../../lib/constants';
 
 interface ClienteCardProps {
   cliente: Cliente;
@@ -41,7 +42,7 @@ export function ClienteCard({ cliente, onEditar, onDeletar, onMoverPasta }: Clie
     return name.substring(0, 2).toUpperCase();
   };
 
-  const dashboardUrl = `\${import.meta.env.VITE_APP_URL || window.location.origin}/dashboard/\${cliente.slug}`;
+  const dashboardUrl = `${import.meta.env.VITE_APP_URL}/dashboard/${cliente.slug}`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(dashboardUrl);

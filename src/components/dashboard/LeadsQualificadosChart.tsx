@@ -128,7 +128,7 @@ export function LeadsQualificadosChart({ dados, isLoading }: LeadsQualificadosCh
               tickLine={false}
               axisLine={false}
               width={50}
-              tickFormatter={(val) => `R$ \${Math.round(val)}`}
+              tickFormatter={(val) => `R$ ${Math.round(val)}`}
             />
 
             <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.05)' }} />

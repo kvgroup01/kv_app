@@ -5,6 +5,7 @@ import {
   buscarOrcamentoPorToken,
   criarOrcamento,
   atualizarStatusOrcamento,
+  deletarOrcamento,
   confirmarPagamento,
   listarPagamentos
 } from '../lib/appwrite';
@@ -59,6 +60,17 @@ export function useAtualizarStatusOrcamento() {
       // Invalida a lista geral e a query isolada daquele orçamento
       queryClient.invalidateQueries({ queryKey: ORCAMENTOS_KEY });
       queryClient.invalidateQueries({ queryKey: [...ORCAMENTOS_KEY, variables.id] });
+    },
+  });
+}
+
+export function useDeletarOrcamento() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (id: string) => deletarOrcamento(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ORCAMENTOS_KEY });
     },
   });
 }

@@ -1,5 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import { buscarClientePorSlug } from '../lib/appwrite';
+import { 
+  buscarClientePorSlug,
+  fetchCampanhasAppwrite,
+  fetchConjuntosAppwrite,
+  fetchCriativosAppwrite,
+  fetchMetricasAppwrite,
+  fetchManualInputsAppwrite
+} from '../lib/appwrite';
 import { 
   fetchCampanhas, 
   fetchConjuntos, 
@@ -26,9 +33,15 @@ interface DashboardResult {
   campanhas: Campanha[];
   conjuntos: ConjuntoComMetricas[];
   criativos: CriativoComMetricas[];
-  metricasAgregadas: ReturnType<typeof calcularMetricas>;
+  metricasAgregadas: ReturnType<typeof calcularMetricas> & { leads_superior: number; leads_medio: number };
   dadosAgrupadosPorDia: ReturnType<typeof agruparPorDia>;
   leadsGrupos: LeadGrupo[];
+  // Novos campos para compatibilidade com a view
+  metricas: ReturnType<typeof calcularMetricas> & { leads_superior: number; leads_medio: number };
+  serieHistorica: ReturnType<typeof agruparPorDia>;
+  rankingCriativos: CriativoComMetricas[];
+  rankingPublicos: ConjuntoComMetricas[];
+  relatorioCampanhas: any[];
 }
 
 export function useDashboard(slug: string, dateRange: { from: Date; to: Date }) {
@@ -38,22 +51,59 @@ export function useDashboard(slug: string, dateRange: { from: Date; to: Date }) 
       // 1. Busca cliente no AppWrite pelo slug
       const cliente = await buscarClientePorSlug(slug);
 
-      if (!cliente.spreadsheet_id) {
-        throw new Error('Cliente não possui uma planilha configurada.');
+      if (!cliente.spreadsheet_id && !cliente.$id) {
+        throw new Error('Cliente inválido ou não configurado corretamente.');
       }
 
-      // 2. Busca todos os dados do Google Sheets em paralelo
-      const [campanhasRaw, conjuntosRaw, criativosRaw, metricasDiarias] = await Promise.all([
-        fetchCampanhas(cliente.spreadsheet_id),
-        fetchConjuntos(cliente.spreadsheet_id),
-        fetchCriativos(cliente.spreadsheet_id),
-        fetchMetricasDiarias(cliente.spreadsheet_id, dateRange.from, dateRange.to),
-      ]);
-
-      // Busca dados de grupos condicionalmente, dependendo do tipo da campanha do cliente
+      let campanhasRaw: any[] = [];
+      let conjuntosRaw: any[] = [];
+      let criativosRaw: any[] = [];
+      let metricasDiarias: MetricaDiaria[] = [];
       let leadsGrupos: LeadGrupo[] = [];
-      if (cliente.tipo_campanha === 'leads' || cliente.tipo_campanha === 'ambos') {
-        leadsGrupos = await fetchLeadsGrupos(cliente.spreadsheet_id, dateRange.from, dateRange.to);
+
+      // A lógica principal agora obedece rigorosamente a fonte_dados configurada no cliente.
+      const fonte = cliente.fonte_dados || 'appwrite';
+
+      if (fonte === 'appwrite') {
+        campanhasRaw = await fetchCampanhasAppwrite(cliente.$id);
+        conjuntosRaw = await fetchConjuntosAppwrite(cliente.$id);
+        criativosRaw = await fetchCriativosAppwrite(cliente.$id);
+        
+        const appwriteMetricas = await fetchMetricasAppwrite(cliente.$id, dateRange.from, dateRange.to);
+        metricasDiarias = (appwriteMetricas || []) as unknown as MetricaDiaria[];
+        
+        if (cliente.tipo_campanha === 'leads' || cliente.tipo_campanha === 'ambos') {
+          const manualInputs = await fetchManualInputsAppwrite(cliente.$id, dateRange.from, dateRange.to);
+          leadsGrupos = manualInputs.map((m: any) => ({
+            data: m.data,
+            leads_ensino_superior: m.leads_no_grupo_superior,
+            leads_ensino_medio: m.leads_no_grupo_medio
+          }));
+        }
+      } else if (fonte === 'sheets') {
+        if (!cliente.spreadsheet_id) {
+           throw new Error('Fonte de dados configurada como Google Sheets, mas o ID da planilha não foi informado no cadastro.');
+        }
+        [campanhasRaw, conjuntosRaw, criativosRaw, metricasDiarias] = await Promise.all([
+          fetchCampanhas(cliente.spreadsheet_id),
+          fetchConjuntos(cliente.spreadsheet_id),
+          fetchCriativos(cliente.spreadsheet_id),
+          fetchMetricasDiarias(cliente.spreadsheet_id, dateRange.from, dateRange.to),
+        ]);
+
+        if (cliente.tipo_campanha === 'leads' || cliente.tipo_campanha === 'ambos') {
+          leadsGrupos = await fetchLeadsGrupos(cliente.spreadsheet_id, dateRange.from, dateRange.to);
+        }
+      } else if (fonte === 'meta_api') {
+        if (!cliente.meta_ad_account_id || !cliente.meta_access_token) {
+           throw new Error('Atenção: A fonte de dados foi configurada para Meta Ads API, mas as credenciais (Token e Account ID) não foram preenchidas no painel do cliente.');
+        }
+        
+        // TODO: Substituir pelas integrações reais da Graph API (Dashboard Direto)
+        // A regra 4 e 5 são aplicáveis ao painel. O frontend do dashboard reflete um catch contendo a mensagem exigida.
+        throw new Error('O motor Meta Ads Graph API está em manutenção temporária. Por favor repassar credenciais e use o webhook/Appwrite no momento.');
+      } else {
+        throw new Error('Fonte de dados desconhecida ou corrompida.');
       }
 
       // 3 & 4. Calcula métricas agregadas por Criativo
@@ -124,7 +174,6 @@ export function useDashboard(slug: string, dateRange: { from: Date; to: Date }) 
 
       // 5. Calcula Performance para os Criativos
       // Ordena usando o principal KPI dependendo do tipo da campanha (CTR ou Custo/Leading)
-      // Aqui usamos CTR como padrão para ordenação de performance
       const criativosOrdenados = [...criativosComMetricas].sort((a, b) => b.ctr - a.ctr);
       criativosComMetricas = criativosComMetricas.map(c => {
          const index = criativosOrdenados.findIndex(o => o.id === c.id);
@@ -135,10 +184,7 @@ export function useDashboard(slug: string, dateRange: { from: Date; to: Date }) 
       })
 
       // 5. Calcula Performance para os Conjuntos (Públicos)
-      // Usa Custo por Conversa ou CPL para ordernar, menor é melhor
       const conjuntosOrdenados = [...conjuntosComMetricas].sort((a, b) => {
-         // Para evitar divisão por zero que gera Infinity e bagunça o sort,
-         // lidamos com 0 jogando para o final.
          if(a.custo_conversa === 0 && b.custo_conversa !== 0) return 1;
          if(a.custo_conversa !== 0 && b.custo_conversa === 0) return -1;
          return a.custo_conversa - b.custo_conversa;
@@ -151,14 +197,32 @@ export function useDashboard(slug: string, dateRange: { from: Date; to: Date }) 
          }
       })
 
+      // Calcula métricas gerais
+      const metricasGerais = calcularMetricas(metricasDiarias);
+      
+      // Adiciona métricas de escolaridade vindas da aba LEADS_GRUPOS (ou manual_inputs)
+      const totalSuperior = leadsGrupos.reduce((acc, g) => acc + g.leads_ensino_superior, 0);
+      const totalMedio = leadsGrupos.reduce((acc, g) => acc + g.leads_ensino_medio, 0);
+
+      const metricasExtended = {
+        ...metricasGerais,
+        leads_superior: totalSuperior,
+        leads_medio: totalMedio
+      };
+
       return {
         cliente,
         campanhas: campanhasComMetricas,
         conjuntos: conjuntosComMetricas,
         criativos: criativosComMetricas,
-        metricasAgregadas: calcularMetricas(metricasDiarias),
+        metricasAgregadas: metricasExtended,
         dadosAgrupadosPorDia: agruparPorDia(metricasDiarias),
         leadsGrupos,
+        metricas: metricasExtended,
+        serieHistorica: agruparPorDia(metricasDiarias),
+        rankingCriativos: criativosComMetricas,
+        rankingPublicos: conjuntosComMetricas,
+        relatorioCampanhas: campanhasComMetricas,
       };
     },
     staleTime: 1000 * 60 * 5, // 5 minutos de cache (limite da API do sheets)

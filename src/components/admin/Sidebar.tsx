@@ -7,7 +7,9 @@ import {
   FileText, 
   Settings, 
   LogOut, 
-  Menu 
+  Menu,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/button';
@@ -20,6 +22,8 @@ interface SidebarProps {
     email: string;
   };
   onLogout?: () => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 const NAV_ITEMS = [
@@ -30,7 +34,7 @@ const NAV_ITEMS = [
   { href: '/admin/configuracoes', icon: Settings, label: 'Configurações' },
 ];
 
-export function Sidebar({ usuario, onLogout }: SidebarProps) {
+export function Sidebar({ usuario, onLogout, isCollapsed = false, onToggleCollapse }: SidebarProps) {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const getInitials = (name: string) => {
@@ -42,20 +46,57 @@ export function Sidebar({ usuario, onLogout }: SidebarProps) {
       .toUpperCase();
   };
 
-  const SidebarContent = () => (
-    <div className="flex h-full flex-col bg-(--sidebar-bg) border-r border-(--sidebar-border) text-(--text-primary)">
+  const SidebarContent = ({ showLabels = true }: { showLabels?: boolean }) => (
+    <div className="relative flex h-full flex-col bg-(--sidebar-bg) border-r border-(--sidebar-border) text-(--text-primary) transition-all duration-300">
       {/* Header */}
-      <div className="flex h-20 shrink-0 items-center px-8 border-b border-(--sidebar-border)">
-        <div className="flex items-center gap-3">
-          <div className="flex h-7 w-9 items-center justify-center rounded-md bg-white text-black text-[13px] font-bold px-2 py-1">
+      <div className={cn(
+        "flex h-20 shrink-0 items-center justify-between border-b border-(--sidebar-border) transition-all duration-300",
+        showLabels ? "px-6" : "px-4 justify-center"
+      )}>
+        <div className="flex items-center gap-3 overflow-hidden">
+          <div className="flex h-7 w-9 shrink-0 items-center justify-center rounded-md bg-white text-black text-[13px] font-bold px-2 py-1">
             KV
           </div>
-          <span className="text-[15px] font-semibold text-white tracking-tight">Dashboard KV</span>
+          {showLabels && (
+            <span className="text-[15px] font-semibold text-white tracking-tight animate-in fade-in duration-300 truncate">
+              Dashboard KV
+            </span>
+          )}
         </div>
+
+        {/* Toggle Button for Desktop */}
+        {showLabels && (
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={onToggleCollapse}
+            className="hidden md:flex h-8 w-8 text-(--text-tertiary) hover:bg-white/5 hover:text-white transition-all"
+            title="Recolher Menu"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+        )}
+        
+        {!showLabels && (
+          <div className="absolute -right-3 top-7 hidden md:block">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={onToggleCollapse}
+              className="h-6 w-6 rounded-full bg-[#1a1a1a] border-(--sidebar-border) text-white hover:bg-white hover:text-black transition-all shadow-xl"
+              title="Expandir Menu"
+            >
+              <ChevronRight className="h-3 w-3" />
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 space-y-1 overflow-y-auto p-4 pt-6">
+      <nav className={cn(
+        "flex-1 space-y-1 overflow-y-auto pt-6 transition-all duration-300",
+        showLabels ? "p-4" : "p-2"
+      )}>
         {NAV_ITEMS.map((item) => (
           <NavLink
             key={item.href}
@@ -64,37 +105,58 @@ export function Sidebar({ usuario, onLogout }: SidebarProps) {
             onClick={() => setIsOpen(false)}
             className={({ isActive }) =>
               cn(
-                "group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-all duration-200",
+                "group flex w-full items-center transition-all duration-200 rounded-lg",
+                showLabels ? "gap-3 px-3 py-2 text-[13px]" : "justify-center p-2",
                 isActive 
-                  ? "bg-[#1f1f1f] text-white" 
+                  ? "bg-[#1f1f1f] text-white shadow-sm" 
                   : "text-(--text-secondary) hover:bg-[#1a1a1a] hover:text-white"
               )
             }
+            title={!showLabels ? item.label : undefined}
           >
             <item.icon className={cn(
               "h-4 w-4 shrink-0 transition-colors",
               "group-hover:text-white"
             )} />
-            {item.label}
+            {showLabels && (
+              <span className="truncate animate-in fade-in slide-in-from-left-1 duration-300">
+                {item.label}
+              </span>
+            )}
           </NavLink>
         ))}
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-(--sidebar-border) p-6">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-9 w-9 rounded-lg border border-[#333]">
+      <div className={cn(
+        "border-t border-(--sidebar-border) transition-all duration-300",
+        showLabels ? "p-6" : "p-2 py-4 flex flex-col items-center gap-4"
+      )}>
+        <div className={cn(
+          "flex items-center w-full",
+          showLabels ? "gap-3" : "flex-col gap-4"
+        )}>
+          <Avatar className="h-9 w-9 shrink-0 rounded-lg border border-[#333]">
             <AvatarFallback className="bg-[#1a1a1a] text-(--text-primary) text-xs font-medium rounded-lg">
               {usuario.nome ? getInitials(usuario.nome) : 'US'}
             </AvatarFallback>
           </Avatar>
-          <div className="flex flex-1 flex-col overflow-hidden">
-            <span className="truncate text-[13px] font-medium text-white">{usuario.nome || 'Usuário'}</span>
-            <span className="truncate text-[11px] text-(--text-tertiary)">{usuario.email}</span>
-          </div>
-          <Button variant="ghost" size="icon" onClick={onLogout} title="Sair" className="h-8 w-8 text-(--text-secondary) hover:bg-[#1a1a1a] hover:text-red-400">
-            <LogOut className="h-4 w-4" />
-          </Button>
+          
+          {showLabels ? (
+            <>
+              <div className="flex flex-1 flex-col overflow-hidden animate-in fade-in duration-300">
+                <span className="truncate text-[13px] font-medium text-white">{usuario.nome || 'Usuário'}</span>
+                <span className="truncate text-[11px] text-(--text-tertiary)">{usuario.email}</span>
+              </div>
+              <Button variant="ghost" size="icon" onClick={onLogout} title="Sair" className="h-8 w-8 text-(--text-secondary) hover:bg-[#1a1a1a] hover:text-red-400">
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </>
+          ) : (
+            <Button variant="ghost" size="icon" onClick={onLogout} title="Sair" className="h-8 w-8 text-(--text-secondary) hover:bg-[#1a1a1a] hover:text-red-400">
+              <LogOut className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
     </div>
@@ -120,14 +182,17 @@ export function Sidebar({ usuario, onLogout }: SidebarProps) {
           <SheetContent side="left" className="p-0 w-72 border-r border-(--sidebar-border) bg-(--sidebar-bg)">
             <SheetTitle className="sr-only">Menu de Navegação</SheetTitle>
             <SheetDescription className="sr-only">Navegue pelas áreas administrativas</SheetDescription>
-            <SidebarContent />
+            <SidebarContent showLabels={true} />
           </SheetContent>
         </Sheet>
       </div>
 
       {/* Desktop Sidebar */}
-      <div className="hidden md:flex flex-col w-64 md:fixed md:inset-y-0 z-30">
-        <SidebarContent />
+      <div className={cn(
+        "hidden md:flex flex-col md:fixed md:inset-y-0 z-30 transition-all duration-300",
+        isCollapsed ? "w-20" : "w-64"
+      )}>
+        <SidebarContent showLabels={!isCollapsed} />
       </div>
     </>
   );

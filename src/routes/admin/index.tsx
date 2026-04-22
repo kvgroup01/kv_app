@@ -10,8 +10,8 @@ import { toast } from 'sonner';
 
 import { useClientes } from '../../hooks/useClientes';
 import { useOrcamentos } from '../../hooks/useOrcamentos';
-import { fmtBRL, fmtDataString } from '../../lib/utils';
-import { cn } from '../../lib/utils';
+import { fmtBRL, fmtDataString, cn } from '../../lib/utils';
+import { CONFIG } from '../../lib/constants';
 
 export default function AdminIndex() {
   const { data: clientes, isLoading: loadingClientes } = useClientes();
@@ -51,7 +51,7 @@ export default function AdminIndex() {
   const topOrcamentosPendentes = orcamentos ? [...orcamentos].filter(o => o.status === 'pendente').sort((a,b) => new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime()).slice(0, 5) : [];
 
   const handleCopyLink = (slug: string) => {
-    const url = `\${import.meta.env.VITE_APP_URL || window.location.origin}/dashboard/\${slug}`;
+    const url = `${import.meta.env.VITE_APP_URL}/dashboard/${slug}`;
     navigator.clipboard.writeText(url);
     toast.success('Link do dashboard copiado!');
   };

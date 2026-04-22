@@ -61,13 +61,13 @@ export function UploadComprovante({ orcamentoId, onConfirmar, isLoading }: Uploa
           )}
         >
           <input {...getInputProps()} />
-          <UploadCloud className={cn("w-12 h-12 mb-4", isDragActive ? "text-primary" : "text-muted-foreground")} />
-          <h3 className="font-medium text-lg">Arraste seu comprovante aqui</h3>
-          <p className="text-sm text-muted-foreground mt-1">Ou clique para selecionar nos seus arquivos</p>
-          <div className="flex gap-2 mt-4 text-xs font-medium text-muted-foreground/70">
+          <UploadCloud className={cn("w-12 h-12 mb-4", isDragActive ? "text-primary" : "text-slate-400")} />
+          <h3 className="font-bold text-lg text-slate-800">Arraste seu comprovante aqui</h3>
+          <p className="text-sm text-slate-600 font-medium mt-1">Ou clique para selecionar nos seus arquivos</p>
+          <div className="flex gap-2 mt-4 text-xs font-bold text-slate-400">
             <span>PNG</span> • <span>JPG</span> • <span>PDF</span>
           </div>
-          <p className="text-xs text-muted-foreground mt-2">Tamanho máximo: 5MB</p>
+          <p className="text-xs text-slate-500 font-medium mt-2">Tamanho máximo: 5MB</p>
         </div>
       ) : (
         <div className="border rounded-xl p-4 flex items-start justify-between bg-muted/30">
@@ -89,17 +89,17 @@ export function UploadComprovante({ orcamentoId, onConfirmar, isLoading }: Uploa
       )}
 
       <div className="space-y-2 pt-2">
-        <label className="text-sm font-medium">Observação (Opcional)</label>
+        <label className="text-sm font-bold text-slate-700">Observação (Opcional)</label>
         <Textarea 
            placeholder="Deixe uma mensagem para o gestor se necessário..."
-           className="resize-none h-20"
+           className="resize-none h-24 border-slate-200 focus:border-slate-400"
            value={observacao}
            onChange={(e) => setObservacao(e.target.value)}
         />
       </div>
 
       <Button 
-        className="w-full h-12 text-md" 
+        className="w-full h-12 text-md font-bold bg-slate-900 hover:bg-slate-800 text-white transition-all shadow-lg" 
         onClick={handleSubmit} 
         disabled={!selectedFile || isLoading}
       >

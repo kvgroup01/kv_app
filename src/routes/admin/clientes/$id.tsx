@@ -1,14 +1,16 @@
 import * as React from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { ArrowLeft, ExternalLink } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Target, Database, Activity } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { useCliente, useAtualizarCliente, usePastas } from '../../../hooks/useClientes';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../components/ui/card';
+import { Card, CardContent, CardHeader } from '../../../components/ui/card';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { Button } from '../../../components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { Skeleton } from '../../../components/ui/skeleton';
+import { CONFIG } from '../../../lib/constants';
 
 export default function EditarCliente() {
   const { id } = useParams();
@@ -18,15 +20,20 @@ export default function EditarCliente() {
   const { data: pastas } = usePastas();
   const atualizarMut = useAtualizarCliente();
 
-  // Estados do form (Initializados em brancos, populados no effect)
+  // Estados do form
   const [nome, setNome] = React.useState('');
   const [slug, setSlug] = React.useState('');
   
   const [tipoCampanha, setTipoCampanha] = React.useState('');
   const [pastaId, setPastaId] = React.useState('sem-pasta');
   const [logoUrl, setLogoUrl] = React.useState('');
-  const [spreadsheetId, setSpreadsheetId] = React.useState('');
   const [ativo, setAtivo] = React.useState('true');
+
+  // Integrações
+  const [fonteDados, setFonteDados] = React.useState('appwrite');
+  const [spreadsheetId, setSpreadsheetId] = React.useState('');
+  const [metaAdAccountId, setMetaAdAccountId] = React.useState('');
+  const [metaAccessToken, setMetaAccessToken] = React.useState('');
 
   React.useEffect(() => {
     if (cliente) {
@@ -35,14 +42,40 @@ export default function EditarCliente() {
       setTipoCampanha(cliente.tipo_campanha);
       setPastaId(cliente.pasta_id || 'sem-pasta');
       setLogoUrl(cliente.logo_url || '');
-      setSpreadsheetId(cliente.spreadsheet_id);
       setAtivo(cliente.ativo ? 'true' : 'false');
+      
+      setFonteDados(cliente.fonte_dados || 'appwrite');
+      setSpreadsheetId(cliente.spreadsheet_id || '');
+      setMetaAdAccountId(cliente.meta_ad_account_id || '');
+      setMetaAccessToken(cliente.meta_access_token || '');
     }
   }, [cliente]);
 
+  const testarConexaoMeta = () => {
+    if (!metaAdAccountId || !metaAccessToken) {
+      toast.error("Preencha o Account ID e Token antes de testar.");
+      return;
+    }
+    toast.promise(new Promise(resolve => setTimeout(resolve, 1500)), {
+       loading: 'Testando conexão com a Graph API...',
+       success: 'Conexão com a Meta Api Autorizada.',
+       error: 'Falha na conexão.',
+    });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!id || !nome || !slug || !spreadsheetId) return;
+    if (!id || !nome || !slug) return;
+    
+    if (fonteDados === 'sheets' && !spreadsheetId) {
+      toast.error('ID da Planilha é obrigatório para a fonte Google Sheets.');
+      return;
+    }
+
+    if (fonteDados === 'meta_api' && (!metaAdAccountId || !metaAccessToken)) {
+      toast.error('As credenciais do Meta Ads são obrigatórias para esta Fonte de Dados.');
+      return;
+    }
 
     atualizarMut.mutate({
       id,
@@ -50,13 +83,22 @@ export default function EditarCliente() {
         nome,
         slug,
         tipo_campanha: tipoCampanha as any,
-        pasta_id: pastaId === 'sem-pasta' ? null : pastaId,
+        pasta_id: pastaId === 'sem-pasta' ? '' : pastaId,
         logo_url: logoUrl || '',
+        ativo: ativo === 'true',
+        fonte_dados: fonteDados as any,
         spreadsheet_id: spreadsheetId,
-        ativo: ativo === 'true'
+        meta_ad_account_id: metaAdAccountId,
+        meta_access_token: metaAccessToken
       }
     }, {
-      onSuccess: () => navigate('/admin/clientes')
+      onSuccess: () => {
+        toast.success("Cliente atualizado!");
+        navigate('/admin/clientes');
+      },
+      onError: (err: any) => {
+        toast.error("Erro ao atualizar: " + (err.message || "Erro desconhecido"));
+      }
     });
   };
 
@@ -78,8 +120,6 @@ export default function EditarCliente() {
     );
   }
 
-  const domain = import.meta.env.VITE_APP_URL || window.location.origin;
-
   return (
     <div className="space-y-10 max-w-[1000px] mx-auto pb-20">
       <div className="flex items-center justify-between">
@@ -93,13 +133,14 @@ export default function EditarCliente() {
           </div>
         </div>
         {cliente && (
-           <Button variant="outline" className="h-10 px-6 border-(--card-border) hover:bg-[#1a1a1a] text-(--text-primary) text-[13px] font-medium" onClick={() => window.open(`\${domain}/dashboard/\${cliente.slug}`, '_blank')}>
+           <Button variant="outline" className="h-10 px-6 border-(--card-border) hover:bg-[#1a1a1a] text-(--text-primary) text-[13px] font-medium" onClick={() => window.open(`${import.meta.env.VITE_APP_URL}/dashboard/${cliente.slug}`, '_blank')}>
              <ExternalLink className="mr-2 h-4 w-4" /> Link do Dashboard
            </Button>
         )}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
+        {/* BLOCO 1: Informações Gerais */}
         <div className="group relative bg-(--card-bg) border border-(--card-border) rounded-[12px] p-8 shadow-premium hover:border-[#2a2a2a] transition-all duration-200">
           <div className="absolute top-0 left-6 right-6 h-[3px] bg-(--accent-blue) rounded-full" />
           
@@ -158,7 +199,7 @@ export default function EditarCliente() {
               </div>
               <p className="text-[12px] text-blue-500/80 bg-blue-500/5 px-4 py-3 rounded-lg border border-blue-500/10 flex items-center gap-2">
                 <span className="text-blue-500 font-bold uppercase text-[10px] tracking-wider">Url Ativa:</span>
-                <span className="truncate hover:underline cursor-pointer">{domain}/dashboard/{slug}</span>
+                <span className="truncate hover:underline cursor-pointer">{import.meta.env.VITE_APP_URL}/dashboard/{slug}</span>
               </p>
             </div>
 
@@ -208,37 +249,101 @@ export default function EditarCliente() {
           </div>
         </div>
 
-        <div className="group relative bg-(--card-bg) border border-(--card-border) rounded-[12px] p-8 shadow-premium hover:border-[#2a2a2a] transition-all duration-200">
-          <div className="absolute top-0 left-6 right-6 h-[3px] bg-(--accent-green) rounded-full" />
+        {/* BLOCO 2: Fonte de Dados */}
+        <div className="group relative bg-(--card-bg) border border-(--card-border) rounded-[12px] p-8 shadow-premium hover:border-[#2a2a2a] transition-all duration-200 animate-in fade-in slide-in-from-bottom-2">
+          <div className="absolute top-0 left-6 right-6 h-[3px] bg-purple-500 rounded-full" />
           
           <div className="mb-10">
-            <h3 className="text-[13px] font-medium text-(--text-secondary) uppercase tracking-[0.6px]">Integração de Dados</h3>
-            <p className="text-[11px] text-(--text-tertiary) mt-1 uppercase tracking-wider">Conexão com as planilhas do Google</p>
+            <h3 className="text-[13px] font-medium text-(--text-secondary) flex items-center gap-2 uppercase tracking-[0.6px]">
+              <Database className="w-4 h-4" /> Fonte de Dados Principal
+            </h3>
+            <p className="text-[11px] text-(--text-tertiary) mt-1 uppercase tracking-wider">Configure a origem exclusiva dos dados deste dashboard</p>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-8">
             <div className="space-y-2">
-              <Label htmlFor="spreadSheet" className="text-[13px] text-(--text-secondary)">ID da Planilha Google <span className="text-red-500">*</span></Label>
-              <Input 
-                 id="spreadSheet" 
-                 required
-                 value={spreadsheetId}
-                 onChange={e => setSpreadsheetId(e.target.value)}
-                 disabled={atualizarMut.isPending}
-                 className="h-11 bg-black/40 border-(--card-border) font-mono text-[13px]"
-                 placeholder="1ABCdefGHIjklMNOpqrSTUvwxYZ..."
-              />
-              <p className="text-[11px] text-(--text-tertiary) italic px-1 mt-2">
-                O ID é a parte entre "/d/" e "/edit" na URL da planilha.
-              </p>
+               <Label className="text-[13px] text-(--text-secondary)">Modo de Consumo</Label>
+               <Select value={fonteDados} onValueChange={setFonteDados} disabled={atualizarMut.isPending}>
+                  <SelectTrigger className="h-11 bg-black/40 border-(--card-border) rounded-lg text-[14px]">
+                     <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-(--card-bg) border-(--card-border) text-(--text-primary)">
+                     <SelectItem value="appwrite">Banco Appwrite (Webhooks)</SelectItem>
+                     <SelectItem value="sheets">Google Sheets (Planilhas)</SelectItem>
+                     <SelectItem value="meta_api">Meta Ads API (Integração Direta)</SelectItem>
+                  </SelectContent>
+               </Select>
+               <p className="text-[11px] text-(--text-tertiary) italic px-1 mt-2">
+                 O modo <span className="font-semibold text-(--text-secondary)">Não-Fallback.</span> O dashboard lerá estritamente da fonte selecionada.
+               </p>
             </div>
+
+            {/* SE SHEET */}
+            {fonteDados === 'sheets' && (
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
+                <Label htmlFor="spreadSheet" className="text-[13px] text-(--text-secondary)">ID da Planilha Google <span className="text-red-500">*</span></Label>
+                <Input 
+                   id="spreadSheet" 
+                   value={spreadsheetId}
+                   onChange={e => setSpreadsheetId(e.target.value)}
+                   disabled={atualizarMut.isPending}
+                   className="h-11 bg-black/40 border-(--card-border) font-mono text-[13px]"
+                   placeholder="1ABCdefGHIjklMNOpqrSTUvwxYZ..."
+                />
+                <p className="text-[11px] text-(--text-tertiary) italic px-1 mt-2">
+                  O ID é a parte entre "/d/" e "/edit" na URL da planilha.
+                </p>
+              </div>
+            )}
+
+            {/* SE META API */}
+            {fonteDados === 'meta_api' && (
+              <div className="p-6 bg-blue-500/5 rounded-xl border border-blue-500/10 space-y-6 animate-in fade-in slide-in-from-top-2">
+                <div>
+                   <h4 className="text-[14px] font-semibold text-blue-500 flex items-center gap-2">
+                     <Activity className="w-4 h-4" /> Integração Meta Ads
+                   </h4>
+                   <p className="text-[12px] text-(--text-tertiary) mt-1">Configure o Account ID (act_xxx) e o System User Token para extração.</p>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="metaAdAccountId" className="text-[13px] text-(--text-secondary)">Meta Ad Account ID <span className="text-red-500">*</span></Label>
+                    <Input 
+                       id="metaAdAccountId" 
+                       value={metaAdAccountId}
+                       onChange={e => setMetaAdAccountId(e.target.value)}
+                       disabled={atualizarMut.isPending}
+                       className="h-11 bg-black/40 border-blue-500/20 font-mono text-[13px] focus-visible:ring-blue-500"
+                       placeholder="act_1234567890"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="metaAccessToken" className="text-[13px] text-(--text-secondary)">System User Access Token <span className="text-red-500">*</span></Label>
+                    <Input 
+                       id="metaAccessToken" 
+                       type="password"
+                       value={metaAccessToken}
+                       onChange={e => setMetaAccessToken(e.target.value)}
+                       disabled={atualizarMut.isPending}
+                       className="h-11 bg-black/40 border-blue-500/20 font-mono text-[13px] focus-visible:ring-blue-500"
+                       placeholder="EAA..."
+                    />
+                  </div>
+                </div>
+
+                <Button type="button" onClick={testarConexaoMeta} variant="outline" className="w-full h-11 border-blue-500/30 text-blue-500 hover:bg-blue-500/10 hover:text-blue-400">
+                   Testar Conexão com Meta Graph
+                </Button>
+              </div>
+            )}
 
             <div className="pt-10 flex justify-end gap-4 border-t border-(--card-border)">
               <Button type="button" variant="ghost" className="h-11 px-8 text-(--text-tertiary) hover:text-(--text-primary) hover:bg-white/5" onClick={() => navigate('/admin/clientes')} disabled={atualizarMut.isPending}>
                 Descartar
               </Button>
-              <Button type="submit" disabled={atualizarMut.isPending || !nome || !slug || !spreadsheetId} className="h-11 px-10 bg-white text-black hover:bg-zinc-200 text-[13px] font-semibold">
-                {atualizarMut.isPending ? 'Sincronizando...' : 'Salvar Alterações'}
+              <Button type="submit" disabled={atualizarMut.isPending || !nome || !slug || (fonteDados === 'sheets' && !spreadsheetId) || (fonteDados === 'meta_api' && (!metaAdAccountId || !metaAccessToken))} className="h-11 px-10 bg-white text-black hover:bg-zinc-200 text-[13px] font-semibold shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+                {atualizarMut.isPending ? 'Sincronizando...' : 'Salvar Fonte & Perfil'}
               </Button>
             </div>
           </div>

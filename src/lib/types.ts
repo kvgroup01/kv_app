@@ -8,6 +8,9 @@ export interface Cliente {
   nome: string;
   slug: string;
   tipo_campanha: TipoCampanha;
+  fonte_dados?: 'appwrite' | 'sheets' | 'meta_api';
+  meta_ad_account_id?: string;
+  meta_access_token?: string;
   logo_url?: string;
   spreadsheet_id: string;
   pasta_id?: string;
@@ -37,6 +40,7 @@ export interface ItemOrcamento {
 
 export interface Orcamento {
   $id: string;
+  $updatedAt?: string;
   cliente_id?: string;
   cliente_nome: string;
   token: string;
@@ -47,6 +51,7 @@ export interface Orcamento {
   pix_qrcode: string;
   link_expira_em: string;
   $createdAt: string;
+  comprovante_url?: string;
 }
 
 export interface Pagamento {
@@ -59,30 +64,36 @@ export interface Pagamento {
 
 export interface Campanha {
   id: string;
+  cliente_id?: string; // Optional for sheets
   nome: string;
-  tipo: string;
+  tipo: TipoCampanha;
   status: string;
+  fonte_dados?: 'appwrite' | 'sheets' | 'meta_api'; // Optional for sheets
 }
 
 export interface Conjunto {
   id: string;
   campanha_id: string;
   nome: string;
-  publico_descricao: string;
-  escolaridade?: string;
+  escolaridade?: 'superior' | 'medio' | string;
+  publico_descricao?: string;
 }
 
 export interface Criativo {
   id: string;
   conjunto_id: string;
   nome: string;
-  thumbnail_url: string;
-  link_anuncio: string;
+  thumbnail_url?: string;
+  link_anuncio?: string;
+  tipo_midia?: string;
+  status?: string;
 }
 
 export interface MetricaDiaria {
-  data: string;
+  $id?: string;
+  cliente_id?: string; // Optional for sheets
   criativo_id: string;
+  data: string;
   investimento: number;
   impressoes: number;
   alcance: number;
@@ -91,6 +102,15 @@ export interface MetricaDiaria {
   leads_qualificados: number;
   leads_desqualificados: number;
   vendas: number;
+  fonte?: 'webhook' | 'sheets' | 'meta_api'; // Optional for sheets
+}
+
+export interface ManualInput {
+  cliente_id: string;
+  data: string;
+  investimento_total_contratado: number;
+  leads_no_grupo_superior: number;
+  leads_no_grupo_medio: number;
 }
 
 export interface LeadGrupo {
@@ -108,6 +128,8 @@ export interface MetricasAgregadas {
   leads_qualificados: number;
   leads_desqualificados: number;
   leads_total: number;
+  leads_superior: number; // Adicionado
+  leads_medio: number;    // Adicionado
   vendas: number;
   ctr: number;
   cpm: number;
@@ -123,6 +145,8 @@ export interface CriativoComMetricas extends Criativo {
   investimento: number;
   cliques: number;
   conversas: number;
+  alcance: number;
+  impressoes: number;
   leads_qualificados: number;
   leads_desqualificados: number;
   leads_total: number;

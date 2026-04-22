@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { useParams } from 'react-router';
+import { useParams, useSearchParams } from 'react-router';
 import { startOfDay, subDays, endOfDay, format } from 'date-fns';
 import { DateRange } from 'react-day-picker';
-import { AlertCircle, Target, TrendingUp, Users } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { ptBR } from 'date-fns/locale';
 
 import { useDashboard } from '../../hooks/useDashboard';
@@ -20,26 +20,123 @@ import { VisaoFinanceiraLeads } from '../../components/dashboard/VisaoFinanceira
 import { CampanhasTable } from '../../components/dashboard/CampanhasTable';
 import { CreativosGrid } from '../../components/dashboard/CreativosGrid';
 import { RankingTable } from '../../components/dashboard/RankingTable';
-import { Badge } from '../../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
+
+// === MEMOIZED VIEWS ===
+// React.memo previne re-renderizações indesejadas (zero flickering) ao migrar o estado das Tabs.
+
+const WhatsAppDashboardView = React.memo(({ metricas, serieHistorica, relatorioCampanhas, rankingCriativos, rankingPublicos, setVendasLocais }: any) => (
+  <div className="space-y-10 animate-in fade-in duration-700">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {/* REGRA ABSOLUTA: Funil Azul exclusivo do WhatsApp */}
+      <FunnelWhatsApp 
+         metricas={metricas} 
+         onVendasChange={(v) => setVendasLocais((prev: any) => ({...prev, whatsapp: v}))}
+      />
+      <InvestimentoChart dados={serieHistorica} tipo="whatsapp" />
+    </div>
+
+    <CampanhasTable campanhasComMetricas={relatorioCampanhas} tipo="whatsapp" />
+    <CreativosGrid criativos={rankingCriativos} tipo="whatsapp" />
+    
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <RankingTable 
+        titulo="Desempenho por Público (Conjuntos)"
+        items={rankingPublicos}
+        tipo="publicos"
+        campanhaTipo="whatsapp"
+      />
+      <RankingTable 
+        titulo="Desempenho por Criativo"
+        items={rankingCriativos}
+        tipo="criativos"
+        campanhaTipo="whatsapp"
+      />
+    </div>
+  </div>
+));
+
+const LeadsDashboardView = React.memo(({ metricas, serieHistorica, relatorioCampanhas, rankingCriativos, rankingPublicos, investimentoLeads, setInvestimentoLeads, gruposWhatsApp, setGruposWhatsApp }: any) => (
+  <div className="space-y-10 animate-in fade-in duration-700">
+    <VisaoFinanceiraLeads 
+      investimentoManual={investimentoLeads} 
+      onInvestimentoChange={setInvestimentoLeads} 
+      valorUsadoCampanhas={metricas.investimento}
+      isLoading={false}
+    />
+    
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <FunnelLeads 
+         dados={serieHistorica}
+         metricas={metricas} 
+      />
+      <LeadsQualificadosChart dados={serieHistorica} isLoading={false} />
+    </div>
+
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <ClassificacaoTrafico
+        leadsEnsino={{
+          superior: metricas.leads_superior || 0,
+          medio: metricas.leads_medio || 0
+        }}
+        isLoading={false}
+      />
+      <GruposWhatsApp 
+        value={gruposWhatsApp}
+        onChange={setGruposWhatsApp}
+      />
+    </div>
+
+    <CampanhasTable campanhasComMetricas={relatorioCampanhas} tipo="leads" />
+    <CreativosGrid criativos={rankingCriativos} tipo="leads" />
+
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <RankingTable 
+        titulo="Desempenho por Público (Conjuntos)"
+        items={rankingPublicos}
+        tipo="publicos"
+        campanhaTipo="leads"
+      />
+      <RankingTable 
+        titulo="Desempenho por Criativo"
+        items={rankingCriativos}
+        tipo="criativos"
+        campanhaTipo="leads"
+      />
+    </div>
+  </div>
+));
 
 export default function DashboardPublico() {
   const { slug } = useParams();
   
-  // Período padrão: Últimos 30 dias fechados (Ontem até 30 dias antes de ontem)
-  // Utiliza datas padronizadas para melhor performance no Google Sheets (Evitar quebras por hora)
+  // URL e Search Params para persistência de aba compartilhada
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentTab = searchParams.get('tab') || 'whatsapp';
+
+  const handleTabChange = React.useCallback((value: string) => {
+    setSearchParams(prev => {
+      prev.set('tab', value);
+      return prev;
+    }, { replace: true });
+  }, [setSearchParams]);
+  
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
     from: startOfDay(subDays(new Date(), 30)),
     to: endOfDay(new Date())
   });
 
-  // Em dashboard público, estado local para inputs de vendas manuais
   const [vendasLocais, setVendasLocais] = React.useState<{ [key: string]: number }>({});
-  // Estados para inputs manuais da aba Leads
   const [gruposWhatsApp, setGruposWhatsApp] = React.useState({ ensino_superior: 0, ensino_medio: 0 });
   const [investimentoLeads, setInvestimentoLeads] = React.useState(0);
 
-  const { data, isLoading, error } = useDashboard(slug || '', dateRange);
+  const { data, isLoading, error } = useDashboard(
+    slug || '', 
+    { 
+      from: dateRange?.from || startOfDay(subDays(new Date(), 30)), 
+      to: dateRange?.to || endOfDay(new Date()) 
+    }
+  );
 
   if (error) {
     return (
@@ -75,94 +172,12 @@ export default function DashboardPublico() {
     );
   }
 
-  const { cliente, metricas, serieHistorica, rankingCriativos, rankingPublicos, relatorioCampanhas } = data;
+  const { cliente, metricas } = data;
   const tipo = cliente.tipo_campanha;
-
-  // Renderizador WhatsApp
-  const renderWhatsApp = () => (
-    <div className="space-y-10 animate-in fade-in duration-700">
-      <MetricCards isLoading={false} metricas={metricas} tipo="whatsapp" />
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <FunnelWhatsApp 
-           metricas={metricas} 
-           onVendasChange={(v) => setVendasLocais(prev => ({...prev, whatsapp: v}))}
-        />
-        <InvestimentoChart dados={serieHistorica} tipo="whatsapp" />
-      </div>
-
-      <CampanhasTable campanhasComMetricas={relatorioCampanhas} tipo="whatsapp" />
-      <CreativosGrid criativos={rankingCriativos} tipo="whatsapp" />
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <RankingTable 
-          titulo="Desempenho por Público (Conjuntos)"
-          icone={<Users className="w-4 h-4 text-emerald-500" />}
-          items={rankingPublicos}
-          tipo="whatsapp"
-        />
-        <RankingTable 
-          titulo="Desempenho por Criativo"
-          icone={<Target className="w-4 h-4 text-emerald-500" />}
-          items={rankingCriativos}
-          tipo="whatsapp"
-        />
-      </div>
-    </div>
-  );
-
-  // Renderizador Leads
-  const renderLeads = () => (
-    <div className="space-y-10 animate-in fade-in duration-700">
-      <VisaoFinanceiraLeads 
-        valorTotalInvestido={investimentoLeads} 
-        onInvestimentoChange={setInvestimentoLeads} 
-      />
-      <MetricCards isLoading={false} metricas={metricas} tipo="leads" />
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <FunnelLeads 
-           metricas={metricas} 
-           onMatriculasChange={(v) => setVendasLocais(prev => ({...prev, leads: v}))}
-        />
-        <LeadsQualificadosChart dados={serieHistorica} isLoading={false} />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <ClassificacaoTrafico
-          ensinoSuperior={gruposWhatsApp.ensino_superior}
-          ensinoMedio={gruposWhatsApp.ensino_medio}
-          isLoading={false}
-        />
-        <GruposWhatsApp 
-          value={gruposWhatsApp}
-          onChange={setGruposWhatsApp}
-        />
-      </div>
-
-      <CampanhasTable campanhasComMetricas={relatorioCampanhas} tipo="leads" />
-      <CreativosGrid criativos={rankingCriativos} tipo="leads" />
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <RankingTable 
-          titulo="Desempenho por Público (Conjuntos)"
-          icone={<Users className="w-4 h-4 text-blue-500" />}
-          items={rankingPublicos}
-          tipo="leads"
-        />
-        <RankingTable 
-          titulo="Desempenho por Criativo"
-          icone={<TrendingUp className="w-4 h-4 text-blue-500" />}
-          items={rankingCriativos}
-          tipo="leads"
-        />
-      </div>
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-(--content-bg) pb-20">
-      <div className="max-w-[1400px] mx-auto p-4 md:p-10 space-y-12">
+      <div className="max-w-[1400px] mx-auto p-4 md:p-10 space-y-10">
         
         {/* Header Responsivo */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-(--sidebar-bg) p-8 rounded-[12px] border border-(--card-border) shadow-premium">
@@ -194,22 +209,43 @@ export default function DashboardPublico() {
            />
         </div>
 
-        {/* Content condicional */}
-        {tipo === 'whatsapp' && renderWhatsApp()}
-        {tipo === 'leads' && renderLeads()}
+        {/* Visão Unificada / Métrica Global Fixa Acima de Tudo */}
+        <MetricCards isLoading={false} metricas={metricas} tipo={tipo} />
+
+        {/* Renderização Condicional baseada na Flag da Campanha do Cliente */}
+        {tipo === 'whatsapp' && <WhatsAppDashboardView {...data} setVendasLocais={setVendasLocais} />}
+        
+        {tipo === 'leads' && (
+          <LeadsDashboardView 
+             {...data} 
+             investimentoLeads={investimentoLeads} 
+             setInvestimentoLeads={setInvestimentoLeads} 
+             gruposWhatsApp={gruposWhatsApp} 
+             setGruposWhatsApp={setGruposWhatsApp} 
+          />
+        )}
+
         {tipo === 'ambos' && (
-           <Tabs defaultValue="whatsapp" className="w-full border-none shadow-none bg-transparent">
-             <TabsList className="grid w-full grid-cols-2 max-w-[400px] mb-10 bg-[#141414] border border-(--card-border) p-1 rounded-xl h-11">
-               <TabsTrigger value="whatsapp" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-black text-[13px] font-medium transition-all">WhatsApp</TabsTrigger>
-               <TabsTrigger value="leads" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-black text-[13px] font-medium transition-all">Leads</TabsTrigger>
-             </TabsList>
-             <TabsContent value="whatsapp" className="mt-0 focus-visible:outline-none">
-               {renderWhatsApp()}
-             </TabsContent>
-             <TabsContent value="leads" className="mt-0 focus-visible:outline-none">
-               {renderLeads()}
-             </TabsContent>
-           </Tabs>
+          <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full border-none shadow-none bg-transparent animate-in fade-in duration-700">
+            <TabsList className="grid w-full grid-cols-2 max-w-[400px] mb-8 bg-[#141414] border border-(--card-border) p-1 rounded-xl h-11 mx-auto lg:mx-0">
+              <TabsTrigger value="whatsapp" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-black text-[13px] font-medium transition-all">WhatsApp View</TabsTrigger>
+              <TabsTrigger value="leads" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-black text-[13px] font-medium transition-all">Leads View</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="whatsapp" className="mt-0 focus-visible:outline-none">
+              <WhatsAppDashboardView {...data} setVendasLocais={setVendasLocais} />
+            </TabsContent>
+            
+            <TabsContent value="leads" className="mt-0 focus-visible:outline-none">
+              <LeadsDashboardView 
+                {...data} 
+                investimentoLeads={investimentoLeads} 
+                setInvestimentoLeads={setInvestimentoLeads} 
+                gruposWhatsApp={gruposWhatsApp} 
+                setGruposWhatsApp={setGruposWhatsApp} 
+              />
+            </TabsContent>
+          </Tabs>
         )}
 
       </div>
@@ -230,3 +266,4 @@ export default function DashboardPublico() {
     </div>
   );
 }
+

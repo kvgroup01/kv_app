@@ -61,6 +61,8 @@ export function calcularMetricas(metricas: MetricaDiaria[]): MetricasAgregadas {
     leads_qualificados,
     leads_desqualificados,
     leads_total,
+    leads_superior: 0, // Default 0, preenchido no hook useDashboard
+    leads_medio: 0,    // Default 0, preenchido no hook useDashboard
     vendas,
     ctr: impressoes > 0 ? (cliques / impressoes) * 100 : 0,
     cpm: impressoes > 0 ? (investimento / impressoes) * 1000 : 0,
@@ -117,21 +119,39 @@ export function calcularPerformance(items: any[], index: number): Performance {
 }
 
 function crc16(buffer: string): string {
-  let result = 0xFFFF;
+  let crc = 0xFFFF;
+  const polynomial = 0x1021;
+
   for (let i = 0; i < buffer.length; i++) {
-    result ^= buffer.charCodeAt(i) << 8;
+    crc ^= buffer.charCodeAt(i) << 8;
     for (let j = 0; j < 8; j++) {
-      if ((result & 0x8000) !== 0) {
-        result = (result << 1) ^ 0x1021;
+      if ((crc & 0x8000) !== 0) {
+        crc = ((crc << 1) ^ polynomial) & 0xFFFF;
       } else {
-        result <<= 1;
+        crc = (crc << 1) & 0xFFFF;
       }
     }
   }
-  return (result & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+  return crc.toString(16).toUpperCase().padStart(4, '0');
+}
+
+function normalizarTexto(texto: string): string {
+  return texto
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+    .replace(/[^a-zA-Z0-9\s]/g, '') // Remove caracteres especiais
+    .toUpperCase();
 }
 
 export function gerarPayloadPix(chave: string, valor: number, nome: string, cidade: string): string {
+  // Limpar a chave (remover espaços, hífens, pontuação)
+  let chaveLimpa = chave.replace(/[\s\.\-\(\)]/g, '');
+  
+  // Se for celular (11 dígitos começando com DDD) e não tiver o +55, adicionar
+  if (chaveLimpa.length === 11 && /^\d+$/.test(chaveLimpa)) {
+    chaveLimpa = `+55${chaveLimpa}`;
+  }
+
   const format = (id: string, value: string) => {
     const length = value.length.toString().padStart(2, '0');
     return `${id}${length}${value}`;
@@ -141,20 +161,21 @@ export function gerarPayloadPix(chave: string, valor: number, nome: string, cida
     format('00', '01'),
     format('26', 
       format('00', 'br.gov.bcb.pix') +
-      format('01', chave)
+      format('01', chaveLimpa)
     ),
     format('52', '0000'),
     format('53', '986'),
   ];
 
   if (valor > 0) {
+    // Garantir exatamente 2 casas decimais com ponto
     payload.push(format('54', valor.toFixed(2)));
   }
 
   payload.push(
     format('58', 'BR'),
-    format('59', nome.substring(0, 25) || 'Nome Omitido'),
-    format('60', cidade.substring(0, 15) || 'Cidade Omitida'),
+    format('59', normalizarTexto(nome).substring(0, 25) || 'GESTOR KV'),
+    format('60', normalizarTexto(cidade).substring(0, 15) || 'SAO PAULO'),
     format('62', format('05', '***')),
   );
 

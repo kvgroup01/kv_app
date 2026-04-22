@@ -65,6 +65,25 @@ export async function logout() {
   return await account.deleteSession('current');
 }
 
+export async function atualizarNomeUsuario(nome: string) {
+  return await account.updateName(nome);
+}
+
+export async function atualizarSenha(nova: string, atual: string) {
+  return await account.updatePassword(nova, atual);
+}
+
+export async function atualizarFotoPerfil(file: File) {
+  // Cria um bucket 'perfis' se ele existir, ou usa um padrão
+  const upload = await storage.createFile('perfis', ID.unique(), file);
+  const url = storage.getFileView('perfis', upload.$id).toString();
+  
+  // Appwrite não tem um campo 'profilePhoto' nativo no Account, 
+  // mas podemos guardar no prefs ou apenas retornar a URL para o front lidar
+  await account.updatePrefs({ photoUrl: url });
+  return url;
+}
+
 // --- Clientes ---
 export async function listarClientes(): Promise<Cliente[]> {
   const docs = await databases.listDocuments(DB_ID, COLLECTIONS.clientes, [
@@ -190,6 +209,10 @@ export async function atualizarStatusOrcamento(id: string, status: Orcamento['st
   return doc as unknown as Orcamento;
 }
 
+export async function deletarOrcamento(id: string): Promise<void> {
+  await databases.deleteDocument(DB_ID, COLLECTIONS.orcamentos, id);
+}
+
 // --- Pagamentos ---
 export async function confirmarPagamento(orcamento_id: string, arquivoFile: File, observacao?: string): Promise<Pagamento> {
   const upload = await storage.createFile('comprovantes', ID.unique(), arquivoFile);
@@ -212,4 +235,65 @@ export async function listarPagamentos(): Promise<Pagamento[]> {
      Query.orderDesc('confirmado_em')
   ]);
   return docs.documents as unknown as Pagamento[];
+}
+
+// --- Integração Dashboard (Appwrite) ---
+
+export async function fetchCampanhasAppwrite(cliente_id: string) {
+  const docs = await databases.listDocuments(DB_ID, 'campaigns', [
+    Query.equal('cliente_id', cliente_id),
+    Query.limit(100)
+  ]);
+  return docs.documents;
+}
+
+export async function fetchConjuntosAppwrite(cliente_id: string) {
+  // O conjunto não tem cliente_id diretamente, mas podemos pegar apenas listando os disponíveis
+  // Para escalar melhor, seria ideal adicionar cliente_id no adsets, mas vamos contornar buscando todos 
+  // os que pertencem às campanhas do cliente.
+  const campaigns = await fetchCampanhasAppwrite(cliente_id);
+  const campIds = campaigns.map(c => c.id);
+  if (!campIds.length) return [];
+  
+  const docs = await databases.listDocuments(DB_ID, 'adsets', [
+    Query.limit(500) // Assumindo que filtragem local será necessária ou todos pertencem às camps
+  ]);
+  return docs.documents.filter((d: any) => campIds.includes(d.campanha_id));
+}
+
+export async function fetchCriativosAppwrite(cliente_id: string) {
+  const conjuntos = await fetchConjuntosAppwrite(cliente_id);
+  const conjIds = conjuntos.map(c => c.id);
+  if (!conjIds.length) return [];
+
+  const docs = await databases.listDocuments(DB_ID, 'ads', [
+    Query.limit(1000)
+  ]);
+  return docs.documents.filter((d: any) => conjIds.includes(d.conjunto_id));
+}
+
+export async function fetchMetricasAppwrite(cliente_id: string, from: Date, to: Date) {
+  const fromStr = from.toISOString().split('T')[0];
+  const toStr = to.toISOString().split('T')[0];
+
+  const docs = await databases.listDocuments(DB_ID, 'daily_metrics', [
+    Query.equal('cliente_id', cliente_id),
+    Query.greaterThanEqual('data', fromStr),
+    Query.lessThanEqual('data', toStr),
+    Query.limit(1000)
+  ]);
+  return docs.documents;
+}
+
+export async function fetchManualInputsAppwrite(cliente_id: string, from: Date, to: Date) {
+  const fromStr = from.toISOString().split('T')[0];
+  const toStr = to.toISOString().split('T')[0];
+
+  const docs = await databases.listDocuments(DB_ID, 'manual_inputs', [
+    Query.equal('cliente_id', cliente_id),
+    Query.greaterThanEqual('data', fromStr),
+    Query.lessThanEqual('data', toStr),
+    Query.limit(500)
+  ]);
+  return docs.documents;
 }

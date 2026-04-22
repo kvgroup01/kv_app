@@ -6,11 +6,12 @@ import {defineConfig, loadEnv} from 'vite';
 export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', '');
   return {
+    base: '/',
     plugins: [react(), tailwindcss()],
     define: {
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-      // Expose platform APP_URL to client as VITE_APP_URL if not explicitly set
-      'import.meta.env.VITE_APP_URL': JSON.stringify(env.VITE_APP_URL || env.APP_URL || ''),
+      // Only set a default if VITE_APP_URL is not provided in .env or secrets
+      'import.meta.env.VITE_APP_URL_DEFAULT': JSON.stringify(env.APP_URL || ''),
     },
     resolve: {
       alias: {

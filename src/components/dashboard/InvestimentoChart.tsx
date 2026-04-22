@@ -99,7 +99,7 @@ export function InvestimentoChart({ dados, tipo, isLoading }: InvestimentoChartP
               tickLine={false}
               axisLine={false}
               width={50}
-              tickFormatter={(val) => `R$ \${Math.round(val)}`}
+              tickFormatter={(val) => `R$ ${Math.round(val)}`}
             />
 
             <YAxis 

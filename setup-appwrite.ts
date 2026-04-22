@@ -48,7 +48,7 @@ async function run() {
     await databases.createBooleanAttribute(DB_ID, 'clientes', 'ativo', false, true)
     
     await sleep(2000) // Delay necessário para o Appwrite indexar os atributos
-    await databases.createIndex(DB_ID, 'clientes', 'idx_slug', 'unique', ['slug'])
+    await databases.createIndex(DB_ID, 'clientes', 'idx_slug', 'unique' as any, ['slug'])
     console.log('✅ Coleção clientes criada')
   } catch (error) {
     console.log('⏭️ Coleção clientes já existe, garantindo permissões...')
@@ -75,7 +75,7 @@ async function run() {
     await databases.createStringAttribute(DB_ID, 'convites', 'expira_em', 50, false)
     
     await sleep(2000)
-    await databases.createIndex(DB_ID, 'convites', 'idx_token', 'unique', ['token'])
+    await databases.createIndex(DB_ID, 'convites', 'idx_token', 'unique' as any, ['token'])
     console.log('✅ Coleção convites criada')
   } catch (error) {
     console.log('⏭️ Coleção convites já existe, garantindo permissões...')
@@ -96,7 +96,7 @@ async function run() {
     await databases.createStringAttribute(DB_ID, 'orcamentos', 'link_expira_em', 50, false)
     
     await sleep(2000)
-    await databases.createIndex(DB_ID, 'orcamentos', 'idx_token', 'unique', ['token'])
+    await databases.createIndex(DB_ID, 'orcamentos', 'idx_token', 'unique' as any, ['token'])
     console.log('✅ Coleção orcamentos criada')
   } catch (error) {
     console.log('⏭️ Coleção orcamentos já existe, garantindo permissões...')
@@ -152,6 +152,78 @@ async function run() {
        5242880, 
        ['jpg', 'jpeg', 'png', 'pdf']
     )
+  }
+
+  // PASSO 10 — Coleção campaigns
+  try {
+    await databases.createCollection(DB_ID, 'campaigns', 'Campanhas', defaultPermissions)
+    await databases.createStringAttribute(DB_ID, 'campaigns', 'id', 255, true)
+    await databases.createStringAttribute(DB_ID, 'campaigns', 'cliente_id', 255, true)
+    await databases.createStringAttribute(DB_ID, 'campaigns', 'nome', 255, true)
+    await databases.createStringAttribute(DB_ID, 'campaigns', 'tipo', 50, true)
+    await databases.createStringAttribute(DB_ID, 'campaigns', 'status', 50, false)
+    await databases.createStringAttribute(DB_ID, 'campaigns', 'fonte_dados', 50, false, 'appwrite')
+    console.log('✅ Coleção campaigns criada')
+  } catch (error) {
+    console.log('⏭️ Coleção campaigns já existe')
+  }
+
+  // PASSO 11 — Coleção adsets
+  try {
+    await databases.createCollection(DB_ID, 'adsets', 'Conjuntos', defaultPermissions)
+    await databases.createStringAttribute(DB_ID, 'adsets', 'id', 255, true)
+    await databases.createStringAttribute(DB_ID, 'adsets', 'campanha_id', 255, true)
+    await databases.createStringAttribute(DB_ID, 'adsets', 'nome', 255, true)
+    await databases.createStringAttribute(DB_ID, 'adsets', 'escolaridade', 50, false)
+    console.log('✅ Coleção adsets criada')
+  } catch (error) {
+    console.log('⏭️ Coleção adsets já existe')
+  }
+
+  // PASSO 12 — Coleção ads
+  try {
+    await databases.createCollection(DB_ID, 'ads', 'Criativos', defaultPermissions)
+    await databases.createStringAttribute(DB_ID, 'ads', 'id', 255, true)
+    await databases.createStringAttribute(DB_ID, 'ads', 'conjunto_id', 255, true)
+    await databases.createStringAttribute(DB_ID, 'ads', 'nome', 255, true)
+    await databases.createStringAttribute(DB_ID, 'ads', 'thumbnail_url', 1000, false)
+    await databases.createStringAttribute(DB_ID, 'ads', 'link_anuncio', 1000, false)
+    console.log('✅ Coleção ads criada')
+  } catch (error) {
+    console.log('⏭️ Coleção ads já existe')
+  }
+
+  // PASSO 13 — Coleção daily_metrics
+  try {
+    await databases.createCollection(DB_ID, 'daily_metrics', 'Métricas Diárias', defaultPermissions)
+    await databases.createStringAttribute(DB_ID, 'daily_metrics', 'cliente_id', 255, true)
+    await databases.createStringAttribute(DB_ID, 'daily_metrics', 'criativo_id', 255, true)
+    await databases.createStringAttribute(DB_ID, 'daily_metrics', 'data', 50, true)
+    await databases.createFloatAttribute(DB_ID, 'daily_metrics', 'investimento', true)
+    await databases.createIntegerAttribute(DB_ID, 'daily_metrics', 'impressoes', true)
+    await databases.createIntegerAttribute(DB_ID, 'daily_metrics', 'alcance', true)
+    await databases.createIntegerAttribute(DB_ID, 'daily_metrics', 'cliques', true)
+    await databases.createIntegerAttribute(DB_ID, 'daily_metrics', 'conversas', false, 0)
+    await databases.createIntegerAttribute(DB_ID, 'daily_metrics', 'leads_qualificados', false, 0)
+    await databases.createIntegerAttribute(DB_ID, 'daily_metrics', 'leads_desqualificados', false, 0)
+    await databases.createIntegerAttribute(DB_ID, 'daily_metrics', 'vendas', false, 0)
+    await databases.createStringAttribute(DB_ID, 'daily_metrics', 'fonte', 50, false, 'webhook')
+    console.log('✅ Coleção daily_metrics criada')
+  } catch (error) {
+    console.log('⏭️ Coleção daily_metrics já existe')
+  }
+
+  // PASSO 14 — Coleção manual_inputs
+  try {
+    await databases.createCollection(DB_ID, 'manual_inputs', 'Inputs Manuais', defaultPermissions)
+    await databases.createStringAttribute(DB_ID, 'manual_inputs', 'cliente_id', 255, true)
+    await databases.createStringAttribute(DB_ID, 'manual_inputs', 'data', 50, true)
+    await databases.createFloatAttribute(DB_ID, 'manual_inputs', 'investimento_total_contratado', true)
+    await databases.createIntegerAttribute(DB_ID, 'manual_inputs', 'leads_no_grupo_superior', true)
+    await databases.createIntegerAttribute(DB_ID, 'manual_inputs', 'leads_no_grupo_medio', true)
+    console.log('✅ Coleção manual_inputs criada')
+  } catch (error) {
+    console.log('⏭️ Coleção manual_inputs já existe')
   }
 
   console.log('🚀 Setup completo!')

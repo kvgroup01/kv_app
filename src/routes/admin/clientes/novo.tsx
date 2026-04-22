@@ -2,12 +2,14 @@ import * as React from 'react';
 import { useNavigate } from 'react-router';
 import { ArrowLeft } from 'lucide-react';
 
+import { toast } from 'sonner';
 import { useCriarCliente, usePastas } from '../../../hooks/useClientes';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../components/ui/card';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { Button } from '../../../components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
+import { CONFIG } from '../../../lib/constants';
 
 export default function NovoCliente() {
   const navigate = useNavigate();
@@ -47,16 +49,20 @@ export default function NovoCliente() {
       nome,
       slug,
       tipo_campanha: tipoCampanha as any,
-      pasta_id: pastaId === 'sem-pasta' ? null : pastaId,
+      pasta_id: pastaId === 'sem-pasta' ? '' : pastaId,
       logo_url: logoUrl || '',
       spreadsheet_id: spreadsheetId,
       ativo: true
     }, {
-      onSuccess: () => navigate('/admin/clientes')
+      onSuccess: () => {
+        toast.success("Cliente criado com sucesso!");
+        navigate('/admin/clientes');
+      },
+      onError: (err: any) => {
+        toast.error("Erro ao criar cliente: " + (err.message || "Erro desconhecido"));
+      }
     });
   };
-
-  const domain = import.meta.env.VITE_APP_URL || window.location.origin;
 
   return (
     <div className="space-y-10 max-w-[1000px] mx-auto pb-20">
@@ -110,7 +116,7 @@ export default function NovoCliente() {
               {slug && (
                  <p className="text-[12px] text-blue-500/80 bg-blue-500/5 px-4 py-3 rounded-lg border border-blue-500/10 flex items-center gap-2">
                    <span className="text-blue-500 font-bold uppercase text-[10px] tracking-wider">Preview:</span>
-                   <span className="truncate">{domain}/dashboard/{slug}</span>
+                   <span className="truncate">{import.meta.env.VITE_APP_URL}/dashboard/{slug}</span>
                  </p>
               )}
             </div>

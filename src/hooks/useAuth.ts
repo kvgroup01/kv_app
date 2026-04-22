@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getCurrentUser, login, logout } from '../lib/appwrite';
+import { getCurrentUser, login, logout, atualizarNomeUsuario, atualizarSenha, atualizarFotoPerfil } from '../lib/appwrite';
 
 export const AUTH_QUERY_KEY = ['auth', 'user'];
 
@@ -29,6 +29,24 @@ export function useAuth() {
     },
   });
 
+  const updateProfileMutation = useMutation({
+    mutationFn: atualizarNomeUsuario,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
+    },
+  });
+
+  const changePasswordMutation = useMutation({
+    mutationFn: ({ nova, atual }: { nova: string, atual: string }) => atualizarSenha(nova, atual),
+  });
+
+  const updatePhotoMutation = useMutation({
+    mutationFn: atualizarFotoPerfil,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
+    },
+  });
+
   return {
     user,
     isLoading,
@@ -38,5 +56,11 @@ export function useAuth() {
     isLoggingIn: loginMutation.isPending,
     logout: logoutMutation.mutateAsync,
     isLoggingOut: logoutMutation.isPending,
+    updateProfile: updateProfileMutation.mutateAsync,
+    isUpdatingProfile: updateProfileMutation.isPending,
+    changePassword: changePasswordMutation.mutateAsync,
+    isChangingPassword: changePasswordMutation.isPending,
+    updatePhoto: updatePhotoMutation.mutateAsync,
+    isUpdatingPhoto: updatePhotoMutation.isPending,
   };
 }

@@ -9,11 +9,11 @@ export async function fetchSheet(spreadsheetId: string, range: string): Promise<
     return [];
   }
   
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/\${spreadsheetId}/values/\${range}?key=\${apiKey}`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`;
   const response = await fetch(url);
   
   if (!response.ok) {
-    throw new Error(`Erro ao buscar dados do Google Sheets: \${response.statusText}`);
+    throw new Error(`Erro ao buscar dados do Google Sheets: ${response.statusText}`);
   }
   
   const data = await response.json();
@@ -25,7 +25,7 @@ export async function fetchCampanhas(spreadsheetId: string): Promise<Campanha[]>
   return values.map(row => ({
     id: row[0] || '',
     nome: row[1] || '',
-    tipo: row[2] || '',
+    tipo: (row[2] || '') as Campanha['tipo'],
     status: row[3] || '',
   }));
 }

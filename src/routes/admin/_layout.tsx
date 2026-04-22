@@ -3,10 +3,19 @@ import { Outlet, Navigate, useNavigate } from 'react-router';
 import { Sidebar } from '../../components/admin/Sidebar';
 import { useAuth } from '../../hooks/useAuth';
 import { Skeleton } from '../../components/ui/skeleton';
+import { cn } from '../../lib/utils';
 
 export default function AdminLayout() {
   const { user, isLoading, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(() => {
+    const saved = localStorage.getItem('sidebar-collapsed');
+    return saved === 'true';
+  });
+
+  React.useEffect(() => {
+    localStorage.setItem('sidebar-collapsed', isSidebarCollapsed.toString());
+  }, [isSidebarCollapsed]);
 
   if (isLoading) {
     return (
@@ -35,10 +44,15 @@ export default function AdminLayout() {
            email: user.email 
          }} 
          onLogout={handleLogout} 
+         isCollapsed={isSidebarCollapsed}
+         onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
       />
       
       {/* Contêiner Principal ao lado da Sidebar */}
-      <main className="flex-1 md:ml-64 w-full h-full min-h-screen relative p-8 md:p-10 pb-20 overflow-y-auto overflow-x-hidden">
+      <main className={cn(
+        "flex-1 w-full h-full min-h-screen relative p-8 md:p-10 pb-20 overflow-y-auto overflow-x-hidden transition-all duration-300",
+        isSidebarCollapsed ? "md:ml-20" : "md:ml-64"
+      )}>
          {/* O Outlet renderiza as rotas filhas ali dentro */}
          <div className="max-w-[1400px] mx-auto w-full">
             <Outlet />

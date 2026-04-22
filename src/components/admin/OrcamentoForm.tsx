@@ -1,5 +1,6 @@
 import * as React from 'react';
 import QRCode from 'qrcode';
+import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Button } from '../ui/button';
@@ -78,13 +79,22 @@ export function OrcamentoForm({ clientes, onSubmit, isLoading }: OrcamentoFormPr
     const finalNome = isAvulso ? nomeAvulso : clientes.find(c => c.$id === clienteSelecionado)?.nome || '';
     const finalId = isAvulso ? undefined : clienteSelecionado;
 
-    if (!finalNome || itens.length === 0 || !pixChave) {
-       return; // Handle with validation toast if needed
+    if (!finalNome) {
+      toast.error("Por favor, informe o nome do cliente.");
+      return;
+    }
+
+    if (!pixChave) {
+      toast.error("Por favor, informe a chave PIX.");
+      return;
     }
 
     // Clean empty items
     const itensValidos = itens.filter(i => i.descricao.trim() !== '' && i.valor_unitario > 0);
-    if(itensValidos.length === 0) return;
+    if(itensValidos.length === 0) {
+      toast.error("Adicione pelo menos um item com descrição e valor.");
+      return;
+    }
 
     onSubmit({
       cliente_id: finalId,
@@ -259,7 +269,7 @@ export function OrcamentoForm({ clientes, onSubmit, isLoading }: OrcamentoFormPr
               A chave será automaticamente vinculada ao payload PIX com base no valor total apurado acima.
             </p>
 
-            <Button className="w-full mt-6" size="lg" onClick={handleSubmit} disabled={isLoading || !pixChave || totalCalculado <= 0}>
+            <Button className="w-full mt-6" size="lg" onClick={handleSubmit} disabled={isLoading}>
                Gerar Link de Orçamento
             </Button>
           </div>

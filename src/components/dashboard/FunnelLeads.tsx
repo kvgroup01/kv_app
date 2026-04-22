@@ -49,7 +49,7 @@ export function FunnelLeads({ dados, metricas }: FunnelLeadsProps) {
     return (
       <div className="flex flex-wrap justify-center gap-4 text-xs pt-4">
         {payload.map((entry: any, index: number) => (
-          <div key={`item-\${index}`} className="flex items-center space-x-2">
+          <div key={`item-${index}`} className="flex items-center space-x-2">
             <div 
               className="w-3 h-3 rounded-full" 
               style={{ backgroundColor: entry.color }} 
@@ -109,7 +109,7 @@ export function FunnelLeads({ dados, metricas }: FunnelLeadsProps) {
               tickLine={false}
               axisLine={false}
               width={50}
-              tickFormatter={(val) => `R$ \${Math.round(val)}`}
+              tickFormatter={(val) => `R$ ${Math.round(val)}`}
             />
 
             <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.05)' }} />

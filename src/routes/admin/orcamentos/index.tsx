@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { useNavigate, Link } from 'react-router';
-import { Plus, Copy, MoreVertical, Eye, CheckCircle2, XCircle } from 'lucide-react';
+import { Plus, Copy, MoreVertical, Eye, CheckCircle2, XCircle, Trash2, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { useOrcamentos, useAtualizarStatusOrcamento } from '../../../hooks/useOrcamentos';
+import { useOrcamentos, useAtualizarStatusOrcamento, useDeletarOrcamento } from '../../../hooks/useOrcamentos';
 import { Card, CardContent } from '../../../components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../components/ui/table';
 import { Button } from '../../../components/ui/button';
@@ -16,13 +16,27 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator
 } from '../../../components/ui/dropdown-menu';
+import { 
+  AlertDialog, 
+  AlertDialogAction, 
+  AlertDialogCancel, 
+  AlertDialogContent, 
+  AlertDialogDescription, 
+  AlertDialogFooter, 
+  AlertDialogHeader, 
+  AlertDialogTitle,
+} from '../../../components/ui/alert-dialog';
 import { fmtBRL, fmtDataString } from '../../../lib/utils';
+import { CONFIG } from '../../../lib/constants';
 import { cn } from '../../../lib/utils';
 
 export default function OrcamentosIndex() {
   const navigate = useNavigate();
   const { data: orcamentos, isLoading } = useOrcamentos();
   const updateStatusMut = useAtualizarStatusOrcamento();
+  const deletarMut = useDeletarOrcamento();
+
+  const [orcamentoToDelete, setOrcamentoToDelete] = React.useState<string | null>(null);
 
   // Ordenação: mais recente primeiro
   const listaOrdenada = React.useMemo(() => {
@@ -31,7 +45,8 @@ export default function OrcamentosIndex() {
   }, [orcamentos]);
 
   const handleCopyLink = (token: string) => {
-    const url = `\${import.meta.env.VITE_APP_URL || window.location.origin}/orcamento/\${token}`;
+    const domain = CONFIG.APP_URL;
+    const url = `${domain}/orcamento/${token}`;
     navigator.clipboard.writeText(url);
     toast.success('Link do orçamento copiado para área de transferência!');
   };
@@ -39,7 +54,19 @@ export default function OrcamentosIndex() {
   const handleChangeStatus = (id: string, status: 'pendente' | 'pago' | 'cancelado') => {
     updateStatusMut.mutate({ id, status }, {
       onSuccess: () => {
-        toast.success(`Status foi atualizado para \${status}.`);
+        toast.success(`Status foi atualizado para ${status}.`);
+      }
+    });
+  };
+
+  const handleDeletar = (id: string) => {
+    deletarMut.mutate(id, {
+      onSuccess: () => {
+        toast.success('Orçamento excluído com sucesso!');
+        setOrcamentoToDelete(null);
+      },
+      onError: () => {
+        toast.error('Erro ao excluir orçamento.');
       }
     });
   };
@@ -129,7 +156,7 @@ export default function OrcamentosIndex() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-48 bg-(--card-bg) border-(--card-border) text-(--text-primary)">
-                              <DropdownMenuItem onClick={() => window.open(`/orcamento/\${orcamento.token}`, '_blank')} className="cursor-pointer hover:bg-(--card-hover)">
+                              <DropdownMenuItem onClick={() => window.open(`/orcamento/${orcamento.token}`, '_blank')} className="cursor-pointer hover:bg-(--card-hover)">
                                 <Eye className="mr-2 h-4 w-4 text-(--text-tertiary)" /> Ver detalhes
                               </DropdownMenuItem>
                               <DropdownMenuSeparator className="bg-(--card-border)" />
@@ -143,6 +170,13 @@ export default function OrcamentosIndex() {
                                   <XCircle className="mr-2 h-4 w-4 text-(--text-tertiary)" /> Cancelar
                                 </DropdownMenuItem>
                               )}
+                              <DropdownMenuSeparator className="bg-(--card-border)" />
+                              <DropdownMenuItem 
+                                onSelect={() => setOrcamentoToDelete(orcamento.$id)} 
+                                className="cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-500/10"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" /> Excluir Orçamento
+                              </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
@@ -155,9 +189,29 @@ export default function OrcamentosIndex() {
           </div>
         )}
       </div>
+
+      <AlertDialog open={!!orcamentoToDelete} onOpenChange={(open) => !open && setOrcamentoToDelete(null)}>
+        <AlertDialogContent className="bg-(--card-bg) border-(--card-border) text-(--text-primary)">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Orçamento</AlertDialogTitle>
+            <AlertDialogDescription className="text-(--text-secondary)">
+              Tem certeza que deseja excluir este orçamento? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-transparent border-(--card-border) hover:bg-white/5">Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => orcamentoToDelete && handleDeletar(orcamentoToDelete)}
+              className="bg-red-500 text-white hover:bg-red-600 border-none"
+              disabled={deletarMut.isPending}
+            >
+              {deletarMut.isPending ? 'Excluindo...' : 'Confirmar Exclusão'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
 
-// Adding missing icon since not exported at the top
-import { FileText } from 'lucide-react';
+// Removing manual import as added to top

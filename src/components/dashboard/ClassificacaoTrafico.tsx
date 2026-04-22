@@ -92,7 +92,7 @@ export function ClassificacaoTrafico({ leadsEnsino, isLoading }: ClassificacaoTr
                 stroke="none"
               >
                 {chartData.map((entry, index) => (
-                  <Cell key={`cell-\${index}`} fill={entry.color} />
+                  <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
               <Tooltip content={<CustomTooltip />} />

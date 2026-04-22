@@ -116,7 +116,7 @@ export function FunnelWhatsApp({ metricas, onVendasChange }: FunnelWhatsAppProps
               animationDuration={1000}
             >
               {data.map((entry, index) => (
-                <Cell key={`cell-\${index}`} fill={entry.fillColor} />
+                <Cell key={`cell-${index}`} fill={entry.fillColor} />
               ))}
             </Bar>
           </BarChart>
