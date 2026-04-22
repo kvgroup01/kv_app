@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --color-sidebar-bg: #0a0a0a;
+  --color-sidebar-border: #1a1a1a;
+  --color-content-bg: #0f0f0f;
+  --color-card-bg: #141414;
+  --color-card-border: #1f1f1f;
+  --color-card-hover: #1a1a1a;
+  --color-text-primary: #ededed;
+  --color-text-secondary: #888;
+  --color-text-tertiary: #555;
+  --color-accent-blue: #3b82f6;
+  --color-accent-green: #22c55e;
+  --color-accent-amber: #f59e0b;
+  --color-accent-purple: #a855f7;
+}
+
+:root {
+  --sidebar-bg: #0a0a0a;
+  --sidebar-border: #1a1a1a;
+  --content-bg: #0f0f0f;
+  --card-bg: #141414;
+  --card-border: #1f1f1f;
+  --card-hover: #1a1a1a;
+  --text-primary: #ededed;
+  --text-secondary: #888;
+  --text-tertiary: #555;
+  --accent-blue: #3b82f6;
+  --accent-green: #22c55e;
+  --accent-amber: #f59e0b;
+  --accent-purple: #a855f7;
+}
+
+body {
+  background: var(--content-bg);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom shadow for cards */
+.shadow-premium {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.4);
+}
+
+/* Base styles for shadcn overrides if necessary */
+@layer base {
+  * {
+    border-color: var(--card-border);
+  }
+}
