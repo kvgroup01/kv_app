@@ -1,111 +1,148 @@
-import * as React from 'react';
-import { format, subDays, startOfMonth, endOfMonth, subMonths } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { Calendar as CalendarIcon } from 'lucide-react';
-import { DateRange } from 'react-day-picker';
+"use client"
 
-import { cn } from '../../lib/utils';
-import { Button } from '../ui/button';
-import { Calendar } from '../ui/calendar';
+import * as React from "react"
+import { format, subDays, startOfMonth, endOfMonth, subMonths } from "date-fns"
+import { ptBR } from "date-fns/locale"
+import { Calendar as CalendarIcon } from "lucide-react"
+import { type DateRange } from "react-day-picker"
+import { cn } from "../../lib/utils"
+import { Button } from "../ui/button"
+import { Calendar } from "../ui/calendar"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '../ui/popover';
+} from "../ui/popover"
 
 interface DateRangePickerProps {
-  value: DateRange | undefined;
-  onChange: (range: DateRange | undefined) => void;
-  className?: string;
+  value: DateRange | undefined
+  onChange: (range: DateRange | undefined) => void
+  className?: string
 }
 
-export function DateRangePicker({ value, onChange, className }: DateRangePickerProps) {
-  const [isOpen, setIsOpen] = React.useState(false);
+export function DateRangePicker({ 
+  value, 
+  onChange, 
+  className 
+}: DateRangePickerProps) {
+  const [open, setOpen] = React.useState(false)
+  const [tempRange, setTempRange] = React.useState<DateRange | undefined>(value)
 
-  const setRangeAndClose = (range: DateRange | undefined) => {
-    onChange(range);
-  };
+  const presets = [
+    { 
+      label: "Hoje", 
+      range: { from: new Date(), to: new Date() } 
+    },
+    { 
+      label: "Últimos 7 dias", 
+      range: { from: subDays(new Date(), 6), to: new Date() } 
+    },
+    { 
+      label: "Últimos 30 dias", 
+      range: { from: subDays(new Date(), 29), to: new Date() } 
+    },
+    { 
+      label: "Este mês", 
+      range: { from: startOfMonth(new Date()), to: new Date() } 
+    },
+    { 
+      label: "Mês passado", 
+      range: { 
+        from: startOfMonth(subMonths(new Date(), 1)), 
+        to: endOfMonth(subMonths(new Date(), 1)) 
+      } 
+    },
+  ]
 
-  const setFixedRange = (daysOffset: number, type: 'days' | 'month' = 'days') => {
-    const today = new Date();
-    let from = new Date();
-    let to = new Date();
+  function handlePreset(range: DateRange) {
+    onChange(range)
+    setTempRange(range)
+    setOpen(false)
+  }
 
-    if (type === 'days') {
-      to = today;
-      from = subDays(today, daysOffset);
-    } else if (type === 'month') {
-      const targetMonth = subMonths(today, daysOffset);
-      from = startOfMonth(targetMonth);
-      to = endOfMonth(targetMonth);
-    }
-    
-    onChange({ from, to });
-    setIsOpen(false);
-  };
+  function handleApply() {
+    onChange(tempRange)
+    setOpen(false)
+  }
 
   return (
-    <div className={cn('grid gap-2', className)}>
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            id="date"
-            variant="outline"
-            className={cn(
-              'w-[300px] justify-start text-left font-normal',
-              !value && 'text-muted-foreground'
-            )}
-          >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {value?.from ? (
-              value.to ? (
-                <>
-                  {format(value.from, "dd 'de' MMM, yyyy", { locale: ptBR })} -{' '}
-                  {format(value.to, "dd 'de' MMM, yyyy", { locale: ptBR })}
-                </>
-              ) : (
-                format(value.from, "dd 'de' MMM, yyyy", { locale: ptBR })
-              )
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          className={cn(
+            "justify-start text-left font-normal",
+            !value && "text-muted-foreground",
+            className
+          )}
+        >
+          <CalendarIcon className="mr-2 h-4 w-4" />
+          {value?.from ? (
+            value.to ? (
+              <>
+                {format(value.from, "dd 'de' MMM, yyyy", { locale: ptBR })}
+                {" - "}
+                {format(value.to, "dd 'de' MMM, yyyy", { locale: ptBR })}
+              </>
             ) : (
-              <span>Selecione um período</span>
-            )}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 border-[#1f1f1f] bg-[#141414] z-[9999]" align="end">
-          <div className="flex flex-col md:flex-row">
-            {/* Quick selectors */}
-            <div className="flex flex-col gap-1 border-r border-border p-4 w-40">
-              <Button variant="ghost" className="justify-start" onClick={() => setFixedRange(0)}>
-                Hoje
+              format(value.from, "dd 'de' MMM, yyyy", { locale: ptBR })
+            )
+          ) : (
+            <span>Selecionar período</span>
+          )}
+        </Button>
+      </PopoverTrigger>
+
+      <PopoverContent 
+        className="w-auto p-0" 
+        align="start"
+      >
+        <div className="flex">
+          <div className="flex flex-col gap-1 border-r p-3 min-w-[130px]">
+            {presets.map((preset) => (
+              <Button
+                key={preset.label}
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="justify-start text-sm font-normal"
+                onClick={() => handlePreset(preset.range)}
+              >
+                {preset.label}
               </Button>
-              <Button variant="ghost" className="justify-start" onClick={() => setFixedRange(7)}>
-                Últimos 7 dias
+            ))}
+          </div>
+          <div className="p-3">
+            <Calendar
+              initialFocus
+              mode="range"
+              defaultMonth={tempRange?.from}
+              selected={tempRange}
+              onSelect={setTempRange}
+              numberOfMonths={2}
+              locale={ptBR}
+            />
+            <div className="flex justify-end gap-2 pt-3 border-t mt-3">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setOpen(false)}
+              >
+                Cancelar
               </Button>
-              <Button variant="ghost" className="justify-start" onClick={() => setFixedRange(30)}>
-                Últimos 30 dias
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleApply}
+              >
+                Aplicar
               </Button>
-              <Button variant="ghost" className="justify-start" onClick={() => setFixedRange(0, 'month')}>
-                Este mês
-              </Button>
-              <Button variant="ghost" className="justify-start" onClick={() => setFixedRange(1, 'month')}>
-                Mês passado
-              </Button>
-            </div>
-            {/* Calendar */}
-            <div className="p-2">
-              <Calendar
-                initialFocus
-                mode="range"
-                defaultMonth={value?.from}
-                selected={value}
-                onSelect={setRangeAndClose}
-                numberOfMonths={2}
-                locale={ptBR}
-              />
             </div>
           </div>
-        </PopoverContent>
-      </Popover>
-    </div>
-  );
+        </div>
+      </PopoverContent>
+    </Popover>
+  )
 }
