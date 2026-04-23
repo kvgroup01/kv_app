@@ -133,7 +133,7 @@ export default function EditarCliente() {
           </div>
         </div>
         {cliente && (
-           <Button variant="outline" className="h-10 px-6 border-(--card-border) hover:bg-[#1a1a1a] text-(--text-primary) text-[13px] font-medium" onClick={() => window.open(`${import.meta.env.VITE_APP_URL}/dashboard/${cliente.slug}`, '_blank')}>
+           <Button variant="outline" className="h-10 px-6 border-(--card-border) hover:bg-[#1a1a1a] text-(--text-primary) text-[13px] font-medium" onClick={() => window.open(`${CONFIG.APP_URL}/dashboard/${cliente.slug}`, '_blank')}>
              <ExternalLink className="mr-2 h-4 w-4" /> Link do Dashboard
            </Button>
         )}
@@ -199,7 +199,7 @@ export default function EditarCliente() {
               </div>
               <p className="text-[12px] text-blue-500/80 bg-blue-500/5 px-4 py-3 rounded-lg border border-blue-500/10 flex items-center gap-2">
                 <span className="text-blue-500 font-bold uppercase text-[10px] tracking-wider">Url Ativa:</span>
-                <span className="truncate hover:underline cursor-pointer">{import.meta.env.VITE_APP_URL}/dashboard/{slug}</span>
+                <span className="truncate hover:underline cursor-pointer">{CONFIG.APP_URL}/dashboard/{slug}</span>
               </p>
             </div>
 

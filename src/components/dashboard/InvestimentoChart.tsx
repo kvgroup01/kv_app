@@ -38,7 +38,7 @@ export function InvestimentoChart({ dados, tipo, isLoading }: InvestimentoChartP
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-popover text-popover-foreground border shadow-sm rounded-lg p-3">
+        <div className="bg-[#1a1a1a] border border-[#2a2a2a] text-popover-foreground shadow-sm rounded-lg p-3 z-[9999]">
           <p className="font-semibold mb-2">{fmtData(label)}</p>
           {payload.map((entry: any, index: number) => (
             <div key={index} className="flex items-center justify-between text-sm py-0.5 min-w-[150px]">

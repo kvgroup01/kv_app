@@ -45,6 +45,14 @@ body {
   box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.4);
 }
 
+[data-radix-popper-content-wrapper] {
+  z-index: 9999 !important;
+}
+
+.recharts-tooltip-wrapper {
+  z-index: 9999 !important;
+}
+
 /* Base styles for shadcn overrides if necessary */
 @layer base {
   * {

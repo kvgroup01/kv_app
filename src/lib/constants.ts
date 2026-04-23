@@ -14,9 +14,8 @@ const formatDomain = (domain: string): string => {
   return `https://${domain}`;
 };
 
-const rawAppUrl = getViteEnv('VITE_APP_URL') || getViteEnv('VITE_APP_URL_DEFAULT');
-// Fallback guarantees the correct official domain instead of relying on deployment URLs
-const APP_URL = formatDomain(rawAppUrl || 'https://sistema.kvgroupbr.com.br');
+// Force dashboard domain regardless of Vite Env or AI Studio injected OS Secrets
+const APP_URL = 'https://sistema.kvgroupbr.com.br';
 
 export const CONFIG = {
   APP_URL,

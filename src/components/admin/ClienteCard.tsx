@@ -42,7 +42,7 @@ export function ClienteCard({ cliente, onEditar, onDeletar, onMoverPasta }: Clie
     return name.substring(0, 2).toUpperCase();
   };
 
-  const dashboardUrl = `${import.meta.env.VITE_APP_URL}/dashboard/${cliente.slug}`;
+  const dashboardUrl = `${CONFIG.APP_URL}/dashboard/${cliente.slug}`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(dashboardUrl);

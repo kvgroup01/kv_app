@@ -71,7 +71,7 @@ export function DateRangePicker({ value, onChange, className }: DateRangePickerP
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="end">
+        <PopoverContent className="w-auto p-0 border-[#1f1f1f] bg-[#141414] z-[9999]" align="end">
           <div className="flex flex-col md:flex-row">
             {/* Quick selectors */}
             <div className="flex flex-col gap-1 border-r border-border p-4 w-40">

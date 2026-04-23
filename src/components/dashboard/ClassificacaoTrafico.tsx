@@ -56,7 +56,7 @@ export function ClassificacaoTrafico({ leadsEnsino, isLoading }: ClassificacaoTr
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-popover text-popover-foreground border shadow-sm rounded-lg p-3 text-sm">
+        <div className="bg-[#1a1a1a] border border-[#2a2a2a] text-popover-foreground shadow-sm rounded-lg p-3 text-sm z-[9999]">
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: data.color }} />
             <span className="font-semibold">{data.name}</span>

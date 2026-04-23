@@ -116,7 +116,7 @@ export default function NovoCliente() {
               {slug && (
                  <p className="text-[12px] text-blue-500/80 bg-blue-500/5 px-4 py-3 rounded-lg border border-blue-500/10 flex items-center gap-2">
                    <span className="text-blue-500 font-bold uppercase text-[10px] tracking-wider">Preview:</span>
-                   <span className="truncate">{import.meta.env.VITE_APP_URL}/dashboard/{slug}</span>
+                   <span className="truncate">{CONFIG.APP_URL}/dashboard/{slug}</span>
                  </p>
               )}
             </div>

@@ -53,7 +53,7 @@ export default function OrcamentoNovo() {
     });
   };
 
-  const linkPublico = `${import.meta.env.VITE_APP_URL}/orcamento/${successToken}`;
+  const linkPublico = `${CONFIG.APP_URL}/orcamento/${successToken}`;
   const linkInterno = `/orcamento/${successToken}`;
 
   const copyLink = () => {
@@ -108,7 +108,7 @@ export default function OrcamentoNovo() {
                 <Copy className="h-4 w-4 mr-2" /> Copiar
               </Button>
             </div>
-            {import.meta.env.VITE_APP_URL !== window.location.origin && (
+            {CONFIG.APP_URL !== window.location.origin && (
               <p className="text-[10px] text-muted-foreground px-1">
                 Link de produção. Para testar aqui no AI Studio, use o botão "Ver Orçamento" abaixo.
               </p>

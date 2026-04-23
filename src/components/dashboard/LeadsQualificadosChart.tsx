@@ -39,7 +39,7 @@ export function LeadsQualificadosChart({ dados, isLoading }: LeadsQualificadosCh
       const pctQual = total > 0 ? (qualVal / total) * 100 : 0;
 
       return (
-        <div className="bg-popover text-popover-foreground border shadow-sm rounded-lg p-3">
+        <div className="bg-[#1a1a1a] border border-[#2a2a2a] text-popover-foreground shadow-sm rounded-lg p-3 z-[9999]">
           <p className="font-semibold mb-2">{fmtData(label)}</p>
           <div className="flex flex-col gap-1 min-w-[180px]">
              <div className="flex items-center justify-between text-sm">

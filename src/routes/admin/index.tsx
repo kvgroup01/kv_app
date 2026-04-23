@@ -51,7 +51,7 @@ export default function AdminIndex() {
   const topOrcamentosPendentes = orcamentos ? [...orcamentos].filter(o => o.status === 'pendente').sort((a,b) => new Date(b.$createdAt).getTime() - new Date(a.$createdAt).getTime()).slice(0, 5) : [];
 
   const handleCopyLink = (slug: string) => {
-    const url = `${import.meta.env.VITE_APP_URL}/dashboard/${slug}`;
+    const url = `${CONFIG.APP_URL}/dashboard/${slug}`;
     navigator.clipboard.writeText(url);
     toast.success('Link do dashboard copiado!');
   };
