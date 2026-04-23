@@ -3,7 +3,7 @@ import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import * as sdk from 'node-appwrite';
 import * as dotenv from 'dotenv';
-import { syncCustomerMetaAds } from './src/services/metaAdsAPI.js'; // Adicionado importe do serviço
+import { syncCustomerMetaAds } from './src/services/metaAdsAPI.ts'; // Adicionado importe do serviço
 
 dotenv.config();
 
