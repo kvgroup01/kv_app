@@ -2,8 +2,10 @@ import * as React from "react";
 import { useParams } from "react-router";
 import { subDays, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Clock, AlertCircle } from "lucide-react";
+import { Clock, AlertCircle, RefreshCw } from "lucide-react";
 import { motion } from "motion/react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { useLancamentoPorSlug } from "../../../hooks/useLancamentos";
 import { useDashboard } from "../../../hooks/useDashboard";
@@ -23,6 +25,7 @@ import { VisaoFinanceiraLeads } from "../../../components/dashboard/VisaoFinance
 import { GruposWhatsApp } from "../../../components/dashboard/GruposWhatsApp";
 
 import { Badge } from "../../../components/ui/badge";
+import { Button } from "../../../components/ui/button";
 import {
   Card,
   CardContent,
@@ -62,6 +65,8 @@ export default function PublicDashboardLancamento() {
     ensino_medio: 0,
   });
   const [investimentoManual, setInvestimentoManual] = React.useState(0);
+  const [syncing, setSyncing] = React.useState(false);
+  const queryClient = useQueryClient();
 
   const metricasVazias = {
     investimento: 0,
@@ -105,6 +110,60 @@ export default function PublicDashboardLancamento() {
     },
     dataLancamento?.$id,
   );
+
+  React.useEffect(() => {
+    if (!dataLancamento?.$id) return;
+
+    const cacheKey = `meta_sync_${dataLancamento.$id}`;
+    const lastSync = localStorage.getItem(cacheKey);
+    const now = Date.now();
+    const thirtyMinutesValid = 30 * 60 * 1000;
+
+    if (!lastSync || now - Number(lastSync) > thirtyMinutesValid) {
+      fetch("/api/meta-sync-lancamento", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lancamentoId: dataLancamento.$id }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            localStorage.setItem(cacheKey, now.toString());
+            queryClient.invalidateQueries();
+          } else {
+            console.error("Background sync erro:", data.error);
+          }
+        })
+        .catch((err) => {
+          console.error("Background sync fetch erro:", err);
+        });
+    }
+  }, [dataLancamento?.$id, queryClient]);
+
+  const handleManualSync = async () => {
+    if (!dataLancamento?.$id) return;
+    setSyncing(true);
+    try {
+      const response = await fetch("/api/meta-sync-lancamento", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lancamentoId: dataLancamento.$id }),
+      });
+      const data = await response.json();
+      if (!response.ok || data.error) {
+        toast.error(data.error || "Erro ao atualizar dados");
+      } else {
+        const now = Date.now();
+        localStorage.setItem(`meta_sync_${dataLancamento.$id}`, now.toString());
+        queryClient.invalidateQueries();
+        toast.success("Dados atualizados!");
+      }
+    } catch (err: any) {
+      toast.error("Erro de conexão ao atualizar dados");
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   console.log("dashboardData:", dashboardData);
   console.log("leadsGrupos:", dashboardData?.leadsGrupos);
@@ -340,11 +399,28 @@ export default function PublicDashboardLancamento() {
           </div>
           <div className="hidden sm:flex items-center gap-4 w-[auto]">
             {isFetching && (
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground whitespace-nowrap">
                 <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
                 Atualizando...
               </div>
             )}
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleManualSync}
+              disabled={syncing}
+              className="flex items-center gap-2 h-9 text-xs"
+              title="Atualizar dados do Meta Ads"
+            >
+              <RefreshCw
+                className={`w-3.5 h-3.5 ${syncing ? "animate-spin" : ""}`}
+              />
+              <span className="hidden lg:inline">
+                {syncing ? "Atualizando..." : "Atualizar dados"}
+              </span>
+            </Button>
+
             <div className="w-[300px]">
               <DateRangePicker
                 value={dateRange}
