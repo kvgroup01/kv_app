@@ -4,7 +4,6 @@ import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import * as sdk from 'node-appwrite';
 import * as dotenv from 'dotenv';
-import { syncCustomerMetaAds } from './src/services/metaAdsAPI.ts'; // Adicionado importe do serviço
 
 dotenv.config();
 
@@ -21,35 +20,6 @@ const databases = new sdk.Databases(client);
 const DB_ID = 'dashboard-kv';
 
 app.use(express.json({ limit: '10mb' }));
-
-/**
- * ETAPA 3 — ENDPOINT META ADS SYNC
- * Rota para disparar a sincronização direta com a Meta Graph API
- */
-app.post('/api/meta-ads/sync', async (req, res) => {
-  try {
-    const { cliente_id, access_token, ad_account_id, date_start, date_end } = req.body;
-
-    if (!cliente_id || !access_token || !ad_account_id || !date_start || !date_end) {
-      return res.status(400).json({ 
-        error: 'Parâmetros ausentes.', 
-        required: ['cliente_id', 'access_token', 'ad_account_id', 'date_start', 'date_end'] 
-      });
-    }
-
-    const result = await syncCustomerMetaAds(databases, {
-      cliente_id,
-      accessToken: access_token,
-      adAccountId: ad_account_id,
-      dateStart: date_start,
-      dateEnd: date_end
-    });
-
-    res.json({ success: true, message: 'Sincronização concluída com sucesso.', dados: result });
-  } catch (error: any) {
-    res.status(500).json({ error: 'Erro ao sincronizar Meta Ads', detail: error.message });
-  }
-});
 
 /**
  * ETAPA 2 — ENDPOINT WEBHOOK
@@ -135,7 +105,7 @@ app.post('/api/meta/validar-token', async (req, res) => {
       return res.status(400).json({ error: 'accountId e token são obrigatórios' });
     }
     const response = await fetch(`https://graph.facebook.com/v19.0/${accountId}?fields=name,account_status&access_token=${token}`);
-    const data = await response.json();
+    const data = (await response.json()) as any;
     if (data.error) {
       return res.status(400).json({ error: data.error.message || 'Erro ao validar token', details: data.error });
     }
@@ -152,7 +122,7 @@ app.post('/api/meta/testar-filtro', async (req, res) => {
       return res.status(400).json({ error: 'accountId, token e palavraChave são obrigatórios' });
     }
     const response = await fetch(`https://graph.facebook.com/v19.0/${accountId}/campaigns?fields=name,status,insights{spend}&limit=100&access_token=${token}`);
-    const data = await response.json();
+    const data = (await response.json()) as any;
     if (data.error) {
       return res.status(400).json({ error: data.error.message || 'Erro ao buscar campanhas', details: data.error });
     }

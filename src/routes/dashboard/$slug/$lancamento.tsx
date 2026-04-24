@@ -111,6 +111,29 @@ export default function PublicDashboardLancamento() {
     dataLancamento?.$id,
   );
 
+  const [syncJob, setSyncJob] = React.useState<{
+    jobId: string;
+    progresso: number;
+    status: string;
+  } | null>(null);
+
+  const startBackgroundSync = async () => {
+    if (!dataLancamento?.$id) return;
+    try {
+      const response = await fetch("/api/meta-sync-start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lancamentoId: dataLancamento.$id }),
+      });
+      const data = await response.json();
+      if (response.ok && data.jobId) {
+        setSyncJob({ jobId: data.jobId, progresso: 0, status: data.status });
+      }
+    } catch (err) {
+      console.error("Background sync fetch erro:", err);
+    }
+  };
+
   React.useEffect(() => {
     if (!dataLancamento?.$id) return;
 
@@ -120,47 +143,82 @@ export default function PublicDashboardLancamento() {
     const thirtyMinutesValid = 30 * 60 * 1000;
 
     if (!lastSync || now - Number(lastSync) > thirtyMinutesValid) {
-      fetch("/api/meta-sync-lancamento", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lancamentoId: dataLancamento.$id }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) {
-            localStorage.setItem(cacheKey, now.toString());
-            queryClient.invalidateQueries();
-          } else {
-            console.error("Background sync erro:", data.error);
-          }
-        })
-        .catch((err) => {
-          console.error("Background sync fetch erro:", err);
-        });
+      startBackgroundSync();
     }
-  }, [dataLancamento?.$id, queryClient]);
+  }, [dataLancamento?.$id]);
+
+  React.useEffect(() => {
+    let interval: any;
+    if (syncJob && syncJob.status !== "done" && syncJob.status !== "error") {
+      interval = setInterval(async () => {
+        try {
+          const res = await fetch("/api/meta-sync-worker", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ jobId: syncJob.jobId }),
+          });
+          const data = await res.json();
+          if (res.ok) {
+            setSyncJob((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    progresso: data.progresso,
+                    status: data.done ? "done" : "running",
+                  }
+                : null,
+            );
+            if (data.done) {
+              clearInterval(interval);
+              const now = Date.now();
+              setSyncing(false);
+              localStorage.setItem(
+                `meta_sync_${dataLancamento?.$id}`,
+                now.toString(),
+              );
+              queryClient.invalidateQueries();
+              // Only show toast if it was a manual sync, we're currently syncing but background sync should be silent
+              if (syncing) {
+                toast.success("Dados atualizados!");
+              }
+            }
+          } else {
+            clearInterval(interval);
+            setSyncJob((prev) => (prev ? { ...prev, status: "error" } : null));
+            if (syncing) toast.error(data.error || "Erro ao sicronizar");
+            setSyncing(false);
+          }
+        } catch (e) {
+          clearInterval(interval);
+          setSyncJob((prev) => (prev ? { ...prev, status: "error" } : null));
+          if (syncing) toast.error("Erro de conexão ao atualizar dados");
+          setSyncing(false);
+        }
+      }, 3000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [syncJob, queryClient, dataLancamento?.$id, syncing]);
 
   const handleManualSync = async () => {
     if (!dataLancamento?.$id) return;
     setSyncing(true);
     try {
-      const response = await fetch("/api/meta-sync-lancamento", {
+      const response = await fetch("/api/meta-sync-start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lancamentoId: dataLancamento.$id }),
       });
       const data = await response.json();
       if (!response.ok || data.error) {
-        toast.error(data.error || "Erro ao atualizar dados");
+        toast.error(data.error || "Erro ao iniciar atualização");
+        setSyncing(false);
       } else {
-        const now = Date.now();
-        localStorage.setItem(`meta_sync_${dataLancamento.$id}`, now.toString());
-        queryClient.invalidateQueries();
-        toast.success("Dados atualizados!");
+        setSyncJob({ jobId: data.jobId, progresso: 0, status: data.status });
       }
     } catch (err: any) {
-      toast.error("Erro de conexão ao atualizar dados");
-    } finally {
+      toast.error("Erro de conexão ao iniciar atualização");
       setSyncing(false);
     }
   };
@@ -257,7 +315,13 @@ export default function PublicDashboardLancamento() {
           <h3 className="text-xl font-bold mb-4">
             {secaoTitulo("cards_metricas", "Métricas Principais")}
           </h3>
-          <MetricCards metricas={metricas} tipo={dataLancamento.tipo} />
+          <MetricCards
+            metricas={metricas}
+            tipo={
+              dataLancamento.tipo as unknown as "whatsapp" | "leads" | "ambos"
+            }
+            isLoading={isLoadingDashboard}
+          />
         </section>
       )}
 
@@ -474,7 +538,11 @@ export default function PublicDashboardLancamento() {
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-6"
               >
-                <MetricCards metricas={metricas} tipo="whatsapp" />
+                <MetricCards
+                  metricas={metricas}
+                  tipo="whatsapp"
+                  isLoading={isLoadingDashboard}
+                />
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <FunnelWhatsApp
                     metricas={metricas}

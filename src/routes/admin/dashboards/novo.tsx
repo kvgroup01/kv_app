@@ -187,7 +187,7 @@ export default function NovoDashboard() {
       cliente_id: form.cliente_id,
       nome: form.nome,
       slug: form.slug,
-      tipo: form.tipo,
+      tipo: form.tipo as TipoCampanha,
       status: status,
       palavra_chave_meta: form.palavra_chave_meta,
       meta_account_id: form.meta_account_id,
