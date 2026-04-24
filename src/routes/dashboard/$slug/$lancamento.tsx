@@ -94,6 +94,7 @@ export default function PublicDashboardLancamento() {
   const {
     data: dashboardData,
     isLoading: isLoadingDashboard,
+    isFetching,
     isError: isErrorDashboard,
     error: errorDashboard,
   } = useDashboard(
@@ -104,6 +105,10 @@ export default function PublicDashboardLancamento() {
     },
     dataLancamento?.$id,
   );
+
+  console.log("dashboardData:", dashboardData);
+  console.log("leadsGrupos:", dashboardData?.leadsGrupos);
+  console.log("metricas:", dashboardData?.metricas);
 
   // Parse seções configuradas
   const secoes = React.useMemo(() => {
@@ -158,17 +163,15 @@ export default function PublicDashboardLancamento() {
     );
   }
 
-  if (isLoadingDashboard) {
+  if (isLoadingDashboard && !dashboardData) {
     return <DashboardSkeleton />;
   }
 
-  if (errorDashboard || !dashboardData) {
+  if (errorDashboard && !dashboardData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <div className="max-w-md text-center space-y-4">
-          <p className="text-muted-foreground">
-            Carregando dados do dashboard...
-          </p>
+          <p className="text-muted-foreground">Erro ao carregar dados.</p>
         </div>
       </div>
     );
@@ -335,12 +338,20 @@ export default function PublicDashboardLancamento() {
               </p>
             </div>
           </div>
-          <div className="hidden sm:block w-[300px]">
-            <DateRangePicker
-              value={dateRange}
-              onChange={setDateRange}
-              className="w-full"
-            />
+          <div className="hidden sm:flex items-center gap-4 w-[auto]">
+            {isFetching && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                Atualizando...
+              </div>
+            )}
+            <div className="w-[300px]">
+              <DateRangePicker
+                value={dateRange}
+                onChange={setDateRange}
+                className="w-full"
+              />
+            </div>
           </div>
         </div>
       </header>
