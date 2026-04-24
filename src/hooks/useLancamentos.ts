@@ -132,7 +132,7 @@ export function useDeletarMetaAccount() {
 
 export function useValidarMetaToken() {
   return useMutation({
-    mutationFn: (token: string) => validarMetaToken(token),
+    mutationFn: ({ accountId, token }: { accountId: string; token: string }) => validarMetaToken(accountId, token),
   });
 }
 

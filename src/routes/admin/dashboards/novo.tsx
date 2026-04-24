@@ -79,6 +79,7 @@ export default function NovoDashboard() {
   const [showAddColuna, setShowAddColuna] = React.useState(false);
 
   const [newAccountToken, setNewAccountToken] = React.useState('');
+  const [newAccountId, setNewAccountId] = React.useState('');
   const [newAccountName, setNewAccountName] = React.useState('');
   const [campanhasEncontradas, setCampanhasEncontradas] = React.useState<any[] | null>(null);
 
@@ -122,38 +123,43 @@ export default function NovoDashboard() {
   };
 
   const validarToken = async () => {
-    if (!newAccountToken || !newAccountName) {
-      toast.error("Preencha o nome e o token.");
+    if (!newAccountToken || !newAccountId || !newAccountName) {
+      toast.error("Preencha o nome, ID da conta e o token.");
       return;
     }
-    toast.promise(validarTokenMutation.mutateAsync(newAccountToken), {
-      loading: 'Validando...',
-      success: (result) => {
-        if (!result.valido || !result.account_id) {
-          throw new Error("Token inválido ou sem acesso a publicidade.");
-        }
-        return `Conta ${result.nome_conta} validada!`;
-      },
-      error: (e) => 'Falha na validação do token'
-    }).then(async (result) => {
-      if (result.valido && result.account_id) {
-        // Salvar a conta
-        const novaConta = await criarMetaAccountMutation.mutateAsync({
-          nome: newAccountName,
-          meta_account_id: result.account_id,
-          meta_access_token: newAccountToken
-        });
-        setForm(prev => ({ 
-          ...prev, 
-          meta_account_id: result.account_id!, 
-          meta_access_token: newAccountToken,
-          meta_account_nome: newAccountName
-        }));
-        toast.success("Conta salva e selecionada com sucesso!");
-        setNewAccountName('');
-        setNewAccountToken('');
+    
+    try {
+      const result = await validarTokenMutation.mutateAsync({ accountId: newAccountId, token: newAccountToken });
+      
+      if (!result.valido || !result.account_id) {
+        toast.error("Token/Conta inválido ou sem acesso a publicidade.");
+        return;
       }
-    }).catch(e => console.error(e));
+      
+      const nomeContaValido = result.nome_conta || result.account_id;
+      
+      const novaConta = await criarMetaAccountMutation.mutateAsync({
+        nome: newAccountName,
+        meta_account_id: result.account_id,
+        meta_access_token: newAccountToken
+      });
+
+      setForm(prev => ({ 
+        ...prev, 
+        meta_account_id: result.account_id!, 
+        meta_access_token: newAccountToken,
+        meta_account_nome: newAccountName
+      }));
+      
+      toast.success(`Conta ${nomeContaValido} salva e selecionada com sucesso!`);
+      
+      setNewAccountName('');
+      setNewAccountId('');
+      setNewAccountToken('');
+    } catch (e: any) {
+      console.error(e);
+      toast.error("Falha na validação ou salvamento da conta");
+    }
   };
 
   const testarFiltro = async () => {
@@ -525,6 +531,11 @@ export default function NovoDashboard() {
                   <div className="space-y-2">
                     <label className="text-xs font-semibold uppercase text-muted-foreground">Apelido da conta</label>
                     <Input placeholder="ex: Conta Matriz KV" value={newAccountName} onChange={e => setNewAccountName(e.target.value)} className="bg-background"/>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold uppercase text-muted-foreground">Meta Ad Account ID</label>
+                    <Input placeholder="act_1234567890" value={newAccountId} onChange={e => setNewAccountId(e.target.value)} className="bg-background"/>
+                    <p className="text-xs text-muted-foreground">Encontre em business.facebook.com → Configurações → Contas de anúncios</p>
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-semibold uppercase text-muted-foreground">Access Token Graph API</label>

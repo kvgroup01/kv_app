@@ -382,28 +382,24 @@ export async function deletarMetaAccount(id: string): Promise<void> {
   await databases.deleteDocument(DB_ID, 'meta_accounts', id);
 }
 
-export async function validarMetaToken(token: string): Promise<{ 
+export async function validarMetaToken(accountId: string, token: string): Promise<{ 
   valido: boolean, 
   account_id?: string, 
   nome_conta?: string 
 }> {
   try {
-    const response = await fetch(`https://graph.facebook.com/v19.0/me/adaccounts?fields=name,account_id&access_token=${token}`);
+    const response = await fetch(`https://graph.facebook.com/v19.0/${accountId}?fields=name,account_status&access_token=${token}`);
     const data = await response.json();
     
     if (data.error) {
-      return { valido: false };
+      return { valido: false, nome_conta: undefined };
     }
     
-    if (data.data && data.data.length > 0) {
-      return {
-        valido: true,
-        account_id: `act_${data.data[0].account_id}`,
-        nome_conta: data.data[0].name
-      };
-    }
-    
-    return { valido: false };
+    return {
+      valido: true,
+      account_id: accountId,
+      nome_conta: data.name
+    };
   } catch (err) {
     return { valido: false };
   }
