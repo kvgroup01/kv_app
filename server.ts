@@ -127,6 +127,47 @@ app.post('/api/webhook', async (req, res) => {
   }
 });
 
+app.post('/api/meta/validar-token', async (req, res) => {
+  try {
+    const { accountId, token } = req.body;
+    if (!accountId || !token) {
+      return res.status(400).json({ error: 'accountId e token são obrigatórios' });
+    }
+    const response = await fetch(`https://graph.facebook.com/v19.0/${accountId}?fields=name,account_status&access_token=${token}`);
+    const data = await response.json();
+    if (data.error) {
+      return res.status(400).json({ error: data.error.message || 'Erro ao validar token', details: data.error });
+    }
+    res.json(data);
+  } catch (error: any) {
+    res.status(500).json({ error: 'Erro interno no servidor', details: error.message });
+  }
+});
+
+app.post('/api/meta/testar-filtro', async (req, res) => {
+  try {
+    const { accountId, token, palavraChave } = req.body;
+    if (!accountId || !token || !palavraChave) {
+      return res.status(400).json({ error: 'accountId, token e palavraChave são obrigatórios' });
+    }
+    const response = await fetch(`https://graph.facebook.com/v19.0/${accountId}/campaigns?fields=name,status,insights{spend}&limit=100&access_token=${token}`);
+    const data = await response.json();
+    if (data.error) {
+      return res.status(400).json({ error: data.error.message || 'Erro ao buscar campanhas', details: data.error });
+    }
+    const campanhas = (data.data || []).filter((c: any) => 
+       c.name.toLowerCase().includes(palavraChave.toLowerCase())
+    ).map((c: any) => ({
+      nome: c.name,
+      status: c.status,
+      gasto: c.insights && c.insights.data && c.insights.data.length > 0 ? c.insights.data[0].spend : '0.00'
+    }));
+    res.json({ data: campanhas });
+  } catch (error: any) {
+    res.status(500).json({ error: 'Erro interno no servidor', details: error.message });
+  }
+});
+
 /**
  * Healthcheck
  */

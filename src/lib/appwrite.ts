@@ -388,7 +388,16 @@ export async function validarMetaToken(accountId: string, token: string): Promis
   nome_conta?: string 
 }> {
   try {
-    const response = await fetch(`https://graph.facebook.com/v19.0/${accountId}?fields=name,account_status&access_token=${token}`);
+    const response = await fetch('/api/meta/validar-token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accountId, token })
+    });
+    
+    if (!response.ok) {
+      return { valido: false, nome_conta: undefined };
+    }
+    
     const data = await response.json();
     
     if (data.error) {
@@ -410,18 +419,24 @@ export async function testarFiltroCampanhas(accountId: string, token: string, pa
   status: string, 
   gasto: string
 }[]> {
-  const response = await fetch(`https://graph.facebook.com/v19.0/${accountId}/campaigns?fields=name,status,insights{spend}&access_token=${token}`);
-  const data = await response.json();
+  const response = await fetch('/api/meta/testar-filtro', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ accountId, token, palavraChave })
+  });
   
-  if (data.error || !data.data) {
-    throw new Error(data.error?.message || 'Erro ao buscar campanhas');
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.error || 'Erro ao testar filtro');
   }
   
-  return data.data
-    .filter((camp: any) => camp.name.includes(palavraChave))
-    .map((camp: any) => ({
-      nome: camp.name,
-      status: camp.status,
-      gasto: camp.insights?.data?.[0]?.spend || '0.00'
-    }));
+  const data = await response.json();
+  
+  if (data.error) {
+    throw new Error(data.error || 'Erro ao buscar campanhas');
+  }
+  
+  // The server returns the campaigns array wrapping in { data: campanhas } or similar
+  // Let's adapt based on the server response structure. I wrote: res.json({ data: campanhas })
+  return data.data || [];
 }
