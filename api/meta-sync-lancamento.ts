@@ -117,6 +117,7 @@ export default async function handler(req: any, res: any) {
         tipo: c.objective === "OUTCOME_LEADS" ? "leads" : "whatsapp",
         status: c.status,
         fonte_dados: "meta",
+        // NÃO incluir 'id' aqui
       };
       if (existing.documents.length > 0) {
         await db.updateDocument(
@@ -148,6 +149,7 @@ export default async function handler(req: any, res: any) {
         nome: a.name,
         publico_descricao: JSON.stringify(a.targeting || {}),
         escolaridade: null,
+        // NÃO incluir 'id' aqui
       };
       if (existing.documents.length > 0) {
         await db.updateDocument(DB, "adsets", existing.documents[0].$id, data);
@@ -169,6 +171,7 @@ export default async function handler(req: any, res: any) {
         nome: a.name,
         thumbnail_url: a.creative?.thumbnail_url || "",
         link_anuncio: null,
+        // NÃO incluir 'id' aqui
       };
       if (existing.documents.length > 0) {
         await db.updateDocument(DB, "ads", existing.documents[0].$id, data);
@@ -180,6 +183,8 @@ export default async function handler(req: any, res: any) {
     };
 
     const countInsights = new Set<string>();
+
+    console.log("Sincronizando campanhas, conjuntos e anúncios...");
 
     for (const fbCampaign of activeCampaigns) {
       const appwriteCampId = await upsertCampaign(fbCampaign);
@@ -204,70 +209,96 @@ export default async function handler(req: any, res: any) {
           adsCount++;
         }
       }
+    }
 
-      const insightsData = await fetchMeta(`${fbCampaign.id}/insights`, {
-        level: "ad",
-        fields: [
-          "ad_id",
-          "spend",
-          "impressions",
-          "reach",
-          "clicks",
-          "actions",
-        ].join(","),
-        time_increment: 1,
-        time_range: JSON.stringify({
-          since: dateSinceStr,
-          until: dateUntilStr,
-        }),
-        limit: 500,
-      });
+    console.log("Buscando insights...");
 
-      for (const i of insightsData.data) {
-        const criativo_id = fbAdToAppwriteAd.get(i.ad_id);
-        if (!criativo_id) continue;
+    const insightsParams: any = {
+      level: "ad",
+      fields: [
+        "spend",
+        "impressions",
+        "reach",
+        "clicks",
+        "actions",
+        "campaign_name",
+        "adset_name",
+        "ad_name",
+        "ad_id",
+      ].join(","),
+      time_increment: 1,
+      time_range: JSON.stringify({
+        since: dateSinceStr,
+        until: dateUntilStr,
+      }),
+      limit: 500,
+    };
 
-        const dataStr = i.date_start;
-        countInsights.add(dataStr);
+    if (palavra_chave_meta) {
+      insightsParams.filtering = JSON.stringify([
+        {
+          field: "campaign.name",
+          operator: "CONTAIN",
+          value: palavra_chave_meta,
+        },
+      ]);
+    }
 
-        const existing = await db.listDocuments(DB, "daily_metrics", [
-          Query.equal("criativo_id", criativo_id),
-          Query.equal("data", dataStr),
-          Query.limit(1),
-        ]);
+    const insightsData = await fetchMeta(
+      `${accountId}/insights`,
+      insightsParams,
+    );
 
-        const actions = i.actions || [];
-        const conversasArr = actions.find(
-          (a: any) =>
-            a.action_type ===
-            "onsite_conversion.messaging_conversation_started_7d",
+    console.log(
+      `Insights recebidos: ${insightsData.data ? insightsData.data.length : 0}`,
+    );
+    console.log("Salvando no AppWrite...");
+
+    for (const i of insightsData.data || []) {
+      const criativo_id = fbAdToAppwriteAd.get(i.ad_id);
+      if (!criativo_id) continue;
+
+      const dataStr = i.date_start;
+      countInsights.add(dataStr);
+
+      const existing = await db.listDocuments(DB, "daily_metrics", [
+        Query.equal("criativo_id", criativo_id),
+        Query.equal("data", dataStr),
+        Query.limit(1),
+      ]);
+
+      const actions = i.actions || [];
+      const conversasArr = actions.find(
+        (a: any) =>
+          a.action_type ===
+          "onsite_conversion.messaging_conversation_started_7d",
+      );
+      const conversas = conversasArr ? Number(conversasArr.value) : 0;
+
+      const data = {
+        criativo_id,
+        data: dataStr,
+        investimento: Number(i.spend) || 0,
+        impressoes: Number(i.impressions) || 0,
+        alcance: Number(i.reach) || 0,
+        cliques: Number(i.clicks) || 0,
+        conversas,
+        leads_qualificados: 0,
+        leads_desqualificados: 0,
+        vendas: 0,
+        cliente_id,
+        // NÃO incluir 'id' aqui
+      };
+
+      if (existing.documents.length > 0) {
+        await db.updateDocument(
+          DB,
+          "daily_metrics",
+          existing.documents[0].$id,
+          data,
         );
-        const conversas = conversasArr ? Number(conversasArr.value) : 0;
-
-        const data = {
-          criativo_id,
-          data: dataStr,
-          investimento: Number(i.spend) || 0,
-          impressoes: Number(i.impressions) || 0,
-          alcance: Number(i.reach) || 0,
-          cliques: Number(i.clicks) || 0,
-          conversas,
-          leads_qualificados: 0,
-          leads_desqualificados: 0,
-          vendas: 0,
-          cliente_id,
-        };
-
-        if (existing.documents.length > 0) {
-          await db.updateDocument(
-            DB,
-            "daily_metrics",
-            existing.documents[0].$id,
-            data,
-          );
-        } else {
-          await db.createDocument(DB, "daily_metrics", ID.unique(), data);
-        }
+      } else {
+        await db.createDocument(DB, "daily_metrics", ID.unique(), data);
       }
     }
 
