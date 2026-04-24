@@ -388,26 +388,22 @@ export async function validarMetaToken(accountId: string, token: string): Promis
   nome_conta?: string 
 }> {
   try {
-    const response = await fetch('/api/meta/validar-token', {
+    const response = await fetch('/api/meta-validar-token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ accountId, token })
     });
     
-    if (!response.ok) {
-      return { valido: false, nome_conta: undefined };
-    }
-    
     const data = await response.json();
     
-    if (data.error) {
+    if (!response.ok || !data.valido) {
       return { valido: false, nome_conta: undefined };
     }
     
     return {
-      valido: true,
-      account_id: accountId,
-      nome_conta: data.name
+      valido: data.valido,
+      account_id: data.account_id,
+      nome_conta: data.nome_conta
     };
   } catch (err) {
     return { valido: false };
@@ -419,24 +415,17 @@ export async function testarFiltroCampanhas(accountId: string, token: string, pa
   status: string, 
   gasto: string
 }[]> {
-  const response = await fetch('/api/meta/testar-filtro', {
+  const response = await fetch('/api/meta-testar-filtro', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ accountId, token, palavraChave })
   });
   
-  if (!response.ok) {
-    const data = await response.json();
-    throw new Error(data.error || 'Erro ao testar filtro');
-  }
-  
   const data = await response.json();
-  
-  if (data.error) {
-    throw new Error(data.error || 'Erro ao buscar campanhas');
+
+  if (!response.ok || data.erro) {
+    throw new Error(data.erro || 'Erro ao testar filtro');
   }
   
-  // The server returns the campaigns array wrapping in { data: campanhas } or similar
-  // Let's adapt based on the server response structure. I wrote: res.json({ data: campanhas })
   return data.data || [];
 }
