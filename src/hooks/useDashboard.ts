@@ -49,6 +49,9 @@ interface DashboardResult {
   rankingCriativos: CriativoComMetricas[];
   rankingPublicos: ConjuntoComMetricas[];
   relatorioCampanhas: any[];
+  totalLeads: number;
+  leadsSuperiores: any[];
+  leadsMedio: any[];
 }
 
 export function useDashboard(
@@ -66,8 +69,31 @@ export function useDashboard(
         throw new Error("Cliente inválido ou não configurado corretamente.");
       }
 
-      let campanhasRaw: any[] = [];
-      let conjuntosRaw: any[] = [];
+      const metricasVazias = {
+        investimento: 0,
+        impressoes: 0,
+        alcance: 0,
+        cliques: 0,
+        conversas: 0,
+        leads_qualificados: 0,
+        leads_desqualificados: 0,
+        leads_total: 0,
+        vendas: 0,
+        ctr: 0,
+        cpm: 0,
+        custo_conversa: 0,
+        cpl: 0,
+        taxa_conversao: 0,
+        pct_qualificados: 0,
+        pct_desqualificados: 0,
+        grupos_formados: 0,
+        leads_superior: 0,
+        leads_medio: 0,
+      };
+
+      try {
+        let campanhasRaw: any[] = [];
+        let conjuntosRaw: any[] = [];
       let criativosRaw: any[] = [];
       let metricasDiarias: MetricaDiaria[] = [];
       let leadsGrupos: LeadGrupo[] = [];
@@ -132,7 +158,7 @@ export function useDashboard(
             return medio.includes(valor) ? "medio" : "superior";
           }
 
-          if (importedLeads.length > 0) {
+          if ((importedLeads ?? []).length > 0) {
             // Conta agrupada por data
             const contagemPorData: Record<
               string,
@@ -348,29 +374,7 @@ export function useDashboard(
       });
 
       // Calcula métricas gerais
-      const metricasGerais = calcularMetricas(metricasDiarias);
-
-      const metricasVazias = {
-        investimento: 0,
-        impressoes: 0,
-        alcance: 0,
-        cliques: 0,
-        conversas: 0,
-        leads_qualificados: 0,
-        leads_desqualificados: 0,
-        leads_total: 0,
-        vendas: 0,
-        ctr: 0,
-        cpm: 0,
-        custo_conversa: 0,
-        cpl: 0,
-        taxa_conversao: 0,
-        pct_qualificados: 0,
-        pct_desqualificados: 0,
-        grupos_formados: 0,
-        leads_superior: 0,
-        leads_medio: 0,
-      };
+      const metricasGerais = calcularMetricas(metricasDiarias) ?? metricasVazias;
 
       // Adiciona métricas de escolaridade vindas da aba LEADS_GRUPOS (ou manual_inputs)
       const totalSuperior = leadsGrupos.reduce(
@@ -404,10 +408,33 @@ export function useDashboard(
         leadsGrupos: leadsGrupos ?? [],
         metricas: finalMetricas,
         serieHistorica: finalSerieHistorica,
-        rankingCriativos: criativosComMetricas ?? [],
-        rankingPublicos: conjuntosComMetricas ?? [],
+        rankingCriativos: (criativosComMetricas ?? []).slice(0, 4),
+        rankingPublicos: (conjuntosComMetricas ?? []).slice(0, 4),
         relatorioCampanhas: campanhasComMetricas ?? [],
+        totalLeads: finalMetricas.leads_total ?? 0,
+        leadsSuperiores: [],
+        leadsMedio: [],
       };
+      } catch (error) {
+        console.error('Erro no useDashboard:', error);
+        return {
+          cliente,
+          campanhas: [],
+          conjuntos: [],
+          criativos: [],
+          metricasAgregadas: metricasVazias as any,
+          dadosAgrupadosPorDia: [],
+          leadsGrupos: [],
+          metricas: metricasVazias as any,
+          serieHistorica: [],
+          rankingCriativos: [],
+          rankingPublicos: [],
+          relatorioCampanhas: [],
+          totalLeads: 0,
+          leadsSuperiores: [],
+          leadsMedio: [],
+        };
+      }
     },
     staleTime: 1000 * 60 * 5, // 5 minutos de cache (limite da API do sheets)
     enabled: !!slug && !!dateRange.from && !!dateRange.to,
