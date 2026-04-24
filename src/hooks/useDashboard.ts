@@ -395,10 +395,20 @@ export function useDashboard(
           leads_medio: totalMedio,
         };
 
-        const finalMetricas =
-          metricasExtended.investimento > 0 || metricasExtended.impressoes > 0
-            ? metricasExtended
-            : metricasVazias;
+        const totalLeads = totalSuperior + totalMedio;
+
+        const finalMetricas = {
+          ...metricasExtended,
+          leads_superior: totalSuperior,
+          leads_medio: totalMedio,
+          leads_total: totalLeads,
+          leads_qualificados: totalSuperior,
+          leads_desqualificados: totalMedio,
+          cpl:
+            metricasExtended.investimento > 0 && totalSuperior > 0
+              ? metricasExtended.investimento / totalSuperior
+              : 0,
+        };
         const finalSerieHistorica = agruparPorDia(metricasDiarias) ?? [];
 
         return {
