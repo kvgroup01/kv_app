@@ -12,7 +12,8 @@
     "lint": "tsc --noEmit",
     "setup": "npx tsx setup-appwrite.ts",
     "seed": "npx tsx seed-mock.ts",
-    "import-leads": "npx tsx import-from-sheets.ts"
+    "import-leads": "npx tsx import-from-sheets.ts",
+    "create-lead-entries": "npx tsx create-lead-entries.ts"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",

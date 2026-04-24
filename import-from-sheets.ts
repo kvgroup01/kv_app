@@ -102,47 +102,57 @@ async function runImport() {
     const contentIdx = headers.findIndex((h: string) => h === 'utm_content');
 
     let inserted = 0;
-    
+    const BATCH_SIZE = 50;
+    const validRows = [];
+
     for (let i = 1; i < rows.length; i++) {
       const row = rows[i];
       // Pula linhas vazias
       if (!row || row.length === 0 || (!row[nomeIdx] && !row[emailIdx] && !row[telefoneIdx])) {
         continue;
       }
-      
-      console.log(`Importando linha ${i} de ${rows.length - 1}...`);
-      
-      const rawDate = dataIdx !== -1 ? row[dataIdx] : '';
-      const formattedDate = parseDate(rawDate);
-      
-      const payload = {
-        lancamento_id: LANCAMENTO_ID,
-        data: formattedDate || undefined,
-        nome: nomeIdx !== -1 ? row[nomeIdx] : undefined,
-        email: emailIdx !== -1 ? row[emailIdx] : undefined,
-        escolaridade: escolaridadeIdx !== -1 ? row[escolaridadeIdx] : undefined,
-        telefone: telefoneIdx !== -1 ? row[telefoneIdx] : undefined,
-        utm_source: sourceIdx !== -1 ? row[sourceIdx] : undefined,
-        utm_campaign: campaignIdx !== -1 ? row[campaignIdx] : undefined,
-        utm_medium: mediumIdx !== -1 ? row[mediumIdx] : undefined,
-        utm_term: termIdx !== -1 ? row[termIdx] : undefined,
-        utm_content: contentIdx !== -1 ? row[contentIdx] : undefined,
-      };
-      
-      try {
-        await databases.createDocument(
-          DB_ID,
-          'lead_entries',
-          sdk.ID.unique(),
-          payload
-        );
-        inserted++;
-      } catch (err: any) {
-        console.error(`Erro ao salvar linha ${i}:`, err.message);
-      }
-      
-      // Pequena pausa para evitar rate limit, se necessário
-      await new Promise(resolve => setTimeout(resolve, 50));
+      validRows.push({ rowIndex: i, row });
+    }
+
+    console.log(`Processando ${validRows.length} linhas validas em batches de ${BATCH_SIZE}...`);
+
+    for (let i = 0; i < validRows.length; i += BATCH_SIZE) {
+      const batch = validRows.slice(i, i + BATCH_SIZE);
+      const batchPromises = batch.map(async ({ rowIndex, row }) => {
+        const rawDate = dataIdx !== -1 ? row[dataIdx] : '';
+        const formattedDate = parseDate(rawDate);
+        
+        const payload = {
+          lancamento_id: LANCAMENTO_ID,
+          data: formattedDate || undefined,
+          nome: nomeIdx !== -1 ? row[nomeIdx] : undefined,
+          email: emailIdx !== -1 ? row[emailIdx] : undefined,
+          escolaridade: escolaridadeIdx !== -1 ? row[escolaridadeIdx] : undefined,
+          telefone: telefoneIdx !== -1 ? row[telefoneIdx] : undefined,
+          utm_source: sourceIdx !== -1 ? row[sourceIdx] : undefined,
+          utm_campaign: campaignIdx !== -1 ? row[campaignIdx] : undefined,
+          utm_medium: mediumIdx !== -1 ? row[mediumIdx] : undefined,
+          utm_term: termIdx !== -1 ? row[termIdx] : undefined,
+          utm_content: contentIdx !== -1 ? row[contentIdx] : undefined,
+        };
+        
+        try {
+          await databases.createDocument(
+            DB_ID,
+            'lead_entries',
+            sdk.ID.unique(),
+            payload
+          );
+          return true;
+        } catch (err: any) {
+          console.error(`Erro ao salvar linha ${rowIndex}:`, err.message);
+          return false;
+        }
+      });
+
+      const results = await Promise.all(batchPromises);
+      inserted += results.filter(Boolean).length;
+      console.log(`Lote ${(i / BATCH_SIZE) + 1} / ${Math.ceil(validRows.length / BATCH_SIZE)} concluído. Leads inseridos: ${inserted}/${validRows.length}`);
     }
     
     console.log(`✅ Importação concluída! ${inserted} leads importados.`);
