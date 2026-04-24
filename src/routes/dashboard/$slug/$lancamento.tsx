@@ -110,6 +110,10 @@ export default function PublicDashboardLancamento() {
     return <DashboardSkeleton />;
   }
 
+  if (!dashboardData || !dashboardData.metricas) {
+    return <DashboardSkeleton />;
+  }
+
   if (isErrorDashboard) {
     return (
        <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -124,7 +128,7 @@ export default function PublicDashboardLancamento() {
     );
   }
 
-  const { cliente, metricas, serieHistorica, relatorioCampanhas, rankingCriativos, rankingPublicos, criativos, leadsGrupos } = dashboardData!;
+  const { cliente, metricas, serieHistorica, relatorioCampanhas, rankingCriativos, rankingPublicos, criativos, leadsGrupos } = dashboardData;
 
   // Fallbacks if section logic isn't perfectly mapped
   const secaoAtiva = (key: SecaoId) => secoes?.[key]?.ativo ?? true;

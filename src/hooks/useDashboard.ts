@@ -213,6 +213,28 @@ export function useDashboard(slug: string, dateRange: { from: Date; to: Date }, 
       // Calcula métricas gerais
       const metricasGerais = calcularMetricas(metricasDiarias);
       
+      const metricasVazias = {
+        investimento: 0,
+        impressoes: 0,
+        alcance: 0,
+        cliques: 0,
+        conversas: 0,
+        leads_qualificados: 0,
+        leads_desqualificados: 0,
+        leads_total: 0,
+        vendas: 0,
+        ctr: 0,
+        cpm: 0,
+        custo_conversa: 0,
+        cpl: 0,
+        taxa_conversao: 0,
+        pct_qualificados: 0,
+        pct_desqualificados: 0,
+        grupos_formados: 0,
+        leads_superior: 0,
+        leads_medio: 0
+      };
+      
       // Adiciona métricas de escolaridade vindas da aba LEADS_GRUPOS (ou manual_inputs)
       const totalSuperior = leadsGrupos.reduce((acc, g) => acc + g.leads_ensino_superior, 0);
       const totalMedio = leadsGrupos.reduce((acc, g) => acc + g.leads_ensino_medio, 0);
@@ -223,19 +245,22 @@ export function useDashboard(slug: string, dateRange: { from: Date; to: Date }, 
         leads_medio: totalMedio
       };
 
+      const finalMetricas = metricasExtended.investimento > 0 || metricasExtended.impressoes > 0 ? metricasExtended : metricasVazias;
+      const finalSerieHistorica = agruparPorDia(metricasDiarias) ?? [];
+
       return {
         cliente,
-        campanhas: campanhasComMetricas,
-        conjuntos: conjuntosComMetricas,
-        criativos: criativosComMetricas,
-        metricasAgregadas: metricasExtended,
-        dadosAgrupadosPorDia: agruparPorDia(metricasDiarias),
-        leadsGrupos,
-        metricas: metricasExtended,
-        serieHistorica: agruparPorDia(metricasDiarias),
-        rankingCriativos: criativosComMetricas,
-        rankingPublicos: conjuntosComMetricas,
-        relatorioCampanhas: campanhasComMetricas,
+        campanhas: campanhasComMetricas ?? [],
+        conjuntos: conjuntosComMetricas ?? [],
+        criativos: criativosComMetricas ?? [],
+        metricasAgregadas: finalMetricas,
+        dadosAgrupadosPorDia: finalSerieHistorica,
+        leadsGrupos: leadsGrupos ?? [],
+        metricas: finalMetricas,
+        serieHistorica: finalSerieHistorica,
+        rankingCriativos: criativosComMetricas ?? [],
+        rankingPublicos: conjuntosComMetricas ?? [],
+        relatorioCampanhas: campanhasComMetricas ?? [],
       };
     },
     staleTime: 1000 * 60 * 5, // 5 minutos de cache (limite da API do sheets)
