@@ -36,34 +36,39 @@ export function fmtData(dateStr: string): string {
 export const fmtDataString = fmtData;
 
 export function calcularMetricas(metricas: MetricaDiaria[]): MetricasAgregadas {
-  let investimento = 0, impressoes = 0, alcance = 0, cliques = 0, conversas = 0;
-  let leads_qualificados = 0, leads_desqualificados = 0, vendas = 0;
-
-  for (const m of metricas) {
-    investimento += m.investimento;
-    impressoes += m.impressoes;
-    alcance += m.alcance;
-    cliques += m.cliques;
-    conversas += m.conversas;
-    leads_qualificados += m.leads_qualificados;
-    leads_desqualificados += m.leads_desqualificados;
-    vendas += m.vendas;
+  const metricasVazias: MetricasAgregadas = {
+    investimento: 0, impressoes: 0, alcance: 0,
+    cliques: 0, conversas: 0, leads_qualificados: 0,
+    leads_desqualificados: 0, leads_total: 0,
+    leads_superior: 0, leads_medio: 0, vendas: 0,
+    ctr: 0, cpm: 0, custo_conversa: 0, cpl: 0,
+    taxa_conversao: 0, pct_qualificados: 0,
+    pct_desqualificados: 0, grupos_formados: 0,
   }
 
-  const leads_total = leads_qualificados + leads_desqualificados;
+  if (!metricas || metricas.length === 0) return metricasVazias
+
+  let investimento = 0, impressoes = 0, alcance = 0, 
+      cliques = 0, conversas = 0, leads_qualificados = 0, 
+      leads_desqualificados = 0, vendas = 0
+
+  for (const m of metricas) {
+    investimento += m?.investimento ?? 0
+    impressoes += m?.impressoes ?? 0
+    alcance += m?.alcance ?? 0
+    cliques += m?.cliques ?? 0
+    conversas += m?.conversas ?? 0
+    leads_qualificados += m?.leads_qualificados ?? 0
+    leads_desqualificados += m?.leads_desqualificados ?? 0
+    vendas += m?.vendas ?? 0
+  }
+
+  const leads_total = leads_qualificados + leads_desqualificados
 
   return {
-    investimento,
-    impressoes,
-    alcance,
-    cliques,
-    conversas,
-    leads_qualificados,
-    leads_desqualificados,
-    leads_total,
-    leads_superior: 0, // Default 0, preenchido no hook useDashboard
-    leads_medio: 0,    // Default 0, preenchido no hook useDashboard
-    vendas,
+    investimento, impressoes, alcance, cliques,
+    conversas, leads_qualificados, leads_desqualificados,
+    leads_total, leads_superior: 0, leads_medio: 0, vendas,
     ctr: impressoes > 0 ? (cliques / impressoes) * 100 : 0,
     cpm: impressoes > 0 ? (investimento / impressoes) * 1000 : 0,
     custo_conversa: conversas > 0 ? investimento / conversas : 0,
@@ -76,21 +81,23 @@ export function calcularMetricas(metricas: MetricaDiaria[]): MetricasAgregadas {
 }
 
 export function agruparPorDia(metricas: MetricaDiaria[]) {
+  if (!metricas || metricas.length === 0) return [];
   const map = new Map<string, typeof metricas[0]>();
 
   for (const m of metricas) {
+    if (!m) continue;
     if (!map.has(m.data)) {
       map.set(m.data, { ...m });
     } else {
       const item = map.get(m.data)!;
-      item.investimento += m.investimento;
-      item.impressoes += m.impressoes;
-      item.alcance += m.alcance;
-      item.cliques += m.cliques;
-      item.conversas += m.conversas;
-      item.leads_qualificados += m.leads_qualificados;
-      item.leads_desqualificados += m.leads_desqualificados;
-      item.vendas += m.vendas;
+      item.investimento += m?.investimento ?? 0;
+      item.impressoes += m?.impressoes ?? 0;
+      item.alcance += m?.alcance ?? 0;
+      item.cliques += m?.cliques ?? 0;
+      item.conversas += m?.conversas ?? 0;
+      item.leads_qualificados += m?.leads_qualificados ?? 0;
+      item.leads_desqualificados += m?.leads_desqualificados ?? 0;
+      item.vendas += m?.vendas ?? 0;
     }
   }
 
