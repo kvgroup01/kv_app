@@ -1,5 +1,5 @@
 import { Client, Account, Databases, Storage, ID, Query } from 'appwrite';
-import type { Cliente, Pasta, Convite, Orcamento, Pagamento } from './types';
+import type { Cliente, Pasta, Convite, Orcamento, Pagamento, Lancamento, MetaAccount } from './types';
 
 // Garantir que a URL termine com /v1 (corrige erro de rota 404 HTML caso a env file tenha falhado)
 let endpoint = import.meta.env.VITE_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
@@ -296,4 +296,136 @@ export async function fetchManualInputsAppwrite(cliente_id: string, from: Date, 
     Query.limit(500)
   ]);
   return docs.documents;
+}
+
+// --- Lançamentos ---
+export async function listarLancamentos(clienteId?: string): Promise<Lancamento[]> {
+  const queries = [Query.orderDesc('criado_em')];
+  if (clienteId) {
+    queries.push(Query.equal('cliente_id', clienteId));
+  }
+  const docs = await databases.listDocuments(DB_ID, 'lancamentos', queries);
+  return docs.documents as unknown as Lancamento[];
+}
+
+export async function buscarLancamento(id: string): Promise<Lancamento> {
+  const doc = await databases.getDocument(DB_ID, 'lancamentos', id);
+  return doc as unknown as Lancamento;
+}
+
+export async function buscarLancamentoPorSlug(clienteSlug: string, lancamentoSlug: string): Promise<Lancamento> {
+  const cliente = await buscarClientePorSlug(clienteSlug);
+  const docs = await databases.listDocuments(DB_ID, 'lancamentos', [
+    Query.equal('cliente_id', cliente.$id!),
+    Query.equal('slug', lancamentoSlug),
+    Query.limit(1)
+  ]);
+  if (docs.documents.length === 0) throw new Error('Lançamento não encontrado');
+  return docs.documents[0] as unknown as Lancamento;
+}
+
+export async function criarLancamento(data: Partial<Lancamento>): Promise<Lancamento> {
+  const id = ID.unique();
+  const webhook_url = `${window.location.origin}/api/webhook/${id}`;
+  const now = new Date().toISOString();
+  
+  const doc = await databases.createDocument(DB_ID, 'lancamentos', id, {
+    ...data,
+    webhook_url,
+    criado_em: now
+  });
+  return doc as unknown as Lancamento;
+}
+
+export async function atualizarLancamento(id: string, data: Partial<Lancamento>): Promise<Lancamento> {
+  const doc = await databases.updateDocument(DB_ID, 'lancamentos', id, data);
+  return doc as unknown as Lancamento;
+}
+
+export async function publicarLancamento(id: string): Promise<Lancamento> {
+  const publicado_em = new Date().toISOString();
+  const doc = await databases.updateDocument(DB_ID, 'lancamentos', id, { 
+    status: 'ativo', 
+    publicado_em 
+  });
+  return doc as unknown as Lancamento;
+}
+
+export async function encerrarLancamento(id: string): Promise<Lancamento> {
+  const doc = await databases.updateDocument(DB_ID, 'lancamentos', id, { 
+    status: 'encerrado' 
+  });
+  return doc as unknown as Lancamento;
+}
+
+export async function deletarLancamento(id: string): Promise<void> {
+  await databases.deleteDocument(DB_ID, 'lancamentos', id);
+}
+
+// --- Meta Accounts ---
+export async function listarMetaAccounts(): Promise<MetaAccount[]> {
+  const docs = await databases.listDocuments(DB_ID, 'meta_accounts', [
+    Query.orderDesc('criado_em')
+  ]);
+  return docs.documents as unknown as MetaAccount[];
+}
+
+export async function criarMetaAccount(data: Omit<MetaAccount, '$id'>): Promise<MetaAccount> {
+  const doc = await databases.createDocument(DB_ID, 'meta_accounts', ID.unique(), {
+    ...data,
+    criado_em: new Date().toISOString()
+  });
+  return doc as unknown as MetaAccount;
+}
+
+export async function deletarMetaAccount(id: string): Promise<void> {
+  await databases.deleteDocument(DB_ID, 'meta_accounts', id);
+}
+
+export async function validarMetaToken(token: string): Promise<{ 
+  valido: boolean, 
+  account_id?: string, 
+  nome_conta?: string 
+}> {
+  try {
+    const response = await fetch(`https://graph.facebook.com/v19.0/me/adaccounts?fields=name,account_id&access_token=${token}`);
+    const data = await response.json();
+    
+    if (data.error) {
+      return { valido: false };
+    }
+    
+    if (data.data && data.data.length > 0) {
+      return {
+        valido: true,
+        account_id: `act_${data.data[0].account_id}`,
+        nome_conta: data.data[0].name
+      };
+    }
+    
+    return { valido: false };
+  } catch (err) {
+    return { valido: false };
+  }
+}
+
+export async function testarFiltroCampanhas(accountId: string, token: string, palavraChave: string): Promise<{
+  nome: string,
+  status: string, 
+  gasto: string
+}[]> {
+  const response = await fetch(`https://graph.facebook.com/v19.0/${accountId}/campaigns?fields=name,status,insights{spend}&access_token=${token}`);
+  const data = await response.json();
+  
+  if (data.error || !data.data) {
+    throw new Error(data.error?.message || 'Erro ao buscar campanhas');
+  }
+  
+  return data.data
+    .filter((camp: any) => camp.name.includes(palavraChave))
+    .map((camp: any) => ({
+      nome: camp.name,
+      status: camp.status,
+      gasto: camp.insights?.data?.[0]?.spend || '0.00'
+    }));
 }

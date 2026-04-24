@@ -29,6 +29,7 @@ interface SidebarProps {
 const NAV_ITEMS = [
   { href: '/admin', icon: LayoutDashboard, label: 'Dashboard', exact: true },
   { href: '/admin/clientes', icon: Users, label: 'Clientes' },
+  { href: '/admin/dashboards', icon: LayoutDashboard, label: 'Dashboards' },
   { href: '/admin/financeiro', icon: Wallet, label: 'Financeiro' },
   { href: '/admin/orcamentos', icon: FileText, label: 'Orçamentos' },
   { href: '/admin/configuracoes', icon: Settings, label: 'Configurações' },

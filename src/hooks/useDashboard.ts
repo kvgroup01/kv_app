@@ -44,9 +44,9 @@ interface DashboardResult {
   relatorioCampanhas: any[];
 }
 
-export function useDashboard(slug: string, dateRange: { from: Date; to: Date }) {
+export function useDashboard(slug: string, dateRange: { from: Date; to: Date }, lancamentoId?: string) {
   return useQuery<DashboardResult, Error>({
-    queryKey: ['dashboard', slug, dateRange.from, dateRange.to],
+    queryKey: ['dashboard', slug, dateRange.from, dateRange.to, lancamentoId],
     queryFn: async () => {
       // 1. Busca cliente no AppWrite pelo slug
       const cliente = await buscarClientePorSlug(slug);
@@ -69,11 +69,24 @@ export function useDashboard(slug: string, dateRange: { from: Date; to: Date }) 
         conjuntosRaw = await fetchConjuntosAppwrite(cliente.$id);
         criativosRaw = await fetchCriativosAppwrite(cliente.$id);
         
-        const appwriteMetricas = await fetchMetricasAppwrite(cliente.$id, dateRange.from, dateRange.to);
+        let appwriteMetricas = await fetchMetricasAppwrite(cliente.$id, dateRange.from, dateRange.to);
+        
+        // Se houver lancamentoId, filtra as campanhas e métricas correspondentes àquele lançamento
+        // Opcional: filtragem baseada em alguma lógica. Por ora, vamos assumir que as métricas podem 
+        // vir amarradas ou simplesmente listamos. A prompt diz "filtrado pelo lancamento_id".
+        // O webhook_url (não tem lancamento_id na metrica, mas para "leads" vai usar a palavra-chave).
+        // Vamos apenas ignorar até ter a Graph API, mas para inputs manuais, vamos filtrar também se houver
+        if (lancamentoId) {
+          appwriteMetricas = appwriteMetricas.filter((m: any) => m.lancamento_id === lancamentoId);
+        }
+
         metricasDiarias = (appwriteMetricas || []) as unknown as MetricaDiaria[];
         
         if (cliente.tipo_campanha === 'leads' || cliente.tipo_campanha === 'ambos') {
-          const manualInputs = await fetchManualInputsAppwrite(cliente.$id, dateRange.from, dateRange.to);
+          let manualInputs = await fetchManualInputsAppwrite(cliente.$id, dateRange.from, dateRange.to);
+          if (lancamentoId) {
+             manualInputs = manualInputs.filter((m: any) => m.lancamento_id === lancamentoId);
+          }
           leadsGrupos = manualInputs.map((m: any) => ({
             data: m.data,
             leads_ensino_superior: m.leads_no_grupo_superior,

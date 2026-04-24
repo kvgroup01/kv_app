@@ -144,6 +144,41 @@ async function runUpdate() {
     else console.log('❌ Erro manual_inputs:', error.message);
   }
 
+  // PASSO 15 — Coleção lancamentos
+  try {
+    await databases.createCollection(DB_ID, 'lancamentos', 'Lançamentos', defaultPermissions)
+    await databases.createStringAttribute(DB_ID, 'lancamentos', 'cliente_id', 255, true)
+    await databases.createStringAttribute(DB_ID, 'lancamentos', 'nome', 255, true)
+    await databases.createStringAttribute(DB_ID, 'lancamentos', 'slug', 255, true)
+    await databases.createStringAttribute(DB_ID, 'lancamentos', 'tipo', 50, true) // leads | ambos
+    await databases.createStringAttribute(DB_ID, 'lancamentos', 'status', 50, true) // rascunho | ativo | encerrado
+    await databases.createStringAttribute(DB_ID, 'lancamentos', 'palavra_chave_meta', 255, false) 
+    await databases.createStringAttribute(DB_ID, 'lancamentos', 'meta_account_id', 255, false)
+    await databases.createStringAttribute(DB_ID, 'lancamentos', 'meta_access_token', 2000, false)
+    await databases.createStringAttribute(DB_ID, 'lancamentos', 'colunas_webhook', 5000, false) // JSON array
+    await databases.createStringAttribute(DB_ID, 'lancamentos', 'webhook_url', 1000, false)
+    await databases.createStringAttribute(DB_ID, 'lancamentos', 'configuracao_secoes', 10000, false)
+    await databases.createDatetimeAttribute(DB_ID, 'lancamentos', 'criado_em', false)
+    await databases.createDatetimeAttribute(DB_ID, 'lancamentos', 'publicado_em', false)
+    console.log('✅ Coleção lancamentos criada')
+  } catch (error: any) {
+    if (error.code === 409) console.log('⏭️ Coleção lancamentos já existe');
+    else console.log('❌ Erro lancamentos:', error.message);
+  }
+
+  // PASSO 16 — Coleção meta_accounts
+  try {
+    await databases.createCollection(DB_ID, 'meta_accounts', 'Contas Meta Ads', defaultPermissions)
+    await databases.createStringAttribute(DB_ID, 'meta_accounts', 'nome', 255, true)
+    await databases.createStringAttribute(DB_ID, 'meta_accounts', 'meta_account_id', 255, true)
+    await databases.createStringAttribute(DB_ID, 'meta_accounts', 'meta_access_token', 2000, true)
+    await databases.createDatetimeAttribute(DB_ID, 'meta_accounts', 'criado_em', false)
+    console.log('✅ Coleção meta_accounts criada')
+  } catch (error: any) {
+    if (error.code === 409) console.log('⏭️ Coleção meta_accounts já existe');
+    else console.log('❌ Erro meta_accounts:', error.message);
+  }
+
   console.log('\n✅ Atualização finalizada. Sinta-se à vontade para revisar seu Dashboard no Appwrite.')
 }
 

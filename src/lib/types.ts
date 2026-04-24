@@ -113,6 +113,35 @@ export interface ManualInput {
   leads_no_grupo_medio: number;
 }
 
+export interface Lancamento {
+  $id?: string;
+  cliente_id: string;
+  nome: string;
+  slug: string;
+  tipo: 'leads' | 'ambos';
+  status: 'rascunho' | 'ativo' | 'encerrado';
+  palavra_chave_meta?: string;
+  meta_account_id?: string;
+  meta_access_token?: string;
+  colunas_webhook?: string; // JSON array (stringificado na base)
+  webhook_url?: string;
+  configuracao_secoes?: string;
+  criado_em?: string;
+  publicado_em?: string;
+  $createdAt?: string;
+  $updatedAt?: string;
+}
+
+export interface MetaAccount {
+  $id?: string;
+  nome: string;
+  meta_account_id: string;
+  meta_access_token: string;
+  criado_em?: string;
+  $createdAt?: string;
+  $updatedAt?: string;
+}
+
 export interface LeadGrupo {
   data: string;
   leads_ensino_superior: number;

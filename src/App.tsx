@@ -22,9 +22,15 @@ import OrcamentosIndex from './routes/admin/orcamentos/index';
 import OrcamentoNovo from './routes/admin/orcamentos/novo';
 import Configuracoes from './routes/admin/configuracoes';
 
+// Módulo de Dashboards
+import DashboardsIndex from './routes/admin/dashboards/index';
+import DashboardNovo from './routes/admin/dashboards/novo';
+import DashboardEditor from './routes/admin/dashboards/$id/editor';
+
 // Módulos Públicos Externos
 import OrcamentoPublico from './routes/orcamento/$token';
 import DashboardPublico from './routes/dashboard/$slug';
+import DashboardLancamento from './routes/dashboard/$slug/$lancamento';
 
 const queryClient = new QueryClient();
 
@@ -39,6 +45,7 @@ export default function App() {
           {/* Rotas Públicas */}
           <Route path="/orcamento/:token" element={<OrcamentoPublico />} />
           <Route path="/dashboard/:slug" element={<DashboardPublico />} />
+          <Route path="/dashboard/:slug/:lancamento" element={<DashboardLancamento />} />
 
           {/* Rotas Privadas (Admin) */}
           <Route path="/admin" element={<AdminLayout />}>
@@ -48,6 +55,11 @@ export default function App() {
              <Route path="clientes" element={<ClientesIndex />} />
              <Route path="clientes/novo" element={<ClienteNovo />} />
              <Route path="clientes/:id" element={<ClienteEdit />} />
+
+             {/* Sub-rotas Dashboards */}
+             <Route path="dashboards" element={<DashboardsIndex />} />
+             <Route path="dashboards/novo" element={<DashboardNovo />} />
+             <Route path="dashboards/:id/editor" element={<DashboardEditor />} />
 
              {/* Sub-rotas Auxiliares */}
              <Route path="financeiro" element={<FinanceiroIndex />} />
