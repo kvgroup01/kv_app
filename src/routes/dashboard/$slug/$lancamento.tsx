@@ -57,19 +57,32 @@ export default function PublicDashboardLancamento() {
     to: new Date(),
   });
 
-  const [gruposWA, setGruposWA] = React.useState({ 
-    ensino_superior: 0, ensino_medio: 0 
+  const [gruposWA, setGruposWA] = React.useState({
+    ensino_superior: 0,
+    ensino_medio: 0,
   });
   const [investimentoManual, setInvestimentoManual] = React.useState(0);
 
   const metricasVazias = {
-    investimento: 0, impressoes: 0, alcance: 0,
-    cliques: 0, conversas: 0, leads_qualificados: 0,
-    leads_desqualificados: 0, leads_total: 0,
-    leads_superior: 0, leads_medio: 0, vendas: 0,
-    ctr: 0, cpm: 0, custo_conversa: 0, cpl: 0,
-    taxa_conversao: 0, pct_qualificados: 0,
-    pct_desqualificados: 0, grupos_formados: 0,
+    investimento: 0,
+    impressoes: 0,
+    alcance: 0,
+    cliques: 0,
+    conversas: 0,
+    leads_qualificados: 0,
+    leads_desqualificados: 0,
+    leads_total: 0,
+    leads_superior: 0,
+    leads_medio: 0,
+    vendas: 0,
+    ctr: 0,
+    cpm: 0,
+    custo_conversa: 0,
+    cpl: 0,
+    taxa_conversao: 0,
+    pct_qualificados: 0,
+    pct_desqualificados: 0,
+    grupos_formados: 0,
   };
 
   const {
@@ -192,10 +205,7 @@ export default function PublicDashboardLancamento() {
             <h3 className="text-xl font-bold mb-4">
               {secaoTitulo("funil", "Funil de Tráfego")}
             </h3>
-            <FunnelLeads
-              dados={serieHistorica}
-              metricas={metricas}
-            />
+            <FunnelLeads dados={serieHistorica} metricas={metricas} />
           </section>
         )}
         {secaoAtiva("grafico_investimento") && (
@@ -247,7 +257,12 @@ export default function PublicDashboardLancamento() {
             <h3 className="text-xl font-bold mb-4">
               {secaoTitulo("ranking_publicos", "Melhores Públicos")}
             </h3>
-            <RankingTable dados={rankingPublicos ?? []} tipo="publicos" />
+            <RankingTable
+              titulo="Melhores Públicos"
+              items={publicos}
+              tipo="publicos"
+              campanhaTipo="leads"
+            />
           </section>
         )}
         {secaoAtiva("ranking_criativos") && (
@@ -255,11 +270,11 @@ export default function PublicDashboardLancamento() {
             <h3 className="text-xl font-bold mb-4">
               {secaoTitulo("ranking_criativos", "Melhores Criativos")}
             </h3>
-            <RankingTable 
+            <RankingTable
               titulo="Melhores Criativos"
-              items={criativos} 
-              tipo="criativos" 
-              campanhaTipo="leads" 
+              items={criativos}
+              tipo="criativos"
+              campanhaTipo="leads"
             />
           </section>
         )}
@@ -270,10 +285,7 @@ export default function PublicDashboardLancamento() {
           <h3 className="text-xl font-bold mb-4">
             {secaoTitulo("grupos_whatsapp", "Grupos de WhatsApp")}
           </h3>
-          <GruposWhatsApp
-            value={gruposWA}
-            onChange={setGruposWA}
-          />
+          <GruposWhatsApp value={gruposWA} onChange={setGruposWA} />
         </section>
       )}
 
@@ -381,10 +393,7 @@ export default function PublicDashboardLancamento() {
                     metricas={metricas}
                     onVendasChange={(v) => console.log(v)}
                   />
-                  <InvestimentoChart
-                    dados={serieHistorica}
-                    tipo="whatsapp"
-                  />
+                  <InvestimentoChart dados={serieHistorica} tipo="whatsapp" />
                 </div>
                 <CampanhasTable
                   campanhasComMetricas={campanhas}
@@ -392,11 +401,11 @@ export default function PublicDashboardLancamento() {
                 />
                 <CreativosGrid criativos={criativos} tipo="whatsapp" />
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <RankingTable 
+                  <RankingTable
                     titulo="Melhores Públicos"
-                    items={publicos} 
-                    tipo="publicos" 
-                    campanhaTipo="whatsapp" 
+                    items={publicos}
+                    tipo="publicos"
+                    campanhaTipo="whatsapp"
                   />
                   <RankingTable
                     titulo="Melhores Criativos"
