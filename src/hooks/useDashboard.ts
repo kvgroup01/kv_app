@@ -94,6 +94,12 @@ export function useDashboard(slug: string, dateRange: { from: Date; to: Date }, 
              importedLeads = await fetchLeadEntriesAppwrite(lancamentoId, dateRange.from, dateRange.to);
           }
           
+          function classificarEscolaridade(escolaridade: string): 'superior' | 'medio' {
+            const medio = ['ensino médio completo', 'ensino medio completo'];
+            const valor = escolaridade?.toLowerCase().trim() ?? '';
+            return medio.includes(valor) ? 'medio' : 'superior';
+          }
+
           if (importedLeads.length > 0) {
             // Conta agrupada por data
             const contagemPorData: Record<string, { superior: number, medio: number }> = {};
@@ -101,10 +107,10 @@ export function useDashboard(slug: string, dateRange: { from: Date; to: Date }, 
                const d = lead.data || 'N/A';
                if (!contagemPorData[d]) contagemPorData[d] = { superior: 0, medio: 0 };
                
-               const esc = (lead.escolaridade || '').toLowerCase();
-               if (esc.includes('superior') || esc.includes('graduacao') || esc.includes('graduação')) {
+               const classificacao = classificarEscolaridade(lead.escolaridade);
+               if (classificacao === 'superior') {
                  contagemPorData[d].superior++;
-               } else if (esc.includes('medio') || esc.includes('médio')) {
+               } else {
                  contagemPorData[d].medio++;
                }
             });

@@ -43,13 +43,15 @@ export function ClassificacaoTrafico({ leadsEnsino, isLoading }: ClassificacaoTr
     );
   }
 
-  const total = leadsEnsino.superior + leadsEnsino.medio;
-  const pctSuperior = total > 0 ? (leadsEnsino.superior / total) * 100 : 0;
-  const pctMedio = total > 0 ? (leadsEnsino.medio / total) * 100 : 0;
+  const superior = leadsEnsino?.superior ?? 0;
+  const medio = leadsEnsino?.medio ?? 0;
+  const total = superior + medio;
+  const pctSuperior = total > 0 ? (superior / total) * 100 : 0;
+  const pctMedio = total > 0 ? (medio / total) * 100 : 0;
 
   const chartData = [
-    { name: 'Ensino Superior', value: leadsEnsino.superior, color: COLORS.superior },
-    { name: 'Ensino Médio', value: leadsEnsino.medio, color: COLORS.medio }
+    { name: 'Ensino Superior', value: superior, color: COLORS.superior },
+    { name: 'Ensino Médio', value: medio, color: COLORS.medio }
   ];
 
   const CustomTooltip = ({ active, payload }: any) => {
@@ -113,7 +115,7 @@ export function ClassificacaoTrafico({ leadsEnsino, isLoading }: ClassificacaoTr
                 <span className="font-medium">Ensino Superior</span>
               </div>
               <div className="text-muted-foreground">
-                <span className="font-medium text-foreground mr-2">{fmtNum(leadsEnsino.superior)}</span>
+                <span className="font-medium text-foreground mr-2">{fmtNum(superior)}</span>
                 ({fmtPct(pctSuperior)})
               </div>
             </div>
@@ -128,7 +130,7 @@ export function ClassificacaoTrafico({ leadsEnsino, isLoading }: ClassificacaoTr
                 <span className="font-medium">Ensino Médio</span>
               </div>
               <div className="text-muted-foreground">
-                <span className="font-medium text-foreground mr-2">{fmtNum(leadsEnsino.medio)}</span>
+                <span className="font-medium text-foreground mr-2">{fmtNum(medio)}</span>
                 ({fmtPct(pctMedio)})
               </div>
             </div>

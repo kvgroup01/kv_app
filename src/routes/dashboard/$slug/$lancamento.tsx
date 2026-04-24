@@ -171,9 +171,11 @@ export default function PublicDashboardLancamento() {
         <section>
           <h3 className="text-xl font-bold mb-4">{secaoTitulo('classificacao', 'Classificação por Escolaridade')}</h3>
           <ClassificacaoTrafico 
-             leadsSuperior={metricas.leads_superior} 
-             leadsMedio={metricas.leads_medio}
-             totalLeads={metricas.leads_superior + metricas.leads_medio}
+             leadsEnsino={{ 
+               superior: metricas?.leads_superior ?? 0, 
+               medio: metricas?.leads_medio ?? 0 
+             }}
+             isLoading={isLoadingDashboard}
           />
         </section>
       )}
