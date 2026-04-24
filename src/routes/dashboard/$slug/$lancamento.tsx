@@ -57,6 +57,21 @@ export default function PublicDashboardLancamento() {
     to: new Date(),
   });
 
+  const [gruposWA, setGruposWA] = React.useState({ 
+    ensino_superior: 0, ensino_medio: 0 
+  });
+  const [investimentoManual, setInvestimentoManual] = React.useState(0);
+
+  const metricasVazias = {
+    investimento: 0, impressoes: 0, alcance: 0,
+    cliques: 0, conversas: 0, leads_qualificados: 0,
+    leads_desqualificados: 0, leads_total: 0,
+    leads_superior: 0, leads_medio: 0, vendas: 0,
+    ctr: 0, cpm: 0, custo_conversa: 0, cpl: 0,
+    taxa_conversao: 0, pct_qualificados: 0,
+    pct_desqualificados: 0, grupos_formados: 0,
+  };
+
   const {
     data: dataLancamento,
     isLoading: isLoadingLancamento,
@@ -134,36 +149,25 @@ export default function PublicDashboardLancamento() {
     return <DashboardSkeleton />;
   }
 
-  if (!dashboardData || !dashboardData.metricas) {
-    return <DashboardSkeleton />;
-  }
-
-  if (isErrorDashboard) {
+  if (errorDashboard || !dashboardData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <div className="max-w-md text-center space-y-4">
-          <div className="w-16 h-16 bg-destructive/10 text-destructive rounded-full flex items-center justify-center mx-auto">
-            <AlertCircle className="w-8 h-8" />
-          </div>
-          <h2 className="text-2xl font-bold">Erro ao carregar dados</h2>
           <p className="text-muted-foreground">
-            {errorDashboard?.message || "Erro desconhecido"}
+            Carregando dados do dashboard...
           </p>
         </div>
       </div>
     );
   }
 
-  const {
-    cliente,
-    metricas,
-    serieHistorica,
-    relatorioCampanhas,
-    rankingCriativos,
-    rankingPublicos,
-    criativos,
-    leadsGrupos,
-  } = dashboardData;
+  const metricas = dashboardData.metricas ?? metricasVazias;
+  const serieHistorica = dashboardData.serieHistorica ?? [];
+  const campanhas = dashboardData.relatorioCampanhas ?? [];
+  const criativos = dashboardData.rankingCriativos ?? [];
+  const publicos = dashboardData.rankingPublicos ?? [];
+  const leadsGrupos = dashboardData.leadsGrupos ?? [];
+  const cliente = dashboardData.cliente;
 
   // Fallbacks if section logic isn't perfectly mapped
   const secaoAtiva = (key: SecaoId) => secoes?.[key]?.ativo ?? true;
@@ -189,10 +193,8 @@ export default function PublicDashboardLancamento() {
               {secaoTitulo("funil", "Funil de Tráfego")}
             </h3>
             <FunnelLeads
-              leadsTotal={metricas.leads_superior + metricas.leads_medio}
-              cliques={metricas.cliques}
-              impressoes={metricas.impressoes}
-              vendas={0} // Mocado ou vindo do DB
+              dados={serieHistorica}
+              metricas={metricas}
             />
           </section>
         )}
@@ -201,7 +203,7 @@ export default function PublicDashboardLancamento() {
             <h3 className="text-xl font-bold mb-4">
               {secaoTitulo("grafico_investimento", "Investimento vs Leads")}
             </h3>
-            <LeadsQualificadosChart dados={serieHistorica ?? []} />
+            <LeadsQualificadosChart dados={serieHistorica} />
           </section>
         )}
       </div>
@@ -213,8 +215,8 @@ export default function PublicDashboardLancamento() {
           </h3>
           <ClassificacaoTrafico
             leadsEnsino={{
-              superior: metricas?.leads_superior ?? 0,
-              medio: metricas?.leads_medio ?? 0,
+              superior: metricas.leads_superior ?? 0,
+              medio: metricas.leads_medio ?? 0,
             }}
             isLoading={isLoadingDashboard}
           />
@@ -226,7 +228,7 @@ export default function PublicDashboardLancamento() {
           <h3 className="text-xl font-bold mb-4">
             {secaoTitulo("tabela_campanhas", "Campanhas")}
           </h3>
-          <CampanhasTable campanhas={relatorioCampanhas ?? []} tipo="leads" />
+          <CampanhasTable campanhasComMetricas={campanhas} tipo="leads" />
         </section>
       )}
 
@@ -235,7 +237,7 @@ export default function PublicDashboardLancamento() {
           <h3 className="text-xl font-bold mb-4">
             {secaoTitulo("grid_criativos", "Criativos")}
           </h3>
-          <CreativosGrid criativos={criativos ?? []} tipo="leads" />
+          <CreativosGrid criativos={criativos} tipo="leads" />
         </section>
       )}
 
@@ -253,7 +255,12 @@ export default function PublicDashboardLancamento() {
             <h3 className="text-xl font-bold mb-4">
               {secaoTitulo("ranking_criativos", "Melhores Criativos")}
             </h3>
-            <RankingTable dados={rankingCriativos ?? []} tipo="criativos" />
+            <RankingTable 
+              titulo="Melhores Criativos"
+              items={criativos} 
+              tipo="criativos" 
+              campanhaTipo="leads" 
+            />
           </section>
         )}
       </div>
@@ -264,9 +271,8 @@ export default function PublicDashboardLancamento() {
             {secaoTitulo("grupos_whatsapp", "Grupos de WhatsApp")}
           </h3>
           <GruposWhatsApp
-            leadsGrupos={leadsGrupos}
-            totalEnsinoSuperior={1000} // Target configurável no futuro
-            totalEnsinoMedio={1000}
+            value={gruposWA}
+            onChange={setGruposWA}
           />
         </section>
       )}
@@ -277,8 +283,10 @@ export default function PublicDashboardLancamento() {
             {secaoTitulo("visao_financeira", "Visão Financeira")}
           </h3>
           <VisaoFinanceiraLeads
-            investimento={metricas.valor_gasto}
-            vendas={0} // Mock
+            investimentoManual={investimentoManual}
+            onInvestimentoChange={setInvestimentoManual}
+            valorUsadoCampanhas={metricas.investimento ?? 0}
+            isLoading={false}
           />
         </section>
       )}
@@ -370,25 +378,31 @@ export default function PublicDashboardLancamento() {
                 <MetricCards metricas={metricas} tipo="whatsapp" />
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <FunnelWhatsApp
-                    leadsTotal={metricas.leads_superior + metricas.leads_medio}
-                    cliques={metricas.cliques}
-                    impressoes={metricas.impressoes}
+                    metricas={metricas}
+                    onVendasChange={(v) => console.log(v)}
                   />
                   <InvestimentoChart
-                    dados={serieHistorica ?? []}
+                    dados={serieHistorica}
                     tipo="whatsapp"
                   />
                 </div>
                 <CampanhasTable
-                  campanhas={relatorioCampanhas ?? []}
+                  campanhasComMetricas={campanhas}
                   tipo="whatsapp"
                 />
-                <CreativosGrid criativos={criativos ?? []} tipo="whatsapp" />
+                <CreativosGrid criativos={criativos} tipo="whatsapp" />
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <RankingTable dados={rankingPublicos ?? []} tipo="publicos" />
+                  <RankingTable 
+                    titulo="Melhores Públicos"
+                    items={publicos} 
+                    tipo="publicos" 
+                    campanhaTipo="whatsapp" 
+                  />
                   <RankingTable
-                    dados={rankingCriativos ?? []}
+                    titulo="Melhores Criativos"
+                    items={criativos}
                     tipo="criativos"
+                    campanhaTipo="whatsapp"
                   />
                 </div>
               </motion.div>
