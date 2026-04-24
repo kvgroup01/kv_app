@@ -79,8 +79,12 @@ export default async function handler(req: any, res: any) {
       return data;
     };
 
+    const accountId = meta_account_id.startsWith("act_")
+      ? meta_account_id
+      : `act_${meta_account_id}`;
+
     // 2. Lista campanhas do Meta e filtra
-    const campaignsData = await fetchMeta(`act_${meta_account_id}/campaigns`, {
+    const campaignsData = await fetchMeta(`${accountId}/campaigns`, {
       fields: ["id", "name", "status", "objective"].join(","),
       limit: 500,
     });
