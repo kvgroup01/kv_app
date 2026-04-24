@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useParams } from 'react-router';
-import { AlertCircle, CheckCircle2, Copy, Receipt } from 'lucide-react';
+import { AlertCircle, CircleCheck, Copy, Receipt } from 'lucide-react';
 import { toast } from 'sonner';
 import QRCode from 'qrcode';
 
@@ -112,7 +112,7 @@ export default function OrcamentoPublico() {
         {/* Banner Status */}
         {isPago && (
           <div className="bg-emerald-500 text-white p-4 flex items-center justify-center gap-2">
-            <CheckCircle2 className="w-5 h-5" />
+            <CircleCheck className="w-5 h-5" />
             <span className="font-medium">Pagamento Confirmado. Muito obrigado!</span>
           </div>
         )}

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useNavigate, Link } from 'react-router';
-import { Plus, Copy, MoreVertical, Eye, CheckCircle2, XCircle, Trash2, FileText } from 'lucide-react';
+import { Plus, Copy, MoreVertical, Eye, CircleCheck, XCircle, Trash2, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { useOrcamentos, useAtualizarStatusOrcamento, useDeletarOrcamento } from '../../../hooks/useOrcamentos';
@@ -162,7 +162,7 @@ export default function OrcamentosIndex() {
                               <DropdownMenuSeparator className="bg-(--card-border)" />
                               {orcamento.status !== 'pago' && (
                                 <DropdownMenuItem onClick={() => handleChangeStatus(orcamento.$id, 'pago')} className="cursor-pointer hover:bg-(--card-hover)">
-                                  <CheckCircle2 className="mr-2 h-4 w-4 text-emerald-500" /> Marcar como Pago
+                                  <CircleCheck className="mr-2 h-4 w-4 text-emerald-500" /> Marcar como Pago
                                 </DropdownMenuItem>
                               )}
                               {orcamento.status !== 'cancelado' && (

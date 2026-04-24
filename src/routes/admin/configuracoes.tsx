@@ -11,7 +11,7 @@ import { Label } from '../../components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from '../../components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../../components/ui/alert-dialog';
-import { UserPlus, FolderPlus, Lock, CheckCircle2, XCircle, User, Settings, Globe, Shield, Camera, Pencil, Trash2, LayoutDashboard, BarChart3, Users2, FileText, ArrowUpRight, TrendingUp } from 'lucide-react';
+import { UserPlus, FolderPlus, Lock, CircleCheck, XCircle, User, Settings, Globe, Shield, Camera, Pencil, Trash2, LayoutDashboard, BarChart3, Users2, FileText, ArrowUpRight, TrendingUp } from 'lucide-react';
 import { useOrcamentos } from '../../hooks/useOrcamentos';
 import { useClientes } from '../../hooks/useClientes';
 import { fmtBRL } from '../../lib/utils';

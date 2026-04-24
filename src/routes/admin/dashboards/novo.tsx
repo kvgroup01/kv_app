@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router';
 import { 
-  ArrowLeft, Check, Copy, Lock, Plus, Trash2, X, Search
+  ArrowLeft, Check, Copy, Lock, Plus, Trash2, X, Search, CircleCheck
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -400,7 +400,7 @@ export default function NovoDashboard() {
           <Card className="border-primary/30 bg-primary/5">
             <CardHeader className="pb-3">
               <CardTitle className="text-primary flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5" /> Seu webhook está pronto!
+                <CircleCheck className="h-5 w-5" /> Seu webhook está pronto!
               </CardTitle>
             </CardHeader>
             <CardContent>
