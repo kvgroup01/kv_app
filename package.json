@@ -11,7 +11,8 @@
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
     "setup": "npx tsx setup-appwrite.ts",
-    "seed": "npx tsx seed-mock.ts"
+    "seed": "npx tsx seed-mock.ts",
+    "import-leads": "npx tsx import-from-sheets.ts"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",

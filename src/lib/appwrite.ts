@@ -298,6 +298,19 @@ export async function fetchManualInputsAppwrite(cliente_id: string, from: Date, 
   return docs.documents;
 }
 
+export async function fetchLeadEntriesAppwrite(lancamento_id: string, from: Date, to: Date) {
+  const fromStr = from.toISOString().split('T')[0];
+  const toStr = to.toISOString().split('T')[0];
+
+  const docs = await databases.listDocuments(DB_ID, 'lead_entries', [
+    Query.equal('lancamento_id', lancamento_id),
+    Query.greaterThanEqual('data', fromStr),
+    Query.lessThanEqual('data', toStr),
+    Query.limit(5000)
+  ]);
+  return docs.documents;
+}
+
 // --- Lançamentos ---
 export async function listarLancamentos(clienteId?: string): Promise<Lancamento[]> {
   const queries = [Query.orderDesc('criado_em')];

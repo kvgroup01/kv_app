@@ -72,7 +72,7 @@ export function RankingTable({ titulo, items, tipo, campanhaTipo, isLoading }: R
                 ? fmtBRL((item as ConjuntoComMetricas).custo_conversa || (item as ConjuntoComMetricas).cpl || 0)
                 : fmtPct((item as CriativoComMetricas).ctr || 0);
 
-              const contagem = campanhaTipo === 'whatsapp' ? item.conversas : item.leads_total;
+              const contagem = campanhaTipo === 'whatsapp' ? item?.conversas ?? 0 : item?.leads_total ?? 0;
 
               return (
                 <TableRow key={item.id} className="group">

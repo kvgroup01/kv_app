@@ -5,7 +5,8 @@ import {
   fetchConjuntosAppwrite,
   fetchCriativosAppwrite,
   fetchMetricasAppwrite,
-  fetchManualInputsAppwrite
+  fetchManualInputsAppwrite,
+  fetchLeadEntriesAppwrite
 } from '../lib/appwrite';
 import { 
   fetchCampanhas, 
@@ -87,11 +88,39 @@ export function useDashboard(slug: string, dateRange: { from: Date; to: Date }, 
           if (lancamentoId) {
              manualInputs = manualInputs.filter((m: any) => m.lancamento_id === lancamentoId);
           }
-          leadsGrupos = manualInputs.map((m: any) => ({
-            data: m.data,
-            leads_ensino_superior: m.leads_no_grupo_superior,
-            leads_ensino_medio: m.leads_no_grupo_medio
-          }));
+
+          let importedLeads: any[] = [];
+          if (lancamentoId) {
+             importedLeads = await fetchLeadEntriesAppwrite(lancamentoId, dateRange.from, dateRange.to);
+          }
+          
+          if (importedLeads.length > 0) {
+            // Conta agrupada por data
+            const contagemPorData: Record<string, { superior: number, medio: number }> = {};
+            importedLeads.forEach(lead => {
+               const d = lead.data || 'N/A';
+               if (!contagemPorData[d]) contagemPorData[d] = { superior: 0, medio: 0 };
+               
+               const esc = (lead.escolaridade || '').toLowerCase();
+               if (esc.includes('superior') || esc.includes('graduacao') || esc.includes('graduação')) {
+                 contagemPorData[d].superior++;
+               } else if (esc.includes('medio') || esc.includes('médio')) {
+                 contagemPorData[d].medio++;
+               }
+            });
+            
+            leadsGrupos = Object.keys(contagemPorData).map(d => ({
+               data: d,
+               leads_ensino_superior: contagemPorData[d].superior,
+               leads_ensino_medio: contagemPorData[d].medio
+            }));
+          } else {
+            leadsGrupos = manualInputs.map((m: any) => ({
+              data: m.data,
+              leads_ensino_superior: m.leads_no_grupo_superior,
+              leads_ensino_medio: m.leads_no_grupo_medio
+            }));
+          }
         }
       } else if (fonte === 'sheets') {
         if (!cliente.spreadsheet_id) {

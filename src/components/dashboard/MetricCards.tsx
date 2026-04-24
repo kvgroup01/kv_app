@@ -35,7 +35,7 @@ export function MetricCards({ metricas, tipo, isLoading }: MetricCardsProps) {
     if (tipo === 'leads' || tipo === 'ambos') {
       list.push({
         title: 'Leads',
-        value: fmtNum(metricas.leads_total),
+        value: fmtNum(metricas?.leads_total ?? 0),
         icon: Users,
       });
     }

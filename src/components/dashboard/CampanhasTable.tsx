@@ -57,7 +57,7 @@ export function CampanhasTable({ campanhasComMetricas, tipo, isLoading }: Campan
     return (
       <>
         <TableCell>{fmtBRL(data.investimento)}</TableCell>
-        <TableCell>{fmtNum((data as any).leads_total || 0)}</TableCell>
+        <TableCell>{fmtNum((data as any)?.leads_total ?? 0)}</TableCell>
         <TableCell>{fmtNum((data as any).leads_qualificados || 0)}</TableCell>
         <TableCell>{fmtBRL((data as any).cpl || 0)}</TableCell>
         <TableCell>{fmtNum((data as any).cliques || 0)}</TableCell>

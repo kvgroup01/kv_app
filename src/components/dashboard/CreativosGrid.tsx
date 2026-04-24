@@ -101,7 +101,7 @@ export function CreativosGrid({ criativos, tipo, isLoading }: CreativosGridProps
                      <>
                        <div className="flex justify-between items-center text-xs">
                          <span className="text-muted-foreground">Leads</span>
-                         <span className="font-semibold">{fmtNum(criativo.leads_total)}</span>
+                         <span className="font-semibold">{fmtNum(criativo?.leads_total ?? 0)}</span>
                        </div>
                        <div className="flex justify-between items-center text-xs">
                          <span className="text-muted-foreground">% Qualif.</span>

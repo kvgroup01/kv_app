@@ -70,7 +70,7 @@ export function FunnelLeads({ dados, metricas }: FunnelLeadsProps) {
             <CardDescription>Qualificados x Desqualificados x Investimento</CardDescription>
           </div>
           <div className="text-right hidden sm:block">
-            <div className="text-2xl font-bold">{fmtNum(metricas.leads_total)}</div>
+            <div className="text-2xl font-bold">{fmtNum(metricas?.leads_total ?? 0)}</div>
             <div className="text-xs text-muted-foreground uppercase tracking-wider">Total do período</div>
           </div>
         </div>

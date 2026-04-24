@@ -179,6 +179,26 @@ async function runUpdate() {
     else console.log('❌ Erro meta_accounts:', error.message);
   }
 
+  // PASSO 17 — Coleção lead_entries
+  try {
+    await databases.createCollection(DB_ID, 'lead_entries', 'Lead Entries', defaultPermissions)
+    await databases.createStringAttribute(DB_ID, 'lead_entries', 'lancamento_id', 255, true)
+    await databases.createStringAttribute(DB_ID, 'lead_entries', 'data', 50, false)
+    await databases.createStringAttribute(DB_ID, 'lead_entries', 'nome', 255, false)
+    await databases.createStringAttribute(DB_ID, 'lead_entries', 'email', 255, false)
+    await databases.createStringAttribute(DB_ID, 'lead_entries', 'escolaridade', 255, false)
+    await databases.createStringAttribute(DB_ID, 'lead_entries', 'telefone', 255, false)
+    await databases.createStringAttribute(DB_ID, 'lead_entries', 'utm_source', 255, false)
+    await databases.createStringAttribute(DB_ID, 'lead_entries', 'utm_campaign', 255, false)
+    await databases.createStringAttribute(DB_ID, 'lead_entries', 'utm_medium', 255, false)
+    await databases.createStringAttribute(DB_ID, 'lead_entries', 'utm_term', 255, false)
+    await databases.createStringAttribute(DB_ID, 'lead_entries', 'utm_content', 255, false)
+    console.log('✅ Coleção lead_entries criada')
+  } catch (error: any) {
+    if (error.code === 409) console.log('⏭️ Coleção lead_entries já existe');
+    else console.log('❌ Erro lead_entries:', error.message);
+  }
+
   console.log('\n✅ Atualização finalizada. Sinta-se à vontade para revisar seu Dashboard no Appwrite.')
 }
 
