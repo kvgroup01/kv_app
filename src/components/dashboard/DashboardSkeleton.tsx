@@ -1,8 +1,8 @@
-import * as React from "react"
-import { Skeleton } from "../ui/skeleton"
-import { TipoCampanha } from "../../lib/types"
+import * as React from "react";
+import { Skeleton } from "../ui/skeleton";
+import { TipoCampanha } from "../../lib/types";
 
-export function DashboardSkeleton({ tipo }: { tipo: TipoCampanha | 'ambos' }) {
+export function DashboardSkeleton({ tipo }: { tipo: TipoCampanha | "ambos" }) {
   return (
     <div className="space-y-6">
       {/* 5 ou 6 cards no topo */}
@@ -37,5 +37,5 @@ export function DashboardSkeleton({ tipo }: { tipo: TipoCampanha | 'ambos' }) {
         <Skeleton className="h-[300px] w-full rounded-xl" />
       </div>
     </div>
-  )
+  );
 }

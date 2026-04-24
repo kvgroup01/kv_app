@@ -1,10 +1,16 @@
-import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
-import { Input } from '../ui/input';
-import { Skeleton } from '../ui/skeleton';
-import { Separator } from '../ui/separator';
-import { fmtNum } from '../../lib/utils';
-import { Users } from 'lucide-react';
+import * as React from "react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "../ui/card";
+import { Input } from "../ui/input";
+import { Skeleton } from "../ui/skeleton";
+import { Separator } from "../ui/separator";
+import { fmtNum } from "../../lib/utils";
+import { Users } from "lucide-react";
 
 interface GruposWhatsAppProps {
   value: {
@@ -15,7 +21,11 @@ interface GruposWhatsAppProps {
   isLoading?: boolean;
 }
 
-export function GruposWhatsApp({ value, onChange, isLoading }: GruposWhatsAppProps) {
+export function GruposWhatsApp({
+  value,
+  onChange,
+  isLoading,
+}: GruposWhatsAppProps) {
   if (isLoading) {
     return (
       <Card>
@@ -40,7 +50,10 @@ export function GruposWhatsApp({ value, onChange, isLoading }: GruposWhatsAppPro
     setLocalState(value);
   }, [value]);
 
-  const handleChange = (field: 'ensino_superior' | 'ensino_medio', rawValue: string) => {
+  const handleChange = (
+    field: "ensino_superior" | "ensino_medio",
+    rawValue: string,
+  ) => {
     const val = parseInt(rawValue, 10) || 0;
     const newState = { ...localState, [field]: val };
     setLocalState(newState);
@@ -54,7 +67,9 @@ export function GruposWhatsApp({ value, onChange, isLoading }: GruposWhatsAppPro
     <Card>
       <CardHeader>
         <CardTitle>Grupos de WhatsApp</CardTitle>
-        <CardDescription>Entrada de leads extraídos das comunidades</CardDescription>
+        <CardDescription>
+          Entrada de leads extraídos das comunidades
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-4">
@@ -65,8 +80,8 @@ export function GruposWhatsApp({ value, onChange, isLoading }: GruposWhatsAppPro
             <Input
               type="number"
               placeholder="0"
-              value={localState.ensino_superior || ''}
-              onChange={(e) => handleChange('ensino_superior', e.target.value)}
+              value={localState.ensino_superior || ""}
+              onChange={(e) => handleChange("ensino_superior", e.target.value)}
             />
           </div>
           <div className="space-y-2">
@@ -76,8 +91,8 @@ export function GruposWhatsApp({ value, onChange, isLoading }: GruposWhatsAppPro
             <Input
               type="number"
               placeholder="0"
-              value={localState.ensino_medio || ''}
-              onChange={(e) => handleChange('ensino_medio', e.target.value)}
+              value={localState.ensino_medio || ""}
+              onChange={(e) => handleChange("ensino_medio", e.target.value)}
             />
           </div>
         </div>
@@ -90,10 +105,16 @@ export function GruposWhatsApp({ value, onChange, isLoading }: GruposWhatsAppPro
               <Users className="w-5 h-5 text-primary" />
             </div>
             <div>
-               <p className="font-semibold text-lg">{fmtNum(total)} <span className="text-sm font-normal text-muted-foreground mr-1">leads no total</span></p>
-               <p className="text-sm text-muted-foreground mt-0.5">
-                 {fmtNum(gruposFormados)} {gruposFormados === 1 ? 'grupo formado' : 'grupos formados'}
-               </p>
+              <p className="font-semibold text-lg">
+                {fmtNum(total)}{" "}
+                <span className="text-sm font-normal text-muted-foreground mr-1">
+                  leads no total
+                </span>
+              </p>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {fmtNum(gruposFormados)}{" "}
+                {gruposFormados === 1 ? "grupo formado" : "grupos formados"}
+              </p>
             </div>
           </div>
           <div className="text-xs text-muted-foreground bg-background px-2 py-1 rounded-md border shadow-sm hidden sm:block">

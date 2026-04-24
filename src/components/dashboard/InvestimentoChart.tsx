@@ -1,9 +1,23 @@
-import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { fmtBRL, fmtData, fmtNum } from '../../lib/utils';
-import type { DadosDiario, TipoCampanha } from '../../lib/types';
-import { Skeleton } from '../ui/skeleton';
+import * as React from "react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "../ui/card";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import { fmtBRL, fmtData, fmtNum } from "../../lib/utils";
+import type { DadosDiario, TipoCampanha } from "../../lib/types";
+import { Skeleton } from "../ui/skeleton";
 
 interface InvestimentoChartProps {
   dados: DadosDiario[];
@@ -11,16 +25,23 @@ interface InvestimentoChartProps {
   isLoading?: boolean;
 }
 
-export function InvestimentoChart({ dados, tipo, isLoading }: InvestimentoChartProps) {
+export function InvestimentoChart({
+  dados,
+  tipo,
+  isLoading,
+}: InvestimentoChartProps) {
   const chartData = React.useMemo(() => {
-    return dados.map(d => ({
+    return (dados ?? []).map((d) => ({
       ...d,
-      secundary_metric: tipo === 'whatsapp' ? d.conversas : (d.leads_qualificados + d.leads_desqualificados)
+      secundary_metric:
+        tipo === "whatsapp"
+          ? d.conversas
+          : d.leads_qualificados + d.leads_desqualificados,
     }));
   }, [dados, tipo]);
 
-  const metricName = tipo === 'whatsapp' ? 'Conversas' : 'Leads';
-  
+  const metricName = tipo === "whatsapp" ? "Conversas" : "Leads";
+
   if (isLoading) {
     return (
       <Card>
@@ -40,14 +61,22 @@ export function InvestimentoChart({ dados, tipo, isLoading }: InvestimentoChartP
       return (
         <div className="bg-[#1a1a1a] border border-[#2a2a2a] text-popover-foreground shadow-sm rounded-lg p-3 z-[9999]">
           <p className="font-semibold mb-2">{fmtData(label)}</p>
-          {payload.map((entry: any, index: number) => (
-            <div key={index} className="flex items-center justify-between text-sm py-0.5 min-w-[150px]">
+          {(payload ?? []).map((entry: any, index: number) => (
+            <div
+              key={index}
+              className="flex items-center justify-between text-sm py-0.5 min-w-[150px]"
+            >
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: entry.color }} />
+                <div
+                  className="w-3 h-3 rounded-sm"
+                  style={{ backgroundColor: entry.color }}
+                />
                 <span className="text-muted-foreground">{entry.name}:</span>
               </div>
               <span className="font-medium ml-4">
-                {entry.dataKey === 'investimento' ? fmtBRL(entry.value) : fmtNum(entry.value)}
+                {entry.dataKey === "investimento"
+                  ? fmtBRL(entry.value)
+                  : fmtNum(entry.value)}
               </span>
             </div>
           ))}
@@ -63,7 +92,9 @@ export function InvestimentoChart({ dados, tipo, isLoading }: InvestimentoChartP
         <div className="flex items-baseline justify-between">
           <div className="space-y-1">
             <CardTitle>Investimento vs {metricName}</CardTitle>
-            <CardDescription>Acompanhamento diário do investimento e retorno</CardDescription>
+            <CardDescription>
+              Acompanhamento diário do investimento e retorno
+            </CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -72,66 +103,80 @@ export function InvestimentoChart({ dados, tipo, isLoading }: InvestimentoChartP
         <div className="flex justify-center items-center space-x-6 mb-4">
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 rounded-full bg-slate-900 dark:bg-slate-100" />
-            <span className="text-sm font-medium text-muted-foreground">Investimento (R$)</span>
+            <span className="text-sm font-medium text-muted-foreground">
+              Investimento (R$)
+            </span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 rounded-full bg-[#25D366]" />
-            <span className="text-sm font-medium text-muted-foreground">{metricName}</span>
+            <span className="text-sm font-medium text-muted-foreground">
+              {metricName}
+            </span>
           </div>
         </div>
 
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={chartData} margin={{ top: 5, right: 0, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted/50" />
-            
-            <XAxis 
-              dataKey="data" 
-              tickFormatter={fmtData} 
-              className="text-xs text-muted-foreground" 
+          <LineChart
+            data={chartData}
+            margin={{ top: 5, right: 0, left: 0, bottom: 5 }}
+          >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              vertical={false}
+              className="stroke-muted/50"
+            />
+
+            <XAxis
+              dataKey="data"
+              tickFormatter={fmtData}
+              className="text-xs text-muted-foreground"
               tickLine={false}
               axisLine={false}
               dy={10}
             />
-            
-            <YAxis 
+
+            <YAxis
               yAxisId="left"
-              className="text-xs text-muted-foreground" 
+              className="text-xs text-muted-foreground"
               tickLine={false}
               axisLine={false}
               width={50}
               tickFormatter={(val) => `R$ ${Math.round(val)}`}
             />
 
-            <YAxis 
+            <YAxis
               yAxisId="right"
               orientation="right"
-              className="text-xs text-muted-foreground" 
+              className="text-xs text-muted-foreground"
               tickLine={false}
               axisLine={false}
               width={40}
               tickFormatter={(val) => Math.round(val).toString()}
             />
 
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.05)' }} />
+            <Tooltip
+              content={<CustomTooltip />}
+              cursor={{ fill: "rgba(0,0,0,0.05)" }}
+            />
 
-            <Line 
+            <Line
               yAxisId="left"
-              type="monotone" 
-              dataKey="investimento" 
-              name="Investimento" 
-              stroke="currentColor" 
+              type="monotone"
+              dataKey="investimento"
+              name="Investimento"
+              stroke="currentColor"
               className="text-foreground"
               strokeWidth={2}
               dot={{ r: 3, strokeWidth: 1 }}
               activeDot={{ r: 5 }}
             />
 
-            <Line 
+            <Line
               yAxisId="right"
-              type="monotone" 
-              dataKey="secundary_metric" 
-              name={metricName} 
-              stroke="#25D366" 
+              type="monotone"
+              dataKey="secundary_metric"
+              name={metricName}
+              stroke="#25D366"
               strokeWidth={2}
               dot={{ r: 3, strokeWidth: 1 }}
               activeDot={{ r: 5 }}

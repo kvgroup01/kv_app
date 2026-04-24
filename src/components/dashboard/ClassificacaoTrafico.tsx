@@ -1,9 +1,15 @@
-import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { Skeleton } from '../ui/skeleton';
-import { Progress } from '../ui/progress';
-import { fmtNum, fmtPct } from '../../lib/utils';
+import * as React from "react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "../ui/card";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { Skeleton } from "../ui/skeleton";
+import { Progress } from "../ui/progress";
+import { fmtNum, fmtPct } from "../../lib/utils";
 
 interface ClassificacaoTraficoProps {
   leadsEnsino: {
@@ -14,11 +20,14 @@ interface ClassificacaoTraficoProps {
 }
 
 const COLORS = {
-  superior: '#3b82f6', // blue-500
-  medio: '#22c55e'     // green-500
+  superior: "#3b82f6", // blue-500
+  medio: "#22c55e", // green-500
 };
 
-export function ClassificacaoTrafico({ leadsEnsino, isLoading }: ClassificacaoTraficoProps) {
+export function ClassificacaoTrafico({
+  leadsEnsino,
+  isLoading,
+}: ClassificacaoTraficoProps) {
   if (isLoading) {
     return (
       <Card>
@@ -30,11 +39,17 @@ export function ClassificacaoTrafico({ leadsEnsino, isLoading }: ClassificacaoTr
           <Skeleton className="h-[200px] w-full rounded-full max-w-[200px] mx-auto" />
           <div className="space-y-4">
             <div>
-              <div className="flex justify-between mb-2"><Skeleton className="h-4 w-20" /><Skeleton className="h-4 w-10" /></div>
+              <div className="flex justify-between mb-2">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-4 w-10" />
+              </div>
               <Skeleton className="h-3 w-full" />
             </div>
             <div>
-              <div className="flex justify-between mb-2"><Skeleton className="h-4 w-20" /><Skeleton className="h-4 w-10" /></div>
+              <div className="flex justify-between mb-2">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-4 w-10" />
+              </div>
               <Skeleton className="h-3 w-full" />
             </div>
           </div>
@@ -50,8 +65,8 @@ export function ClassificacaoTrafico({ leadsEnsino, isLoading }: ClassificacaoTr
   const pctMedio = total > 0 ? (medio / total) * 100 : 0;
 
   const chartData = [
-    { name: 'Ensino Superior', value: superior, color: COLORS.superior },
-    { name: 'Ensino Médio', value: medio, color: COLORS.medio }
+    { name: "Ensino Superior", value: superior, color: COLORS.superior },
+    { name: "Ensino Médio", value: medio, color: COLORS.medio },
   ];
 
   const CustomTooltip = ({ active, payload }: any) => {
@@ -60,11 +75,17 @@ export function ClassificacaoTrafico({ leadsEnsino, isLoading }: ClassificacaoTr
       return (
         <div className="bg-[#1a1a1a] border border-[#2a2a2a] text-popover-foreground shadow-sm rounded-lg p-3 text-sm z-[9999]">
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: data.color }} />
+            <div
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: data.color }}
+            />
             <span className="font-semibold">{data.name}</span>
           </div>
           <p className="mt-1 ml-5 text-muted-foreground">
-            Leads: <span className="font-medium text-foreground">{fmtNum(data.value)}</span>
+            Leads:{" "}
+            <span className="font-medium text-foreground">
+              {fmtNum(data.value)}
+            </span>
           </p>
         </div>
       );
@@ -93,7 +114,7 @@ export function ClassificacaoTrafico({ leadsEnsino, isLoading }: ClassificacaoTr
                 dataKey="value"
                 stroke="none"
               >
-                {chartData.map((entry, index) => (
+                {(chartData ?? []).map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
@@ -102,7 +123,9 @@ export function ClassificacaoTrafico({ leadsEnsino, isLoading }: ClassificacaoTr
           </ResponsiveContainer>
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
             <span className="text-3xl font-bold">{fmtNum(total)}</span>
-            <span className="text-xs text-muted-foreground uppercase">Total</span>
+            <span className="text-xs text-muted-foreground uppercase">
+              Total
+            </span>
           </div>
         </div>
 
@@ -111,11 +134,16 @@ export function ClassificacaoTrafico({ leadsEnsino, isLoading }: ClassificacaoTr
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS.superior }} />
+                <div
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: COLORS.superior }}
+                />
                 <span className="font-medium">Ensino Superior</span>
               </div>
               <div className="text-muted-foreground">
-                <span className="font-medium text-foreground mr-2">{fmtNum(superior)}</span>
+                <span className="font-medium text-foreground mr-2">
+                  {fmtNum(superior)}
+                </span>
                 ({fmtPct(pctSuperior)})
               </div>
             </div>
@@ -126,11 +154,16 @@ export function ClassificacaoTrafico({ leadsEnsino, isLoading }: ClassificacaoTr
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS.medio }} />
+                <div
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: COLORS.medio }}
+                />
                 <span className="font-medium">Ensino Médio</span>
               </div>
               <div className="text-muted-foreground">
-                <span className="font-medium text-foreground mr-2">{fmtNum(medio)}</span>
+                <span className="font-medium text-foreground mr-2">
+                  {fmtNum(medio)}
+                </span>
                 ({fmtPct(pctMedio)})
               </div>
             </div>

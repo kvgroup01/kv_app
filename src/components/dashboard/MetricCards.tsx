@@ -1,10 +1,17 @@
-import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Skeleton } from '../ui/skeleton';
-import { DollarSign, MessageCircle, Users, Activity, BarChart3, TrendingUp } from 'lucide-react';
-import { fmtBRL, fmtNum, fmtPct } from '../../lib/utils';
-import type { MetricasAgregadas, TipoCampanha } from '../../lib/types';
-import { cn } from '../../lib/utils';
+import * as React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Skeleton } from "../ui/skeleton";
+import {
+  DollarSign,
+  MessageCircle,
+  Users,
+  Activity,
+  BarChart3,
+  TrendingUp,
+} from "lucide-react";
+import { fmtBRL, fmtNum, fmtPct } from "../../lib/utils";
+import type { MetricasAgregadas, TipoCampanha } from "../../lib/types";
+import { cn } from "../../lib/utils";
 
 interface MetricCardsProps {
   metricas: MetricasAgregadas;
@@ -19,38 +26,38 @@ export function MetricCards({ metricas, tipo, isLoading }: MetricCardsProps) {
 
     // Sempre tem investimento
     list.push({
-      title: 'Investimento',
+      title: "Investimento",
       value: fmtBRL(metricas.investimento),
       icon: DollarSign,
     });
 
-    if (tipo === 'whatsapp' || tipo === 'ambos') {
+    if (tipo === "whatsapp" || tipo === "ambos") {
       list.push({
-        title: 'Conversas',
+        title: "Conversas",
         value: fmtNum(metricas.conversas),
         icon: MessageCircle,
       });
     }
 
-    if (tipo === 'leads' || tipo === 'ambos') {
+    if (tipo === "leads" || tipo === "ambos") {
       list.push({
-        title: 'Leads',
+        title: "Leads",
         value: fmtNum(metricas?.leads_total ?? 0),
         icon: Users,
       });
     }
 
-    if (tipo === 'whatsapp' || tipo === 'ambos') {
+    if (tipo === "whatsapp" || tipo === "ambos") {
       list.push({
-        title: 'Custo/Conv.',
+        title: "Custo/Conv.",
         value: fmtBRL(metricas.custo_conversa),
         icon: Activity,
       });
     }
 
-    if (tipo === 'leads' || tipo === 'ambos') {
+    if (tipo === "leads" || tipo === "ambos") {
       list.push({
-        title: 'CPL',
+        title: "CPL",
         value: fmtBRL(metricas.cpl),
         icon: TrendingUp,
       });
@@ -58,15 +65,15 @@ export function MetricCards({ metricas, tipo, isLoading }: MetricCardsProps) {
 
     // Sempre tem CTR
     list.push({
-      title: 'CTR',
+      title: "CTR",
       value: fmtPct(metricas.ctr),
       icon: BarChart3,
     });
 
     // CPM apenas quando não for "ambos" (para economizar espaço e fechar em 6 cards no ambos)
-    if (tipo !== 'ambos') {
+    if (tipo !== "ambos") {
       list.push({
-        title: 'CPM',
+        title: "CPM",
         value: fmtBRL(metricas.cpm),
         icon: BarChart3,
       });
@@ -75,8 +82,9 @@ export function MetricCards({ metricas, tipo, isLoading }: MetricCardsProps) {
     return list;
   }, [metricas, tipo]);
 
-  const skeletonCount = tipo === 'ambos' ? 6 : 5;
-  const gridColumns = cards.length === 6 ? 'lg:grid-cols-3 xl:grid-cols-6' : 'lg:grid-cols-5';
+  const skeletonCount = tipo === "ambos" ? 6 : 5;
+  const gridColumns =
+    cards.length === 6 ? "lg:grid-cols-3 xl:grid-cols-6" : "lg:grid-cols-5";
 
   if (isLoading) {
     return (
@@ -98,7 +106,7 @@ export function MetricCards({ metricas, tipo, isLoading }: MetricCardsProps) {
 
   return (
     <div className={cn("grid gap-4 md:grid-cols-2", gridColumns)}>
-      {cards.map((card, index) => {
+      {(cards ?? []).map((card, index) => {
         const Icon = card.icon;
         return (
           <Card key={index}>
