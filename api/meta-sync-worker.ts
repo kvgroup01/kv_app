@@ -133,7 +133,7 @@ export default async function handler(req: any, res: any) {
       const data = {
         campanha_id,
         nome: a.name,
-        publico_descricao: JSON.stringify(a.targeting || {}),
+        publico_descricao: a.name,
         escolaridade: null,
       };
       if (existing.documents.length > 0) {
