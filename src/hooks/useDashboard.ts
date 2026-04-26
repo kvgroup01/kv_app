@@ -240,7 +240,7 @@ export function useDashboard(
         let criativosComMetricas: CriativoComMetricas[] = criativosRaw.map(
           (criativo) => {
             const metricasCriativo = metricasDiarias.filter(
-              (m) => m.criativo_id === criativo.id,
+              (m) => m.criativo_id === criativo.$id,
             );
             const calc = calcularMetricas(metricasCriativo);
             return {
@@ -255,7 +255,7 @@ export function useDashboard(
         let conjuntosComMetricas: ConjuntoComMetricas[] = conjuntosRaw.map(
           (conjunto) => {
             const criativosDoConjunto = criativosComMetricas.filter(
-              (c) => c.conjunto_id === conjunto.id,
+              (c) => c.conjunto_id === conjunto.$id,
             );
 
             const investimento = criativosDoConjunto.reduce(
@@ -304,7 +304,7 @@ export function useDashboard(
         // Calcula métricas agregadas por Campanha e aninha os conjuntos
         const campanhasComMetricas = campanhasRaw.map((campanha) => {
           const conjuntosDaCampanha = conjuntosComMetricas.filter(
-            (c) => c.campanha_id === campanha.id,
+            (c) => c.campanha_id === campanha.$id,
           );
 
           const investimento = conjuntosDaCampanha.reduce(
@@ -354,7 +354,7 @@ export function useDashboard(
           (a, b) => b.ctr - a.ctr,
         );
         criativosComMetricas = criativosComMetricas.map((c) => {
-          const index = criativosOrdenados.findIndex((o) => o.id === c.id);
+          const index = criativosOrdenados.findIndex((o) => o.$id === c.$id);
           return {
             ...c,
             performance: calcularPerformance(criativosOrdenados, index),
@@ -368,7 +368,7 @@ export function useDashboard(
           return a.custo_conversa - b.custo_conversa;
         });
         conjuntosComMetricas = conjuntosComMetricas.map((c) => {
-          const index = conjuntosOrdenados.findIndex((o) => o.id === c.id);
+          const index = conjuntosOrdenados.findIndex((o) => o.$id === c.$id);
           return {
             ...c,
             performance: calcularPerformance(conjuntosOrdenados, index),

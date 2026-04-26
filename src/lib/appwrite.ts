@@ -252,7 +252,7 @@ export async function fetchConjuntosAppwrite(cliente_id: string) {
   // Para escalar melhor, seria ideal adicionar cliente_id no adsets, mas vamos contornar buscando todos 
   // os que pertencem às campanhas do cliente.
   const campaigns = await fetchCampanhasAppwrite(cliente_id);
-  const campIds = campaigns.map(c => c.id);
+  const campIds = campaigns.map(c => c.$id);
   if (!campIds.length) return [];
   
   const docs = await databases.listDocuments(DB_ID, 'adsets', [
@@ -263,7 +263,7 @@ export async function fetchConjuntosAppwrite(cliente_id: string) {
 
 export async function fetchCriativosAppwrite(cliente_id: string) {
   const conjuntos = await fetchConjuntosAppwrite(cliente_id);
-  const conjIds = conjuntos.map(c => c.id);
+  const conjIds = conjuntos.map(c => c.$id);
   if (!conjIds.length) return [];
 
   const docs = await databases.listDocuments(DB_ID, 'ads', [
