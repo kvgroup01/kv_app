@@ -152,6 +152,7 @@ async function runUpdate() {
     await databases.createStringAttribute(DB_ID, 'lancamentos', 'slug', 255, true)
     await databases.createStringAttribute(DB_ID, 'lancamentos', 'tipo', 50, true) // leads | ambos
     await databases.createStringAttribute(DB_ID, 'lancamentos', 'status', 50, true) // rascunho | ativo | encerrado
+    await databases.createFloatAttribute(DB_ID, 'lancamentos', 'investimento_total_contratado', false)
     await databases.createStringAttribute(DB_ID, 'lancamentos', 'palavra_chave_meta', 255, false) 
     await databases.createStringAttribute(DB_ID, 'lancamentos', 'meta_account_id', 255, false)
     await databases.createStringAttribute(DB_ID, 'lancamentos', 'meta_access_token', 2000, false)

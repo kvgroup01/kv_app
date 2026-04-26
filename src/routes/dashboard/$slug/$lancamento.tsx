@@ -421,8 +421,7 @@ export default function PublicDashboardLancamento() {
             {secaoTitulo("visao_financeira", "Visão Financeira")}
           </h3>
           <VisaoFinanceiraLeads
-            investimentoManual={investimentoManual}
-            onInvestimentoChange={setInvestimentoManual}
+            investimentoContratado={dataLancamento?.investimento_total_contratado ?? 0}
             valorUsadoCampanhas={metricas.investimento ?? 0}
             isLoading={false}
           />

@@ -59,8 +59,7 @@ const WhatsAppDashboardView = React.memo(({ metricas, serieHistorica, relatorioC
 const LeadsDashboardView = React.memo(({ metricas, serieHistorica, relatorioCampanhas, rankingCriativos, rankingPublicos, investimentoLeads, setInvestimentoLeads, gruposWhatsApp, setGruposWhatsApp }: any) => (
   <div className="space-y-10 animate-in fade-in duration-700">
     <VisaoFinanceiraLeads 
-      investimentoManual={investimentoLeads} 
-      onInvestimentoChange={setInvestimentoLeads} 
+      investimentoContratado={investimentoLeads} 
       valorUsadoCampanhas={metricas.investimento}
       isLoading={false}
     />

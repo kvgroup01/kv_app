@@ -120,6 +120,7 @@ export interface Lancamento {
   slug: string;
   tipo: TipoCampanha;
   status: 'rascunho' | 'ativo' | 'encerrado';
+  investimento_total_contratado?: number;
   palavra_chave_meta?: string;
   meta_account_id?: string;
   meta_access_token?: string;

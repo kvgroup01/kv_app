@@ -35,34 +35,16 @@ function parseBrlToFloat(value: string) {
 }
 
 interface VisaoFinanceiraLeadsProps {
-  investimentoManual: number;
-  onInvestimentoChange: (valor: number) => void;
+  investimentoContratado: number;
   valorUsadoCampanhas: number;
   isLoading?: boolean;
 }
 
 export function VisaoFinanceiraLeads({
-  investimentoManual,
-  onInvestimentoChange,
+  investimentoContratado,
   valorUsadoCampanhas,
   isLoading,
 }: VisaoFinanceiraLeadsProps) {
-  // Mantem um string formatada state-local pra UX do input
-  const [inputValue, setInputValue] = React.useState(
-    fmtBRL(investimentoManual),
-  );
-
-  React.useEffect(() => {
-    // Sincroniza via external props quando o componente monta ou atualiza por fora
-    setInputValue(fmtBRL(investimentoManual));
-  }, [investimentoManual]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatBrlInput(e.target.value);
-    setInputValue(formatted);
-    // Dispara a mutation numerica pro parent
-    onInvestimentoChange(parseBrlToFloat(formatted));
-  };
 
   if (isLoading) {
     return (
@@ -79,10 +61,15 @@ export function VisaoFinanceiraLeads({
     );
   }
 
-  // Calculos da Regra de Negocio via utils calc
-  const taxaData = calcularTaxaFacebook(investimentoManual);
-  const valorRestante = investimentoManual - valorUsadoCampanhas;
-  const restantePositivo = valorRestante >= 0;
+  // Cálculos baseados na regra de negócio
+  const investimento_total = investimentoContratado || 0;
+  const taxa_percentual = 12.5;
+  const taxa_valor = investimento_total * (taxa_percentual / 100);
+  const real_investido = investimento_total - taxa_valor;
+  const total_com_taxa = investimento_total;
+  const valor_usado = valorUsadoCampanhas || 0;
+  const saldo_restante = investimento_total - valor_usado;
+  const restantePositivo = saldo_restante >= 0;
 
   return (
     <Card>
@@ -93,42 +80,38 @@ export function VisaoFinanceiraLeads({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Linha 1 - Input */}
+        {/* Linha 1 */}
         <div className="space-y-2">
-          <label className="text-sm font-medium">
-            Investimento Total na Plataforma
-          </label>
-          <Input
-            type="text"
-            value={inputValue}
-            onChange={handleChange}
-            className="text-lg font-semibold h-11"
-            placeholder="R$ 0,00"
-          />
+          <div className="text-sm font-medium text-muted-foreground uppercase tracking-widest">
+            Investimento Total Contratado
+          </div>
+          <div className="text-3xl font-bold tracking-tight">
+            {fmtBRL(investimento_total)}
+          </div>
         </div>
 
         {/* Linha 2 - Calculados Taxa */}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 bg-muted/30 p-4 rounded-xl border">
           <div className="space-y-1">
             <div className="text-sm text-muted-foreground mb-1">
-              Taxa Facebook Ads
+              Taxa Facebook Ads (12,5%)
             </div>
             <Badge variant="outline" className="font-semibold">
-              {fmtBRL(taxaData.taxa)} (12,5%)
+              {fmtBRL(taxa_valor)}
             </Badge>
           </div>
           <div className="space-y-1">
             <div className="text-sm text-muted-foreground">
-              Valor Real Investido
+              Real Investido em Anúncios
             </div>
             <div className="text-lg font-bold text-emerald-600 dark:text-emerald-500">
-              {fmtBRL(taxaData.valorSemTaxa)}
+              {fmtBRL(real_investido)}
             </div>
           </div>
           <div className="space-y-1 col-span-2 lg:col-span-1 border-t lg:border-t-0 lg:border-l border-border pt-3 lg:pt-0 lg:pl-4">
-            <div className="text-sm text-muted-foreground">Total c/ Taxas</div>
+            <div className="text-sm text-muted-foreground">Total com Taxa Incluída</div>
             <div className="text-lg font-bold">
-              {fmtBRL(taxaData.valorComTaxa)}
+              {fmtBRL(total_com_taxa)}
             </div>
           </div>
         </div>
@@ -139,10 +122,10 @@ export function VisaoFinanceiraLeads({
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 py-2">
           <div className="space-y-1">
             <div className="text-sm text-muted-foreground uppercase tracking-widest">
-              Valor Utilizado
+              Valor Usado
             </div>
             <div className="text-2xl font-semibold">
-              {fmtBRL(valorUsadoCampanhas)}
+              {fmtBRL(valor_usado)}
             </div>
           </div>
 
@@ -156,7 +139,7 @@ export function VisaoFinanceiraLeads({
                 restantePositivo ? "text-[#22c55e]" : "text-[#ef4444]",
               )}
             >
-              {fmtBRL(valorRestante)}
+              {fmtBRL(saldo_restante)}
             </div>
           </div>
         </div>

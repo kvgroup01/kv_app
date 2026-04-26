@@ -124,6 +124,7 @@ export default function DashboardEditor() {
   const publicarMutation = usePublicarLancamento();
 
   const [nome, setNome] = React.useState("");
+  const [investimentoContratado, setInvestimentoContratado] = React.useState<number | string>("");
   const [dataInicioSync, setDataInicioSync] = React.useState("");
   const [secoes, setSecoes] = React.useState<SecoesType>(defaultSecoes);
   const [editSecao, setEditSecao] = React.useState<SecaoId | null>(null);
@@ -133,6 +134,7 @@ export default function DashboardEditor() {
   React.useEffect(() => {
     if (lancamento) {
       setNome(lancamento.nome || "");
+      setInvestimentoContratado(lancamento.investimento_total_contratado ?? "");
       setDataInicioSync(lancamento.data_inicio_sync || "");
       if (lancamento.configuracao_secoes) {
         try {
@@ -235,6 +237,7 @@ export default function DashboardEditor() {
         id,
         data: {
           nome,
+          investimento_total_contratado: investimentoContratado === "" ? null : Number(investimentoContratado),
           data_inicio_sync: dataInicioSync,
           configuracao_secoes: JSON.stringify(secoes),
         },
@@ -332,6 +335,19 @@ export default function DashboardEditor() {
                   <Input
                     value={nome}
                     onChange={(e) => setNome(e.target.value)}
+                    className="bg-background"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm">Investimento Total Contratado (R$)</label>
+                <div className="flex gap-2">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    placeholder="ex: 2000.00"
+                    value={investimentoContratado}
+                    onChange={(e) => setInvestimentoContratado(e.target.value)}
                     className="bg-background"
                   />
                 </div>
