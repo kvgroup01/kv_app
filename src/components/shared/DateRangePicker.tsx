@@ -27,14 +27,6 @@ export function DateRangePicker({
 }: DateRangePickerProps) {
   const [open, setOpen] = React.useState(false)
   const [tempRange, setTempRange] = React.useState<DateRange | undefined>(value)
-  const [isMobile, setIsMobile] = React.useState(false)
-
-  React.useEffect(() => {
-    const handler = () => setIsMobile(window.innerWidth < 768)
-    handler()
-    window.addEventListener('resize', handler)
-    return () => window.removeEventListener('resize', handler)
-  }, [])
 
   const presets = [
     { 
@@ -103,59 +95,51 @@ export function DateRangePicker({
       </PopoverTrigger>
 
       <PopoverContent 
-        className={cn(
-          "p-0 bg-background z-50",
-          isMobile 
-            ? "!fixed !bottom-0 !left-0 !right-0 !top-auto !w-full !max-w-none !translate-x-0 !translate-y-0 rounded-t-xl rounded-b-none border-x-0 border-b-0 shadow-2xl" 
-            : "w-auto"
-        )} 
+        className="w-auto p-0" 
         align="start"
       >
-        <div className="flex flex-col max-h-[80vh] md:max-h-none">
-          <div className="flex flex-col md:flex-row overflow-y-auto">
-            <div className="flex flex-col gap-1 border-b md:border-b-0 md:border-r p-3 min-w-[130px]">
-              {presets.map((preset) => (
-                <Button
-                  key={preset.label}
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="justify-start text-sm font-normal"
-                  onClick={() => handlePreset(preset.range)}
-                >
-                  {preset.label}
-                </Button>
-              ))}
-            </div>
-            <div className="p-3">
-              <Calendar
-                initialFocus
-                mode="range"
-                defaultMonth={tempRange?.from}
-                selected={tempRange}
-                onSelect={setTempRange}
-                numberOfMonths={isMobile ? 1 : 2}
-                locale={ptBR}
-                className="mx-auto"
-              />
-            </div>
+        <div className="flex">
+          <div className="flex flex-col gap-1 border-r p-3 min-w-[130px]">
+            {presets.map((preset) => (
+              <Button
+                key={preset.label}
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="justify-start text-sm font-normal"
+                onClick={() => handlePreset(preset.range)}
+              >
+                {preset.label}
+              </Button>
+            ))}
           </div>
-          <div className="flex justify-end gap-2 p-3 border-t bg-background shrink-0 mt-auto">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setOpen(false)}
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              onClick={handleApply}
-            >
-              Aplicar
-            </Button>
+          <div className="p-3">
+            <Calendar
+              initialFocus
+              mode="range"
+              defaultMonth={tempRange?.from}
+              selected={tempRange}
+              onSelect={setTempRange}
+              numberOfMonths={2}
+              locale={ptBR}
+            />
+            <div className="flex justify-end gap-2 pt-3 border-t mt-3">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setOpen(false)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleApply}
+              >
+                Aplicar
+              </Button>
+            </div>
           </div>
         </div>
       </PopoverContent>
