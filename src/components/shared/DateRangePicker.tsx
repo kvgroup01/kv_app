@@ -108,7 +108,7 @@ export function DateRangePicker({
         align="start"
       >
         <div className="flex">
-          <div className="flex flex-col gap-1 border-r p-3 min-w-[130px]">
+          <div className="hidden md:flex flex-col gap-1 border-r p-3 min-w-[130px]">
             {presets.map((preset) => (
               <Button
                 key={preset.label}
