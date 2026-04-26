@@ -132,8 +132,9 @@ export function LeadsQualificadosChart({
         </div>
 
         <div className="h-48 md:h-[300px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" className="outline-none focus:outline-none">
             <ComposedChart
+              className="outline-none focus:outline-none"
               data={dados}
               margin={{ top: 5, right: 0, left: -20, bottom: 5 }}
             >

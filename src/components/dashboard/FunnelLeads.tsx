@@ -97,8 +97,9 @@ export function FunnelLeads({ dados, metricas }: FunnelLeadsProps) {
         </div>
       </CardHeader>
       <CardContent className="flex-1 min-h-[350px]">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" className="outline-none focus:outline-none">
           <ComposedChart
+            className="outline-none focus:outline-none"
             data={dados}
             margin={{ top: 20, right: 0, left: 0, bottom: 5 }}
           >

@@ -102,8 +102,8 @@ export function ClassificacaoTrafico({
       <CardContent className="flex flex-col gap-6">
         {/* Seção 1: Gráfico de Pizza */}
         <div className="h-[200px] w-full relative">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
+          <ResponsiveContainer width="100%" height="100%" className="outline-none focus:outline-none">
+            <PieChart className="outline-none focus:outline-none">
               <Pie
                 data={chartData}
                 cx="50%"

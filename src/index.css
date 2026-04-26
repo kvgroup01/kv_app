@@ -102,3 +102,9 @@
 .recharts-tooltip-wrapper {
   z-index: 9999 !important;
 }
+
+.recharts-wrapper:focus,
+.recharts-wrapper *:focus,
+.recharts-surface:focus {
+  outline: none !important;
+}
