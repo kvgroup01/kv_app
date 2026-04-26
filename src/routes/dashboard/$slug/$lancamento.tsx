@@ -158,7 +158,7 @@ export default function PublicDashboardLancamento() {
             body: JSON.stringify({ jobId: syncJob.jobId }),
           });
           const data = await res.json();
-          if (res.ok) {
+          if (res.ok && !data.error) {
             setSyncJob((prev) =>
               prev
                 ? {

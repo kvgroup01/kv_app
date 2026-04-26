@@ -366,6 +366,7 @@ export default async function handler(req: any, res: any) {
       }
     } catch (e) {}
 
-    return res.status(500).json({ error: error.message });
+    let id = req.body?.jobId || (typeof req.body === "string" ? JSON.parse(req.body).jobId : undefined);
+    return res.status(200).json({ done: false, error: error.message, jobId: id });
   }
 }

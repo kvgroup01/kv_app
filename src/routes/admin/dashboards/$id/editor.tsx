@@ -156,18 +156,26 @@ export default function DashboardEditor() {
             body: JSON.stringify({ jobId: syncJob.jobId }),
           });
           const data = await res.json();
-          if (res.ok) {
-            setSyncJob(prev => prev ? ({ ...prev, progresso: data.progresso, status: data.done ? 'done' : 'running' }) : null);
+          if (res.ok && !data.error) {
+            setSyncJob((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    progresso: data.progresso,
+                    status: data.done ? "done" : "running",
+                  }
+                : null,
+            );
             if (data.done) {
               clearInterval(interval);
               setSyncing(false);
               toast.success("Sincronização concluída com sucesso!");
             }
           } else {
-             clearInterval(interval);
-             setSyncJob(prev => prev ? ({ ...prev, status: 'error' }) : null);
-             toast.error(data.error || "Erro ao sincronizar");
-             setSyncing(false);
+            clearInterval(interval);
+            setSyncJob((prev) => (prev ? { ...prev, status: "error" } : null));
+            toast.error(data.error || "Erro ao sincronizar");
+            setSyncing(false);
           }
         } catch(e) {
           clearInterval(interval);
