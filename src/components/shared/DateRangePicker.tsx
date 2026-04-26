@@ -27,6 +27,15 @@ export function DateRangePicker({
 }: DateRangePickerProps) {
   const [open, setOpen] = React.useState(false)
   const [tempRange, setTempRange] = React.useState<DateRange | undefined>(value)
+  const [isMobile, setIsMobile] = React.useState(
+    typeof window !== 'undefined' && window.innerWidth < 768
+  )
+
+  React.useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [])
 
   const presets = [
     { 
@@ -63,6 +72,39 @@ export function DateRangePicker({
   function handleApply() {
     onChange(tempRange)
     setOpen(false)
+  }
+
+  if (isMobile) {
+    return (
+      <div className={cn("grid grid-cols-2 gap-2", className)}>
+        <div className="flex flex-col gap-1">
+          <label className="text-[10px] font-semibold text-muted-foreground uppercase">De:</label>
+          <input
+            type="date"
+            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-xs shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+            value={value?.from ? format(value.from, 'yyyy-MM-dd') : ''}
+            onChange={(e) => {
+              const dateStr = e.target.value;
+              const newFrom = dateStr ? new Date(`${dateStr}T12:00:00`) : undefined;
+              onChange({ from: newFrom, to: value?.to });
+            }}
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-[10px] font-semibold text-muted-foreground uppercase">Até:</label>
+          <input
+            type="date"
+            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-xs shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+            value={value?.to ? format(value.to, 'yyyy-MM-dd') : ''}
+            onChange={(e) => {
+              const dateStr = e.target.value;
+              const newTo = dateStr ? new Date(`${dateStr}T12:00:00`) : undefined;
+              onChange({ from: value?.from, to: newTo });
+            }}
+          />
+        </div>
+      </div>
+    )
   }
 
   return (
