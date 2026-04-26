@@ -66,7 +66,7 @@ export function VisaoFinanceiraLeads({
   const taxa_percentual = 12.5;
   const taxa_valor = investimento_total * (taxa_percentual / 100);
   const real_investido = investimento_total - taxa_valor;
-  const total_com_taxa = investimento_total;
+  const total_com_taxa = investimento_total + taxa_valor;
   const valor_usado = valorUsadoCampanhas || 0;
   const saldo_restante = investimento_total - valor_usado;
   const restantePositivo = saldo_restante >= 0;
