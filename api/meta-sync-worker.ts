@@ -154,7 +154,7 @@ export default async function handler(req: any, res: any) {
         conjunto_id,
         nome: a.name,
         meta_ad_id: a.id,
-        thumbnail_url: a.creative?.thumbnail_url || "",
+        thumbnail_url: a.creative?.image_url || a.creative?.thumbnail_url || "",
         link_anuncio: null,
       };
       if (existing.documents.length > 0) {
@@ -175,7 +175,7 @@ export default async function handler(req: any, res: any) {
         fields: [
           "id",
           "name",
-          "creative{thumbnail_url}",
+          "creative{thumbnail_url,image_url}",
           "adset{id,name,targeting}",
           "campaign{id,name,status,objective}",
         ].join(","),

@@ -2,6 +2,7 @@ import * as React from "react";
 import { Card, CardContent } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Skeleton } from "../ui/skeleton";
+import { Button } from "../ui/button";
 import { fmtNum, fmtPct } from "../../lib/utils";
 import type { CriativoComMetricas, TipoCampanha } from "../../lib/types";
 import { cn } from "../../lib/utils";
@@ -18,6 +19,9 @@ export function CreativosGrid({
   tipo,
   isLoading,
 }: CreativosGridProps) {
+  const [verTodos, setVerTodos] = React.useState(false);
+  const gridRef = React.useRef<HTMLDivElement>(null);
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -45,11 +49,13 @@ export function CreativosGrid({
   const isVideo = (name: string) =>
     name.toLowerCase().includes("video") || name.toLowerCase().includes("vid");
 
+  const displayedCriativos = verTodos ? criativos : (criativos ?? []).slice(0, 10);
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" ref={gridRef}>
       <h3 className="text-lg font-medium">Análise de Criativos</h3>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-        {(criativos ?? []).map((criativo) => {
+        {displayedCriativos.map((criativo) => {
           let badgeClass = "bg-muted text-muted-foreground";
           if (criativo.performance === "melhor")
             badgeClass = "bg-[#22c55e] text-white hover:bg-[#16a34a]";
@@ -142,6 +148,21 @@ export function CreativosGrid({
           );
         })}
       </div>
+      {(criativos ?? []).length > 10 && (
+        <div className="flex justify-center pt-4">
+          <Button
+            variant="outline"
+            onClick={() => {
+              if (verTodos && gridRef.current) {
+                gridRef.current.scrollIntoView({ behavior: 'smooth' });
+              }
+              setVerTodos(!verTodos);
+            }}
+          >
+            {verTodos ? "Ver menos" : `Ver todos (${criativos.length})`}
+          </Button>
+        </div>
+      )}
       {criativos.length === 0 && (
         <div className="text-center p-8 border rounded-lg border-dashed text-muted-foreground">
           Nenhum criativo associado ou com métricas no período.

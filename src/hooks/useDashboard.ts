@@ -417,7 +417,7 @@ export function useDashboard(
           leadsGrupos: leadsGrupos ?? [],
           metricas: finalMetricas,
           serieHistorica: finalSerieHistorica,
-          rankingCriativos: (criativosComMetricas ?? []).slice(0, 4),
+          rankingCriativos: criativosComMetricas ?? [],
           rankingPublicos: (conjuntosComMetricas ?? []).slice(0, 4),
           relatorioCampanhas: campanhasComMetricas ?? [],
           totalLeads: finalMetricas.leads_total ?? 0,
