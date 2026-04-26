@@ -128,6 +128,7 @@ export default function DashboardEditor() {
   const [secoes, setSecoes] = React.useState<SecoesType>(defaultSecoes);
   const [editSecao, setEditSecao] = React.useState<SecaoId | null>(null);
   const [syncing, setSyncing] = React.useState(false);
+  const [syncJob, setSyncJob] = React.useState<{jobId: string, progresso: number, status: string} | null>(null);
 
   React.useEffect(() => {
     if (lancamento) {
@@ -144,11 +145,48 @@ export default function DashboardEditor() {
     }
   }, [lancamento]);
 
+  React.useEffect(() => {
+    let interval: any;
+    if (syncJob && syncJob.status !== 'done' && syncJob.status !== 'error') {
+      interval = setInterval(async () => {
+        try {
+          const res = await fetch("/api/meta-sync-worker", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ jobId: syncJob.jobId }),
+          });
+          const data = await res.json();
+          if (res.ok) {
+            setSyncJob(prev => prev ? ({ ...prev, progresso: data.progresso, status: data.done ? 'done' : 'running' }) : null);
+            if (data.done) {
+              clearInterval(interval);
+              setSyncing(false);
+              toast.success("Sincronização concluída com sucesso!");
+            }
+          } else {
+             clearInterval(interval);
+             setSyncJob(prev => prev ? ({ ...prev, status: 'error' }) : null);
+             toast.error(data.error || "Erro ao sincronizar");
+             setSyncing(false);
+          }
+        } catch(e) {
+          clearInterval(interval);
+          setSyncJob(prev => prev ? ({ ...prev, status: 'error' }) : null);
+          toast.error("Erro de conexão ao atualizar dados");
+          setSyncing(false);
+        }
+      }, 3000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    }
+  }, [syncJob]);
+
   const handleSyncMeta = async () => {
     if (!id) return;
     setSyncing(true);
     try {
-      const response = await fetch("/api/meta-sync-lancamento", {
+      const response = await fetch("/api/meta-sync-start", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -157,15 +195,13 @@ export default function DashboardEditor() {
       });
       const data = await response.json();
       if (!response.ok || data.error) {
-        toast.error(data.error || "Erro ao sincronizar Meta Ads");
+        toast.error(data.error || "Erro ao iniciar sincronização");
+        setSyncing(false);
       } else {
-        toast.success(
-          `Sincronização concluída! Campanhas: ${data.summary.campanhas}, Dias: ${data.summary.dias_sincronizados}`,
-        );
+        setSyncJob({ jobId: data.jobId, progresso: 0, status: data.status });
       }
     } catch (err: any) {
-      toast.error("Erro de conexão ao sincronizar");
-    } finally {
+      toast.error("Erro de conexão ao iniciar sincronização");
       setSyncing(false);
     }
   };
@@ -278,7 +314,7 @@ export default function DashboardEditor() {
                   onClick={handleSyncMeta}
                   disabled={syncing}
                 >
-                  {syncing ? "Sincronizando..." : "Sincronizar Meta Ads"}
+                  {syncing ? (syncJob ? `Sincronizando... ${syncJob.progresso}%` : "Sincronizando...") : "Sincronizar Meta Ads"}
                 </Button>
               </div>
 
