@@ -27,6 +27,15 @@ export function DateRangePicker({
 }: DateRangePickerProps) {
   const [open, setOpen] = React.useState(false)
   const [tempRange, setTempRange] = React.useState<DateRange | undefined>(value)
+  const [isMobile, setIsMobile] = React.useState(
+    typeof window !== 'undefined' && window.innerWidth < 768
+  )
+
+  React.useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [])
 
   const presets = [
     { 
@@ -95,7 +104,7 @@ export function DateRangePicker({
       </PopoverTrigger>
 
       <PopoverContent 
-        className="w-auto p-0" 
+        className="w-auto p-0 max-h-[90vh] overflow-y-auto" 
         align="start"
       >
         <div className="flex">
@@ -120,7 +129,7 @@ export function DateRangePicker({
               defaultMonth={tempRange?.from}
               selected={tempRange}
               onSelect={setTempRange}
-              numberOfMonths={2}
+              numberOfMonths={isMobile ? 1 : 2}
               locale={ptBR}
             />
             <div className="flex justify-end gap-2 pt-3 border-t mt-3">
