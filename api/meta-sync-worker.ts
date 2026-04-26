@@ -57,6 +57,7 @@ export default async function handler(req: any, res: any) {
       meta_access_token,
       palavra_chave_meta,
       cliente_id,
+      data_inicio_sync,
     } = lancamento;
 
     if (!meta_account_id || !meta_access_token) {
@@ -87,15 +88,7 @@ export default async function handler(req: any, res: any) {
     };
 
     const etapa = job.etapa_atual;
-    const total_etapas = job.total_etapas;
-
-    const dateFim = new Date();
-    dateFim.setDate(dateFim.getDate() - etapa * 7);
-    const dateInicio = new Date();
-    dateInicio.setDate(dateInicio.getDate() - (etapa + 1) * 7);
-
-    const dateSinceStr = dateInicio.toISOString().split("T")[0];
-    const dateUntilStr = dateFim.toISOString().split("T")[0];
+    const total_etapas = job.total_etapas || 2;
 
     const fbAdToAppwriteAd = new Map<string, string>();
 
@@ -154,13 +147,13 @@ export default async function handler(req: any, res: any) {
 
     const upsertAd = async (conjunto_id: string, a: any) => {
       const existing = await db.listDocuments(DB, "ads", [
-        Query.equal("conjunto_id", conjunto_id),
-        Query.equal("nome", a.name),
+        Query.equal("meta_ad_id", a.id),
         Query.limit(1),
       ]);
       const data = {
         conjunto_id,
         nome: a.name,
+        meta_ad_id: a.id,
         thumbnail_url: a.creative?.thumbnail_url || "",
         link_anuncio: null,
       };
@@ -204,8 +197,7 @@ export default async function handler(req: any, res: any) {
           });
 
           for (const fbAd of adsData.data) {
-            const appwriteAdId = await upsertAd(appwriteAdsetId, fbAd);
-            fbAdToAppwriteAd.set(fbAd.id, appwriteAdId);
+            await upsertAd(appwriteAdsetId, fbAd);
           }
         }
       }
@@ -217,112 +209,130 @@ export default async function handler(req: any, res: any) {
       );
     }
 
-    console.log(
-      `Worker - Etapa ${etapa}: Buscando insights de ${dateSinceStr} até ${dateUntilStr}...`,
-    );
+    if (etapa === 1) {
+      let dateSinceStr = data_inicio_sync;
+      if (!dateSinceStr) {
+        const date90Dias = new Date();
+        date90Dias.setDate(date90Dias.getDate() - 90);
+        dateSinceStr = date90Dias.toISOString().split("T")[0];
+      }
+      const dateUntilStr = new Date().toISOString().split("T")[0];
 
-    const insightsParams: any = {
-      level: "ad",
-      fields: [
-        "spend",
-        "impressions",
-        "reach",
-        "clicks",
-        "actions",
-        "campaign_name",
-        "adset_name",
-        "ad_name",
-        "ad_id",
-      ].join(","),
-      time_increment: 1,
-      time_range: JSON.stringify({
-        since: dateSinceStr,
-        until: dateUntilStr,
-      }),
-      limit: 500,
-    };
+      console.log(
+        `Worker - Etapa ${etapa}: Buscando insights de ${dateSinceStr} até ${dateUntilStr}...`,
+      );
 
-    if (palavra_chave_meta) {
-      insightsParams.filtering = JSON.stringify([
-        {
-          field: "campaign.name",
-          operator: "CONTAIN",
-          value: palavra_chave_meta,
-        },
-      ]);
-    }
+      const insightsParams: any = {
+        level: "ad",
+        fields: [
+          "spend",
+          "impressions",
+          "reach",
+          "clicks",
+          "actions",
+          "campaign_name",
+          "adset_name",
+          "ad_name",
+          "ad_id",
+          "date_start",
+        ].join(","),
+        time_increment: 1,
+        time_range: JSON.stringify({
+          since: dateSinceStr,
+          until: dateUntilStr,
+        }),
+        limit: 500,
+      };
 
-    const insightsData = await fetchMeta(
-      `${accountId}/insights`,
-      insightsParams,
-    );
-
-    // Na etapa > 0 nós não listamos anúncios, então fbAdToAppwriteAd pode estar vazio.
-    // Pra garantir, vamos obter todos os anúncios do banco e colocar no map caso necessário
-    if (etapa > 0 && insightsData.data && insightsData.data.length > 0) {
-      // Get all ads from appwrite related to this cliente_id? The ad collection doesn't have cliente_id directly,
-      // but we can query ads by looking up inside the loop.
-      // It's more efficient to map if we don't have it.
-    }
-
-    for (const i of insightsData.data || []) {
-      let criativo_id = fbAdToAppwriteAd.get(i.ad_id);
-
-      if (!criativo_id) {
-        // Se não tá no Map (pode ser pq é etapa > 0), tenta buscar pelo nome do ad e adset?
-        // Mas a gente precisa da estrutura, na etapa 0 isso foi criado.
-        // O ideal era buscar no DB. Para simplificar, vou buscar no banco pelo nome!
-        const existingAd = await db.listDocuments(DB, "ads", [
-          Query.equal("nome", i.ad_name),
-          Query.limit(1),
+      if (palavra_chave_meta) {
+        insightsParams.filtering = JSON.stringify([
+          {
+            field: "campaign.name",
+            operator: "CONTAIN",
+            value: palavra_chave_meta,
+          },
         ]);
-        if (existingAd.documents.length > 0) {
-          criativo_id = existingAd.documents[0].$id;
-          fbAdToAppwriteAd.set(i.ad_id, criativo_id);
+      }
+
+      // Pre-load all fbAd.id -> appwriteAd.$id mappings in memory
+      const fbAdToAppwriteAd = new Map<string, string>();
+      const allAppwriteAds = await db.listDocuments(DB, "ads", [Query.limit(5000)]);
+      for (const ad of allAppwriteAds.documents) {
+        if (ad.meta_ad_id) {
+          fbAdToAppwriteAd.set(ad.meta_ad_id, ad.$id);
         }
       }
 
-      if (!criativo_id) continue;
+      let url = `${GRAPH_API_BASE}/${accountId}/insights?access_token=${meta_access_token}`;
+      for (const [key, value] of Object.entries(insightsParams)) {
+        url += `&${key}=${encodeURIComponent(typeof value === "object" ? JSON.stringify(value) : String(value))}`;
+      }
 
-      const dataStr = i.date_start;
+      while (url) {
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        if (data.error) throw new Error(`Meta API Error: ${data.error.message}`);
 
-      const existing = await db.listDocuments(DB, "daily_metrics", [
-        Query.equal("criativo_id", criativo_id),
-        Query.equal("data", dataStr),
-        Query.limit(1),
-      ]);
+        for (const i of data.data || []) {
+          let criativo_id = fbAdToAppwriteAd.get(i.ad_id);
 
-      const actions = i.actions || [];
-      const conversasArr = actions.find(
-        (a: any) =>
-          a.action_type ===
-          "onsite_conversion.messaging_conversation_started_7d",
-      );
-      const conversas = conversasArr ? Number(conversasArr.value) : 0;
+          if (!criativo_id) {
+            const existingAd = await db.listDocuments(DB, "ads", [
+              Query.equal("meta_ad_id", i.ad_id),
+              Query.limit(1),
+            ]);
+            if (existingAd.documents.length > 0) {
+              criativo_id = existingAd.documents[0].$id;
+              fbAdToAppwriteAd.set(i.ad_id, criativo_id);
+            }
+          }
 
-      const data = {
-        criativo_id,
-        data: dataStr,
-        investimento: Number(i.spend) || 0,
-        impressoes: Number(i.impressions) || 0,
-        alcance: Number(i.reach) || 0,
-        cliques: Number(i.clicks) || 0,
-        conversas,
-        leads_qualificados: 0,
-        leads_desqualificados: 0,
-        vendas: 0,
-        cliente_id,
-      };
+          if (!criativo_id) continue;
 
-      if (existing.documents.length > 0) {
-        await db.updateDocument(
-          DB,
-          "daily_metrics",
-          existing.documents[0].$id,
-          data,
-        );
-      } else {
-        await db.createDocument(DB, "daily_metrics", ID.unique(), data);
+          const dataStr = i.date_start;
+
+          const existing = await db.listDocuments(DB, "daily_metrics", [
+            Query.equal("criativo_id", criativo_id),
+            Query.equal("data", dataStr),
+            Query.limit(1),
+          ]);
+
+          const actions = i.actions || [];
+          const conversasArr = actions.find(
+            (a: any) =>
+              a.action_type ===
+              "onsite_conversion.messaging_conversation_started_7d",
+          );
+          const conversas = conversasArr ? Number(conversasArr.value) : 0;
+
+          const metricData = {
+            criativo_id,
+            data: dataStr,
+            investimento: Number(i.spend) || 0,
+            impressoes: Number(i.impressions) || 0,
+            alcance: Number(i.reach) || 0,
+            cliques: Number(i.clicks) || 0,
+            conversas,
+            leads_qualificados: 0,
+            leads_desqualificados: 0,
+            vendas: 0,
+            cliente_id,
+          };
+
+          if (existing.documents.length > 0) {
+            await db.updateDocument(
+              DB,
+              "daily_metrics",
+              existing.documents[0].$id,
+              metricData,
+            );
+          } else {
+            await db.createDocument(DB, "daily_metrics", ID.unique(), metricData);
+          }
+        }
+
+        url = data.paging?.next || null;
       }
     }
 

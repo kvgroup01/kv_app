@@ -124,6 +124,7 @@ export default function DashboardEditor() {
   const publicarMutation = usePublicarLancamento();
 
   const [nome, setNome] = React.useState("");
+  const [dataInicioSync, setDataInicioSync] = React.useState("");
   const [secoes, setSecoes] = React.useState<SecoesType>(defaultSecoes);
   const [editSecao, setEditSecao] = React.useState<SecaoId | null>(null);
   const [syncing, setSyncing] = React.useState(false);
@@ -131,6 +132,7 @@ export default function DashboardEditor() {
   React.useEffect(() => {
     if (lancamento) {
       setNome(lancamento.nome || "");
+      setDataInicioSync(lancamento.data_inicio_sync || "");
       if (lancamento.configuracao_secoes) {
         try {
           const parsed = JSON.parse(lancamento.configuracao_secoes);
@@ -189,6 +191,7 @@ export default function DashboardEditor() {
         id,
         data: {
           nome,
+          data_inicio_sync: dataInicioSync,
           configuracao_secoes: JSON.stringify(secoes),
         },
       });
@@ -285,6 +288,17 @@ export default function DashboardEditor() {
                   <Input
                     value={nome}
                     onChange={(e) => setNome(e.target.value)}
+                    className="bg-background"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm">Data de início da sincronização</label>
+                <div className="flex gap-2">
+                  <Input
+                    type="date"
+                    value={dataInicioSync}
+                    onChange={(e) => setDataInicioSync(e.target.value)}
                     className="bg-background"
                   />
                 </div>

@@ -72,7 +72,7 @@ export default async function handler(req: any, res: any) {
       lancamento_id: lancamentoId,
       status: "pending",
       etapa_atual: 0,
-      total_etapas: 13,
+      total_etapas: 2,
       progresso: 0,
       criado_em: new Date().toISOString(),
       atualizado_em: new Date().toISOString(),

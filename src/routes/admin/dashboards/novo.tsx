@@ -73,6 +73,7 @@ export default function NovoDashboard() {
     meta_access_token: '',
     meta_account_nome: '',
     palavra_chave_meta: '',
+    data_inicio_sync: '',
   });
 
   const [novaColuna, setNovaColuna] = React.useState({ nome: '', tipo: 'texto' });
@@ -190,6 +191,7 @@ export default function NovoDashboard() {
       tipo: form.tipo as TipoCampanha,
       status: status,
       palavra_chave_meta: form.palavra_chave_meta,
+      data_inicio_sync: form.data_inicio_sync,
       meta_account_id: form.meta_account_id,
       meta_access_token: form.meta_access_token,
       colunas_webhook: JSON.stringify(form.colunas),
@@ -566,6 +568,17 @@ export default function NovoDashboard() {
                  <Button onClick={testarFiltro} disabled={testarFiltroMutation.isPending}>
                    {testarFiltroMutation.isPending ? "Testando..." : "Testar filtro"}
                  </Button>
+               </div>
+               
+               <div className="space-y-2 mt-4">
+                 <label className="text-sm font-medium">Data de início da sincronização (Opcional)</label>
+                 <p className="text-xs text-muted-foreground pb-1">Os dados do Meta Ads serão importados a partir desta data. Se não for informado, busca os últimos 90 dias.</p>
+                 <Input 
+                    type="date"
+                    value={form.data_inicio_sync} 
+                    onChange={e => setForm(prev => ({ ...prev, data_inicio_sync: e.target.value }))}
+                    className="bg-background w-full"
+                 />
                </div>
 
                {campanhasEncontradas !== null && (
