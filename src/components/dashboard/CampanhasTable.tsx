@@ -67,11 +67,11 @@ export function CampanhasTable({
       return (
         <>
           <TableCell>{fmtBRL(data.investimento)}</TableCell>
-          <TableCell>{fmtNum(data.conversas)}</TableCell>
-          <TableCell>{fmtBRL((data as any).custo_conversa || 0)}</TableCell>
-          <TableCell>{fmtNum((data as any).cliques || 0)}</TableCell>
-          <TableCell>{fmtNum((data as any).alcance || 0)}</TableCell>
-          <TableCell>
+          <TableCell className="hidden sm:table-cell">{fmtNum(data.conversas)}</TableCell>
+          <TableCell className="hidden sm:table-cell">{fmtBRL((data as any).custo_conversa || 0)}</TableCell>
+          <TableCell className="hidden sm:table-cell">{fmtNum((data as any).cliques || 0)}</TableCell>
+          <TableCell className="hidden sm:table-cell">{fmtNum((data as any).alcance || 0)}</TableCell>
+          <TableCell className="hidden sm:table-cell">
             {level === 3 && (data as CriativoComMetricas).link_anuncio ? (
               <a
                 href={(data as CriativoComMetricas).link_anuncio}
@@ -91,12 +91,12 @@ export function CampanhasTable({
     return (
       <>
         <TableCell>{fmtBRL(data.investimento)}</TableCell>
-        <TableCell>{fmtNum((data as any)?.leads_total ?? 0)}</TableCell>
-        <TableCell>{fmtNum((data as any).leads_qualificados || 0)}</TableCell>
-        <TableCell>{fmtBRL((data as any).cpl || 0)}</TableCell>
-        <TableCell>{fmtNum((data as any).cliques || 0)}</TableCell>
-        <TableCell>{fmtNum((data as any).alcance || 0)}</TableCell>
-        <TableCell>
+        <TableCell className="hidden sm:table-cell">{fmtNum((data as any)?.leads_total ?? 0)}</TableCell>
+        <TableCell className="hidden sm:table-cell">{fmtNum((data as any).leads_qualificados || 0)}</TableCell>
+        <TableCell className="hidden sm:table-cell">{fmtBRL((data as any).cpl || 0)}</TableCell>
+        <TableCell className="hidden sm:table-cell">{fmtNum((data as any).cliques || 0)}</TableCell>
+        <TableCell className="hidden sm:table-cell">{fmtNum((data as any).alcance || 0)}</TableCell>
+        <TableCell className="hidden sm:table-cell">
           {level === 3 && (data as CriativoComMetricas).link_anuncio ? (
             <a
               href={(data as CriativoComMetricas).link_anuncio}
@@ -143,72 +143,72 @@ export function CampanhasTable({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[300px] min-w-[300px]">Nome</TableHead>
+                <TableHead className="w-[150px] sm:w-[300px] sm:min-w-[300px]">Nome</TableHead>
                 <TableHead>Investimento</TableHead>
                 {tipo === "whatsapp" ? (
                   <>
-                    <TableHead>Conversas</TableHead>
-                    <TableHead>Custo/Conv</TableHead>
+                    <TableHead className="hidden sm:table-cell">Conversas</TableHead>
+                    <TableHead className="hidden sm:table-cell">Custo/Conv</TableHead>
                   </>
                 ) : (
                   <>
-                    <TableHead>Leads</TableHead>
-                    <TableHead>Qualificados</TableHead>
-                    <TableHead>CPL</TableHead>
+                    <TableHead className="hidden sm:table-cell">Leads</TableHead>
+                    <TableHead className="hidden sm:table-cell">Qualificados</TableHead>
+                    <TableHead className="hidden sm:table-cell">CPL</TableHead>
                   </>
                 )}
-                <TableHead>Cliques</TableHead>
-                <TableHead>Alcance</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
+                <TableHead className="hidden sm:table-cell">Cliques</TableHead>
+                <TableHead className="hidden sm:table-cell">Alcance</TableHead>
+                <TableHead className="w-[50px] hidden sm:table-cell"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {(campanhasComMetricas ?? []).map((campanha) => (
-                <React.Fragment key={campanha.id}>
+                <React.Fragment key={campanha.$id}>
                   {/* LEVEL 1: Campanha */}
                   <TableRow
-                    className="font-medium bg-background hover:bg-muted/50 cursor-pointer"
-                    onClick={(e) => toggleCampanha(campanha.id, e)}
+                    className="font-medium bg-background hover:bg-muted/50 cursor-pointer text-xs sm:text-sm"
+                    onClick={(e) => toggleCampanha(campanha.$id, e)}
                   >
-                    <TableCell className="flex items-center space-x-2">
-                      {expandedCampanhas[campanha.id] ? (
-                        <ChevronDown className="h-4 w-4" />
+                    <TableCell className="flex items-center space-x-1 sm:space-x-2">
+                      {expandedCampanhas[campanha.$id] ? (
+                        <ChevronDown className="h-4 w-4 flex-shrink-0" />
                       ) : (
-                        <ChevronRight className="h-4 w-4" />
+                        <ChevronRight className="h-4 w-4 flex-shrink-0" />
                       )}
-                      <span className="truncate">{campanha.nome}</span>
+                      <span className="truncate max-w-[120px] sm:max-w-none">{campanha.nome}</span>
                     </TableCell>
                     {renderCells(campanha, 1)}
                   </TableRow>
 
                   {/* LEVEL 2: Conjuntos */}
-                  {expandedCampanhas[campanha.id] &&
+                  {expandedCampanhas[campanha.$id] &&
                     (campanha.conjuntos ?? []).map((conjunto) => (
-                      <React.Fragment key={conjunto.id}>
+                      <React.Fragment key={conjunto.$id}>
                         <TableRow
-                          className="bg-muted/30 text-sm hover:bg-muted/50 cursor-pointer"
-                          onClick={(e) => toggleConjunto(conjunto.id, e)}
+                          className="bg-muted/30 text-[11px] sm:text-sm hover:bg-muted/50 cursor-pointer"
+                          onClick={(e) => toggleConjunto(conjunto.$id, e)}
                         >
-                          <TableCell className="pl-6 flex items-center space-x-2">
-                            {expandedConjuntos[conjunto.id] ? (
-                              <ChevronDown className="h-4 w-4" />
+                          <TableCell className="pl-3 sm:pl-6 flex items-center space-x-1 sm:space-x-2">
+                            {expandedConjuntos[conjunto.$id] ? (
+                              <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                             ) : (
-                              <ChevronRight className="h-4 w-4" />
+                              <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                             )}
-                            <span className="truncate">{conjunto.nome}</span>
+                            <span className="truncate max-w-[100px] sm:max-w-none">{conjunto.nome}</span>
                           </TableCell>
                           {renderCells(conjunto, 2)}
                         </TableRow>
 
                         {/* LEVEL 3: Criativos */}
-                        {expandedConjuntos[conjunto.id] &&
+                        {expandedConjuntos[conjunto.$id] &&
                           (conjunto.criativos ?? []).map((criativo) => (
                             <TableRow
-                              key={criativo.id}
-                              className="text-muted-foreground text-sm hover:bg-muted/50"
+                              key={criativo.$id}
+                              className="text-muted-foreground text-[10px] sm:text-sm hover:bg-muted/50"
                             >
-                              <TableCell className="pl-12">
-                                <span className="truncate block max-w-[220px]">
+                              <TableCell className="pl-8 sm:pl-12">
+                                <span className="truncate block max-w-[100px] sm:max-w-[220px]">
                                   {criativo.nome}
                                 </span>
                               </TableCell>

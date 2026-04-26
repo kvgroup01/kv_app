@@ -63,7 +63,7 @@ export interface Pagamento {
 }
 
 export interface Campanha {
-  id: string;
+  $id: string;
   cliente_id?: string; // Optional for sheets
   nome: string;
   tipo: TipoCampanha;
@@ -72,7 +72,7 @@ export interface Campanha {
 }
 
 export interface Conjunto {
-  id: string;
+  $id: string;
   campanha_id: string;
   nome: string;
   escolaridade?: 'superior' | 'medio' | string;
@@ -80,7 +80,7 @@ export interface Conjunto {
 }
 
 export interface Criativo {
-  id: string;
+  $id: string;
   conjunto_id: string;
   nome: string;
   thumbnail_url?: string;

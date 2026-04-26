@@ -117,12 +117,12 @@ export function RankingTable({
                   : (item?.leads_total ?? 0);
 
               return (
-                <TableRow key={item.id} className="group">
-                  <TableCell className="font-mono text-muted-foreground text-xs">
+                <TableRow key={item.$id} className="group">
+                  <TableCell className="font-mono text-muted-foreground text-[10px] sm:text-xs">
                     #{index + 1}
                   </TableCell>
                   <TableCell
-                    className="font-medium truncate max-w-[150px] sm:max-w-[200px]"
+                    className="font-medium truncate max-w-[80px] sm:max-w-[200px] text-[10px] sm:text-sm"
                     title={item.nome}
                   >
                     {tipo === "publicos"
@@ -130,16 +130,16 @@ export function RankingTable({
                         item.nome
                       : item.nome}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right text-[10px] sm:text-sm">
                     {fmtNum(contagem)}
                   </TableCell>
-                  <TableCell className="text-right font-medium">
+                  <TableCell className="text-right font-medium text-[10px] sm:text-sm">
                     {valDesempenho}
                   </TableCell>
                   <TableCell className="text-right">
                     <Badge
                       variant="outline"
-                      className={cn("border-none capitalize", badgeClass)}
+                      className={cn("border-none capitalize text-[9px] sm:text-xs px-1 sm:px-2", badgeClass)}
                     >
                       {item.performance}
                     </Badge>

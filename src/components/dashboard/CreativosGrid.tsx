@@ -48,7 +48,7 @@ export function CreativosGrid({
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-medium">Análise de Criativos</h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
         {(criativos ?? []).map((criativo) => {
           let badgeClass = "bg-muted text-muted-foreground";
           if (criativo.performance === "melhor")
@@ -57,7 +57,7 @@ export function CreativosGrid({
             badgeClass = "bg-[#eab308] text-white hover:bg-[#ca8a04]";
 
           return (
-            <Card key={criativo.id} className="overflow-hidden flex flex-col">
+            <Card key={criativo.$id} className="overflow-hidden flex flex-col">
               {/* Thumbnail Area */}
               <div className="relative h-[160px] w-full bg-muted/30 border-b flex items-center justify-center">
                 {criativo.thumbnail_url ? (

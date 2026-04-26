@@ -435,57 +435,60 @@ export default function PublicDashboardLancamento() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="container mx-auto px-4 lg:px-8 py-3 lg:py-0 lg:h-16 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex items-center gap-3 lg:gap-4">
             {cliente.logo_url && (
               <img
                 src={cliente.logo_url}
                 alt="Logo"
-                className="h-8 w-8 rounded-full object-cover"
+                className="h-6 w-6 lg:h-8 lg:w-8 rounded-full object-cover"
               />
             )}
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-lg font-bold leading-none">
+                <h1 className="text-base lg:text-lg font-bold leading-none truncate max-w-[200px] lg:max-w-none">
                   {dataLancamento.nome}
                 </h1>
                 <Badge
                   variant="outline"
-                  className="text-[10px] uppercase font-semibold h-4 px-1"
+                  className="text-[9px] lg:text-[10px] uppercase font-semibold h-4 px-1"
                 >
                   {dataLancamento.tipo}
                 </Badge>
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {cliente.nome} • Dados atualizados em tempo real
+              <p className="text-[10px] lg:text-xs text-muted-foreground mt-0.5">
+                {cliente.nome} • Dados em tempo real
               </p>
             </div>
           </div>
-          <div className="hidden sm:flex items-center gap-4 w-[auto]">
+          
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 lg:gap-4 w-full lg:w-auto">
             {isFetching && (
-              <div className="flex items-center gap-2 text-xs text-muted-foreground whitespace-nowrap">
+              <div className="hidden lg:flex items-center gap-2 text-xs text-muted-foreground whitespace-nowrap">
                 <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
                 Atualizando...
               </div>
             )}
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleManualSync}
-              disabled={syncing}
-              className="flex items-center gap-2 h-9 text-xs"
-              title="Atualizar dados do Meta Ads"
-            >
-              <RefreshCw
-                className={`w-3.5 h-3.5 ${syncing ? "animate-spin" : ""}`}
-              />
-              <span className="hidden lg:inline">
-                {syncing ? "Atualizando..." : "Atualizar dados"}
-              </span>
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleManualSync}
+                disabled={syncing}
+                className="flex-1 lg:flex-initial flex items-center justify-center gap-2 h-9 text-xs"
+                title="Atualizar dados do Meta Ads"
+              >
+                <RefreshCw
+                  className={`w-3.5 h-3.5 ${syncing ? "animate-spin" : ""}`}
+                />
+                <span>
+                  {syncing ? "Atualizando..." : "Atualizar dados"}
+                </span>
+              </Button>
+            </div>
 
-            <div className="w-[300px]">
+            <div className="w-full lg:w-[300px]">
               <DateRangePicker
                 value={dateRange}
                 onChange={setDateRange}
@@ -497,15 +500,7 @@ export default function PublicDashboardLancamento() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="sm:hidden mb-6">
-          <DateRangePicker
-            value={dateRange}
-            onChange={setDateRange}
-            className="w-full"
-          />
-        </div>
-
+      <main className="container mx-auto px-4 lg:px-8 py-6 lg:py-8">
         {dataLancamento.tipo === "ambos" ? (
           <Tabs defaultValue="leads" className="space-y-6">
             <TabsList className="bg-muted p-1">

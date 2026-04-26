@@ -37,7 +37,7 @@ export function LeadsQualificadosChart({
           <Skeleton className="h-3 w-[150px]" />
         </CardHeader>
         <CardContent>
-          <Skeleton className="h-[300px] w-full" />
+          <Skeleton className="h-[200px] md:h-[300px] w-full" />
         </CardContent>
       </Card>
     );
@@ -108,104 +108,106 @@ export function LeadsQualificadosChart({
           Qualidade diária dos leads e investimento associado
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 min-h-[350px]">
+      <CardContent className="flex-1 p-2 md:p-6 md:pt-0">
         {/* Custom HTML Legend */}
         <div className="flex justify-center items-center space-x-6 mb-4">
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 rounded-sm bg-[#22c55e]" />
-            <span className="text-sm font-medium text-muted-foreground">
+            <span className="text-xs md:text-sm font-medium text-muted-foreground">
               Qualificados
             </span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 rounded-sm bg-[#ef4444]" />
-            <span className="text-sm font-medium text-muted-foreground">
+            <span className="text-xs md:text-sm font-medium text-muted-foreground">
               Desqualificados
             </span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 rounded-full bg-slate-900 dark:bg-slate-100" />
-            <span className="text-sm font-medium text-muted-foreground">
+            <span className="text-xs md:text-sm font-medium text-muted-foreground">
               Investimento
             </span>
           </div>
         </div>
 
-        <ResponsiveContainer width="100%" height={300}>
-          <ComposedChart
-            data={dados}
-            margin={{ top: 5, right: 0, left: 0, bottom: 5 }}
-          >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              vertical={false}
-              className="stroke-muted/50"
-            />
+        <div className="h-48 md:h-[300px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart
+              data={dados}
+              margin={{ top: 5, right: 0, left: -20, bottom: 5 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={false}
+                className="stroke-muted/50"
+              />
 
-            <XAxis
-              dataKey="data"
-              tickFormatter={fmtData}
-              className="text-xs text-muted-foreground"
-              tickLine={false}
-              axisLine={false}
-              dy={10}
-            />
+              <XAxis
+                dataKey="data"
+                tickFormatter={fmtData}
+                className="text-[10px] md:text-xs text-muted-foreground"
+                tickLine={false}
+                axisLine={false}
+                dy={10}
+              />
 
-            {/* Eixo Esquerdo para Leads */}
-            <YAxis
-              yAxisId="left"
-              className="text-xs text-muted-foreground"
-              tickLine={false}
-              axisLine={false}
-              width={40}
-              tickFormatter={(val) => Math.round(val).toString()}
-            />
+              {/* Eixo Esquerdo para Leads */}
+              <YAxis
+                yAxisId="left"
+                className="text-[10px] md:text-xs text-muted-foreground"
+                tickLine={false}
+                axisLine={false}
+                width={40}
+                tickFormatter={(val) => Math.round(val).toString()}
+              />
 
-            {/* Eixo Direito para Investimento */}
-            <YAxis
-              yAxisId="right"
-              orientation="right"
-              className="text-xs text-muted-foreground"
-              tickLine={false}
-              axisLine={false}
-              width={50}
-              tickFormatter={(val) => `R$ ${Math.round(val)}`}
-            />
+              {/* Eixo Direito para Investimento */}
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                className="text-[10px] md:text-xs text-muted-foreground"
+                tickLine={false}
+                axisLine={false}
+                width={30}
+                tickFormatter={(val) => `R$ ${Math.round(val)}`}
+              />
 
-            <Tooltip
-              content={<CustomTooltip />}
-              cursor={{ fill: "rgba(0,0,0,0.05)" }}
-            />
+              <Tooltip
+                content={<CustomTooltip />}
+                cursor={{ fill: "rgba(0,0,0,0.05)" }}
+              />
 
-            <Bar
-              yAxisId="left"
-              dataKey="leads_qualificados"
-              name="Qualificados"
-              fill="#22c55e"
-              radius={[4, 4, 0, 0]}
-              barSize={16}
-            />
-            <Bar
-              yAxisId="left"
-              dataKey="leads_desqualificados"
-              name="Desqualificados"
-              fill="#ef4444"
-              radius={[4, 4, 0, 0]}
-              barSize={16}
-            />
-            <Line
-              yAxisId="right"
-              type="monotone"
-              dataKey="investimento"
-              name="Investimento"
-              stroke="currentColor"
-              className="text-foreground"
-              strokeWidth={2}
-              dot={{ r: 3 }}
-              activeDot={{ r: 5 }}
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
+              <Bar
+                yAxisId="left"
+                dataKey="leads_qualificados"
+                name="Qualificados"
+                fill="#22c55e"
+                radius={[4, 4, 0, 0]}
+                barSize={16}
+              />
+              <Bar
+                yAxisId="left"
+                dataKey="leads_desqualificados"
+                name="Desqualificados"
+                fill="#ef4444"
+                radius={[4, 4, 0, 0]}
+                barSize={16}
+              />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="investimento"
+                name="Investimento"
+                stroke="currentColor"
+                className="text-foreground"
+                strokeWidth={2}
+                dot={{ r: 3 }}
+                activeDot={{ r: 5 }}
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
       </CardContent>
     </Card>
   );

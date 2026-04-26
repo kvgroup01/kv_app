@@ -23,7 +23,7 @@ export async function fetchSheet(spreadsheetId: string, range: string): Promise<
 export async function fetchCampanhas(spreadsheetId: string): Promise<Campanha[]> {
   const values = await fetchSheet(spreadsheetId, "CAMPANHAS!A2:D");
   return values.map(row => ({
-    id: row[0] || '',
+    $id: row[0] || '',
     nome: row[1] || '',
     tipo: (row[2] || '') as Campanha['tipo'],
     status: row[3] || '',
@@ -33,7 +33,7 @@ export async function fetchCampanhas(spreadsheetId: string): Promise<Campanha[]>
 export async function fetchConjuntos(spreadsheetId: string): Promise<Conjunto[]> {
   const values = await fetchSheet(spreadsheetId, "CONJUNTOS!A2:E");
   return values.map(row => ({
-    id: row[0] || '',
+    $id: row[0] || '',
     campanha_id: row[1] || '',
     nome: row[2] || '',
     publico_descricao: row[3] || '',
@@ -44,7 +44,7 @@ export async function fetchConjuntos(spreadsheetId: string): Promise<Conjunto[]>
 export async function fetchCriativos(spreadsheetId: string): Promise<Criativo[]> {
   const values = await fetchSheet(spreadsheetId, "CRIATIVOS!A2:E");
   return values.map(row => ({
-    id: row[0] || '',
+    $id: row[0] || '',
     conjunto_id: row[1] || '',
     nome: row[2] || '',
     thumbnail_url: row[3] || '',
