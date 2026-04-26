@@ -302,62 +302,69 @@ export default async function handler(req: any, res: any) {
         
         if (data.error) throw new Error(`Meta API Error: ${data.error.message}`);
 
-        for (const i of data.data || []) {
-          let criativo_id = fbAdToAppwriteAd.get(i.ad_id);
+        const insightsData = data.data || [];
+        const BATCH_SIZE = 25;
+        
+        for (let idx = 0; idx < insightsData.length; idx += BATCH_SIZE) {
+          const batch = insightsData.slice(idx, idx + BATCH_SIZE);
+          
+          await Promise.all(batch.map(async (i: any) => {
+            let criativo_id = fbAdToAppwriteAd.get(i.ad_id);
 
-          if (!criativo_id) {
-            const existingAd = await db.listDocuments(DB, "ads", [
-              Query.equal("meta_ad_id", i.ad_id),
+            if (!criativo_id) {
+              const existingAd = await db.listDocuments(DB, "ads", [
+                Query.equal("meta_ad_id", i.ad_id),
+                Query.limit(1),
+              ]);
+              if (existingAd.documents.length > 0) {
+                criativo_id = existingAd.documents[0].$id;
+                fbAdToAppwriteAd.set(i.ad_id, criativo_id);
+              }
+            }
+
+            if (!criativo_id) return;
+
+            const dataStr = i.date_start;
+
+            const existing = await db.listDocuments(DB, "daily_metrics", [
+              Query.equal("criativo_id", criativo_id),
+              Query.equal("data", dataStr),
               Query.limit(1),
             ]);
-            if (existingAd.documents.length > 0) {
-              criativo_id = existingAd.documents[0].$id;
-              fbAdToAppwriteAd.set(i.ad_id, criativo_id);
-            }
-          }
 
-          if (!criativo_id) continue;
-
-          const dataStr = i.date_start;
-
-          const existing = await db.listDocuments(DB, "daily_metrics", [
-            Query.equal("criativo_id", criativo_id),
-            Query.equal("data", dataStr),
-            Query.limit(1),
-          ]);
-
-          const actions = i.actions || [];
-          const conversasArr = actions.find(
-            (a: any) =>
-              a.action_type ===
-              "onsite_conversion.messaging_conversation_started_7d",
-          );
-          const conversas = conversasArr ? Number(conversasArr.value) : 0;
-
-          const metricData = {
-            criativo_id,
-            data: dataStr,
-            investimento: Number(i.spend) || 0,
-            impressoes: Number(i.impressions) || 0,
-            alcance: Number(i.reach) || 0,
-            cliques: Number(i.clicks) || 0,
-            conversas,
-            leads_qualificados: 0,
-            leads_desqualificados: 0,
-            vendas: 0,
-            cliente_id,
-          };
-
-          if (existing.documents.length > 0) {
-            await db.updateDocument(
-              DB,
-              "daily_metrics",
-              existing.documents[0].$id,
-              metricData,
+            const actions = i.actions || [];
+            const conversasArr = actions.find(
+              (a: any) =>
+                a.action_type ===
+                "onsite_conversion.messaging_conversation_started_7d",
             );
-          } else {
-            await db.createDocument(DB, "daily_metrics", ID.unique(), metricData);
-          }
+            const conversas = conversasArr ? Number(conversasArr.value) : 0;
+
+            const metricData = {
+              criativo_id,
+              data: dataStr,
+              investimento: Number(i.spend) || 0,
+              impressoes: Number(i.impressions) || 0,
+              alcance: Number(i.reach) || 0,
+              cliques: Number(i.clicks) || 0,
+              conversas,
+              leads_qualificados: 0,
+              leads_desqualificados: 0,
+              vendas: 0,
+              cliente_id,
+            };
+
+            if (existing.documents.length > 0) {
+              await db.updateDocument(
+                DB,
+                "daily_metrics",
+                existing.documents[0].$id,
+                metricData,
+              );
+            } else {
+              await db.createDocument(DB, "daily_metrics", ID.unique(), metricData);
+            }
+          }));
         }
 
         url = data.paging?.next || null;
