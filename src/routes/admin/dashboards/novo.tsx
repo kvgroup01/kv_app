@@ -22,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { DateRangePicker } from '../../../components/shared/DateRangePicker';
 import { cn } from '../../../lib/utils';
 import { type DateRange } from 'react-day-picker';
+import { TipoCampanha } from '../../../lib/types';
 
 type Coluna = {
   nome: string;

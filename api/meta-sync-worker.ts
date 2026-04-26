@@ -170,36 +170,64 @@ export default async function handler(req: any, res: any) {
       console.log(
         "Worker - Etapa 0: Sincronizando estrutura (Campanhas, Conjuntos, Anúncios)...",
       );
-      const campaignsData = await fetchMeta(`${accountId}/campaigns`, {
-        fields: ["id", "name", "status", "objective"].join(","),
+
+      const adsParams: any = {
+        fields: [
+          "id",
+          "name",
+          "creative{thumbnail_url}",
+          "adset{id,name,targeting}",
+          "campaign{id,name,status,objective}",
+        ].join(","),
         limit: 500,
-      });
+      };
 
-      const activeCampaigns = campaignsData.data.filter((c: any) => {
-        if (!palavra_chave_meta) return true;
-        return c.name.toLowerCase().includes(palavra_chave_meta.toLowerCase());
-      });
+      if (palavra_chave_meta) {
+        adsParams.filtering = JSON.stringify([
+          {
+            field: "campaign.name",
+            operator: "CONTAIN",
+            value: palavra_chave_meta,
+          },
+        ]);
+      }
 
-      for (const fbCampaign of activeCampaigns) {
-        const appwriteCampId = await upsertCampaign(fbCampaign);
+      let url = `${GRAPH_API_BASE}/${accountId}/ads?access_token=${meta_access_token}`;
+      for (const [key, value] of Object.entries(adsParams)) {
+        url += `&${key}=${encodeURIComponent(typeof value === "object" ? JSON.stringify(value) : String(value))}`;
+      }
 
-        const adsetsData = await fetchMeta(`${fbCampaign.id}/adsets`, {
-          fields: ["id", "name", "status", "targeting"].join(","),
-          limit: 500,
-        });
+      const campCache = new Map<string, string>();
+      const adsetCache = new Map<string, string>();
 
-        for (const fbAdset of adsetsData.data) {
-          const appwriteAdsetId = await upsertAdset(appwriteCampId, fbAdset);
+      while (url) {
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        if (data.error) throw new Error(`Meta API Error: ${data.error.message}`);
 
-          const adsData = await fetchMeta(`${fbAdset.id}/ads`, {
-            fields: ["id", "name", "creative{thumbnail_url}"].join(","),
-            limit: 500,
-          });
+        for (const ad of data.data || []) {
+          const campaign = ad.campaign;
+          const adset = ad.adset;
 
-          for (const fbAd of adsData.data) {
-            await upsertAd(appwriteAdsetId, fbAd);
+          if (!campaign || !adset) continue;
+
+          let appwriteCampId = campCache.get(campaign.id);
+          if (!appwriteCampId) {
+            appwriteCampId = await upsertCampaign(campaign);
+            campCache.set(campaign.id, appwriteCampId);
           }
+
+          let appwriteAdsetId = adsetCache.get(adset.id);
+          if (!appwriteAdsetId) {
+            appwriteAdsetId = await upsertAdset(appwriteCampId, adset);
+            adsetCache.set(adset.id, appwriteAdsetId);
+          }
+
+          await upsertAd(appwriteAdsetId, ad);
         }
+
+        url = data.paging?.next || null;
       }
     } else {
       console.log(

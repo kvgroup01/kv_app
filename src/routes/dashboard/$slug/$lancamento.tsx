@@ -241,7 +241,7 @@ export default function PublicDashboardLancamento() {
   }, [dataLancamento]);
 
   if (isLoadingLancamento) {
-    return <DashboardSkeleton />;
+    return <DashboardSkeleton tipo="ambos" />;
   }
 
   if (isErrorLancamento || !dataLancamento) {
@@ -281,7 +281,7 @@ export default function PublicDashboardLancamento() {
   }
 
   if (isLoadingDashboard && !dashboardData) {
-    return <DashboardSkeleton />;
+    return <DashboardSkeleton tipo={dataLancamento.tipo as unknown as "whatsapp" | "leads" | "ambos"} />;
   }
 
   if (errorDashboard && !dashboardData) {

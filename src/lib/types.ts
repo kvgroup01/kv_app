@@ -118,11 +118,12 @@ export interface Lancamento {
   cliente_id: string;
   nome: string;
   slug: string;
-  tipo: 'leads' | 'ambos';
+  tipo: TipoCampanha;
   status: 'rascunho' | 'ativo' | 'encerrado';
   palavra_chave_meta?: string;
   meta_account_id?: string;
   meta_access_token?: string;
+  data_inicio_sync?: string;
   colunas_webhook?: string; // JSON array (stringificado na base)
   webhook_url?: string;
   configuracao_secoes?: string;
