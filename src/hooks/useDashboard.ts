@@ -117,11 +117,7 @@ export function useDashboard(
           // vir amarradas ou simplesmente listamos. A prompt diz "filtrado pelo lancamento_id".
           // O webhook_url (não tem lancamento_id na metrica, mas para "leads" vai usar a palavra-chave).
           // Vamos apenas ignorar até ter a Graph API, mas para inputs manuais, vamos filtrar também se houver
-          if (lancamentoId) {
-            appwriteMetricas = appwriteMetricas.filter(
-              (m: any) => m.lancamento_id === lancamentoId,
-            );
-          }
+
 
           metricasDiarias = (appwriteMetricas ||
             []) as unknown as MetricaDiaria[];
