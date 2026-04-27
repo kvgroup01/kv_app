@@ -214,9 +214,6 @@ export default function PublicDashboardLancamento() {
     }
   };
 
-  console.log("dashboardData:", dashboardData);
-  console.log("leadsGrupos:", dashboardData?.leadsGrupos);
-  console.log("metricas:", dashboardData?.metricas);
 
   // Parse seções configuradas
   const secoes = React.useMemo(() => {

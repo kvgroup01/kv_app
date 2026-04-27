@@ -447,7 +447,7 @@ export function useDashboard(
         };
       }
     },
-    staleTime: 1000 * 60 * 5, // 5 minutos de cache (limite da API do sheets)
+    staleTime: 1000 * 60 * 10, // 10 minutos de cache (limite da API do sheets)
     placeholderData: keepPreviousData,
     enabled: !!slug && !!dateRange.from && !!dateRange.to,
   });
