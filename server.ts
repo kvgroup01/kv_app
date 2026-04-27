@@ -20,6 +20,7 @@ const databases = new sdk.Databases(client);
 const DB_ID = 'dashboard-kv';
 
 app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 /**
  * ETAPA 2 — ENDPOINT WEBHOOK
@@ -95,6 +96,58 @@ app.post('/api/webhook', async (req, res) => {
   } catch (error: any) {
     console.error('Erro no Webhook:', error);
     res.status(500).json({ error: 'Erro interno no servidor', message: error.message });
+  }
+});
+
+// OPTIONS preflight para o webhook do GreatPages
+app.options('/api/webhook/:lancamentoId', (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.send();
+});
+
+/**
+ * WEBHOOK GREATPAGES
+ * Recebe leads do form/landing page e salva no Appwrite.
+ */
+app.post('/api/webhook/:lancamentoId', async (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+
+  try {
+    const { lancamentoId } = req.params;
+    const body = req.body;
+
+    let data_convertida = new Date().toISOString().split('T')[0];
+    if (body.Data_da_conversao) {
+      data_convertida = body.Data_da_conversao.split(' ')[0];
+    }
+
+    const documentData = {
+      lancamento_id: lancamentoId,
+      nome: body.Nome || null,
+      email: body.E_mail || null,
+      telefone: body.DDD_Telefone || null,
+      escolaridade: body.Escolaridade || null,
+      utm_source: body.utm_source || body.UTM_Source || null,
+      utm_campaign: body.utm_campaign || body.UTM_Campaign || null,
+      utm_medium: body.utm_medium || body.UTM_Medium || null,
+      utm_content: body.utm_content || body.UTM_Content || null,
+      utm_term: body.UTM_Term || body.utm_term || null,
+      data: data_convertida
+    };
+
+    await databases.createDocument(
+      DB_ID,
+      'lead_entries',
+      sdk.ID.unique(),
+      documentData
+    );
+
+    res.status(200).json({ success: true });
+  } catch (error: any) {
+    console.error('Erro no Webhook GreatPages:', error);
+    res.status(400).json({ error: error.message });
   }
 });
 
