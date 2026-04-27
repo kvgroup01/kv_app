@@ -6,6 +6,8 @@ import {
   Save,
   CheckCircle,
   Eye,
+  Copy,
+  Code,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -130,6 +132,51 @@ export default function DashboardEditor() {
   const [editSecao, setEditSecao] = React.useState<SecaoId | null>(null);
   const [syncing, setSyncing] = React.useState(false);
   const [syncJob, setSyncJob] = React.useState<{jobId: string, progresso: number, status: string} | null>(null);
+  const [testingWebhook, setTestingWebhook] = React.useState(false);
+
+  const handleTestWebhook = async () => {
+    if (!id) return;
+    setTestingWebhook(true);
+    
+    const payload = {
+      "Nome": "Lead Teste",
+      "E_mail": "teste@dashboard.com",
+      "DDD_Telefone": "92 99999-9999",
+      "Escolaridade": "Ensino Superior Completo",
+      "utm_source": "teste",
+      "utm_campaign": "teste_webhook",
+      "utm_medium": "teste",
+      "utm_content": "teste",
+      "UTM_Term": "teste",
+      "UTM_Source": "teste",
+      "UTM_Medium": "teste",
+      "UTM_Campaign": "teste_webhook",
+      "UTM_Content": "teste",
+      "Data_da_conversao": new Date().toISOString().split('T')[0] + " 00:00:00",
+      "Dispositivo": "Desktop",
+      "Pais_do_usuario": "BR"
+    };
+
+    try {
+      const res = await fetch(`https://sistema.kvgroupbr.com.br/api/webhook-lead?lancamentoId=${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        toast.success("Webhook funcionando! Lead de teste criado com sucesso.");
+      } else {
+        const errorData = await res.json();
+        toast.error(errorData?.error || "Erro ao testar webhook.");
+      }
+    } catch(err: any) {
+      toast.error("Erro de conexão ao testar webhook.");
+    } finally {
+      setTestingWebhook(false);
+    }
+  };
 
   React.useEffect(() => {
     if (lancamento) {
@@ -413,6 +460,108 @@ export default function DashboardEditor() {
                     </div>
                   ),
                 )}
+              </div>
+            </section>
+
+            <hr className="border-border" />
+
+            {/* Configuração do Webhook */}
+            <section className="space-y-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  Configuração do Webhook
+                </h3>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm">1. URL do Webhook</label>
+                  <p className="text-xs text-muted-foreground">
+                    Cole a URL abaixo na integração de webhook do seu formulário no GreatPages
+                  </p>
+                  <div className="flex gap-2">
+                    <Input 
+                      value={`https://sistema.kvgroupbr.com.br/api/webhook-lead?lancamentoId=${id}`}
+                      readOnly
+                      className="bg-muted text-xs font-mono"
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="icon"
+                      onClick={() => {
+                        navigator.clipboard.writeText(`https://sistema.kvgroupbr.com.br/api/webhook-lead?lancamentoId=${id}`);
+                        toast.success("URL copiada!");
+                      }}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm">2. Payload de Exemplo</label>
+                  <div className="relative group">
+                    <pre className="text-[10px] p-3 rounded bg-muted/50 font-mono overflow-x-auto text-muted-foreground border">
+{JSON.stringify({
+  "Nome": "Lead Teste",
+  "E_mail": "teste@dashboard.com",
+  "DDD_Telefone": "92 99999-9999",
+  "Escolaridade": "Ensino Superior Completo",
+  "utm_source": "teste",
+  "utm_campaign": "teste_webhook",
+  "utm_medium": "teste",
+  "utm_content": "teste",
+  "UTM_Term": "teste",
+  "UTM_Source": "teste",
+  "UTM_Medium": "teste",
+  "UTM_Campaign": "teste_webhook",
+  "UTM_Content": "teste",
+  "Data_da_conversao": "DATA_DE_HOJE 00:00:00",
+  "Dispositivo": "Desktop",
+  "Pais_do_usuario": "BR"
+}, null, 2)}
+                    </pre>
+                    <Button 
+                      variant="secondary" 
+                      size="sm"
+                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => {
+                        const payload = {
+                          "Nome": "Lead Teste",
+                          "E_mail": "teste@dashboard.com",
+                          "DDD_Telefone": "92 99999-9999",
+                          "Escolaridade": "Ensino Superior Completo",
+                          "utm_source": "teste",
+                          "utm_campaign": "teste_webhook",
+                          "utm_medium": "teste",
+                          "utm_content": "teste",
+                          "UTM_Term": "teste",
+                          "UTM_Source": "teste",
+                          "UTM_Medium": "teste",
+                          "UTM_Campaign": "teste_webhook",
+                          "UTM_Content": "teste",
+                          "Data_da_conversao": "DATA_DE_HOJE 00:00:00",
+                          "Dispositivo": "Desktop",
+                          "Pais_do_usuario": "BR"
+                        };
+                        navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
+                        toast.success("Payload copiado!");
+                      }}
+                    >
+                      Copiar
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-2">
+                  <Button 
+                    className="w-full"
+                    onClick={handleTestWebhook}
+                    disabled={testingWebhook}
+                  >
+                    {testingWebhook ? "Testando..." : "Testar Webhook"}
+                  </Button>
+                </div>
               </div>
             </section>
           </div>
