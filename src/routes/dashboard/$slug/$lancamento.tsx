@@ -302,17 +302,20 @@ export default function PublicDashboardLancamento() {
   const leadsGrupos = dashboardData.leadsGrupos ?? [];
   const cliente = dashboardData.cliente;
 
-  const dadosCruzados = leadsGrupos.map((lg: any) => {
-    const metrica = serieHistorica.find(
-      (s: any) => s.data === lg.data
-    )
-    return {
-      data: lg.data,
-      qualificados: lg.leads_ensino_superior,
-      desqualificados: lg.leads_ensino_medio,
-      investimento: metrica?.investimento || 0
-    }
-  });
+  const todasDatas = Array.from(new Set([
+    ...leadsGrupos.map((l: any) => l.data),
+    ...serieHistorica.map((s: any) => s.data)
+  ])).sort();
+
+  const dadosCruzados = todasDatas.map(data => ({
+    data,
+    qualificados: leadsGrupos.find((l: any) => l.data === data)
+      ?.leads_ensino_superior || 0,
+    desqualificados: leadsGrupos.find((l: any) => l.data === data)
+      ?.leads_ensino_medio || 0,
+    investimento: serieHistorica.find((s: any) => s.data === data)
+      ?.investimento || 0,
+  }));
 
   // Fallbacks if section logic isn't perfectly mapped
   const secaoAtiva = (key: SecaoId) => secoes?.[key]?.ativo ?? true;
