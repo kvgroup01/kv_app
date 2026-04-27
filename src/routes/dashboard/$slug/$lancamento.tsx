@@ -140,10 +140,12 @@ export default function PublicDashboardLancamento() {
     const cacheKey = `meta_sync_${dataLancamento.$id}`;
     const lastSync = localStorage.getItem(cacheKey);
     const now = Date.now();
-    const thirtyMinutesValid = 30 * 60 * 1000;
+    const thirtyMinutesValid = 2 * 60 * 60 * 1000;
 
     if (!lastSync || now - Number(lastSync) > thirtyMinutesValid) {
-      startBackgroundSync();
+      setTimeout(() => {
+        startBackgroundSync();
+      }, 5000);
     }
   }, [dataLancamento?.$id]);
 
