@@ -135,18 +135,7 @@ export default function PublicDashboardLancamento() {
   };
 
   React.useEffect(() => {
-    if (!dataLancamento?.$id) return;
-
-    const cacheKey = `meta_sync_${dataLancamento.$id}`;
-    const lastSync = localStorage.getItem(cacheKey);
-    const now = Date.now();
-    const thirtyMinutesValid = 2 * 60 * 60 * 1000;
-
-    if (!lastSync || now - Number(lastSync) > thirtyMinutesValid) {
-      setTimeout(() => {
-        startBackgroundSync();
-      }, 5000);
-    }
+    // sync automático desabilitado
   }, [dataLancamento?.$id]);
 
   React.useEffect(() => {
@@ -196,7 +185,7 @@ export default function PublicDashboardLancamento() {
           if (syncing) toast.error("Erro de conexão ao atualizar dados");
           setSyncing(false);
         }
-      }, 3000);
+      }, 15000);
     }
     return () => {
       if (interval) clearInterval(interval);
