@@ -21,7 +21,7 @@ import { fmtBRL, fmtData, fmtNum } from "../../lib/utils";
 import type { DadosDiario, MetricasAgregadas } from "../../lib/types";
 
 interface FunnelLeadsProps {
-  dados: DadosDiario[];
+  dados: any[];
   metricas: MetricasAgregadas;
 }
 
@@ -146,7 +146,7 @@ export function FunnelLeads({ dados, metricas }: FunnelLeadsProps) {
 
             <Bar
               yAxisId="left"
-              dataKey="leads_qualificados"
+              dataKey="qualificados"
               name="Qualificados"
               fill="#22c55e"
               stackId="a"
@@ -155,7 +155,7 @@ export function FunnelLeads({ dados, metricas }: FunnelLeadsProps) {
             />
             <Bar
               yAxisId="left"
-              dataKey="leads_desqualificados"
+              dataKey="desqualificados"
               name="Desqualificados"
               fill="#ef4444"
               stackId="a"

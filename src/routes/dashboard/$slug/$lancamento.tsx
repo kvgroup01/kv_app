@@ -302,6 +302,18 @@ export default function PublicDashboardLancamento() {
   const leadsGrupos = dashboardData.leadsGrupos ?? [];
   const cliente = dashboardData.cliente;
 
+  const dadosCruzados = leadsGrupos.map((lg: any) => {
+    const metrica = serieHistorica.find(
+      (s: any) => s.data === lg.data
+    )
+    return {
+      data: lg.data,
+      qualificados: lg.leads_ensino_superior,
+      desqualificados: lg.leads_ensino_medio,
+      investimento: metrica?.investimento || 0
+    }
+  });
+
   // Fallbacks if section logic isn't perfectly mapped
   const secaoAtiva = (key: SecaoId) => secoes?.[key]?.ativo ?? true;
   const secaoTitulo = (key: SecaoId, fallback: string) =>
@@ -331,7 +343,7 @@ export default function PublicDashboardLancamento() {
             <h3 className="text-xl font-bold mb-4">
               {secaoTitulo("funil", "Funil de Tráfego")}
             </h3>
-            <FunnelLeads dados={serieHistorica} metricas={metricas} />
+            <FunnelLeads dados={dadosCruzados} metricas={metricas} />
           </section>
         )}
         {secaoAtiva("grafico_investimento") && (

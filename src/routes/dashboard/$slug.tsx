@@ -56,55 +56,69 @@ const WhatsAppDashboardView = React.memo(({ metricas, serieHistorica, relatorioC
   </div>
 ));
 
-const LeadsDashboardView = React.memo(({ metricas, serieHistorica, relatorioCampanhas, rankingCriativos, rankingPublicos, investimentoLeads, setInvestimentoLeads, gruposWhatsApp, setGruposWhatsApp }: any) => (
-  <div className="space-y-10 animate-in fade-in duration-700">
-    <VisaoFinanceiraLeads 
-      investimentoContratado={investimentoLeads} 
-      valorUsadoCampanhas={metricas.investimento}
-      isLoading={false}
-    />
-    
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <FunnelLeads 
-         dados={serieHistorica}
-         metricas={metricas} 
-      />
-      <LeadsQualificadosChart dados={serieHistorica} isLoading={false} />
-    </div>
+const LeadsDashboardView = React.memo(({ metricas, serieHistorica, relatorioCampanhas, rankingCriativos, rankingPublicos, investimentoLeads, setInvestimentoLeads, gruposWhatsApp, setGruposWhatsApp, leadsGrupos }: any) => {
+  const dadosCruzados = (leadsGrupos || []).map((lg: any) => {
+    const metrica = (serieHistorica || []).find(
+      (s: any) => s.data === lg.data
+    )
+    return {
+      data: lg.data,
+      qualificados: lg.leads_ensino_superior,
+      desqualificados: lg.leads_ensino_medio,
+      investimento: metrica?.investimento || 0
+    }
+  })
 
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <ClassificacaoTrafico
-        leadsEnsino={{
-          superior: metricas.leads_superior || 0,
-          medio: metricas.leads_medio || 0
-        }}
+  return (
+    <div className="space-y-10 animate-in fade-in duration-700">
+      <VisaoFinanceiraLeads 
+        investimentoContratado={investimentoLeads} 
+        valorUsadoCampanhas={metricas.investimento}
         isLoading={false}
       />
-      <GruposWhatsApp 
-        value={gruposWhatsApp}
-        onChange={setGruposWhatsApp}
-      />
-    </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <FunnelLeads 
+           dados={dadosCruzados}
+           metricas={metricas} 
+        />
+        <LeadsQualificadosChart dados={serieHistorica} isLoading={false} />
+      </div>
 
-    <CampanhasTable campanhasComMetricas={relatorioCampanhas} tipo="leads" />
-    <CreativosGrid criativos={rankingCriativos} tipo="leads" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <ClassificacaoTrafico
+          leadsEnsino={{
+            superior: metricas.leads_superior || 0,
+            medio: metricas.leads_medio || 0
+          }}
+          isLoading={false}
+        />
+        <GruposWhatsApp 
+          value={gruposWhatsApp}
+          onChange={setGruposWhatsApp}
+        />
+      </div>
 
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <RankingTable 
-        titulo="Desempenho por Público (Conjuntos)"
-        items={rankingPublicos}
-        tipo="publicos"
-        campanhaTipo="leads"
-      />
-      <RankingTable 
-        titulo="Desempenho por Criativo"
-        items={rankingCriativos}
-        tipo="criativos"
-        campanhaTipo="leads"
-      />
+      <CampanhasTable campanhasComMetricas={relatorioCampanhas} tipo="leads" />
+      <CreativosGrid criativos={rankingCriativos} tipo="leads" />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <RankingTable 
+          titulo="Desempenho por Público (Conjuntos)"
+          items={rankingPublicos}
+          tipo="publicos"
+          campanhaTipo="leads"
+        />
+        <RankingTable 
+          titulo="Desempenho por Criativo"
+          items={rankingCriativos}
+          tipo="criativos"
+          campanhaTipo="leads"
+        />
+      </div>
     </div>
-  </div>
-));
+  )
+});
 
 export default function DashboardPublico() {
   const { slug } = useParams();
