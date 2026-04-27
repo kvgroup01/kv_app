@@ -102,15 +102,17 @@ export function useDashboard(
         const fonte = cliente.fonte_dados || "appwrite";
 
         if (fonte === "appwrite") {
-          campanhasRaw = await fetchCampanhasAppwrite(cliente.$id);
-          conjuntosRaw = await fetchConjuntosAppwrite(cliente.$id);
-          criativosRaw = await fetchCriativosAppwrite(cliente.$id);
-
-          let appwriteMetricas = await fetchMetricasAppwrite(
-            cliente.$id,
-            dateRange.from,
-            dateRange.to,
-          );
+          const [campanhasResult, conjuntosResult, criativosResult, appwriteMetricasResult] =
+            await Promise.all([
+              fetchCampanhasAppwrite(cliente.$id),
+              fetchConjuntosAppwrite(cliente.$id),
+              fetchCriativosAppwrite(cliente.$id),
+              fetchMetricasAppwrite(cliente.$id, dateRange.from, dateRange.to),
+            ]);
+          campanhasRaw = campanhasResult;
+          conjuntosRaw = conjuntosResult;
+          criativosRaw = criativosResult;
+          let appwriteMetricas = appwriteMetricasResult;
 
           // Se houver lancamentoId, filtra as campanhas e métricas correspondentes àquele lançamento
           // Opcional: filtragem baseada em alguma lógica. Por ora, vamos assumir que as métricas podem

@@ -248,15 +248,11 @@ export async function fetchCampanhasAppwrite(cliente_id: string) {
 }
 
 export async function fetchConjuntosAppwrite(cliente_id: string) {
-  // O conjunto não tem cliente_id diretamente, mas podemos pegar apenas listando os disponíveis
-  // Para escalar melhor, seria ideal adicionar cliente_id no adsets, mas vamos contornar buscando todos 
-  // os que pertencem às campanhas do cliente.
   const campaigns = await fetchCampanhasAppwrite(cliente_id);
   const campIds = campaigns.map(c => c.$id);
   if (!campIds.length) return [];
-  
   const docs = await databases.listDocuments(DB_ID, 'adsets', [
-    Query.limit(500) // Assumindo que filtragem local será necessária ou todos pertencem às camps
+    Query.limit(500)
   ]);
   return docs.documents.filter((d: any) => campIds.includes(d.campanha_id));
 }
