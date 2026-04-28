@@ -200,6 +200,57 @@ async function runUpdate() {
     else console.log('❌ Erro lead_entries:', error.message);
   }
 
+  console.log('\n⏳ Criando índices para as coleções...');
+
+  async function criarIndice(
+    collectionId: string,
+    key: string,
+    type: string,
+    attributes: string[]
+  ) {
+    try {
+      await databases.createIndex(DB_ID, collectionId, key, type, attributes);
+      console.log(`✅ Índice '${key}' criado com sucesso na coleção '${collectionId}'.`);
+    } catch (error: any) {
+      if (error.code === 409) {
+        console.log(`⏭️ Índice '${key}' já existe na coleção '${collectionId}'.`);
+      } else {
+        console.log(`❌ Erro ao criar índice '${key}' em '${collectionId}': ${error.message}`);
+      }
+    }
+  }
+
+  // COLEÇÃO lead_entries
+  await criarIndice('lead_entries', 'lancamento_id', 'key', ['lancamento_id']);
+  await criarIndice('lead_entries', 'data', 'key', ['data']);
+  await criarIndice('lead_entries', 'escolaridade', 'key', ['escolaridade']);
+  await criarIndice('lead_entries', 'lancamento_data', 'key', ['lancamento_id', 'data']);
+
+  // COLEÇÃO daily_metrics
+  await criarIndice('daily_metrics', 'cliente_id', 'key', ['cliente_id']);
+  await criarIndice('daily_metrics', 'data', 'key', ['data']);
+  await criarIndice('daily_metrics', 'criativo_id', 'key', ['criativo_id']);
+  await criarIndice('daily_metrics', 'criativo_data', 'key', ['criativo_id', 'data']);
+  await criarIndice('daily_metrics', 'cliente_data', 'key', ['cliente_id', 'data']);
+
+  // COLEÇÃO campaigns
+  await criarIndice('campaigns', 'cliente_id', 'key', ['cliente_id']);
+
+  // COLEÇÃO adsets
+  await criarIndice('adsets', 'campanha_id', 'key', ['campanha_id']);
+
+  // COLEÇÃO ads
+  await criarIndice('ads', 'conjunto_id', 'key', ['conjunto_id']);
+  await criarIndice('ads', 'meta_ad_id', 'key', ['meta_ad_id']);
+
+  // COLEÇÃO lancamentos
+  await criarIndice('lancamentos', 'cliente_id', 'key', ['cliente_id']);
+  await criarIndice('lancamentos', 'slug', 'key', ['slug']);
+
+  // COLEÇÃO sync_jobs
+  await criarIndice('sync_jobs', 'lancamento_id', 'key', ['lancamento_id']);
+  await criarIndice('sync_jobs', 'status', 'key', ['status']);
+
   console.log('\n✅ Atualização finalizada. Sinta-se à vontade para revisar seu Dashboard no Appwrite.')
 }
 

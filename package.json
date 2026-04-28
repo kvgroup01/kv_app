@@ -12,6 +12,7 @@
     "create-sync-jobs": "npx tsx create-sync-jobs.ts",
     "lint": "tsc --noEmit",
     "setup": "npx tsx setup-appwrite.ts",
+    "setup-indexes": "npx tsx setup-update.ts",
     "seed": "npx tsx seed-mock.ts",
     "import-leads": "npx tsx import-from-sheets.ts",
     "create-lead-entries": "npx tsx create-lead-entries.ts"
