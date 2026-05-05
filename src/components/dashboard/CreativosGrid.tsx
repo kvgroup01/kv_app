@@ -6,7 +6,8 @@ import { Button } from "../ui/button";
 import { fmtNum, fmtPct } from "../../lib/utils";
 import type { CriativoComMetricas, TipoCampanha } from "../../lib/types";
 import { cn } from "../../lib/utils";
-import { Image as ImageIcon, Play } from "lucide-react";
+import { Image as ImageIcon, Play, ZoomIn } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 
 interface CreativosGridProps {
   criativos: CriativoComMetricas[];
@@ -20,6 +21,7 @@ export function CreativosGrid({
   isLoading,
 }: CreativosGridProps) {
   const [verTodos, setVerTodos] = React.useState(false);
+  const [modalCriativo, setModalCriativo] = React.useState<CriativoComMetricas | null>(null);
   const gridRef = React.useRef<HTMLDivElement>(null);
 
   if (isLoading) {
@@ -65,7 +67,21 @@ export function CreativosGrid({
           return (
             <Card key={criativo.$id} className="overflow-hidden flex flex-col">
               {/* Thumbnail Area */}
-              <div className="relative h-[160px] w-full bg-muted/30 border-b flex items-center justify-center">
+              <div 
+                onClick={() => setModalCriativo(criativo)}
+                className="group relative h-[160px] w-full bg-muted/30 border-b flex items-center justify-center cursor-pointer overflow-hidden"
+              >
+                {/* Hover overlay with icon */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors z-10 flex items-center justify-center pointer-events-none">
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity transform scale-95 group-hover:scale-100">
+                    {criativo.link_anuncio ? (
+                      <Play className="w-10 h-10 text-white drop-shadow-md" />
+                    ) : (
+                      <ZoomIn className="w-10 h-10 text-white drop-shadow-md" />
+                    )}
+                  </div>
+                </div>
+
                 {criativo.thumbnail_url ? (
                   <img
                     src={criativo.thumbnail_url}
@@ -167,6 +183,48 @@ export function CreativosGrid({
         <div className="text-center p-8 border rounded-lg border-dashed text-muted-foreground">
           Nenhum criativo associado ou com métricas no período.
         </div>
+      )}
+
+      {/* Modal View Criativo */}
+      {modalCriativo && (
+        <Dialog open={!!modalCriativo} onOpenChange={(open) => !open && setModalCriativo(null)}>
+          <DialogContent className="max-w-3xl bg-black/90 border border-white/10 text-white overflow-hidden p-0 sm:rounded-xl">
+            <div className="p-4 border-b border-white/10 flex items-center justify-between">
+              <DialogTitle className="truncate font-medium pr-8">
+                {modalCriativo.nome}
+              </DialogTitle>
+            </div>
+            <div className="flex items-center justify-center bg-black/50 min-h-[400px]">
+              {modalCriativo.link_anuncio ? (
+                <div className="flex flex-col items-center justify-center gap-6 py-12 px-6">
+                  <div className="w-20 h-20 rounded-full bg-blue-500/10 flex items-center justify-center">
+                    <Play className="w-10 h-10 text-blue-400" />
+                  </div>
+                  <div className="text-center space-y-2">
+                    <p className="text-white/80 text-sm">Este criativo é um vídeo</p>
+                    <p className="text-white/50 text-xs">Clique abaixo para visualizar no Facebook Ads</p>
+                  </div>
+                  <a
+                    href={modalCriativo.link_anuncio}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
+                  >
+                    <Play className="w-4 h-4" />
+                    Assistir no Facebook
+                  </a>
+                </div>
+              ) : (
+                <img
+                  src={modalCriativo.thumbnail_url || ""}
+                  alt={modalCriativo.nome}
+                  className="w-full max-h-[500px] object-contain"
+                  referrerPolicy="no-referrer"
+                />
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

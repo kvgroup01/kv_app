@@ -150,12 +150,18 @@ export default async function handler(req: any, res: any) {
         Query.equal("meta_ad_id", a.id),
         Query.limit(1),
       ]);
+      
+      const videoId = a.creative?.video_id || 
+        a.creative?.object_story_spec?.video_data?.video_id || null;
+      
       const data = {
         conjunto_id,
         nome: a.name,
         meta_ad_id: a.id,
         thumbnail_url: a.creative?.image_url || a.creative?.thumbnail_url || "",
-        link_anuncio: null,
+        link_anuncio: videoId 
+          ? `https://www.facebook.com/ads/archive/render_ad/?id=${a.id}&access_token=${meta_access_token}`
+          : null,
       };
       if (existing.documents.length > 0) {
         await db.updateDocument(DB, "ads", existing.documents[0].$id, data);
@@ -175,7 +181,7 @@ export default async function handler(req: any, res: any) {
         fields: [
           "id",
           "name",
-          "creative{thumbnail_url,image_url}",
+          "creative{thumbnail_url,image_url,video_id,object_story_spec{video_data{video_id}}}",
           "adset{id,name,targeting}",
           "campaign{id,name,status,objective}",
         ].join(","),
