@@ -48,7 +48,25 @@ async function run() {
 
   // ads
   await createIndex('ads', 'conjunto_id', ['conjunto_id']);
-  await createIndex('ads', 'meta_ad_id', ['meta_ad_id']);
+  try {
+    // @ts-ignore
+    await databases.createIndex(
+      DB_ID,
+      'ads',
+      'meta_ad_id',
+      'key',
+      ['meta_ad_id'],
+      ['ASC'],
+      255  // tamanho máximo para o índice
+    )
+    console.log('✅ Índice meta_ad_id criado')
+  } catch (e: any) {
+    if (e.code === 409) {
+      console.log('⏭️ Índice meta_ad_id já existe')
+    } else {
+      console.error('❌ Erro ao criar índice meta_ad_id:', e.message)
+    }
+  }
 
   // lancamentos
   await createIndex('lancamentos', 'cliente_id', ['cliente_id']);

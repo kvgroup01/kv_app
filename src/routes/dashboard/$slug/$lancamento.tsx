@@ -55,10 +55,7 @@ type SecaoId =
 export default function PublicDashboardLancamento() {
   const { slug, lancamento } = useParams();
 
-  const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
-    from: subDays(new Date(), 29),
-    to: new Date(),
-  });
+  const [dateRange, setDateRange] = React.useState<DateRange | undefined>(undefined);
 
   const [gruposWA, setGruposWA] = React.useState({
     ensino_superior: 0,
@@ -95,6 +92,18 @@ export default function PublicDashboardLancamento() {
     isLoading: isLoadingLancamento,
     isError: isErrorLancamento,
   } = useLancamentoPorSlug(slug!, lancamento!);
+
+  React.useEffect(() => {
+    if (!dataLancamento) return;
+    if (dateRange !== undefined) return;
+    const from = dataLancamento.data_inicio_sync
+      ? new Date(dataLancamento.data_inicio_sync + 'T00:00:00')
+      : subDays(new Date(), 29);
+    setDateRange({
+      from,
+      to: new Date(),
+    });
+  }, [dataLancamento, dateRange]);
 
   const {
     data: dashboardData,
@@ -228,7 +237,7 @@ export default function PublicDashboardLancamento() {
     }
   }, [dataLancamento]);
 
-  if (isLoadingLancamento) {
+  if (isLoadingLancamento || !dateRange) {
     return <DashboardSkeleton tipo="ambos" />;
   }
 
