@@ -251,6 +251,42 @@ async function runUpdate() {
   await criarIndice('sync_jobs', 'lancamento_id', 'key', ['lancamento_id']);
   await criarIndice('sync_jobs', 'status', 'key', ['status']);
 
+  // PASSO 18 — Coleção survey_entries
+  try {
+    await databases.createCollection(DB_ID, 'survey_entries', 'Survey Entries', defaultPermissions)
+    await databases.createStringAttribute(DB_ID, 'survey_entries', 'lancamento_id', 36, true)
+    await databases.createStringAttribute(DB_ID, 'survey_entries', 'data', 10, true)
+    await databases.createStringAttribute(DB_ID, 'survey_entries', 'typeform_response_id', 100, true)
+    await databases.createStringAttribute(DB_ID, 'survey_entries', 'email', 255, false)
+    await databases.createStringAttribute(DB_ID, 'survey_entries', 'nome', 255, false)
+    await databases.createStringAttribute(DB_ID, 'survey_entries', 'telefone', 50, false)
+    await databases.createStringAttribute(DB_ID, 'survey_entries', 'idade', 20, false)
+    await databases.createStringAttribute(DB_ID, 'survey_entries', 'genero', 50, false)
+    await databases.createStringAttribute(DB_ID, 'survey_entries', 'estado', 50, false)
+    await databases.createStringAttribute(DB_ID, 'survey_entries', 'escolaridade', 100, false)
+    await databases.createStringAttribute(DB_ID, 'survey_entries', 'profissao', 255, false)
+    await databases.createStringAttribute(DB_ID, 'survey_entries', 'renda', 100, false)
+    await databases.createStringAttribute(DB_ID, 'survey_entries', 'mora_com', 100, false)
+    await databases.createStringAttribute(DB_ID, 'survey_entries', 'ja_estudou', 10, false)
+    await databases.createStringAttribute(DB_ID, 'survey_entries', 'experiencia_concursos', 255, false)
+    await databases.createStringAttribute(DB_ID, 'survey_entries', 'horas_livres', 500, false)
+    await databases.createStringAttribute(DB_ID, 'survey_entries', 'por_que_vaga', 1000, false)
+    await databases.createStringAttribute(DB_ID, 'survey_entries', 'o_que_mudaria', 1000, false)
+    await databases.createStringAttribute(DB_ID, 'survey_entries', 'o_que_impede', 1000, false)
+    await databases.createStringAttribute(DB_ID, 'survey_entries', 'como_se_sente', 1000, false)
+    await databases.createStringAttribute(DB_ID, 'survey_entries', 'pergunta_professor', 1000, false)
+    console.log('✅ Coleção survey_entries criada')
+  } catch (error: any) {
+    if (error.code === 409) console.log('⏭️ Coleção survey_entries já existe');
+    else console.log('❌ Erro survey_entries:', error.message);
+  }
+
+  // COLEÇÃO survey_entries
+  await criarIndice('survey_entries', 'lancamento_id', 'key', ['lancamento_id']);
+  await criarIndice('survey_entries', 'data', 'key', ['data']);
+  await criarIndice('survey_entries', 'lancamento_data', 'key', ['lancamento_id', 'data']);
+  await criarIndice('survey_entries', 'typeform_response_id', 'unique', ['typeform_response_id']);
+
   console.log('\n✅ Atualização finalizada. Sinta-se à vontade para revisar seu Dashboard no Appwrite.')
 }
 

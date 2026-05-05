@@ -1,5 +1,5 @@
 import { Client, Account, Databases, Storage, ID, Query } from 'appwrite';
-import type { Cliente, Pasta, Convite, Orcamento, Pagamento, Lancamento, MetaAccount } from './types';
+import type { Cliente, Pasta, Convite, Orcamento, Pagamento, Lancamento, MetaAccount, SurveyEntry } from './types';
 
 // Garantir que a URL termine com /v1 (corrige erro de rota 404 HTML caso a env file tenha falhado)
 let endpoint = import.meta.env.VITE_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
@@ -437,4 +437,21 @@ export async function testarFiltroCampanhas(accountId: string, token: string, pa
   }
   
   return data.data || [];
+}
+
+export async function fetchSurveyEntriesAppwrite(
+  lancamento_id: string,
+  from: Date,
+  to: Date
+): Promise<SurveyEntry[]> {
+  const fromStr = from.toISOString().split('T')[0];
+  const toStr = to.toISOString().split('T')[0];
+
+  const docs = await databases.listDocuments(DB_ID, 'survey_entries', [
+    Query.equal('lancamento_id', lancamento_id),
+    Query.greaterThanEqual('data', fromStr),
+    Query.lessThanEqual('data', toStr),
+    Query.limit(5000),
+  ]);
+  return docs.documents as unknown as SurveyEntry[];
 }

@@ -9,6 +9,7 @@ import { toast } from "sonner";
 
 import { useLancamentoPorSlug } from "../../../hooks/useLancamentos";
 import { useDashboard } from "../../../hooks/useDashboard";
+import { useSurvey } from "../../../hooks/useSurvey";
 
 import { DateRangePicker } from "../../../components/shared/DateRangePicker";
 import { DashboardSkeleton } from "../../../components/dashboard/DashboardSkeleton";
@@ -23,6 +24,7 @@ import { LeadsQualificadosChart } from "../../../components/dashboard/LeadsQuali
 import { ClassificacaoTrafico } from "../../../components/dashboard/ClassificacaoTrafico";
 import { VisaoFinanceiraLeads } from "../../../components/dashboard/VisaoFinanceiraLeads";
 import { GruposWhatsApp } from "../../../components/dashboard/GruposWhatsApp";
+import { SurveyDashboard } from "../../../components/dashboard/SurveyDashboard";
 
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
@@ -119,6 +121,14 @@ export default function PublicDashboardLancamento() {
     },
     dataLancamento?.$id,
   );
+
+  const {
+    data: surveyEntries = [],
+    isLoading: isLoadingSurvey,
+  } = useSurvey(dataLancamento?.$id, {
+    from: dateRange?.from || subDays(new Date(), 29),
+    to: dateRange?.to || new Date(),
+  });
 
   const [syncJob, setSyncJob] = React.useState<{
     jobId: string;
@@ -521,6 +531,9 @@ export default function PublicDashboardLancamento() {
               <TabsTrigger value="whatsapp" className="w-32">
                 WhatsApp
               </TabsTrigger>
+              <TabsTrigger value="pesquisa">
+                Pesquisa
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent
@@ -576,6 +589,13 @@ export default function PublicDashboardLancamento() {
                   />
                 </div>
               </motion.div>
+            </TabsContent>
+
+            <TabsContent value="pesquisa" className="space-y-6 mt-6">
+              <SurveyDashboard
+                entries={surveyEntries}
+                isLoading={isLoadingSurvey}
+              />
             </TabsContent>
           </Tabs>
         ) : (

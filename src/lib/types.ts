@@ -220,3 +220,28 @@ export interface DadosDiario {
   leads_qualificados: number;
   leads_desqualificados: number;
 }
+
+export interface SurveyEntry {
+  $id: string;
+  lancamento_id: string;
+  data: string;
+  typeform_response_id: string;
+  email?: string;
+  nome?: string;
+  telefone?: string;
+  idade?: string;
+  genero?: string;
+  estado?: string;
+  escolaridade?: string;
+  profissao?: string;
+  renda?: string;
+  mora_com?: string;
+  ja_estudou?: string;
+  experiencia_concursos?: string;
+  horas_livres?: string;
+  por_que_vaga?: string;
+  o_que_mudaria?: string;
+  o_que_impede?: string;
+  como_se_sente?: string;
+  pergunta_professor?: string;
+}
