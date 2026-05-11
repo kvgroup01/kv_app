@@ -122,6 +122,15 @@ export function useDashboard(
           campanhasRaw = campanhasResult;
           conjuntosRaw = conjuntosResult;
           criativosRaw = criativosResult;
+
+          // Filtrar conjuntos e campanhas apenas com criativos que têm métricas neste lançamento
+          if (lancamentoId && criativosRaw.length > 0) {
+            const conjuntosComCriativos = new Set(criativosRaw.map((c: any) => c.conjunto_id));
+            conjuntosRaw = conjuntosRaw.filter((c: any) => conjuntosComCriativos.has(c.$id));
+            
+            const campanhsComConjuntos = new Set(conjuntosRaw.map((c: any) => c.campanha_id));
+            campanhasRaw = campanhasRaw.filter((c: any) => campanhsComConjuntos.has(c.$id));
+          }
           let appwriteMetricas = appwriteMetricasResult;
 
           // Se houver lancamentoId, filtra as campanhas e métricas correspondentes àquele lançamento
@@ -430,7 +439,7 @@ export function useDashboard(
           metricas: finalMetricas,
           serieHistorica: finalSerieHistorica,
           rankingCriativos: criativosComMetricas ?? [],
-          rankingPublicos: (conjuntosComMetricas ?? []).slice(0, 4),
+          rankingPublicos: (conjuntosComMetricas ?? []).slice(0, 10),
           relatorioCampanhas: campanhasComMetricas ?? [],
           totalLeads: finalMetricas.leads_total ?? 0,
           leadsSuperiores: [],
@@ -438,23 +447,7 @@ export function useDashboard(
         };
       } catch (error) {
         console.error("Erro no useDashboard:", error);
-        return {
-          cliente,
-          campanhas: [],
-          conjuntos: [],
-          criativos: [],
-          metricasAgregadas: metricasVazias as any,
-          dadosAgrupadosPorDia: [],
-          leadsGrupos: [],
-          metricas: metricasVazias as any,
-          serieHistorica: [],
-          rankingCriativos: [],
-          rankingPublicos: [],
-          relatorioCampanhas: [],
-          totalLeads: 0,
-          leadsSuperiores: [],
-          leadsMedio: [],
-        };
+        throw error;
       }
     },
     staleTime: 1000 * 60 * 10, // 10 minutos de cache (limite da API do sheets)

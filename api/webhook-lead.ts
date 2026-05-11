@@ -1,4 +1,4 @@
-import { Client, Databases, ID } from "node-appwrite";
+import { Client, Databases, ID, Query } from "node-appwrite";
 
 const client = new Client()
   .setEndpoint(process.env.VITE_APPWRITE_ENDPOINT!)
@@ -49,6 +49,20 @@ export default async function handler(req: any, res: any) {
       utm_term: body?.UTM_Term || body?.utm_term || null,
       data: data_convertida,
     };
+
+    // Verificar duplicata por email + data
+    if (documentData.email && documentData.data) {
+      const existing = await db.listDocuments(DB, 'lead_entries', [
+        Query.equal('lancamento_id', lancamentoId as string),
+        Query.equal('email', documentData.email),
+        Query.equal('data', documentData.data),
+        Query.limit(1),
+      ]);
+
+      if (existing.documents.length > 0) {
+        return res.status(200).json({ success: true, duplicate: true });
+      }
+    }
 
     await db.createDocument(DB, "lead_entries", ID.unique(), documentData);
 

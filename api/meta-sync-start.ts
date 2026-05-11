@@ -49,10 +49,28 @@ export default async function handler(req: any, res: any) {
     ]);
 
     if (existingJobs.documents.length > 0) {
+      const job = existingJobs.documents[0];
+      const syncToken = Buffer.from(`${job.$id}:${process.env.VITE_APPWRITE_API_KEY}`).toString('base64').slice(0, 32);
       return res.status(200).json({
-        jobId: existingJobs.documents[0].$id,
+        jobId: job.$id,
         status: "running",
+        syncToken,
       });
+    }
+
+    // Limpar jobs com erro mais antigos que 24 horas
+    const jobsComErro = await db.listDocuments(DB, 'sync_jobs', [
+      Query.equal('lancamento_id', lancamentoId),
+      Query.equal('status', 'error'),
+      Query.limit(10),
+    ]);
+
+    for (const job of jobsComErro.documents) {
+      const criado_em = new Date(job.criado_em).getTime();
+      const vinteQuatroHoras = 24 * 60 * 60 * 1000;
+      if (Date.now() - criado_em > vinteQuatroHoras) {
+        await db.deleteDocument(DB, 'sync_jobs', job.$id);
+      }
     }
 
     const existingPending = await db.listDocuments(DB, "sync_jobs", [
@@ -62,10 +80,25 @@ export default async function handler(req: any, res: any) {
     ]);
 
     if (existingPending.documents.length > 0) {
-      return res.status(200).json({
-        jobId: existingPending.documents[0].$id,
-        status: "pending",
-      });
+      const job = existingPending.documents[0];
+      const criado_em = new Date(job.criado_em).getTime();
+      const agora = Date.now();
+      const cincoMinutos = 5 * 60 * 1000;
+
+      // Se o job pending tem mais de 5 minutos, está preso — deletar e criar novo
+      if (agora - criado_em > cincoMinutos) {
+        await db.deleteDocument(DB, 'sync_jobs', job.$id);
+      } else {
+        const syncToken = Buffer.from(
+          `${job.$id}:${process.env.VITE_APPWRITE_API_KEY}`
+        ).toString('base64').slice(0, 32);
+
+        return res.status(200).json({
+          jobId: job.$id,
+          status: 'pending',
+          syncToken,
+        });
+      }
     }
 
     const job = await db.createDocument(DB, "sync_jobs", ID.unique(), {
@@ -78,7 +111,11 @@ export default async function handler(req: any, res: any) {
       atualizado_em: new Date().toISOString(),
     });
 
-    return res.status(200).json({ jobId: job.$id, status: "pending" });
+    const syncToken = Buffer.from(
+      `${job.$id}:${process.env.VITE_APPWRITE_API_KEY}`
+    ).toString('base64').slice(0, 32);
+
+    return res.status(200).json({ jobId: job.$id, status: "pending", syncToken });
   } catch (error: any) {
     console.error("Meta Sync Start Error:", error);
     return res.status(500).json({ error: error.message });
