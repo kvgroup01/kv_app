@@ -32,8 +32,6 @@ export default function EditarCliente() {
   // Integrações
   const [fonteDados, setFonteDados] = React.useState('appwrite');
   const [spreadsheetId, setSpreadsheetId] = React.useState('');
-  const [metaAdAccountId, setMetaAdAccountId] = React.useState('');
-  const [metaAccessToken, setMetaAccessToken] = React.useState('');
 
   React.useEffect(() => {
     if (cliente) {
@@ -46,22 +44,8 @@ export default function EditarCliente() {
       
       setFonteDados(cliente.fonte_dados || 'appwrite');
       setSpreadsheetId(cliente.spreadsheet_id || '');
-      setMetaAdAccountId(cliente.meta_ad_account_id || '');
-      setMetaAccessToken(cliente.meta_access_token || '');
     }
   }, [cliente]);
-
-  const testarConexaoMeta = () => {
-    if (!metaAdAccountId || !metaAccessToken) {
-      toast.error("Preencha o Account ID e Token antes de testar.");
-      return;
-    }
-    toast.promise(new Promise(resolve => setTimeout(resolve, 1500)), {
-       loading: 'Testando conexão com a Graph API...',
-       success: 'Conexão com a Meta Api Autorizada.',
-       error: 'Falha na conexão.',
-    });
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,11 +53,6 @@ export default function EditarCliente() {
     
     if (fonteDados === 'sheets' && !spreadsheetId) {
       toast.error('ID da Planilha é obrigatório para a fonte Google Sheets.');
-      return;
-    }
-
-    if (fonteDados === 'meta_api' && (!metaAdAccountId || !metaAccessToken)) {
-      toast.error('As credenciais do Meta Ads são obrigatórias para esta Fonte de Dados.');
       return;
     }
 
@@ -87,9 +66,7 @@ export default function EditarCliente() {
         logo_url: logoUrl || '',
         ativo: ativo === 'true',
         fonte_dados: fonteDados as any,
-        spreadsheet_id: spreadsheetId,
-        meta_ad_account_id: metaAdAccountId,
-        meta_access_token: metaAccessToken
+        spreadsheet_id: spreadsheetId
       }
     }, {
       onSuccess: () => {
@@ -298,43 +275,9 @@ export default function EditarCliente() {
 
             {/* SE META API */}
             {fonteDados === 'meta_api' && (
-              <div className="p-6 bg-blue-500/5 rounded-xl border border-blue-500/10 space-y-6 animate-in fade-in slide-in-from-top-2">
-                <div>
-                   <h4 className="text-[14px] font-semibold text-blue-500 flex items-center gap-2">
-                     <Activity className="w-4 h-4" /> Integração Meta Ads
-                   </h4>
-                   <p className="text-[12px] text-(--text-tertiary) mt-1">Configure o Account ID (act_xxx) e o System User Token para extração.</p>
-                </div>
-                
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="metaAdAccountId" className="text-[13px] text-(--text-secondary)">Meta Ad Account ID <span className="text-red-500">*</span></Label>
-                    <Input 
-                       id="metaAdAccountId" 
-                       value={metaAdAccountId}
-                       onChange={e => setMetaAdAccountId(e.target.value)}
-                       disabled={atualizarMut.isPending}
-                       className="h-11 bg-black/40 border-blue-500/20 font-mono text-[13px] focus-visible:ring-blue-500"
-                       placeholder="act_1234567890"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="metaAccessToken" className="text-[13px] text-(--text-secondary)">System User Access Token <span className="text-red-500">*</span></Label>
-                    <Input 
-                       id="metaAccessToken" 
-                       type="password"
-                       value={metaAccessToken}
-                       onChange={e => setMetaAccessToken(e.target.value)}
-                       disabled={atualizarMut.isPending}
-                       className="h-11 bg-black/40 border-blue-500/20 font-mono text-[13px] focus-visible:ring-blue-500"
-                       placeholder="EAA..."
-                    />
-                  </div>
-                </div>
-
-                <Button type="button" onClick={testarConexaoMeta} variant="outline" className="w-full h-11 border-blue-500/30 text-blue-500 hover:bg-blue-500/10 hover:text-blue-400">
-                   Testar Conexão com Meta Graph
-                </Button>
+              <div className="p-6 bg-blue-500/5 rounded-xl border border-blue-500/10 space-y-4 animate-in fade-in slide-in-from-top-2">
+                 <p className="text-[13px] text-blue-500 font-medium">As conexões com o Meta Ads agora são gerenciadas globalmente.</p>
+                 <Button type="button" variant="outline" onClick={() => window.open('/admin/meta-connect', '_blank')} className="h-9 text-[12px]">Conectar ou gerenciar contas</Button>
               </div>
             )}
 
@@ -342,7 +285,7 @@ export default function EditarCliente() {
               <Button type="button" variant="ghost" className="h-11 px-8 text-(--text-tertiary) hover:text-(--text-primary) hover:bg-white/5" onClick={() => navigate('/admin/clientes')} disabled={atualizarMut.isPending}>
                 Descartar
               </Button>
-              <Button type="submit" disabled={atualizarMut.isPending || !nome || !slug || (fonteDados === 'sheets' && !spreadsheetId) || (fonteDados === 'meta_api' && (!metaAdAccountId || !metaAccessToken))} className="h-11 px-10 bg-white text-black hover:bg-zinc-200 text-[13px] font-semibold shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+              <Button type="submit" disabled={atualizarMut.isPending || !nome || !slug || (fonteDados === 'sheets' && !spreadsheetId)} className="h-11 px-10 bg-white text-black hover:bg-zinc-200 text-[13px] font-semibold shadow-[0_0_15px_rgba(255,255,255,0.1)]">
                 {atualizarMut.isPending ? 'Sincronizando...' : 'Salvar Fonte & Perfil'}
               </Button>
             </div>
