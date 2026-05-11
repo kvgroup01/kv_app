@@ -181,11 +181,11 @@ export default async function handler(req: any, res: any) {
         fields: [
           "id",
           "name",
-          "creative{thumbnail_url,image_url,video_id,object_story_spec{video_data{video_id}}}",
-          "adset{id,name,targeting}",
+          "creative{thumbnail_url,image_url,video_id}",
+          "adset{id,name}",
           "campaign{id,name,status,objective}",
         ].join(","),
-        limit: 500,
+        limit: 100,
       };
 
       if (palavra_chave_meta) {
@@ -275,7 +275,7 @@ export default async function handler(req: any, res: any) {
           since: dateSinceStr,
           until: dateUntilStr,
         }),
-        limit: 500,
+        limit: 100,
       };
 
       if (palavra_chave_meta) {
@@ -290,7 +290,7 @@ export default async function handler(req: any, res: any) {
 
       // Pre-load all fbAd.id -> appwriteAd.$id mappings in memory
       const fbAdToAppwriteAd = new Map<string, string>();
-      const allAppwriteAds = await db.listDocuments(DB, "ads", [Query.limit(5000)]);
+      const allAppwriteAds = await db.listDocuments(DB, "ads", [Query.limit(2000)]);
       for (const ad of allAppwriteAds.documents) {
         if (ad.meta_ad_id) {
           fbAdToAppwriteAd.set(ad.meta_ad_id, ad.$id);
