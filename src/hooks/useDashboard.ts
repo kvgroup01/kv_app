@@ -7,6 +7,7 @@ import {
   fetchMetricasAppwrite,
   fetchManualInputsAppwrite,
   fetchLeadEntriesAppwrite,
+  buscarLancamento,
 } from "../lib/appwrite";
 import {
   fetchCampanhas,
@@ -67,6 +68,15 @@ export function useDashboard(
 
       if (!cliente.spreadsheet_id && !cliente.$id) {
         throw new Error("Cliente inválido ou não configurado corretamente.");
+      }
+
+      let lancamento: any = null;
+      if (lancamentoId) {
+        try {
+          lancamento = await buscarLancamento(lancamentoId);
+        } catch (err) {
+          console.warn("Lançamento não encontrado ou sem permissão", err);
+        }
       }
 
       const metricasVazias = {
@@ -219,9 +229,9 @@ export function useDashboard(
             );
           }
         } else if (fonte === "meta_api") {
-          if (!cliente.meta_ad_account_id || !cliente.meta_access_token) {
+          if (!lancamento?.meta_account_id || !lancamento?.meta_access_token) {
             throw new Error(
-              "Atenção: A fonte de dados foi configurada para Meta Ads API, mas as credenciais (Token e Account ID) não foram preenchidas no painel do cliente.",
+              "Atenção: A fonte de dados foi configurada para Meta Ads API, mas as credenciais (Token e Account ID) não foram preenchidas neste lançamento.",
             );
           }
 
