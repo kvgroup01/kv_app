@@ -9,7 +9,6 @@ import { useClientes } from '../../../hooks/useClientes';
 import { 
   useCriarLancamento, 
   useMetaAccounts, 
-  useValidarMetaToken, 
   useTestarFiltroCampanhas 
 } from '../../../hooks/useLancamentos';
 

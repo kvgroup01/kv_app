@@ -130,6 +130,7 @@ export default function PublicDashboardLancamento() {
     progresso: number;
     status: string;
   } | null>(null);
+  const [syncToken, setSyncToken] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     let interval: any;
@@ -192,11 +193,13 @@ export default function PublicDashboardLancamento() {
         toast.error(data.error || "Erro ao iniciar atualização");
         setSyncing(false);
       } else {
+        const newToken = data.syncToken || null;
         setSyncJob({ jobId: data.jobId, progresso: 0, status: data.status });
+        setSyncToken(newToken);
         fetch(`${SYNC_URL}/sync`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ jobId: data.jobId }),
+          body: JSON.stringify({ jobId: data.jobId, syncToken: newToken }),
         }).catch(console.error);
       }
     } catch (err: any) {

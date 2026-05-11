@@ -91,6 +91,7 @@ export interface Criativo {
 
 export interface MetricaDiaria {
   $id?: string;
+  lancamento_id?: string;
   cliente_id?: string; // Optional for sheets
   criativo_id: string;
   data: string;

@@ -48,9 +48,6 @@ export function CreativosGrid({
   }
 
   // Identifica visualmente entre vídeo e imagem (Mockup behavior)
-  const isVideo = (name: string) =>
-    name.toLowerCase().includes("video") || name.toLowerCase().includes("vid");
-
   const displayedCriativos = verTodos ? criativos : (criativos ?? []).slice(0, 10);
 
   return (
@@ -93,18 +90,18 @@ export function CreativosGrid({
                   <div
                     className={cn(
                       "flex flex-col items-center justify-center w-full h-full",
-                      isVideo(criativo.nome)
+                      !!criativo.link_anuncio
                         ? "bg-indigo-500/10 text-indigo-500"
                         : "bg-blue-500/10 text-blue-500",
                     )}
                   >
-                    {isVideo(criativo.nome) ? (
+                    {!!criativo.link_anuncio ? (
                       <Play className="w-8 h-8 mb-2" />
                     ) : (
                       <ImageIcon className="w-8 h-8 mb-2" />
                     )}
                     <span className="text-xs font-semibold tracking-widest uppercase">
-                      {isVideo(criativo.nome) ? "Vídeo" : "Imagem"}
+                      {!!criativo.link_anuncio ? "Vídeo" : "Imagem"}
                     </span>
                   </div>
                 )}

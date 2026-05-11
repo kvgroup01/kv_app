@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Client, Databases, ID, Query } from 'node-appwrite';
 
 const client = new Client()
-  .setEndpoint(process.env.VITE_APPWRITE_ENDPOINT!.replace('/v1', '') + '/v1')
+  .setEndpoint(process.env.VITE_APPWRITE_ENDPOINT!)
   .setProject(process.env.VITE_APPWRITE_PROJECT_ID!)
   .setKey(process.env.VITE_APPWRITE_API_KEY!);
 

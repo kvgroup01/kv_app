@@ -68,7 +68,7 @@ export function calcularMetricas(metricas: MetricaDiaria[]): MetricasAgregadas {
   return {
     investimento, impressoes, alcance, cliques,
     conversas, leads_qualificados, leads_desqualificados,
-    leads_total, leads_superior: 0, leads_medio: 0, vendas,
+    leads_total, leads_superior: leads_qualificados, leads_medio: leads_desqualificados, vendas,
     ctr: impressoes > 0 ? (cliques / impressoes) * 100 : 0,
     cpm: impressoes > 0 ? (investimento / impressoes) * 1000 : 0,
     custo_conversa: conversas > 0 ? investimento / conversas : 0,

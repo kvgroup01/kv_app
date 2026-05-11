@@ -134,6 +134,7 @@ export default function DashboardEditor() {
   const [editSecao, setEditSecao] = React.useState<SecaoId | null>(null);
   const [syncing, setSyncing] = React.useState(false);
   const [syncJob, setSyncJob] = React.useState<{jobId: string, progresso: number, status: string} | null>(null);
+  const [syncToken, setSyncToken] = React.useState<string | null>(null);
   const [testingWebhook, setTestingWebhook] = React.useState(false);
 
   const handleTestWebhook = async () => {
@@ -255,13 +256,15 @@ export default function DashboardEditor() {
       }
 
       const jobId = data.jobId;
+      const newToken = data.syncToken || null;
       setSyncJob({ jobId, progresso: 0, status: 'running' });
+      setSyncToken(newToken);
 
       // Dispara o sync na VPS (não aguarda — roda em background)
       fetch(`${SYNC_URL}/sync`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jobId }),
+        body: JSON.stringify({ jobId, syncToken: newToken }),
       }).catch(console.error);
 
     } catch (err: any) {
