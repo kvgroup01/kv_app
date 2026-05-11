@@ -43,6 +43,8 @@ import {
 import { Skeleton } from "../../../../components/ui/skeleton";
 import { useClientes } from "../../../../hooks/useClientes";
 
+const SYNC_URL = 'https://sync.kvgroupbr.com.br';
+
 type SecaoId =
   | "cards_metricas"
   | "funil"
@@ -199,66 +201,71 @@ export default function DashboardEditor() {
     if (syncJob && syncJob.status !== 'done' && syncJob.status !== 'error') {
       interval = setInterval(async () => {
         try {
-          const res = await fetch("/api/meta-sync-worker", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ jobId: syncJob.jobId }),
-          });
+          const res = await fetch(`${SYNC_URL}/status/${syncJob.jobId}`);
           const data = await res.json();
           if (res.ok && !data.error) {
-            setSyncJob((prev) =>
-              prev
-                ? {
-                    ...prev,
-                    progresso: data.progresso,
-                    status: data.done ? "done" : "running",
-                  }
-                : null,
-            );
+            setSyncJob(prev => prev ? {
+              ...prev,
+              progresso: data.progresso,
+              status: data.done ? 'done' : data.status,
+            } : null);
             if (data.done) {
               clearInterval(interval);
               setSyncing(false);
-              toast.success("Sincronização concluída com sucesso!");
+              toast.success('Sincronização concluída com sucesso!');
+            }
+            if (data.status === 'error') {
+              clearInterval(interval);
+              setSyncJob(prev => prev ? { ...prev, status: 'error' } : null);
+              toast.error(data.erro || 'Erro ao sincronizar');
+              setSyncing(false);
             }
           } else {
             clearInterval(interval);
-            setSyncJob((prev) => (prev ? { ...prev, status: "error" } : null));
-            toast.error(data.error || "Erro ao sincronizar");
+            setSyncJob(prev => prev ? { ...prev, status: 'error' } : null);
+            toast.error('Erro ao verificar status');
             setSyncing(false);
           }
         } catch(e) {
           clearInterval(interval);
-          setSyncJob(prev => prev ? ({ ...prev, status: 'error' }) : null);
-          toast.error("Erro de conexão ao atualizar dados");
+          setSyncJob(prev => prev ? { ...prev, status: 'error' } : null);
+          toast.error('Erro de conexão ao atualizar dados');
           setSyncing(false);
         }
       }, 3000);
     }
-    return () => {
-      if (interval) clearInterval(interval);
-    }
+    return () => { if (interval) clearInterval(interval); };
   }, [syncJob]);
 
   const handleSyncMeta = async () => {
     if (!id) return;
     setSyncing(true);
     try {
-      const response = await fetch("/api/meta-sync-start", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+      // Primeiro cria o job via meta-sync-start (continua na Vercel)
+      const response = await fetch('/api/meta-sync-start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ lancamentoId: id }),
       });
       const data = await response.json();
       if (!response.ok || data.error) {
-        toast.error(data.error || "Erro ao iniciar sincronização");
+        toast.error(data.error || 'Erro ao iniciar sincronização');
         setSyncing(false);
-      } else {
-        setSyncJob({ jobId: data.jobId, progresso: 0, status: data.status });
+        return;
       }
+
+      const jobId = data.jobId;
+      setSyncJob({ jobId, progresso: 0, status: 'running' });
+
+      // Dispara o sync na VPS (não aguarda — roda em background)
+      fetch(`${SYNC_URL}/sync`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jobId }),
+      }).catch(console.error);
+
     } catch (err: any) {
-      toast.error("Erro de conexão ao iniciar sincronização");
+      toast.error('Erro de conexão ao iniciar sincronização');
       setSyncing(false);
     }
   };
