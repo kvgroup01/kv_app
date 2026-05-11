@@ -3,6 +3,8 @@ import { useSearchParams, useNavigate } from 'react-router';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
+import { saveMetaAccountsAppwrite, fetchMetaAccountsAppwrite, deleteMetaAccountAppwrite } from '../../lib/appwrite';
+import type { MetaAccount } from '../../lib/types';
 
 interface AdAccount {
   id: string;
@@ -32,6 +34,16 @@ export default function MetaConnectPage() {
   const [loading, setLoading] = React.useState(false);
   const [selectedAccounts, setSelectedAccounts] = React.useState<string[]>([]);
   const [step, setStep] = React.useState<'connect' | 'loading_accounts' | 'select' | 'done'>('connect');
+
+  const [connectedAccounts, setConnectedAccounts] = React.useState<MetaAccount[]>([]);
+  const [loadingConnected, setLoadingConnected] = React.useState(true);
+
+  React.useEffect(() => {
+    fetchMetaAccountsAppwrite()
+      .then(setConnectedAccounts)
+      .catch(console.error)
+      .finally(() => setLoadingConnected(false));
+  }, []);
 
   // Se chegou com token, busca as BMs e contas automaticamente
   React.useEffect(() => {
@@ -91,22 +103,64 @@ export default function MetaConnectPage() {
     );
   };
 
-  const handleSave = () => {
-    // Por agora salva no localStorage para usar no sistema
-    // Quando implementar AppWrite, salvar na coleção meta_accounts
+  const handleSave = async () => {
     const accountsToSave = bms
       .flatMap(bm => bm.adAccounts)
       .filter(acc => selectedAccounts.includes(acc.id))
       .map(acc => ({
         meta_account_id: acc.account_id,
         nome: acc.name,
-        meta_access_token: token,
-        expires_in: expiresIn,
+        meta_access_token: token!,
+        expires_in: expiresIn || undefined,
       }));
 
-    localStorage.setItem('meta_connected_accounts', JSON.stringify(accountsToSave));
+    await saveMetaAccountsAppwrite(accountsToSave);
     setStep('done');
   };
+
+  if (!loadingConnected && connectedAccounts.length > 0 && step === 'connect' && !token) {
+    return (
+      <div className="max-w-2xl mx-auto mt-8 p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold">Contas Conectadas</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Painel de conexões ativas com o Meta Ads
+            </p>
+          </div>
+          <Button
+            className="bg-blue-600 hover:bg-blue-500"
+            onClick={handleConnect}
+          >
+            Adicionar Outras Contas
+          </Button>
+        </div>
+
+        <div className="grid gap-4">
+          {connectedAccounts.map((acc) => (
+            <Card key={acc.$id}>
+              <CardContent className="flex items-center justify-between p-4">
+                <div>
+                  <p className="font-medium">{acc.nome}</p>
+                  <p className="text-xs text-muted-foreground mt-1">ID: {acc.meta_account_id}</p>
+                </div>
+                <Button 
+                  variant="destructive" 
+                  size="sm"
+                  onClick={async () => {
+                    await deleteMetaAccountAppwrite(acc.$id);
+                    setConnectedAccounts(prev => prev.filter(a => a.$id !== acc.$id));
+                  }}
+                >
+                  Desconectar
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   // Tela inicial — botão conectar
   if (step === 'connect' && !token) {

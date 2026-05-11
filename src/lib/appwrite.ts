@@ -419,6 +419,55 @@ export async function validarMetaToken(accountId: string, token: string): Promis
   }
 }
 
+export async function saveMetaAccountsAppwrite(
+  accounts: {
+    meta_account_id: string;
+    nome: string;
+    meta_access_token: string;
+    expires_in?: string;
+  }[]
+): Promise<void> {
+  for (const account of accounts) {
+    // Verifica se já existe conta com esse meta_account_id
+    const existing = await databases.listDocuments(DB_ID, 'meta_accounts', [
+      Query.equal('meta_account_id', account.meta_account_id),
+      Query.limit(1),
+    ]);
+
+    if (existing.documents.length > 0) {
+      // Atualiza token existente
+      await databases.updateDocument(
+        DB_ID,
+        'meta_accounts',
+        existing.documents[0].$id,
+        {
+          meta_access_token: account.meta_access_token,
+          nome: account.nome,
+        }
+      );
+    } else {
+      // Cria nova conta
+      await databases.createDocument(
+        DB_ID,
+        'meta_accounts',
+        ID.unique(),
+        account
+      );
+    }
+  }
+}
+
+export async function fetchMetaAccountsAppwrite(): Promise<MetaAccount[]> {
+  const result = await databases.listDocuments(DB_ID, 'meta_accounts', [
+    Query.limit(100),
+  ]);
+  return result.documents as unknown as MetaAccount[];
+}
+
+export async function deleteMetaAccountAppwrite(id: string): Promise<void> {
+  await databases.deleteDocument(DB_ID, 'meta_accounts', id);
+}
+
 export async function testarFiltroCampanhas(accountId: string, token: string, palavraChave: string): Promise<{
   nome: string,
   status: string, 
