@@ -42,6 +42,8 @@ import {
 } from "../../../components/ui/tabs";
 import { type DateRange } from "react-day-picker";
 
+const SYNC_URL = 'https://sync.kvgroupbr.com.br';
+
 type SecaoId =
   | "cards_metricas"
   | "funil"
@@ -136,72 +138,44 @@ export default function PublicDashboardLancamento() {
     status: string;
   } | null>(null);
 
-  const startBackgroundSync = async () => {
-    if (!dataLancamento?.$id) return;
-    try {
-      const response = await fetch("/api/meta-sync-start", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lancamentoId: dataLancamento.$id }),
-      });
-      const data = await response.json();
-      if (response.ok && data.jobId) {
-        setSyncJob({ jobId: data.jobId, progresso: 0, status: data.status });
-      }
-    } catch (err) {
-      console.error("Background sync fetch erro:", err);
-    }
-  };
-
-  React.useEffect(() => {
-    // sync automático desabilitado
-  }, [dataLancamento?.$id]);
-
   React.useEffect(() => {
     let interval: any;
     if (syncJob && syncJob.status !== "done" && syncJob.status !== "error") {
       interval = setInterval(async () => {
         try {
-          const res = await fetch("/api/meta-sync-worker", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ jobId: syncJob.jobId }),
-          });
+          const res = await fetch(`${SYNC_URL}/status/${syncJob.jobId}`);
           const data = await res.json();
           if (res.ok && !data.error) {
             setSyncJob((prev) =>
-              prev
-                ? {
-                    ...prev,
-                    progresso: data.progresso,
-                    status: data.done ? "done" : "running",
-                  }
-                : null,
+              prev ? {
+                ...prev,
+                progresso: data.progresso,
+                status: data.done ? 'done' : data.status,
+              } : null,
             );
             if (data.done) {
               clearInterval(interval);
-              const now = Date.now();
               setSyncing(false);
-              localStorage.setItem(
-                `meta_sync_${dataLancamento?.$id}`,
-                now.toString(),
-              );
+              localStorage.setItem(`meta_sync_${dataLancamento?.$id}`, Date.now().toString());
               queryClient.invalidateQueries();
-              // Only show toast if it was a manual sync, we're currently syncing but background sync should be silent
-              if (syncing) {
-                toast.success("Dados atualizados!");
-              }
+              if (syncing) toast.success('Dados atualizados!');
+            }
+            if (data.status === 'error') {
+              clearInterval(interval);
+              setSyncJob((prev) => (prev ? { ...prev, status: 'error' } : null));
+              if (syncing) toast.error(data.erro || 'Erro ao sincronizar');
+              setSyncing(false);
             }
           } else {
             clearInterval(interval);
-            setSyncJob((prev) => (prev ? { ...prev, status: "error" } : null));
-            if (syncing) toast.error(data.error || "Erro ao sicronizar");
+            setSyncJob((prev) => (prev ? { ...prev, status: 'error' } : null));
+            if (syncing) toast.error('Erro ao verificar status');
             setSyncing(false);
           }
         } catch (e) {
           clearInterval(interval);
-          setSyncJob((prev) => (prev ? { ...prev, status: "error" } : null));
-          if (syncing) toast.error("Erro de conexão ao atualizar dados");
+          setSyncJob((prev) => (prev ? { ...prev, status: 'error' } : null));
+          if (syncing) toast.error('Erro de conexão ao atualizar dados');
           setSyncing(false);
         }
       }, 15000);
@@ -226,6 +200,11 @@ export default function PublicDashboardLancamento() {
         setSyncing(false);
       } else {
         setSyncJob({ jobId: data.jobId, progresso: 0, status: data.status });
+        fetch(`${SYNC_URL}/sync`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jobId: data.jobId }),
+        }).catch(console.error);
       }
     } catch (err: any) {
       toast.error("Erro de conexão ao iniciar atualização");
@@ -478,7 +457,7 @@ export default function PublicDashboardLancamento() {
                 </Badge>
               </div>
               <p className="text-[10px] lg:text-xs text-muted-foreground mt-0.5">
-                {cliente.nome} • Dados em tempo real
+                {cliente.nome} • Atualizado manualmente
               </p>
             </div>
           </div>
@@ -522,85 +501,61 @@ export default function PublicDashboardLancamento() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 lg:px-8 py-6 lg:py-8">
-        {dataLancamento.tipo === "ambos" ? (
-          <Tabs defaultValue="leads" className="space-y-6">
-            <TabsList className="bg-muted p-1">
-              <TabsTrigger value="leads" className="w-32">
-                Leads
-              </TabsTrigger>
-              <TabsTrigger value="whatsapp" className="w-32">
-                WhatsApp
-              </TabsTrigger>
-              <TabsTrigger value="pesquisa">
-                Pesquisa
-              </TabsTrigger>
-            </TabsList>
+        <Tabs defaultValue="leads" className="space-y-6">
+          <TabsList className="bg-muted p-1">
+            <TabsTrigger value="leads" className="w-32">
+              {dataLancamento.tipo === "whatsapp" ? "WhatsApp" : "Leads"}
+            </TabsTrigger>
+            {dataLancamento.tipo === "ambos" && (
+              <TabsTrigger value="whatsapp" className="w-32">WhatsApp</TabsTrigger>
+            )}
+            <TabsTrigger value="pesquisa">Pesquisa</TabsTrigger>
+          </TabsList>
 
-            <TabsContent
-              value="leads"
-              className="m-0 focus-visible:outline-none"
-            >
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                {renderLeadsSeccions()}
-              </motion.div>
-            </TabsContent>
+          <TabsContent value="leads" className="m-0 focus-visible:outline-none">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+              {dataLancamento.tipo === "whatsapp" ? (
+                <div className="space-y-6">
+                  <MetricCards metricas={metricas} tipo="whatsapp" isLoading={isLoadingDashboard} />
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <FunnelWhatsApp metricas={metricas} onVendasChange={() => {}} />
+                    <InvestimentoChart dados={serieHistorica} tipo="whatsapp" />
+                  </div>
+                  <CampanhasTable campanhasComMetricas={campanhas} tipo="whatsapp" />
+                  <CreativosGrid criativos={criativos} tipo="whatsapp" />
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <RankingTable titulo="Melhores Públicos" items={publicos} tipo="publicos" campanhaTipo="whatsapp" />
+                    <RankingTable titulo="Melhores Criativos" items={criativos} tipo="criativos" campanhaTipo="whatsapp" />
+                  </div>
+                </div>
+              ) : (
+                renderLeadsSeccions()
+              )}
+            </motion.div>
+          </TabsContent>
 
-            <TabsContent
-              value="whatsapp"
-              className="m-0 focus-visible:outline-none"
-            >
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-6"
-              >
-                <MetricCards
-                  metricas={metricas}
-                  tipo="whatsapp"
-                  isLoading={isLoadingDashboard}
-                />
+          {dataLancamento.tipo === "ambos" && (
+            <TabsContent value="whatsapp" className="m-0 focus-visible:outline-none">
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                <MetricCards metricas={metricas} tipo="whatsapp" isLoading={isLoadingDashboard} />
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <FunnelWhatsApp
-                    metricas={metricas}
-                    onVendasChange={(v) => console.log(v)}
-                  />
+                  <FunnelWhatsApp metricas={metricas} onVendasChange={() => {}} />
                   <InvestimentoChart dados={serieHistorica} tipo="whatsapp" />
                 </div>
-                <CampanhasTable
-                  campanhasComMetricas={campanhas}
-                  tipo="whatsapp"
-                />
+                <CampanhasTable campanhasComMetricas={campanhas} tipo="whatsapp" />
                 <CreativosGrid criativos={criativos} tipo="whatsapp" />
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <RankingTable
-                    titulo="Melhores Públicos"
-                    items={publicos}
-                    tipo="publicos"
-                    campanhaTipo="whatsapp"
-                  />
-                  <RankingTable
-                    titulo="Melhores Criativos"
-                    items={criativos}
-                    tipo="criativos"
-                    campanhaTipo="whatsapp"
-                  />
+                  <RankingTable titulo="Melhores Públicos" items={publicos} tipo="publicos" campanhaTipo="whatsapp" />
+                  <RankingTable titulo="Melhores Criativos" items={criativos} tipo="criativos" campanhaTipo="whatsapp" />
                 </div>
               </motion.div>
             </TabsContent>
+          )}
 
-            <TabsContent value="pesquisa" className="space-y-6 mt-6">
-              <SurveyDashboard
-                entries={surveyEntries}
-                isLoading={isLoadingSurvey}
-              />
-            </TabsContent>
-          </Tabs>
-        ) : (
-          renderLeadsSeccions()
-        )}
+          <TabsContent value="pesquisa" className="space-y-6 mt-6">
+            <SurveyDashboard entries={surveyEntries} isLoading={isLoadingSurvey} />
+          </TabsContent>
+        </Tabs>
       </main>
 
       {/* Footer */}
