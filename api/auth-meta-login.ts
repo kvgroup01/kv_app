@@ -7,12 +7,6 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
   const scopes = [
     'email',
     'public_profile',
-    'ads_read',
-    'ads_management',
-    'business_management',
-    'pages_read_engagement',
-    'pages_show_list',
-    'pages_manage_ads',
   ].join(',');
 
   const state = Math.random().toString(36).substring(2);
