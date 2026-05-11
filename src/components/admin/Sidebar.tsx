@@ -9,7 +9,8 @@ import {
   LogOut, 
   Menu,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Plug2
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/button';
@@ -32,6 +33,7 @@ const NAV_ITEMS = [
   { href: '/admin/dashboards', icon: LayoutDashboard, label: 'Dashboards' },
   { href: '/admin/financeiro', icon: Wallet, label: 'Financeiro' },
   { href: '/admin/orcamentos', icon: FileText, label: 'Orçamentos' },
+  { href: '/admin/meta-connect', icon: Plug2, label: 'Integrações' },
   { href: '/admin/configuracoes', icon: Settings, label: 'Configurações' },
 ];
 

@@ -306,61 +306,25 @@ export default function Configuracoes() {
 
         {/* --- INTEGRACOES --- */}
         <TabsContent value="integracoes" className="space-y-6 animate-in fade-in duration-500">
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-             <Card className="bg-(--card-bg) border-(--card-border) border-t-4 border-t-emerald-500 lg:col-span-2">
-               <CardContent className="pt-8 space-y-6">
-                 <div className="flex items-center gap-4 mb-2">
-                   <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center border border-emerald-500/20">
-                     <svg className="w-6 h-6 text-emerald-500" viewBox="0 0 24 24">
-                        <path fill="currentColor" d="M21.35,11.1H12.18V13.83H18.69C18.36,17.64 15.19,19.27 12.19,19.27C8.92,19.27 6.23,16.59 6.23,13.31C6.23,10.03 8.92,7.35 12.19,7.35C14.1,7.35 15.74,8.26 17,9.45L19.05,7.41C17.29,5.7 14.84,4.61 12.19,4.61C7.38,4.61 3.5,8.51 3.5,13.31C3.5,18.11 7.38,22.01 12.19,22.01C17.41,22.01 21.5,18.33 21.5,13.31C21.5,12.55 21.43,11.83 21.35,11.1V11.1Z" />
-                     </svg>
-                   </div>
-                   <div>
-                     <h3 className="font-bold">Google Cloud Platform</h3>
-                     <p className="text-xs text-(--text-tertiary)">Conexão com Google Sheets e APIs</p>
-                   </div>
-                 </div>
-
-                 <div className="space-y-2">
-                   <Label className="text-xs font-semibold text-(--text-tertiary) uppercase tracking-wider">Chave de API do Google</Label>
-                   <div className="flex gap-2">
-                     <Input 
-                       type="password"
-                       value={googleApiKey} 
-                       onChange={e => setGoogleApiKey(e.target.value)} 
-                       className="bg-black/20 border-(--card-border) h-11 focus-visible:ring-emerald-500"
-                       placeholder="AIzaSy..."
-                     />
-                     <Button onClick={handleSaveIntegrations} className="bg-emerald-600 text-white hover:bg-emerald-700 h-11 px-6">Salvar</Button>
-                   </div>
-                   <p className="text-[11px] text-(--text-tertiary) italic">Esta chave é necessária para ler os dados das planilhas de clientes.</p>
-                 </div>
-
-                 <div className="pt-4 border-t border-(--card-border) flex items-center justify-between">
-                    <Badge className="bg-emerald-500/10 text-emerald-500 border-none px-3">Status: Ativo</Badge>
-                    <p className="text-[10px] text-(--text-tertiary) uppercase tracking-widest">Última checagem: Hoje</p>
-                 </div>
-               </CardContent>
-             </Card>
-
-             <Card className="bg-(--card-bg) border-(--card-border) opacity-50 cursor-not-allowed">
-               <CardContent className="pt-8">
-                 <div className="flex items-center gap-4 mb-6">
-                   <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center border border-blue-500/20">
-                     <svg className="w-6 h-6 text-blue-500" viewBox="0 0 24 24">
-                        <path fill="currentColor" d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96C18.34 21.21 22 17.06 22 12.06C22 6.53 17.5 2.04 12 2.04Z" />
-                     </svg>
-                   </div>
-                   <div>
-                     <h3 className="font-bold">Meta Ads API</h3>
-                     <p className="text-xs text-(--text-tertiary)">Integração nativa com Gerenciador</p>
-                   </div>
-                 </div>
-                 <Badge variant="outline" className="text-[10px] border-zinc-700 text-zinc-500 uppercase font-bold tracking-widest mb-6">Em desenvolvimento</Badge>
-                 <Button disabled variant="outline" className="w-full border-(--card-border) text-xs font-bold uppercase tracking-widest">Aguardando Lançamento</Button>
-               </CardContent>
-             </Card>
-           </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center text-white font-bold text-xs">f</div>
+                Meta Ads
+              </CardTitle>
+              <CardDescription>
+                Conecte sua conta do Facebook para sincronizar campanhas e métricas automaticamente.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button
+                className="bg-blue-600 hover:bg-blue-500"
+                onClick={() => window.location.href = '/admin/meta-connect'}
+              >
+                Gerenciar conexão Meta Ads
+              </Button>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* --- EQUIPE --- */}
