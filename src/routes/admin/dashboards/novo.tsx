@@ -9,7 +9,6 @@ import { useClientes } from '../../../hooks/useClientes';
 import { 
   useCriarLancamento, 
   useMetaAccounts, 
-  useCriarMetaAccount, 
   useValidarMetaToken, 
   useTestarFiltroCampanhas 
 } from '../../../hooks/useLancamentos';
@@ -57,8 +56,6 @@ export default function NovoDashboard() {
   const { data: clientes } = useClientes();
   const { data: metaAccounts } = useMetaAccounts();
   const criarLancamentoMutation = useCriarLancamento();
-  const criarMetaAccountMutation = useCriarMetaAccount();
-  const validarTokenMutation = useValidarMetaToken();
   const testarFiltroMutation = useTestarFiltroCampanhas();
 
   const [passo, setPasso] = React.useState(1);
@@ -80,9 +77,6 @@ export default function NovoDashboard() {
   const [novaColuna, setNovaColuna] = React.useState({ nome: '', tipo: 'texto' });
   const [showAddColuna, setShowAddColuna] = React.useState(false);
 
-  const [newAccountToken, setNewAccountToken] = React.useState('');
-  const [newAccountId, setNewAccountId] = React.useState('');
-  const [newAccountName, setNewAccountName] = React.useState('');
   const [campanhasEncontradas, setCampanhasEncontradas] = React.useState<any[] | null>(null);
 
   const generateSlug = (text: string) => {
@@ -122,46 +116,6 @@ export default function NovoDashboard() {
       ...prev, 
       colunas: prev.colunas.filter(c => c.nome !== nome || c.fixo)
     }));
-  };
-
-  const validarToken = async () => {
-    if (!newAccountToken || !newAccountId || !newAccountName) {
-      toast.error("Preencha o nome, ID da conta e o token.");
-      return;
-    }
-    
-    try {
-      const result = await validarTokenMutation.mutateAsync({ accountId: newAccountId, token: newAccountToken });
-      
-      if (!result.valido || !result.account_id) {
-        toast.error("Token/Conta inválido ou sem acesso a publicidade.");
-        return;
-      }
-      
-      const nomeContaValido = result.nome_conta || result.account_id;
-      
-      const novaConta = await criarMetaAccountMutation.mutateAsync({
-        nome: newAccountName,
-        meta_account_id: result.account_id,
-        meta_access_token: newAccountToken
-      });
-
-      setForm(prev => ({ 
-        ...prev, 
-        meta_account_id: result.account_id!, 
-        meta_access_token: newAccountToken,
-        meta_account_nome: newAccountName
-      }));
-      
-      toast.success(`Conta ${nomeContaValido} salva e selecionada com sucesso!`);
-      
-      setNewAccountName('');
-      setNewAccountId('');
-      setNewAccountToken('');
-    } catch (e: any) {
-      console.error(e);
-      toast.error("Falha na validação ou salvamento da conta");
-    }
   };
 
   const testarFiltro = async () => {
@@ -516,38 +470,36 @@ export default function NovoDashboard() {
                       </div>
                     ))}
                   </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">Nenhuma conta salva ainda.</p>
+                ) : null}
+
+                {(!metaAccounts || metaAccounts.length === 0) && (
+                  <div className="p-4 border border-dashed rounded-lg text-center space-y-3">
+                    <p className="text-sm text-muted-foreground">
+                      Nenhuma conta conectada. Conecte sua conta Meta para continuar.
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open('/admin/meta-connect', '_blank')}
+                    >
+                      Conectar conta Meta
+                    </Button>
+                  </div>
+                )}
+
+                {metaAccounts && metaAccounts.length > 0 && (
+                  <div className="flex justify-end mt-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs text-muted-foreground"
+                      onClick={() => window.open('/admin/meta-connect', '_blank')}
+                    >
+                      + Adicionar outra conta
+                    </Button>
+                  </div>
                 )}
               </div>
-
-               <div className="relative py-4">
-                 <div className="absolute inset-0 flex items-center">
-                   <span className="w-full border-t" />
-                 </div>
-                 <div className="relative flex justify-center text-xs uppercase">
-                   <span className="bg-card px-2 text-muted-foreground font-semibold">ou cadastre nova</span>
-                 </div>
-               </div>
-
-               <div className="p-4 border rounded-lg bg-muted/10 space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-xs font-semibold uppercase text-muted-foreground">Apelido da conta</label>
-                    <Input placeholder="ex: Conta Matriz KV" value={newAccountName} onChange={e => setNewAccountName(e.target.value)} className="bg-background"/>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-semibold uppercase text-muted-foreground">Meta Ad Account ID</label>
-                    <Input placeholder="act_1234567890" value={newAccountId} onChange={e => setNewAccountId(e.target.value)} className="bg-background"/>
-                    <p className="text-xs text-muted-foreground">Encontre em business.facebook.com → Configurações → Contas de anúncios</p>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-semibold uppercase text-muted-foreground">Access Token Graph API</label>
-                    <Input type="password" placeholder="EAA..." value={newAccountToken} onChange={e => setNewAccountToken(e.target.value)} className="bg-background"/>
-                  </div>
-                  <Button onClick={validarToken} variant="secondary" className="w-full" disabled={validarTokenMutation.isPending}>
-                    {validarTokenMutation.isPending ? "Validando..." : "Validar e salvar conta"}
-                  </Button>
-               </div>
             </CardContent>
           </Card>
 
