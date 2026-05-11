@@ -22,20 +22,21 @@ export default function MetaConnectPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const token = searchParams.get('token');
-  const expiresIn = searchParams.get('expires_in');
-  const userName = searchParams.get('user_name');
-  const userEmail = searchParams.get('user_email');
+  const [token, setToken] = React.useState<string | null>(searchParams.get('token'));
+  const [expiresIn, setExpiresIn] = React.useState<string | null>(searchParams.get('expires_in'));
+  const [userName, setUserName] = React.useState<string | null>(searchParams.get('user_name'));
+  const [userEmail, setUserEmail] = React.useState<string | null>(searchParams.get('user_email'));
   const error = searchParams.get('error');
 
   const [bms, setBms] = React.useState<BusinessManager[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [selectedAccounts, setSelectedAccounts] = React.useState<string[]>([]);
-  const [step, setStep] = React.useState<'connect' | 'select' | 'done'>('connect');
+  const [step, setStep] = React.useState<'connect' | 'loading_accounts' | 'select' | 'done'>('connect');
 
   // Se chegou com token, busca as BMs e contas automaticamente
   React.useEffect(() => {
     if (!token) return;
+    if (step !== 'loading_accounts' && step !== 'connect') return;
     setLoading(true);
     fetch(`/api/meta-list-accounts?token=${token}`)
       .then(r => r.json())
@@ -45,7 +46,42 @@ export default function MetaConnectPage() {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [token]);
+  }, [token, step]);
+
+  const handleConnect = () => {
+    const width = 600;
+    const height = 700;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+
+    const popup = window.open(
+      '/api/auth-meta-login',
+      'meta-oauth',
+      `width=${width},height=${height},left=${left},top=${top},scrollbars=yes`
+    );
+
+    // Escuta mensagem do popup quando autenticação completar
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      if (event.data?.type !== 'META_AUTH_SUCCESS') return;
+
+      window.removeEventListener('message', handleMessage);
+      popup?.close();
+
+      // Atualiza a URL com os dados recebidos do popup
+      const { token: newToken, expires_in, user_id, user_name, user_email } = event.data;
+      
+      // Simula o recebimento dos query params sem redirecionar
+      setStep('loading_accounts');
+      setUserName(user_name);
+      setUserEmail(user_email);
+      setToken(newToken);
+      setExpiresIn(expires_in);
+    };
+
+    window.addEventListener('message', handleMessage);
+  };
+
 
   const toggleAccount = (accountId: string) => {
     setSelectedAccounts(prev =>
@@ -102,7 +138,7 @@ export default function MetaConnectPage() {
             </ul>
             <Button
               className="w-full bg-blue-600 hover:bg-blue-500"
-              onClick={() => window.location.href = '/api/auth-meta-login'}
+              onClick={handleConnect}
             >
               Conectar com Facebook
             </Button>
@@ -113,7 +149,7 @@ export default function MetaConnectPage() {
   }
 
   // Tela de loading
-  if (loading) {
+  if (loading || step === 'loading_accounts') {
     return (
       <div className="max-w-lg mx-auto mt-16 p-6 text-center">
         <p className="text-muted-foreground">Buscando suas contas de anúncio...</p>

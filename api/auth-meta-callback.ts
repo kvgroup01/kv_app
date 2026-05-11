@@ -5,7 +5,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const appUrl = process.env.VITE_APP_URL!;
 
   if (error || !code) {
-    return res.redirect(`${appUrl}/admin/meta-connect?error=access_denied`);
+    const errorHtml = `
+<!DOCTYPE html>
+<html>
+<body>
+<script>
+  if (window.opener) {
+    window.opener.postMessage({
+      type: 'META_AUTH_ERROR',
+      error: 'access_denied',
+    }, window.location.origin);
+  }
+  window.close();
+</script>
+</body>
+</html>
+`;
+    return res.status(200).setHeader('Content-Type', 'text/html').send(errorHtml);
   }
 
   try {
@@ -52,19 +68,49 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     );
     const userData = await userRes.json();
 
-    // Redirecionar para o painel admin com os dados via query params
-    const params = new URLSearchParams({
-      token: longToken,
-      expires_in: String(expiresIn),
-      user_id: userData.id,
-      user_name: userData.name || '',
-      user_email: userData.email || '',
-    });
+    const html = `
+<!DOCTYPE html>
+<html>
+<head><title>Autenticando...</title></head>
+<body>
+<script>
+  if (window.opener) {
+    window.opener.postMessage({
+      type: 'META_AUTH_SUCCESS',
+      token: ${JSON.stringify(longToken)},
+      expires_in: ${JSON.stringify(String(expiresIn))},
+      user_id: ${JSON.stringify(userData.id)},
+      user_name: ${JSON.stringify(userData.name || '')},
+      user_email: ${JSON.stringify(userData.email || '')},
+    }, window.location.origin);
+  }
+  window.close();
+</script>
+<p>Autenticação concluída. Fechando...</p>
+</body>
+</html>
+`;
 
-    return res.redirect(`${appUrl}/admin/meta-connect?${params.toString()}`);
+    return res.status(200).setHeader('Content-Type', 'text/html').send(html);
 
   } catch (err: any) {
     console.error('OAuth Meta erro:', err);
-    return res.redirect(`${appUrl}/admin/meta-connect?error=${encodeURIComponent(err.message)}`);
+    const errorHtml = `
+<!DOCTYPE html>
+<html>
+<body>
+<script>
+  if (window.opener) {
+    window.opener.postMessage({
+      type: 'META_AUTH_ERROR',
+      error: ${JSON.stringify(err.message)},
+    }, window.location.origin);
+  }
+  window.close();
+</script>
+</body>
+</html>
+`;
+    return res.status(200).setHeader('Content-Type', 'text/html').send(errorHtml);
   }
 }
