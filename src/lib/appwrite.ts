@@ -242,42 +242,87 @@ export async function listarPagamentos(): Promise<Pagamento[]> {
 export async function fetchCampanhasAppwrite(cliente_id: string) {
   const docs = await databases.listDocuments(DB_ID, 'campaigns', [
     Query.equal('cliente_id', cliente_id),
-    Query.limit(100)
+    Query.limit(500),
   ]);
   return docs.documents;
 }
 
 export async function fetchConjuntosAppwrite(cliente_id: string) {
-  const campaigns = await fetchCampanhasAppwrite(cliente_id);
-  const campIds = campaigns.map(c => c.$id);
-  if (!campIds.length) return [];
+  const campanhas = await fetchCampanhasAppwrite(cliente_id);
+  if (!campanhas.length) return [];
+  const campIds = campanhas.map((c: any) => c.$id);
   const docs = await databases.listDocuments(DB_ID, 'adsets', [
-    Query.limit(500)
+    Query.equal('campanha_id', campIds),
+    Query.limit(500),
   ]);
-  return docs.documents.filter((d: any) => campIds.includes(d.campanha_id));
+  return docs.documents;
 }
 
-export async function fetchCriativosAppwrite(cliente_id: string) {
+export async function fetchCriativosAppwrite(
+  cliente_id: string,
+  lancamento_id?: string
+) {
+  if (lancamento_id) {
+    // Buscar apenas criativo_ids que têm métricas neste lançamento
+    const metricas = await databases.listDocuments(DB_ID, 'daily_metrics', [
+      Query.equal('lancamento_id', lancamento_id),
+      Query.limit(5000),
+    ]);
+
+    const criativoIds = [...new Set(
+      metricas.documents
+        .map((m: any) => m.criativo_id)
+        .filter(Boolean)
+    )] as string[];
+
+    if (!criativoIds.length) return [];
+
+    // Buscar ads por IDs — em lotes de 100 (limite do AppWrite)
+    const allAds: any[] = [];
+    for (let i = 0; i < criativoIds.length; i += 100) {
+      const batch = criativoIds.slice(i, i + 100);
+      const docs = await databases.listDocuments(DB_ID, 'ads', [
+        Query.equal('$id', batch),
+        Query.limit(100),
+      ]);
+      allAds.push(...docs.documents);
+    }
+    return allAds;
+  }
+
+  // Sem lancamento_id — comportamento original
   const conjuntos = await fetchConjuntosAppwrite(cliente_id);
-  const conjIds = conjuntos.map(c => c.$id);
-  if (!conjIds.length) return [];
-
+  if (!conjuntos.length) return [];
+  const conjIds = conjuntos.map((c: any) => c.$id);
   const docs = await databases.listDocuments(DB_ID, 'ads', [
-    Query.limit(1000)
+    Query.equal('conjunto_id', conjIds),
+    Query.limit(500),
   ]);
-  return docs.documents.filter((d: any) => conjIds.includes(d.conjunto_id));
+  return docs.documents;
 }
 
-export async function fetchMetricasAppwrite(cliente_id: string, from: Date, to: Date) {
+export async function fetchMetricasAppwrite(
+  cliente_id: string,
+  from: Date,
+  to: Date,
+  lancamento_id?: string
+) {
   const fromStr = from.toISOString().split('T')[0];
   const toStr = to.toISOString().split('T')[0];
 
-  const docs = await databases.listDocuments(DB_ID, 'daily_metrics', [
-    Query.equal('cliente_id', cliente_id),
+  const queries = [
     Query.greaterThanEqual('data', fromStr),
     Query.lessThanEqual('data', toStr),
-    Query.limit(1000)
-  ]);
+    Query.limit(5000),
+  ];
+
+  if (lancamento_id) {
+    queries.unshift(Query.equal('lancamento_id', lancamento_id));
+  } else {
+    queries.unshift(Query.equal('cliente_id', cliente_id));
+  }
+
+  const docs = await databases.listDocuments(DB_ID, 'daily_metrics', queries);
   return docs.documents;
 }
 

@@ -335,6 +335,7 @@ export default async function handler(req: any, res: any) {
             const existing = await db.listDocuments(DB, "daily_metrics", [
               Query.equal("criativo_id", criativo_id),
               Query.equal("data", dataStr),
+              Query.equal("lancamento_id", lancamento.$id),
               Query.limit(1),
             ]);
 
@@ -358,6 +359,7 @@ export default async function handler(req: any, res: any) {
               leads_desqualificados: 0,
               vendas: 0,
               cliente_id,
+              lancamento_id: lancamento.$id,
             };
 
             if (existing.documents.length > 0) {

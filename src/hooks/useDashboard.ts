@@ -116,8 +116,8 @@ export function useDashboard(
             await Promise.all([
               fetchCampanhasAppwrite(cliente.$id),
               fetchConjuntosAppwrite(cliente.$id),
-              fetchCriativosAppwrite(cliente.$id),
-              fetchMetricasAppwrite(cliente.$id, dateRange.from, dateRange.to),
+              fetchCriativosAppwrite(cliente.$id, lancamentoId),
+              fetchMetricasAppwrite(cliente.$id, dateRange.from, dateRange.to, lancamentoId),
             ]);
           campanhasRaw = campanhasResult;
           conjuntosRaw = conjuntosResult;

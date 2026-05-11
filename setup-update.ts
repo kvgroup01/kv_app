@@ -287,6 +287,68 @@ async function runUpdate() {
   await criarIndice('survey_entries', 'lancamento_data', 'key', ['lancamento_id', 'data']);
   await criarIndice('survey_entries', 'typeform_response_id', 'unique', ['typeform_response_id']);
 
+  // Adicionar campo lancamento_id em daily_metrics
+  console.log('\n⏳ Adicionando campo lancamento_id em daily_metrics...');
+  try {
+    await databases.createStringAttribute(
+      'dashboard-kv',
+      'daily_metrics',
+      'lancamento_id',
+      36,
+      false, // nullable
+      undefined,
+      false // array
+    );
+    console.log('✅ Campo lancamento_id adicionado em daily_metrics');
+  } catch (e: any) {
+    if (e.message?.includes('already exists')) {
+      console.log('⏭️ Campo lancamento_id já existe em daily_metrics');
+    } else {
+      console.error('❌ Erro ao adicionar lancamento_id:', e.message);
+    }
+  }
+
+  // Aguardar indexação do campo
+  await new Promise(resolve => setTimeout(resolve, 3000));
+
+  // Criar índice lancamento_id em daily_metrics
+  try {
+    await databases.createIndex(
+      'dashboard-kv',
+      'daily_metrics',
+      'lancamento_id',
+      'key',
+      ['lancamento_id'],
+      ['ASC']
+    );
+    console.log('✅ Índice lancamento_id criado em daily_metrics');
+  } catch (e: any) {
+    if (e.message?.includes('already exists') || e.message?.includes('same attributes')) {
+      console.log('⏭️ Índice lancamento_id já existe em daily_metrics');
+    } else {
+      console.error('❌ Erro ao criar índice lancamento_id:', e.message);
+    }
+  }
+
+  // Criar índice composto lancamento_data em daily_metrics
+  try {
+    await databases.createIndex(
+      'dashboard-kv',
+      'daily_metrics',
+      'lancamento_data',
+      'key',
+      ['lancamento_id', 'data'],
+      ['ASC', 'ASC']
+    );
+    console.log('✅ Índice lancamento_data criado em daily_metrics');
+  } catch (e: any) {
+    if (e.message?.includes('already exists') || e.message?.includes('same attributes')) {
+      console.log('⏭️ Índice lancamento_data já existe em daily_metrics');
+    } else {
+      console.error('❌ Erro ao criar índice lancamento_data:', e.message);
+    }
+  }
+
   console.log('\n✅ Atualização finalizada. Sinta-se à vontade para revisar seu Dashboard no Appwrite.')
 }
 
