@@ -27,6 +27,9 @@ import DashboardsIndex from './routes/admin/dashboards/index';
 import DashboardNovo from './routes/admin/dashboards/novo';
 import DashboardEditor from './routes/admin/dashboards/$id/editor';
 
+// Integrações
+import MetaConnectPage from './routes/admin/meta-connect';
+
 // Módulos Públicos Externos
 import OrcamentoPublico from './routes/orcamento/$token';
 import DashboardPublico from './routes/dashboard/$slug';
@@ -66,6 +69,7 @@ export default function App() {
              <Route path="orcamentos" element={<OrcamentosIndex />} />
              <Route path="orcamentos/novo" element={<OrcamentoNovo />} />
              <Route path="configuracoes" element={<Configuracoes />} />
+             <Route path="meta-connect" element={<MetaConnectPage />} />
              
           </Route>
         </Routes>
