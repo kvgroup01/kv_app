@@ -29,12 +29,6 @@ import { SurveyDashboard } from "../../../components/dashboard/SurveyDashboard";
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardTitle,
-  CardHeader,
-} from "../../../components/ui/card";
-import {
   Tabs,
   TabsContent,
   TabsList,
@@ -65,7 +59,6 @@ export default function PublicDashboardLancamento() {
     ensino_superior: 0,
     ensino_medio: 0,
   });
-  const [investimentoManual, setInvestimentoManual] = React.useState(0);
   const [syncing, setSyncing] = React.useState(false);
   const queryClient = useQueryClient();
 
