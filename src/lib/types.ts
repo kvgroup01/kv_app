@@ -134,6 +134,25 @@ export interface Lancamento {
   publicado_em?: string;
   $createdAt?: string;
   $updatedAt?: string;
+  regras_qualificacao?: string;
+}
+
+export interface LeadEntry {
+  $id?: string;
+  lancamento_id?: string;
+  nome?: string;
+  email?: string;
+  telefone?: string;
+  escolaridade?: string;
+  utm_source?: string;
+  utm_campaign?: string;
+  utm_medium?: string;
+  utm_content?: string;
+  utm_term?: string;
+  data?: string;
+  renda?: string;
+  leads_qualificados?: number;
+  leads_desqualificados?: number;
 }
 
 export interface MetaAccount {

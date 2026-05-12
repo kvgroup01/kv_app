@@ -36,6 +36,36 @@ export default async function handler(req: any, res: any) {
       data_convertida = body.Data_da_conversao.split(" ")[0];
     }
 
+    // Buscar regras de qualificação do lançamento
+    const lancamento = await db.getDocument(DB, 'lancamentos', lancamentoId as string);
+    let leads_qualificados = 0;
+    let leads_desqualificados = 0;
+
+    let renda = body?.Renda || body?.renda || null;
+
+    if (lancamento.regras_qualificacao) {
+      try {
+        const regras = JSON.parse(lancamento.regras_qualificacao);
+        const criterio = regras.criterio || 'escolaridade';
+        const escolaridades = regras.escolaridades || [];
+        const rendas = regras.rendas || [];
+
+        const escQualificada = escolaridades.length === 0 || 
+          escolaridades.includes(body?.Escolaridade);
+        const rendaQualificada = rendas.length === 0 || 
+          rendas.includes(renda);
+
+        let qualificado = false;
+        if (criterio === 'escolaridade') qualificado = escQualificada;
+        else if (criterio === 'renda') qualificado = rendaQualificada;
+        else if (criterio === 'ambos_e') qualificado = escQualificada && rendaQualificada;
+        else if (criterio === 'ambos_ou') qualificado = escQualificada || rendaQualificada;
+
+        if (qualificado) leads_qualificados = 1;
+        else leads_desqualificados = 1;
+      } catch (e) {}
+    }
+
     const documentData = {
       lancamento_id: lancamentoId,
       nome: body?.Nome || null,
@@ -48,6 +78,9 @@ export default async function handler(req: any, res: any) {
       utm_content: body?.utm_content || body?.UTM_Content || null,
       utm_term: body?.UTM_Term || body?.utm_term || null,
       data: data_convertida,
+      renda,
+      leads_qualificados,
+      leads_desqualificados,
     };
 
     // Verificar duplicata por email + data

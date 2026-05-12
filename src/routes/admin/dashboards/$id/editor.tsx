@@ -45,6 +45,26 @@ import { useClientes } from "../../../../hooks/useClientes";
 
 const SYNC_URL = 'https://sync.kvgroupbr.com.br';
 
+const ESCOLARIDADES_OPCOES = [
+  'Ensino Fundamental Completo',
+  'Ensino Médio Completo',
+  'Tecnólogo',
+  'Cursando Ensino Superior',
+  'Ensino Superior Completo',
+  'Pós-graduação',
+  'Mestrado',
+  'Doutorado',
+];
+
+const RENDAS_OPCOES = [
+  'Abaixo de um salário mínimo',
+  'De 1.518,00 a 1.903,98',
+  'De 1.903,99 até 2.826,65',
+  'De 2.826,66 até 3.751,05',
+  'De 3.751,06 até 4.664,68',
+  'Acima de 4.664,68',
+];
+
 type SecaoId =
   | "cards_metricas"
   | "funil"
@@ -129,6 +149,9 @@ export default function DashboardEditor() {
 
   const [nome, setNome] = React.useState("");
   const [metaEventType, setMetaEventType] = React.useState('');
+  const [criterioQualificacao, setCriterioQualificacao] = React.useState<'escolaridade' | 'renda' | 'ambos_e' | 'ambos_ou'>('escolaridade');
+  const [escolaridadesQualificadas, setEscolaridadesQualificadas] = React.useState<string[]>([]);
+  const [rendasQualificadas, setRendasQualificadas] = React.useState<string[]>([]);
   const [investimentoContratado, setInvestimentoContratado] = React.useState<number | string>("");
   const [dataInicioSync, setDataInicioSync] = React.useState("");
   const [secoes, setSecoes] = React.useState<SecoesType>(defaultSecoes);
@@ -208,6 +231,14 @@ export default function DashboardEditor() {
         } catch (e) {
           console.error("Failed to parse secoes", e);
         }
+      }
+      if (lancamento.regras_qualificacao) {
+        try {
+          const regras = JSON.parse(lancamento.regras_qualificacao);
+          setCriterioQualificacao(regras.criterio || 'escolaridade');
+          setEscolaridadesQualificadas(regras.escolaridades || []);
+          setRendasQualificadas(regras.rendas || []);
+        } catch (e) {}
       }
     }
   }, [lancamento]);
@@ -313,6 +344,11 @@ export default function DashboardEditor() {
           meta_event_type: metaEventType || null,
           data_inicio_sync: dataInicioSync,
           configuracao_secoes: JSON.stringify(secoes),
+          regras_qualificacao: JSON.stringify({
+            criterio: criterioQualificacao,
+            escolaridades: escolaridadesQualificadas,
+            rendas: rendasQualificadas,
+          }),
         },
       });
       if (showToast) toast.success("Alterações salvas com sucesso!");
@@ -594,6 +630,84 @@ export default function DashboardEditor() {
                   )}
                 </div>
               </div>
+            </section>
+
+            <hr className="border-border" />
+
+            <section className="space-y-4">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                Regras de Qualificação
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Define o que classifica um lead como qualificado
+              </p>
+
+              {/* Critério */}
+              <div className="space-y-2">
+                <label className="text-sm">Critério</label>
+                <select
+                  value={criterioQualificacao}
+                  onChange={(e) => setCriterioQualificacao(e.target.value as any)}
+                  className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="escolaridade">Somente Escolaridade</option>
+                  <option value="renda">Somente Renda</option>
+                  <option value="ambos_e">Escolaridade E Renda</option>
+                  <option value="ambos_ou">Escolaridade OU Renda</option>
+                </select>
+              </div>
+
+              {/* Escolaridades qualificadas */}
+              {(criterioQualificacao === 'escolaridade' || criterioQualificacao === 'ambos_e' || criterioQualificacao === 'ambos_ou') && (
+                <div className="space-y-2">
+                  <label className="text-sm">Escolaridades qualificadas</label>
+                  <div className="space-y-1 max-h-48 overflow-y-auto p-2 border rounded-lg">
+                    {ESCOLARIDADES_OPCOES.map(esc => (
+                      <label key={esc} className="flex items-center gap-2 text-xs cursor-pointer hover:bg-muted/30 p-1 rounded">
+                        <input
+                          type="checkbox"
+                          checked={escolaridadesQualificadas.includes(esc)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setEscolaridadesQualificadas(prev => [...prev, esc]);
+                            } else {
+                              setEscolaridadesQualificadas(prev => prev.filter(x => x !== esc));
+                            }
+                          }}
+                          className="rounded"
+                        />
+                        {esc}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Rendas qualificadas */}
+              {(criterioQualificacao === 'renda' || criterioQualificacao === 'ambos_e' || criterioQualificacao === 'ambos_ou') && (
+                <div className="space-y-2">
+                  <label className="text-sm">Faixas de renda qualificadas</label>
+                  <div className="space-y-1 p-2 border rounded-lg">
+                    {RENDAS_OPCOES.map(renda => (
+                      <label key={renda} className="flex items-center gap-2 text-xs cursor-pointer hover:bg-muted/30 p-1 rounded">
+                        <input
+                          type="checkbox"
+                          checked={rendasQualificadas.includes(renda)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setRendasQualificadas(prev => [...prev, renda]);
+                            } else {
+                              setRendasQualificadas(prev => prev.filter(x => x !== renda));
+                            }
+                          }}
+                          className="rounded"
+                        />
+                        {renda}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
             </section>
           </div>
         </CardContent>
