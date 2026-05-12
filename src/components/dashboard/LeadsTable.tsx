@@ -35,6 +35,9 @@ interface Lead {
   utm_term?: string;
   data?: string;
   lancamento_id?: string;
+  renda?: string;
+  leads_qualificados?: number;
+  leads_desqualificados?: number;
 }
 
 interface LeadsTableProps {
@@ -53,6 +56,7 @@ export function LeadsTable({ lancamentoId, isLoading }: LeadsTableProps) {
   const [filterEscolaridade, setFilterEscolaridade] = React.useState('todos');
   const [filterSource, setFilterSource] = React.useState('todos');
   const [filterCampanha, setFilterCampanha] = React.useState('todos');
+  const [filterQualificacao, setFilterQualificacao] = React.useState('todos');
   const [filterData, setFilterData] = React.useState({ from: '', to: '' });
 
   // Carregar leads
@@ -83,11 +87,13 @@ export function LeadsTable({ lancamentoId, isLoading }: LeadsTableProps) {
       if (filterEscolaridade !== 'todos' && lead.escolaridade !== filterEscolaridade) return false;
       if (filterSource !== 'todos' && lead.utm_source !== filterSource) return false;
       if (filterCampanha !== 'todos' && lead.utm_campaign !== filterCampanha) return false;
+      if (filterQualificacao === 'qualificados' && !lead.leads_qualificados) return false;
+      if (filterQualificacao === 'desqualificados' && !lead.leads_desqualificados) return false;
       if (filterData.from && lead.data && lead.data < filterData.from) return false;
       if (filterData.to && lead.data && lead.data > filterData.to) return false;
       return true;
     });
-  }, [leads, search, filterEscolaridade, filterSource, filterCampanha, filterData]);
+  }, [leads, search, filterEscolaridade, filterSource, filterCampanha, filterQualificacao, filterData]);
 
   // Opções únicas para filtros
   const escolaridades = React.useMemo(() =>
@@ -168,11 +174,13 @@ export function LeadsTable({ lancamentoId, isLoading }: LeadsTableProps) {
     setFilterEscolaridade('todos');
     setFilterSource('todos');
     setFilterCampanha('todos');
+    setFilterQualificacao('todos');
     setFilterData({ from: '', to: '' });
   };
 
   const temFiltros = search || filterEscolaridade !== 'todos' ||
     filterSource !== 'todos' || filterCampanha !== 'todos' ||
+    filterQualificacao !== 'todos' ||
     filterData.from || filterData.to;
 
   if (isLoading || loading) {
@@ -263,6 +271,16 @@ export function LeadsTable({ lancamentoId, isLoading }: LeadsTableProps) {
               </SelectContent>
             </Select>
 
+            {/* Qualificação */}
+            <Select value={filterQualificacao} onValueChange={setFilterQualificacao}>
+              <SelectTrigger><SelectValue placeholder="Qualificação" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos</SelectItem>
+                <SelectItem value="qualificados">Qualificados</SelectItem>
+                <SelectItem value="desqualificados">Desqualificados</SelectItem>
+              </SelectContent>
+            </Select>
+
             {/* Limpar filtros */}
             {temFiltros && (
               <Button variant="ghost" size="sm" onClick={limparFiltros}
@@ -313,12 +331,16 @@ export function LeadsTable({ lancamentoId, isLoading }: LeadsTableProps) {
                 <th className="p-3 text-left font-medium">Telefone</th>
                 <th className="p-3 text-left font-medium">Data</th>
                 <th className="p-3 text-left font-medium">Source / Campaign</th>
+                <th className="p-3 text-left font-medium text-muted-foreground">Escolaridade</th>
+                <th className="p-3 text-left font-medium text-muted-foreground">Renda</th>
+                <th className="p-3 text-left font-medium text-muted-foreground">Termo</th>
+                <th className="p-3 text-left font-medium text-muted-foreground">Conteúdo</th>
               </tr>
             </thead>
             <tbody>
               {leadsFiltrados.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={10} className="p-8 text-center text-muted-foreground">
                     Nenhum lead encontrado com os filtros atuais.
                   </td>
                 </tr>
@@ -351,6 +373,16 @@ export function LeadsTable({ lancamentoId, isLoading }: LeadsTableProps) {
                         </span>
                       </div>
                     </td>
+                    <td className="p-3 text-muted-foreground text-xs">
+                      {lead.escolaridade ? (
+                        <Badge variant="outline" className="text-xs whitespace-nowrap">
+                          {lead.escolaridade}
+                        </Badge>
+                      ) : '—'}
+                    </td>
+                    <td className="p-3 text-muted-foreground text-xs">{(lead as any).renda || '—'}</td>
+                    <td className="p-3 text-muted-foreground text-xs">{lead.utm_term || '—'}</td>
+                    <td className="p-3 text-muted-foreground text-xs">{lead.utm_content || '—'}</td>
                   </tr>
                 ))
               )}
