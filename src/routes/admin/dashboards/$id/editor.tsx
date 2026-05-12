@@ -42,6 +42,13 @@ import {
 } from "../../../../components/ui/alert-dialog";
 import { Skeleton } from "../../../../components/ui/skeleton";
 import { useClientes } from "../../../../hooks/useClientes";
+import { SheetsImporter } from "../../../../components/admin/SheetsImporter";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../../../../components/ui/dialog";
 
 const SYNC_URL = 'https://sync.kvgroupbr.com.br';
 
@@ -149,6 +156,7 @@ export default function DashboardEditor() {
 
   const [nome, setNome] = React.useState("");
   const [metaEventType, setMetaEventType] = React.useState('');
+  const [showSheetsImporter, setShowSheetsImporter] = React.useState(false);
   const [criterioQualificacao, setCriterioQualificacao] = React.useState<'escolaridade' | 'renda' | 'ambos_e' | 'ambos_ou'>('escolaridade');
   const [escolaridadesQualificadas, setEscolaridadesQualificadas] = React.useState<string[]>([]);
   const [rendasQualificadas, setRendasQualificadas] = React.useState<string[]>([]);
@@ -709,6 +717,24 @@ export default function DashboardEditor() {
                 </div>
               )}
             </section>
+
+            <hr className="border-border" />
+
+            <section className="space-y-4">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                Importar Dados
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Importe leads e pesquisas de uma planilha Google Sheets pública
+              </p>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => setShowSheetsImporter(true)}
+              >
+                Importar do Google Sheets
+              </Button>
+            </section>
           </div>
         </CardContent>
 
@@ -914,6 +940,18 @@ export default function DashboardEditor() {
           </div>
         </div>
       </div>
+      
+      <Dialog open={showSheetsImporter} onOpenChange={setShowSheetsImporter}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-full">
+          <DialogHeader>
+            <DialogTitle>Importar do Google Sheets</DialogTitle>
+          </DialogHeader>
+          <SheetsImporter
+            lancamentoId={id!}
+            onClose={() => setShowSheetsImporter(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
