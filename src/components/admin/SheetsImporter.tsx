@@ -54,6 +54,7 @@ export function SheetsImporter({ lancamentoId, onClose }: SheetsImporterProps) {
   const [tabs, setTabs] = React.useState<string[]>([]);
   const [abaLeads, setAbaLeads] = React.useState('');
   const [abaPesquisa, setAbaPesquisa] = React.useState('nao');
+  const [isManual, setIsManual] = React.useState(false);
   const [previewLeads, setPreviewLeads] = React.useState<{columns: string[], rows: string[][]}>({ columns: [], rows: [] });
   const [previewPesquisa, setPreviewPesquisa] = React.useState<{columns: string[], rows: string[][]}>({ columns: [], rows: [] });
   const [mapeamentoLeads, setMapeamentoLeads] = React.useState<Record<string,string>>({});
@@ -81,10 +82,20 @@ export function SheetsImporter({ lancamentoId, onClose }: SheetsImporterProps) {
       const res = await fetch(`/api/sheets?action=list-tabs&spreadsheetId=${id}`);
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      if (!data.tabs || data.tabs.length === 0) throw new Error('Nenhuma aba encontrada ou planilha não é pública');
-      setTabs(data.tabs);
-      setAbaLeads(data.tabs[0]);
-      setEtapa(2);
+      
+      if (data.manual) {
+        setIsManual(true);
+        setTabs([]);
+        setAbaLeads('');
+        setAbaPesquisa('nao');
+        setEtapa(2);
+      } else {
+        if (!data.tabs || data.tabs.length === 0) throw new Error('Nenhuma aba encontrada ou planilha não é pública');
+        setIsManual(false);
+        setTabs(data.tabs);
+        setAbaLeads(data.tabs[0]);
+        setEtapa(2);
+      }
     } catch (e: any) {
       toast.error(e.message || 'Não foi possível acessar a planilha. Verifique se ela é pública na web (Arquivo > Compartilhar > Publicar na web).');
     } finally {
@@ -115,7 +126,7 @@ export function SheetsImporter({ lancamentoId, onClose }: SheetsImporterProps) {
 
       setEtapa(3);
     } catch (e: any) {
-      toast.error(e.message || 'Erro ao carregar preview das abas');
+      toast.error('Aba não encontrada. Verifique o nome exato na planilha.');
     } finally {
       setLoading(false);
     }
@@ -219,31 +230,49 @@ export function SheetsImporter({ lancamentoId, onClose }: SheetsImporterProps) {
           
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Qual aba tem os LEADS?</label>
-              <Select value={abaLeads} onValueChange={setAbaLeads}>
-                <SelectTrigger><SelectValue placeholder="Selecione a aba de leads" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="nao">Não importar leads</SelectItem>
-                  {tabs.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <label className="text-sm font-medium">{isManual ? 'Nome da aba com LEADS' : 'Qual aba tem os LEADS?'}</label>
+              {isManual ? (
+                <Input 
+                  placeholder="ex: LEADS" 
+                  value={abaLeads === 'nao' ? '' : abaLeads}
+                  onChange={(e) => setAbaLeads(e.target.value)}
+                  className="bg-background"
+                />
+              ) : (
+                <Select value={abaLeads} onValueChange={setAbaLeads}>
+                  <SelectTrigger><SelectValue placeholder="Selecione a aba de leads" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="nao">Não importar leads</SelectItem>
+                    {tabs.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Qual aba tem a PESQUISA?</label>
-              <Select value={abaPesquisa} onValueChange={setAbaPesquisa}>
-                <SelectTrigger><SelectValue placeholder="Selecione a aba de pesquisa" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="nao">Não importar pesquisa</SelectItem>
-                  {tabs.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <label className="text-sm font-medium">{isManual ? 'Nome da aba com PESQUISA (opcional)' : 'Qual aba tem a PESQUISA?'}</label>
+              {isManual ? (
+                <Input 
+                  placeholder="Deixe vazio para não importar pesquisa" 
+                  value={abaPesquisa === 'nao' ? '' : abaPesquisa}
+                  onChange={(e) => setAbaPesquisa(e.target.value || 'nao')}
+                  className="bg-background"
+                />
+              ) : (
+                <Select value={abaPesquisa} onValueChange={setAbaPesquisa}>
+                  <SelectTrigger><SelectValue placeholder="Selecione a aba de pesquisa" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="nao">Não importar pesquisa</SelectItem>
+                    {tabs.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </div>
 
           <div className="flex gap-2 justify-end pt-4">
             <Button variant="outline" onClick={() => setEtapa(1)}>Voltar</Button>
-            <Button onClick={handleFetchPreview} disabled={loading || (abaLeads === 'nao' && abaPesquisa === 'nao')}>
+            <Button onClick={handleFetchPreview} disabled={loading || (!abaLeads || abaLeads === 'nao') && (!abaPesquisa || abaPesquisa === 'nao')}>
               {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ChevronRight className="w-4 h-4 mr-2" />}
               Ver preview
             </Button>

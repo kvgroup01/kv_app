@@ -32,15 +32,18 @@ export default async function handler(req: any, res: any) {
     const { spreadsheetId } = req.query;
     if (!spreadsheetId) return res.status(400).json({ error: 'spreadsheetId obrigatório' });
     try {
-      // Buscar todas as abas via feed JSON público
-      const url = `https://spreadsheets.google.com/feeds/worksheets/${spreadsheetId}/public/basic?alt=json`;
+      // Verificar se a planilha é acessível tentando buscar a aba padrão
+      const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:json`;
       const r = await fetch(url);
       if (!r.ok) {
-         throw new Error(`Erro ao acessar planilha. Status code: ${r.status}`);
+        throw new Error('Planilha não acessível. Verifique se está publicada na web.');
       }
-      const data = await r.json();
-      const tabs = data.feed?.entry?.map((e: any) => e.title.$t) || [];
-      return res.status(200).json({ tabs });
+      const text = await r.text();
+      if (!text.includes('google.visualization')) {
+        throw new Error('Planilha não acessível. Verifique se está publicada na web.');
+      }
+      // Retornar indicando que a planilha é válida mas o usuário deve digitar o nome da aba
+      return res.status(200).json({ tabs: [], manual: true });
     } catch (e: any) {
       return res.status(500).json({ error: e.message });
     }
