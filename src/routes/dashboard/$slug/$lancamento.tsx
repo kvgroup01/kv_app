@@ -25,6 +25,7 @@ import { ClassificacaoTrafico } from "../../../components/dashboard/Classificaca
 import { VisaoFinanceiraLeads } from "../../../components/dashboard/VisaoFinanceiraLeads";
 import { GruposWhatsApp } from "../../../components/dashboard/GruposWhatsApp";
 import { SurveyDashboard } from "../../../components/dashboard/SurveyDashboard";
+import { LeadsTable } from "../../../components/dashboard/LeadsTable";
 
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
@@ -500,12 +501,13 @@ export default function PublicDashboardLancamento() {
         <Tabs defaultValue="leads" className="space-y-6">
           <TabsList className="bg-muted p-1">
             <TabsTrigger value="leads" className="w-32">
-              {dataLancamento.tipo === "whatsapp" ? "WhatsApp" : "Leads"}
+              {dataLancamento.tipo === "whatsapp" ? "WhatsApp" : "Visão Geral"}
             </TabsTrigger>
             {dataLancamento.tipo === "ambos" && (
               <TabsTrigger value="whatsapp" className="w-32">WhatsApp</TabsTrigger>
             )}
             <TabsTrigger value="pesquisa">Pesquisa</TabsTrigger>
+            <TabsTrigger value="lista_leads">Leads</TabsTrigger>
           </TabsList>
 
           <TabsContent value="leads" className="m-0 focus-visible:outline-none">
@@ -550,6 +552,10 @@ export default function PublicDashboardLancamento() {
 
           <TabsContent value="pesquisa" className="space-y-6 mt-6">
             <SurveyDashboard entries={surveyEntries} isLoading={isLoadingSurvey} />
+          </TabsContent>
+
+          <TabsContent value="lista_leads" className="space-y-6 mt-6">
+            <LeadsTable lancamentoId={dataLancamento.$id} isLoading={isLoadingDashboard} />
           </TabsContent>
         </Tabs>
       </main>

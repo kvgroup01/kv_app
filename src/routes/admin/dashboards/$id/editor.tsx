@@ -135,50 +135,63 @@ export default function DashboardEditor() {
   const [syncing, setSyncing] = React.useState(false);
   const [syncJob, setSyncJob] = React.useState<{jobId: string, progresso: number, status: string} | null>(null);
   const [syncToken, setSyncToken] = React.useState<string | null>(null);
-  const [testingWebhook, setTestingWebhook] = React.useState(false);
+  const [listening, setListening] = React.useState(false);
+  const [listenTimeout, setListenTimeout] = React.useState<any>(null);
+  const [lastLead, setLastLead] = React.useState<any>(null);
+  const [listenSeconds, setListenSeconds] = React.useState(0);
 
-  const handleTestWebhook = async () => {
+  const handleStartListening = async () => {
     if (!id) return;
-    setTestingWebhook(true);
-    
-    const payload = {
-      "Nome": "Lead Teste",
-      "E_mail": "teste@dashboard.com",
-      "DDD_Telefone": "92 99999-9999",
-      "Escolaridade": "Ensino Superior Completo",
-      "utm_source": "teste",
-      "utm_campaign": "teste_webhook",
-      "utm_medium": "teste",
-      "utm_content": "teste",
-      "UTM_Term": "teste",
-      "UTM_Source": "teste",
-      "UTM_Medium": "teste",
-      "UTM_Campaign": "teste_webhook",
-      "UTM_Content": "teste",
-      "Data_da_conversao": new Date().toISOString().split('T')[0] + " 00:00:00",
-      "Dispositivo": "Desktop",
-      "Pais_do_usuario": "BR"
-    };
+    setListening(true);
+    setLastLead(null);
+    setListenSeconds(0);
 
-    try {
-      const res = await fetch(`https://sistema.kvgroupbr.com.br/api/webhook-lead?lancamentoId=${id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      });
-      if (res.ok) {
-        toast.success("Webhook funcionando! Lead de teste criado com sucesso.");
-      } else {
-        const errorData = await res.json();
-        toast.error(errorData?.error || "Erro ao testar webhook.");
-      }
-    } catch(err: any) {
-      toast.error("Erro de conexão ao testar webhook.");
-    } finally {
-      setTestingWebhook(false);
+    // Conta o total de leads ANTES de começar a escutar
+    const snapshot = await fetch(
+      `/api/webhook-listen?lancamentoId=${id}`
+    ).then(r => r.json()).catch(() => ({ total: 0 }));
+    
+    const totalAntes = snapshot.total || 0;
+    let segundos = 0;
+
+    const timer = setInterval(() => {
+      segundos++;
+      setListenSeconds(segundos);
+    }, 1000);
+
+    const polling = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/webhook-listen?lancamentoId=${id}`);
+        const data = await res.json();
+        if (data.total > totalAntes && data.latest) {
+          setLastLead(data.latest);
+          setListening(false);
+          clearInterval(polling);
+          clearInterval(timer);
+          toast.success('Lead capturado com sucesso!');
+        }
+      } catch (e) {}
+    }, 2000);
+
+    // Timeout de 3 minutos
+    const timeout = setTimeout(() => {
+      setListening(false);
+      clearInterval(polling);
+      clearInterval(timer);
+      toast.error('Tempo esgotado. Nenhum lead recebido em 3 minutos.');
+    }, 3 * 60 * 1000);
+
+    setListenTimeout({ polling, timer, timeout });
+  };
+
+  const handleStopListening = () => {
+    if (listenTimeout) {
+      clearInterval(listenTimeout.polling);
+      clearInterval(listenTimeout.timer);
+      clearTimeout(listenTimeout.timeout);
     }
+    setListening(false);
+    toast.info('Escuta cancelada.');
   };
 
   React.useEffect(() => {
@@ -484,23 +497,26 @@ export default function DashboardEditor() {
               </div>
 
               <div className="space-y-4">
+                {/* URL */}
                 <div className="space-y-2">
-                  <label className="text-sm">1. URL do Webhook</label>
+                  <label className="text-sm">URL do Webhook</label>
                   <p className="text-xs text-muted-foreground">
-                    Cole a URL abaixo na integração de webhook do seu formulário no GreatPages
+                    Cole esta URL no GreatPages ou qualquer formulário
                   </p>
                   <div className="flex gap-2">
-                    <Input 
+                    <Input
                       value={`https://sistema.kvgroupbr.com.br/api/webhook-lead?lancamentoId=${id}`}
                       readOnly
                       className="bg-muted text-xs font-mono"
                     />
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       size="icon"
                       onClick={() => {
-                        navigator.clipboard.writeText(`https://sistema.kvgroupbr.com.br/api/webhook-lead?lancamentoId=${id}`);
-                        toast.success("URL copiada!");
+                        navigator.clipboard.writeText(
+                          `https://sistema.kvgroupbr.com.br/api/webhook-lead?lancamentoId=${id}`
+                        );
+                        toast.success('URL copiada!');
                       }}
                     >
                       <Copy className="h-4 w-4" />
@@ -508,69 +524,59 @@ export default function DashboardEditor() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm">2. Payload de Exemplo</label>
-                  <div className="relative group">
-                    <pre className="text-[10px] p-3 rounded bg-muted/50 font-mono overflow-x-auto text-muted-foreground border">
-{JSON.stringify({
-  "Nome": "Lead Teste",
-  "E_mail": "teste@dashboard.com",
-  "DDD_Telefone": "92 99999-9999",
-  "Escolaridade": "Ensino Superior Completo",
-  "utm_source": "teste",
-  "utm_campaign": "teste_webhook",
-  "utm_medium": "teste",
-  "utm_content": "teste",
-  "UTM_Term": "teste",
-  "UTM_Source": "teste",
-  "UTM_Medium": "teste",
-  "UTM_Campaign": "teste_webhook",
-  "UTM_Content": "teste",
-  "Data_da_conversao": "DATA_DE_HOJE 00:00:00",
-  "Dispositivo": "Desktop",
-  "Pais_do_usuario": "BR"
-}, null, 2)}
-                    </pre>
-                    <Button 
-                      variant="secondary" 
-                      size="sm"
-                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => {
-                        const payload = {
-                          "Nome": "Lead Teste",
-                          "E_mail": "teste@dashboard.com",
-                          "DDD_Telefone": "92 99999-9999",
-                          "Escolaridade": "Ensino Superior Completo",
-                          "utm_source": "teste",
-                          "utm_campaign": "teste_webhook",
-                          "utm_medium": "teste",
-                          "utm_content": "teste",
-                          "UTM_Term": "teste",
-                          "UTM_Source": "teste",
-                          "UTM_Medium": "teste",
-                          "UTM_Campaign": "teste_webhook",
-                          "UTM_Content": "teste",
-                          "Data_da_conversao": "DATA_DE_HOJE 00:00:00",
-                          "Dispositivo": "Desktop",
-                          "Pais_do_usuario": "BR"
-                        };
-                        navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
-                        toast.success("Payload copiado!");
-                      }}
-                    >
-                      Copiar
-                    </Button>
+                {/* Listener */}
+                <div className="space-y-3 p-4 border rounded-lg bg-muted/10">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium">Escutar webhook ao vivo</p>
+                      <p className="text-xs text-muted-foreground">
+                        Aguarda um lead real chegar pelo formulário
+                      </p>
+                    </div>
+                    {listening ? (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={handleStopListening}
+                      >
+                        Parar
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleStartListening}
+                      >
+                        Escutar
+                      </Button>
+                    )}
                   </div>
-                </div>
 
-                <div className="space-y-2 pt-2">
-                  <Button 
-                    className="w-full"
-                    onClick={handleTestWebhook}
-                    disabled={testingWebhook}
-                  >
-                    {testingWebhook ? "Testando..." : "Testar Webhook"}
-                  </Button>
+                  {listening && (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                      Aguardando lead... {listenSeconds}s
+                      <span className="text-muted-foreground/50">(timeout em {Math.max(0, 180 - listenSeconds)}s)</span>
+                    </div>
+                  )}
+
+                  {lastLead && !listening && (
+                    <div className="mt-3 space-y-2">
+                      <p className="text-xs font-semibold text-green-500 uppercase tracking-wider">
+                        ✅ Lead capturado
+                      </p>
+                      <div className="bg-muted/30 rounded-lg p-3 text-xs font-mono space-y-1 max-h-48 overflow-y-auto">
+                        {Object.entries(lastLead)
+                          .filter(([k]) => !k.startsWith('$') && !k.startsWith('_'))
+                          .map(([k, v]) => (
+                            <div key={k} className="flex gap-2">
+                              <span className="text-muted-foreground min-w-[120px]">{k}:</span>
+                              <span className="text-foreground">{String(v)}</span>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </section>
