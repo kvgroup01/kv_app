@@ -124,6 +124,7 @@ export function LeadsTable({ lancamentoId, isLoading }: LeadsTableProps) {
     if (alvos.length === 0) { toast.error('Nenhum lead para exportar'); return; }
 
     const cols = ['data', 'nome', 'email', 'telefone', 'escolaridade',
+      'renda', 'leads_qualificados', 'leads_desqualificados',
       'utm_source', 'utm_campaign', 'utm_medium', 'utm_content', 'utm_term'];
     const header = cols.join(',');
     const rows = alvos.map(l =>
@@ -335,12 +336,13 @@ export function LeadsTable({ lancamentoId, isLoading }: LeadsTableProps) {
                 <th className="p-3 text-left font-medium text-muted-foreground">Renda</th>
                 <th className="p-3 text-left font-medium text-muted-foreground">Termo</th>
                 <th className="p-3 text-left font-medium text-muted-foreground">Conteúdo</th>
+                <th className="p-3 w-10"></th>
               </tr>
             </thead>
             <tbody>
               {leadsFiltrados.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={14} className="p-8 text-center text-muted-foreground">
                     Nenhum lead encontrado com os filtros atuais.
                   </td>
                 </tr>
@@ -383,6 +385,25 @@ export function LeadsTable({ lancamentoId, isLoading }: LeadsTableProps) {
                     <td className="p-3 text-muted-foreground text-xs">{(lead as any).renda || '—'}</td>
                     <td className="p-3 text-muted-foreground text-xs">{lead.utm_term || '—'}</td>
                     <td className="p-3 text-muted-foreground text-xs">{lead.utm_content || '—'}</td>
+                    <td className="p-3">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-destructive hover:text-destructive"
+                        onClick={async () => {
+                          if (!confirm('Deletar este lead?')) return;
+                          await fetch('/api/leads-delete', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ ids: [lead.$id] }),
+                          });
+                          await carregarLeads();
+                          toast.success('Lead deletado');
+                        }}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </td>
                   </tr>
                 ))
               )}
