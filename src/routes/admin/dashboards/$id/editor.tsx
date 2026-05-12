@@ -128,6 +128,7 @@ export default function DashboardEditor() {
   const publicarMutation = usePublicarLancamento();
 
   const [nome, setNome] = React.useState("");
+  const [metaEventType, setMetaEventType] = React.useState('');
   const [investimentoContratado, setInvestimentoContratado] = React.useState<number | string>("");
   const [dataInicioSync, setDataInicioSync] = React.useState("");
   const [secoes, setSecoes] = React.useState<SecoesType>(defaultSecoes);
@@ -197,6 +198,7 @@ export default function DashboardEditor() {
   React.useEffect(() => {
     if (lancamento) {
       setNome(lancamento.nome || "");
+      setMetaEventType(lancamento.meta_event_type || "");
       setInvestimentoContratado(lancamento.investimento_total_contratado ?? "");
       setDataInicioSync(lancamento.data_inicio_sync || "");
       if (lancamento.configuracao_secoes) {
@@ -308,6 +310,7 @@ export default function DashboardEditor() {
         data: {
           nome,
           investimento_total_contratado: investimentoContratado === "" ? null : Number(investimentoContratado),
+          meta_event_type: metaEventType || null,
           data_inicio_sync: dataInicioSync,
           configuracao_secoes: JSON.stringify(secoes),
         },
@@ -421,6 +424,18 @@ export default function DashboardEditor() {
                     className="bg-background"
                   />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm">Evento Meta (action_type)</label>
+                <p className="text-xs text-muted-foreground">
+                  Ex: offsite_conversion.fb_pixel_complete_registration
+                </p>
+                <Input
+                  value={metaEventType}
+                  onChange={(e) => setMetaEventType(e.target.value)}
+                  placeholder="offsite_conversion.fb_pixel_complete_registration"
+                  className="bg-background text-xs font-mono"
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-sm">Data de início da sincronização</label>

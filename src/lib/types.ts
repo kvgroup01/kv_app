@@ -122,6 +122,7 @@ export interface Lancamento {
   tipo: TipoCampanha;
   status: 'rascunho' | 'ativo' | 'encerrado';
   investimento_total_contratado?: number;
+  meta_event_type?: string;
   palavra_chave_meta?: string;
   meta_account_id?: string;
   meta_access_token?: string;
