@@ -14,6 +14,7 @@ import {
   Position,
   useReactFlow,
   ReactFlowProvider,
+  NodeToolbar,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { toast } from 'sonner';
@@ -53,12 +54,62 @@ function CustomNode({ data, selected }: { data: any; selected: boolean }) {
   const { Icon } = config;
 
   return (
-    <div style={{
-      background: '#ffffff',
-      border: selected ? '2px solid #4f46e5' : '1.5px solid #e2e8f0',
-      borderRadius: '16px',
-      width: '160px',
-      padding: '0 0 12px 0',
+    <>
+      <NodeToolbar isVisible={selected} position={Position.Bottom} offset={8}>
+        <div style={{
+          display: 'flex',
+          gap: '4px',
+          background: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '10px',
+          padding: '6px 8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        }}>
+          {[
+            { icon: BarChart2, label: 'Performance', action: 'performance' },
+            { icon: Copy,      label: 'Copiar',      action: 'copy' },
+            { icon: Pencil,    label: 'Editar',      action: 'edit' },
+            { icon: Trash2,    label: 'Deletar',     action: 'delete', danger: true },
+          ].map(({ icon: BtnIcon, label, action, danger }) => (
+            <button
+              key={action}
+              title={label}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (data.onAction) data.onAction(action);
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 32,
+                height: 32,
+                borderRadius: 7,
+                border: 'none',
+                background: 'transparent',
+                cursor: 'pointer',
+                color: danger ? '#ef4444' : '#64748b',
+                transition: 'background 0.15s, color 0.15s',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = danger ? '#fff0f0' : '#f1f5f9';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+              }}
+            >
+              <BtnIcon size={15} strokeWidth={2} />
+            </button>
+          ))}
+        </div>
+      </NodeToolbar>
+
+      <div style={{
+        background: '#ffffff',
+        border: selected ? '2px solid #4f46e5' : '1.5px solid #e2e8f0',
+        borderRadius: '16px',
+        width: '160px',
+        padding: '0 0 12px 0',
       boxShadow: selected
         ? '0 0 0 3px rgba(79,70,229,0.15), 0 4px 16px rgba(0,0,0,0.1)'
         : '0 2px 8px rgba(0,0,0,0.06)',
@@ -145,6 +196,7 @@ function CustomNode({ data, selected }: { data: any; selected: boolean }) {
         }}
       />
     </div>
+    </>
   );
 }
 
