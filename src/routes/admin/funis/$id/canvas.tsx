@@ -4,7 +4,7 @@ import {
   ReactFlow, Background, Controls, addEdge,
   useNodesState, useEdgesState, type Connection,
   type NodeTypes, BackgroundVariant, Handle, Position,
-  useReactFlow, ReactFlowProvider, NodeToolbar,
+  useReactFlow, ReactFlowProvider, NodeToolbar, MiniMap,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { toast } from 'sonner';
@@ -226,12 +226,13 @@ function ModalPerformance({ label, onClose }: { label: string; onClose: () => vo
 
 // ─── NÓ CUSTOMIZADO ──────────────────────────────────────
 function CustomNode({ data, selected }: { data: any; selected: boolean }) {
-  const config = NODE_TYPES_CONFIG.find(t => t.type === data.nodeType) || NODE_TYPES_CONFIG[0];
+  const config = NODE_TYPES_CONFIG.find(t => t.type === data.nodeType)
+    || NODE_TYPES_CONFIG[0];
   const { Icon, color } = config;
 
   return (
     <>
-      <NodeToolbar isVisible={selected} position={Position.Bottom} offset={8}>
+      <NodeToolbar isVisible={selected} position={Position.Bottom} offset={10}>
         <div style={{
           display: 'flex', gap: 2, background: '#2d2d2d',
           border: '1px solid #3d3d3d', borderRadius: 8,
@@ -264,56 +265,63 @@ function CustomNode({ data, selected }: { data: any; selected: boolean }) {
         </div>
       </NodeToolbar>
 
+      <Handle type="target" position={Position.Left} style={{
+        background: '#555', width: 8, height: 8,
+        border: '2px solid #2d2d2d', left: -5,
+      }} />
+
       <div style={{
         background: '#2d2d2d',
-        border: `1px solid ${selected ? color : '#3d3d3d'}`,
-        borderRadius: 10, width: 200, overflow: 'hidden',
+        border: `1.5px solid ${selected ? color : '#3d3d3d'}`,
+        borderRadius: 16,
+        width: 155,
+        paddingBottom: 14,
         boxShadow: selected
-          ? `0 0 0 2px ${color}33, 0 8px 24px rgba(0,0,0,0.5)`
-          : '0 2px 8px rgba(0,0,0,0.4)',
+          ? `0 0 0 3px ${color}33, 0 8px 24px rgba(0,0,0,0.5)`
+          : '0 4px 16px rgba(0,0,0,0.3)',
         transition: 'all 0.15s',
+        overflow: 'hidden',
       }}>
-        <Handle type="target" position={Position.Left} style={{
-          background: '#555', width: 8, height: 8,
-          border: '2px solid #2d2d2d', left: -5,
-        }} />
-
+        {/* Título */}
         <div style={{
-          display: 'flex', alignItems: 'center', gap: 10,
-          padding: '12px 14px',
-          borderBottom: selected ? `1px solid ${color}33` : '1px solid #383838',
+          padding: '12px 12px 10px',
+          fontSize: 13, fontWeight: 700, color: '#e5e7eb',
         }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 8, flexShrink: 0,
-            background: `${color}20`, border: `1px solid ${color}33`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <Icon size={16} color={color} strokeWidth={1.8} />
-          </div>
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#e5e7eb' }}>
-              {config.label}
-            </div>
-            <div style={{ fontSize: 11, color: '#6b7280', marginTop: 1 }}>
-              {data.label || config.label}
-            </div>
-          </div>
+          {config.label}
         </div>
 
-        <div style={{ padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: 4 }}>
-          {[85, 65, 45].map((w, i) => (
+        {/* Área de ícone */}
+        <div style={{
+          margin: '0 10px',
+          background: '#383838',
+          borderRadius: 10,
+          height: 76,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: '1px solid #444',
+        }}>
+          <Icon size={30} color={`${color}bb`} strokeWidth={1.3} />
+        </div>
+
+        {/* Linhas skeleton */}
+        <div style={{
+          padding: '10px 10px 0',
+          display: 'flex', flexDirection: 'column', gap: 5,
+        }}>
+          {[80, 60, 40].map((w, i) => (
             <div key={i} style={{
-              height: 5, width: `${w}%`,
-              background: '#383838', borderRadius: 3,
+              height: 6, width: `${w}%`,
+              background: '#383838', borderRadius: 4,
             }} />
           ))}
         </div>
-
-        <Handle type="source" position={Position.Right} style={{
-          background: '#555', width: 8, height: 8,
-          border: '2px solid #2d2d2d', right: -5,
-        }} />
       </div>
+
+      <Handle type="source" position={Position.Right} style={{
+        background: '#555', width: 8, height: 8,
+        border: '2px solid #2d2d2d', right: -5,
+      }} />
     </>
   );
 }
@@ -633,6 +641,15 @@ function CanvasInner() {
           deleteKeyCode={['Backspace', 'Delete']}
         >
           <Background variant={BackgroundVariant.Dots} gap={18} size={1} color="#3d3d3d" />
+          <MiniMap
+            style={{
+              background: '#1f1f1f',
+              border: '1px solid #3d3d3d',
+              borderRadius: 8,
+            }}
+            nodeColor="#444"
+            maskColor="rgba(0,0,0,0.5)"
+          />
         </ReactFlow>
 
         {/* Botão + para adicionar nó (canto superior direito do canvas) */}
