@@ -173,6 +173,11 @@ export default function DashboardEditor() {
   const [lastLead, setLastLead] = React.useState<any>(null);
   const [listenSeconds, setListenSeconds] = React.useState(0);
 
+  const [capiAtivo, setCapiAtivo] = React.useState(false);
+  const [capiPixelId, setCapiPixelId] = React.useState('');
+  const [capiAccessToken, setCapiAccessToken] = React.useState('');
+  const [capiApenasQualificados, setCapiApenasQualificados] = React.useState(true);
+
   const handleStartListening = async () => {
     if (!id) return;
     setListening(true);
@@ -249,6 +254,11 @@ export default function DashboardEditor() {
           setRendasQualificadas(regras.rendas || []);
         } catch (e) {}
       }
+
+      setCapiAtivo(lancamento.capi_ativo === true);
+      setCapiPixelId(lancamento.capi_pixel_id || '');
+      setCapiAccessToken(lancamento.capi_access_token || '');
+      setCapiApenasQualificados(lancamento.capi_apenas_qualificados !== false);
     }
   }, [lancamento]);
 
@@ -383,6 +393,10 @@ export default function DashboardEditor() {
             escolaridades: escolaridadesQualificadas,
             rendas: rendasQualificadas,
           }),
+          capi_ativo: capiAtivo,
+          capi_pixel_id: capiPixelId || null,
+          capi_access_token: capiAccessToken || null,
+          capi_apenas_qualificados: capiApenasQualificados,
         },
       });
       if (showToast) toast.success("Alterações salvas com sucesso!");
@@ -773,6 +787,60 @@ export default function DashboardEditor() {
                 acima e nos dados da pesquisa importada.
               </p>
             </section>
+
+            <hr className="border-border" />
+
+            <section className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  API de Conversões (CAPI)
+                </h3>
+                <Switch
+                  checked={capiAtivo}
+                  onCheckedChange={setCapiAtivo}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Envia eventos de lead diretamente para a API de Conversões do Meta ao receber um webhook.
+              </p>
+
+              {capiAtivo && (
+                <div className="space-y-3">
+                  <div className="space-y-2">
+                    <label className="text-sm">Pixel ID</label>
+                    <Input
+                      value={capiPixelId}
+                      onChange={(e) => setCapiPixelId(e.target.value)}
+                      placeholder="Ex: 676230996775512"
+                      className="bg-background font-mono text-xs"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm">Access Token (CAPI)</label>
+                    <Input
+                      value={capiAccessToken}
+                      onChange={(e) => setCapiAccessToken(e.target.value)}
+                      placeholder="EAADv7..."
+                      className="bg-background font-mono text-xs"
+                      type="password"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Token da API de Conversões (diferente do token de anúncios). Gere em: Meta Business → Gerenciador de Eventos → Configurações → API de Conversões.
+                    </p>
+                  </div>
+                  <label className="flex items-center gap-2 text-xs cursor-pointer hover:bg-muted/30 p-2 rounded">
+                    <input
+                      type="checkbox"
+                      checked={capiApenasQualificados}
+                      onChange={(e) => setCapiApenasQualificados(e.target.checked)}
+                      className="rounded"
+                    />
+                    Enviar apenas leads qualificados
+                  </label>
+                </div>
+              )}
+            </section>
+
           </div>
         </CardContent>
 

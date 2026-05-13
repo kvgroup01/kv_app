@@ -364,6 +364,36 @@ async function runUpdate() {
     else console.log('❌ Erro funis:', error.message);
   }
 
+  // Campos CAPI na coleção lancamentos
+  try {
+    await databases.createBooleanAttribute(DB_ID, 'lancamentos', 'capi_ativo', false);
+    console.log('✅ Campo capi_ativo adicionado');
+  } catch (e: any) {
+    if (e.code === 409) console.log('⏭️ capi_ativo já existe');
+    else console.log('❌ Erro capi_ativo:', e.message);
+  }
+  try {
+    await databases.createStringAttribute(DB_ID, 'lancamentos', 'capi_pixel_id', 100, false);
+    console.log('✅ Campo capi_pixel_id adicionado');
+  } catch (e: any) {
+    if (e.code === 409) console.log('⏭️ capi_pixel_id já existe');
+    else console.log('❌ Erro capi_pixel_id:', e.message);
+  }
+  try {
+    await databases.createStringAttribute(DB_ID, 'lancamentos', 'capi_access_token', 500, false);
+    console.log('✅ Campo capi_access_token adicionado');
+  } catch (e: any) {
+    if (e.code === 409) console.log('⏭️ capi_access_token já existe');
+    else console.log('❌ Erro capi_access_token:', e.message);
+  }
+  try {
+    await databases.createBooleanAttribute(DB_ID, 'lancamentos', 'capi_apenas_qualificados', false);
+    console.log('✅ Campo capi_apenas_qualificados adicionado');
+  } catch (e: any) {
+    if (e.code === 409) console.log('⏭️ capi_apenas_qualificados já existe');
+    else console.log('❌ Erro capi_apenas_qualificados:', e.message);
+  }
+
   console.log('\n✅ Atualização finalizada. Sinta-se à vontade para revisar seu Dashboard no Appwrite.')
 }
 
