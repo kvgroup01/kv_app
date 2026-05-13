@@ -389,6 +389,187 @@ const nodeTypes: NodeTypes = {
 
 // ─── CANVAS INNER (precisa estar dentro do ReactFlowProvider) ─
 
+function ModalPerformance({
+  nodeType, label, onClose
+}: {
+  nodeType: string;
+  label: string;
+  onClose: () => void;
+}) {
+  const [aba, setAba] = React.useState<'performance' | 'info'>('performance');
+  const [nomePagina, setNomePagina] = React.useState('');
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 1000,
+      background: 'rgba(0,0,0,0.4)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+    }}
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div style={{
+        background: '#fff', borderRadius: 16, width: 560,
+        maxHeight: '85vh', overflow: 'hidden',
+        display: 'flex', flexDirection: 'column',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
+      }}>
+        {/* Header modal */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '20px 24px 0',
+        }}>
+          <span style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>
+            {label}
+          </span>
+          <button
+            onClick={onClose}
+            style={{
+              background: '#f1f5f9', border: 'none', borderRadius: 8,
+              width: 32, height: 32, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#64748b', fontSize: 18,
+            }}
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Abas */}
+        <div style={{ display: 'flex', gap: 8, padding: '16px 24px 0' }}>
+          {[
+            { key: 'performance', label: 'Performance', icon: '📈' },
+            { key: 'info', label: 'Informações', icon: '⚙️' },
+          ].map(tab => (
+            <button
+              key={tab.key}
+              onClick={() => setAba(tab.key as any)}
+              style={{
+                flex: 1, padding: '10px 16px', borderRadius: 10,
+                border: 'none', cursor: 'pointer', fontWeight: 600,
+                fontSize: 13,
+                background: aba === tab.key ? '#fff' : '#f8fafc',
+                color: aba === tab.key ? '#0f172a' : '#64748b',
+                boxShadow: aba === tab.key ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
+              }}
+            >
+              {tab.icon} {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Conteúdo */}
+        <div style={{ padding: '20px 24px', overflowY: 'auto', flex: 1 }}>
+          {aba === 'performance' ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <h3 style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                  Performance da página
+                </h3>
+                <select style={{
+                  border: '1.5px solid #e2e8f0', borderRadius: 8,
+                  padding: '8px 12px', fontSize: 13, color: '#64748b',
+                  background: '#fff', cursor: 'pointer',
+                }}>
+                  <option value="">Selecione período...</option>
+                  <option value="7d">Últimos 7 dias</option>
+                  <option value="30d">Últimos 30 dias</option>
+                  <option value="90d">Últimos 90 dias</option>
+                </select>
+              </div>
+
+              {/* Cards de métricas */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                {[
+                  { label: 'Visitas', value: '0', icon: '👁' },
+                  { label: 'Leads', value: '0', icon: '👤' },
+                  { label: 'Taxa de conversão', value: '0%', icon: '🎯', sub: '0 / 0' },
+                ].map(m => (
+                  <div key={m.label} style={{
+                    background: '#f8fafc', borderRadius: 12,
+                    padding: '16px', border: '1px solid #e2e8f0',
+                  }}>
+                    <div style={{ fontSize: 20, marginBottom: 6 }}>{m.icon}</div>
+                    <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500, marginBottom: 4 }}>
+                      {m.label}
+                    </div>
+                    <div style={{ fontSize: 22, fontWeight: 700, color: '#0f172a' }}>
+                      {m.value}
+                    </div>
+                    {m.sub && (
+                      <div style={{ fontSize: 11, color: '#cbd5e1' }}>{m.sub}</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Área de gráfico vazia */}
+              <div style={{
+                background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0',
+                height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: '#94a3b8', fontSize: 13,
+              }}>
+                Nenhum dado encontrado
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <div>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>
+                  Configurações
+                </h3>
+                <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6 }}>
+                  Nome
+                </label>
+                <input
+                  value={nomePagina}
+                  onChange={e => setNomePagina(e.target.value)}
+                  placeholder="Nome deste nó..."
+                  style={{
+                    width: '100%', padding: '10px 12px',
+                    border: '1.5px solid #e2e8f0', borderRadius: 8,
+                    fontSize: 14, color: '#0f172a', outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div style={{
+          padding: '16px 24px',
+          borderTop: '1px solid #f1f5f9',
+          display: 'flex', justifyContent: 'flex-end', gap: 8,
+        }}>
+          <button
+            onClick={onClose}
+            style={{
+              padding: '8px 20px', borderRadius: 8, border: '1.5px solid #e2e8f0',
+              background: '#fff', color: '#64748b', fontWeight: 600,
+              fontSize: 13, cursor: 'pointer',
+            }}
+          >
+            Sair
+          </button>
+          {aba === 'info' && (
+            <button
+              onClick={onClose}
+              style={{
+                padding: '8px 20px', borderRadius: 8, border: 'none',
+                background: '#4f46e5', color: '#fff', fontWeight: 600,
+                fontSize: 13, cursor: 'pointer',
+              }}
+            >
+              Salvar edição
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CanvasInner() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -402,6 +583,48 @@ function CanvasInner() {
   const [editingName, setEditingName] = React.useState(false);
   const [funilNome, setFunilNome] = React.useState('');
 
+  const [modalPerformance, setModalPerformance] = React.useState<{
+    nodeId: string;
+    nodeType: string;
+    label: string;
+  } | null>(null);
+
+  const handleNodeAction = React.useCallback((action: string, nodeId: string) => {
+    if (action === 'delete') {
+      setNodes(nds => nds.filter(n => n.id !== nodeId));
+      setEdges(eds => eds.filter(e => e.source !== nodeId && e.target !== nodeId));
+      setHasChanges(true);
+    }
+    if (action === 'copy') {
+      setNodes(nds => {
+        const original = nds.find(n => n.id === nodeId);
+        if (!original) return nds;
+        const copy = {
+          ...original,
+          id: `${original.data.nodeType}-${Date.now()}`,
+          position: { x: original.position.x + 30, y: original.position.y + 30 },
+          selected: false,
+          data: { ...original.data },
+        };
+        return [...nds, copy];
+      });
+      setHasChanges(true);
+    }
+    if (action === 'performance') {
+      setNodes(nds => {
+        const node = nds.find(n => n.id === nodeId);
+        if (node) {
+          setModalPerformance({
+            nodeId,
+            nodeType: node.data.nodeType as string,
+            label: node.data.label as string,
+          });
+        }
+        return nds;
+      });
+    }
+  }, [setNodes, setEdges]);
+
   React.useEffect(() => {
     if (funil) {
       setFunilNome(funil.nome || '');
@@ -414,6 +637,7 @@ function CanvasInner() {
           data: {
             ...n.data,
             nodeType: n.data?.nodeType || n.type || 'anuncio',
+            onAction: (action: string) => handleNodeAction(action, n.id),
           },
         }));
         setNodes(normalizedNodes);
@@ -453,13 +677,15 @@ function CanvasInner() {
     if (!nodeType) return;
     const config = NODE_TYPES_CONFIG.find(t => t.type === nodeType)!;
     const position = screenToFlowPosition({ x: e.clientX - 240, y: e.clientY - 60 });
+    const newId = `${nodeType}-${Date.now()}`;
     const newNode = {
-      id: `${nodeType}-${Date.now()}`,
+      id: newId,
       type: nodeType === 'texto' ? 'texto' : 'custom',
       position,
       data: {
         label: config.label,
         nodeType,
+        onAction: (action: string) => handleNodeAction(action, newId),
         ...(nodeType === 'texto' ? { text: 'Texto aqui', align: 'center', bgColor: '#ffffff' } : {})
       },
     };
@@ -675,6 +901,14 @@ function CanvasInner() {
           </ReactFlow>
         </div>
       </div>
+      
+      {modalPerformance && (
+        <ModalPerformance
+          nodeType={modalPerformance.nodeType}
+          label={modalPerformance.label}
+          onClose={() => setModalPerformance(null)}
+        />
+      )}
     </div>
   );
 }
