@@ -22,7 +22,8 @@ import {
   ArrowLeft, MoreHorizontal, Save, Megaphone, Mail,
   FileText, Package, LayoutTemplate, Users, CheckCircle,
   Calendar, DollarSign, MessageCircle, ClipboardList,
-  BarChart2, Pencil, Trash2, Copy
+  BarChart2, Pencil, Trash2, Copy,
+  AlignLeft, AlignCenter, ChevronDown, Type
 } from 'lucide-react';
 import { useFunil, useAtualizarFunil } from '../../../../hooks/useFunis';
 import {
@@ -44,6 +45,7 @@ const NODE_TYPES_CONFIG = [
   { type: 'reuniao',     label: 'Reunião',       Icon: Calendar },
   { type: 'venda',       label: 'Venda',         Icon: DollarSign },
   { type: 'whatsapp',    label: 'WhatsApp',      Icon: MessageCircle },
+  { type: 'texto',       label: 'Texto',         Icon: Type },
 ];
 
 // ─── NÓ CUSTOMIZADO ──────────────────────────────────────
@@ -200,7 +202,190 @@ function CustomNode({ data, selected }: { data: any; selected: boolean }) {
   );
 }
 
-const nodeTypes: NodeTypes = { custom: CustomNode };
+function TextNode({ data, selected }: { data: any; selected: boolean }) {
+  const [editing, setEditing] = React.useState(false);
+  const [text, setText] = React.useState(data.text || 'Texto aqui');
+  const [align, setAlign] = React.useState<'left' | 'center'>(data.align || 'center');
+  const [bgColor, setBgColor] = React.useState(data.bgColor || '#ffffff');
+  const [showColors, setShowColors] = React.useState(false);
+
+  const COLORS = ['#ffffff', '#fee2e2', '#dbeafe', '#dcfce7', '#fef9c3', '#f3e8ff'];
+
+  React.useEffect(() => {
+    if (data.onUpdate) data.onUpdate({ text, align, bgColor });
+  }, [text, align, bgColor]);
+
+  return (
+    <>
+      <NodeToolbar isVisible={selected} position={Position.Bottom} offset={8}>
+        <div style={{
+          display: 'flex', gap: 4, alignItems: 'center',
+          background: '#fff', border: '1px solid #e2e8f0',
+          borderRadius: 10, padding: '6px 8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        }}>
+          {/* Alinhar esquerda */}
+          <button
+            title="Alinhar esquerda"
+            onClick={() => setAlign('left')}
+            style={{
+              width: 32, height: 32, borderRadius: 7, border: 'none',
+              cursor: 'pointer', display: 'flex', alignItems: 'center',
+              justifyContent: 'center',
+              background: align === 'left' ? '#4f46e5' : 'transparent',
+              color: align === 'left' ? '#fff' : '#64748b',
+            }}
+          >
+            <AlignLeft size={15} />
+          </button>
+          {/* Alinhar centro */}
+          <button
+            title="Centralizar"
+            onClick={() => setAlign('center')}
+            style={{
+              width: 32, height: 32, borderRadius: 7, border: 'none',
+              cursor: 'pointer', display: 'flex', alignItems: 'center',
+              justifyContent: 'center',
+              background: align === 'center' ? '#4f46e5' : 'transparent',
+              color: align === 'center' ? '#fff' : '#64748b',
+            }}
+          >
+            <AlignCenter size={15} />
+          </button>
+          {/* Cor de fundo */}
+          <div style={{ position: 'relative' }}>
+            <button
+              title="Cor de fundo"
+              onClick={() => setShowColors(v => !v)}
+              style={{
+                width: 32, height: 32, borderRadius: 7,
+                border: '1.5px solid #e2e8f0', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: bgColor, gap: 2, fontSize: 10,
+              }}
+            >
+              <ChevronDown size={12} color="#64748b" />
+            </button>
+            {showColors && (
+              <div style={{
+                position: 'absolute', bottom: 40, left: '50%',
+                transform: 'translateX(-50%)',
+                background: '#fff', border: '1px solid #e2e8f0',
+                borderRadius: 10, padding: '6px',
+                display: 'flex', flexDirection: 'column', gap: 4,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.12)', zIndex: 100,
+              }}>
+                {COLORS.map(c => (
+                  <button
+                    key={c}
+                    onClick={() => { setBgColor(c); setShowColors(false); }}
+                    style={{
+                      width: 20, height: 20, borderRadius: '50%',
+                      background: c, border: bgColor === c
+                        ? '2px solid #4f46e5' : '1.5px solid #e2e8f0',
+                      cursor: 'pointer',
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+          {/* Copiar */}
+          <button
+            title="Copiar"
+            onClick={() => data.onAction && data.onAction('copy')}
+            style={{
+              width: 32, height: 32, borderRadius: 7, border: 'none',
+              cursor: 'pointer', background: 'transparent', color: '#64748b',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}
+          >
+            <Copy size={15} />
+          </button>
+          {/* Deletar */}
+          <button
+            title="Deletar"
+            onClick={() => data.onAction && data.onAction('delete')}
+            style={{
+              width: 32, height: 32, borderRadius: 7, border: 'none',
+              cursor: 'pointer', background: 'transparent', color: '#ef4444',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}
+          >
+            <Trash2 size={15} />
+          </button>
+        </div>
+      </NodeToolbar>
+
+      <Handle
+        type="target"
+        position={Position.Left}
+        style={{
+          background: '#4f46e5', width: 12, height: 12,
+          border: '2px solid #fff', boxShadow: '0 0 0 2px #4f46e5', left: -7,
+        }}
+      />
+
+      <div
+        onDoubleClick={() => setEditing(true)}
+        style={{
+          background: bgColor,
+          border: selected ? '2px solid #4f46e5' : '1.5px solid #e2e8f0',
+          borderRadius: 16,
+          minWidth: 160,
+          minHeight: 80,
+          padding: '20px 16px',
+          boxShadow: selected
+            ? '0 0 0 3px rgba(79,70,229,0.15)'
+            : '0 2px 8px rgba(0,0,0,0.06)',
+          cursor: editing ? 'text' : 'grab',
+          transition: 'box-shadow 0.15s, border-color 0.15s',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: align === 'center' ? 'center' : 'flex-start',
+        }}
+      >
+        {editing ? (
+          <textarea
+            autoFocus
+            value={text}
+            onChange={e => setText(e.target.value)}
+            onBlur={() => setEditing(false)}
+            style={{
+              border: 'none', outline: 'none', background: 'transparent',
+              fontSize: 15, fontWeight: 600, color: '#0f172a',
+              resize: 'none', width: '100%', textAlign: align,
+              fontFamily: 'sans-serif',
+            }}
+            rows={3}
+          />
+        ) : (
+          <span style={{
+            fontSize: 15, fontWeight: 600, color: '#0f172a',
+            textAlign: align, width: '100%',
+            userSelect: 'none',
+          }}>
+            {text}
+          </span>
+        )}
+      </div>
+
+      <Handle
+        type="source"
+        position={Position.Right}
+        style={{
+          background: '#4f46e5', width: 12, height: 12,
+          border: '2px solid #fff', boxShadow: '0 0 0 2px #4f46e5', right: -7,
+        }}
+      />
+    </>
+  );
+}
+
+const nodeTypes: NodeTypes = {
+  custom: CustomNode,
+  texto: TextNode,
+};
 
 // ─── CANVAS INNER (precisa estar dentro do ReactFlowProvider) ─
 
@@ -225,7 +410,7 @@ function CanvasInner() {
         const parsedEdges = funil.arestas ? JSON.parse(funil.arestas) : [];
         const normalizedNodes = parsedNodes.map((n: any) => ({
           ...n,
-          type: 'custom',
+          type: n.data?.nodeType === 'texto' ? 'texto' : 'custom',
           data: {
             ...n.data,
             nodeType: n.data?.nodeType || n.type || 'anuncio',
@@ -270,9 +455,13 @@ function CanvasInner() {
     const position = screenToFlowPosition({ x: e.clientX - 240, y: e.clientY - 60 });
     const newNode = {
       id: `${nodeType}-${Date.now()}`,
-      type: 'custom',
+      type: nodeType === 'texto' ? 'texto' : 'custom',
       position,
-      data: { label: config.label, nodeType },
+      data: {
+        label: config.label,
+        nodeType,
+        ...(nodeType === 'texto' ? { text: 'Texto aqui', align: 'center', bgColor: '#ffffff' } : {})
+      },
     };
     setNodes(nds => [...nds, newNode]);
     setHasChanges(true);
