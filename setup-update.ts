@@ -349,6 +349,21 @@ async function runUpdate() {
     }
   }
 
+  // Coleção funis
+  try {
+    await databases.createCollection(DB_ID, 'funis', 'Funis', defaultPermissions)
+    await databases.createStringAttribute(DB_ID, 'funis', 'nome', 255, true)
+    await databases.createStringAttribute(DB_ID, 'funis', 'descricao', 500, false)
+    await databases.createStringAttribute(DB_ID, 'funis', 'nos', 100000, false)
+    await databases.createStringAttribute(DB_ID, 'funis', 'arestas', 100000, false)
+    await databases.createStringAttribute(DB_ID, 'funis', 'criado_em', 50, false)
+    await databases.createStringAttribute(DB_ID, 'funis', 'atualizado_em', 50, false)
+    console.log('✅ Coleção funis criada')
+  } catch (error: any) {
+    if (error.code === 409) console.log('⏭️ Coleção funis já existe');
+    else console.log('❌ Erro funis:', error.message);
+  }
+
   console.log('\n✅ Atualização finalizada. Sinta-se à vontade para revisar seu Dashboard no Appwrite.')
 }
 

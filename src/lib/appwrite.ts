@@ -24,6 +24,7 @@ export const COLLECTIONS = {
   orcamentos: 'orcamentos',
   pagamentos: 'pagamentos',
   usuarios_admin: 'usuarios_admin',
+  funis: 'funis',
 };
 
 // --- Auth ---
@@ -570,4 +571,46 @@ export async function fetchSurveyEntriesAppwrite(
     Query.limit(5000),
   ]);
   return docs.documents as unknown as SurveyEntry[];
+}
+
+// --- Funis ---
+export async function listarFunis() {
+  const res = await databases.listDocuments(DB_ID, 'funis', [
+    Query.orderDesc('$createdAt'),
+    Query.limit(100),
+  ]);
+  return res.documents;
+}
+
+export async function buscarFunil(id: string) {
+  return await databases.getDocument(DB_ID, 'funis', id);
+}
+
+export async function criarFunil(data: {
+  nome: string;
+  descricao?: string;
+  nos: string;
+  arestas: string;
+}) {
+  return await databases.createDocument(DB_ID, 'funis', ID.unique(), {
+    ...data,
+    criado_em: new Date().toISOString(),
+    atualizado_em: new Date().toISOString(),
+  });
+}
+
+export async function atualizarFunil(id: string, data: {
+  nome?: string;
+  descricao?: string;
+  nos?: string;
+  arestas?: string;
+}) {
+  return await databases.updateDocument(DB_ID, 'funis', id, {
+    ...data,
+    atualizado_em: new Date().toISOString(),
+  });
+}
+
+export async function deletarFunil(id: string) {
+  return await databases.deleteDocument(DB_ID, 'funis', id);
 }

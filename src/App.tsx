@@ -27,6 +27,11 @@ import DashboardsIndex from './routes/admin/dashboards/index';
 import DashboardNovo from './routes/admin/dashboards/novo';
 import DashboardEditor from './routes/admin/dashboards/$id/editor';
 
+// Módulo de Funis
+import FunisIndex from './routes/admin/funis/index';
+import FunisNovo from './routes/admin/funis/novo';
+import FunisCanvas from './routes/admin/funis/$id/canvas';
+
 // Integrações
 import MetaConnectPage from './routes/admin/meta-connect';
 
@@ -63,6 +68,11 @@ export default function App() {
              <Route path="dashboards" element={<DashboardsIndex />} />
              <Route path="dashboards/novo" element={<DashboardNovo />} />
              <Route path="dashboards/:id/editor" element={<DashboardEditor />} />
+
+             {/* Sub-rotas Funis */}
+             <Route path="funis" element={<FunisIndex />} />
+             <Route path="funis/novo" element={<FunisNovo />} />
+             <Route path="funis/:id/canvas" element={<FunisCanvas />} />
 
              {/* Sub-rotas Auxiliares */}
              <Route path="financeiro" element={<FinanceiroIndex />} />

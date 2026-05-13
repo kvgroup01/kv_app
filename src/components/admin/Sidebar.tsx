@@ -10,7 +10,8 @@ import {
   Menu,
   ChevronLeft,
   ChevronRight,
-  Plug2
+  Plug2,
+  GitBranch
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/button';
@@ -31,6 +32,7 @@ const NAV_ITEMS = [
   { href: '/admin', icon: LayoutDashboard, label: 'Dashboard', exact: true },
   { href: '/admin/clientes', icon: Users, label: 'Clientes' },
   { href: '/admin/dashboards', icon: LayoutDashboard, label: 'Dashboards' },
+  { href: '/admin/funis', icon: GitBranch, label: 'Funis' },
   { href: '/admin/financeiro', icon: Wallet, label: 'Financeiro' },
   { href: '/admin/orcamentos', icon: FileText, label: 'Orçamentos' },
   { href: '/admin/meta-connect', icon: Plug2, label: 'Integrações' },
