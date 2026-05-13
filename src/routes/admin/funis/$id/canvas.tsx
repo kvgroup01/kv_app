@@ -4,7 +4,7 @@ import {
   ReactFlow, Background, Controls, addEdge,
   useNodesState, useEdgesState, type Connection,
   type NodeTypes, BackgroundVariant, Handle, Position,
-  useReactFlow, ReactFlowProvider, NodeToolbar, MiniMap,
+  useReactFlow, ReactFlowProvider, NodeToolbar,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { toast } from 'sonner';
@@ -556,7 +556,7 @@ function CanvasInner() {
   return (
     <div style={{
       display: 'flex', flexDirection: 'column',
-      height: '100vh', width: '100%',
+      height: '100%', width: '100%', minHeight: 0,
       background: '#2d2d2d', overflow: 'hidden',
     }}>
       {/* ── HEADER estilo N8N ── */}
@@ -617,7 +617,7 @@ function CanvasInner() {
       </div>
 
       {/* ── CANVAS ── */}
-      <div style={{ flex: 1, position: 'relative' }}>
+      <div style={{ flex: 1, position: 'relative', overflow: 'hidden', minHeight: 0 }}>
         <ReactFlow
           nodes={nodes} edges={edges}
           onNodesChange={onNodesChangeWrapped}
@@ -633,14 +633,6 @@ function CanvasInner() {
           deleteKeyCode={['Backspace', 'Delete']}
         >
           <Background variant={BackgroundVariant.Dots} gap={18} size={1} color="#3d3d3d" />
-          <MiniMap
-            style={{
-              background: '#1f1f1f', border: '1px solid #3d3d3d',
-              borderRadius: 8, position: 'absolute', bottom: 56, left: 12,
-            }}
-            nodeColor="#555"
-            maskColor="rgba(0,0,0,0.5)"
-          />
         </ReactFlow>
 
         {/* Botão + para adicionar nó (canto superior direito do canvas) */}
