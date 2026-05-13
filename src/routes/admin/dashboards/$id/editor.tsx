@@ -157,6 +157,7 @@ export default function DashboardEditor() {
   const [nome, setNome] = React.useState("");
   const [metaEventType, setMetaEventType] = React.useState('');
   const [showSheetsImporter, setShowSheetsImporter] = React.useState(false);
+  const [reclassifying, setReclassifying] = React.useState(false);
   const [criterioQualificacao, setCriterioQualificacao] = React.useState<'escolaridade' | 'renda' | 'ambos_e' | 'ambos_ou'>('escolaridade');
   const [escolaridadesQualificadas, setEscolaridadesQualificadas] = React.useState<string[]>([]);
   const [rendasQualificadas, setRendasQualificadas] = React.useState<string[]>([]);
@@ -324,6 +325,31 @@ export default function DashboardEditor() {
     } catch (err: any) {
       toast.error('Erro de conexão ao iniciar sincronização');
       setSyncing(false);
+    }
+  };
+
+  const handleReclassify = async () => {
+    if (!id) return;
+    setReclassifying(true);
+    try {
+      const res = await fetch('/api/sheets?action=reclassify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lancamentoId: id }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        toast.error(data.error || 'Erro ao reclassificar leads');
+        return;
+      }
+      toast.success(
+        `Reclassificação concluída: ${data.updated} leads atualizados` +
+        (data.errors > 0 ? `, ${data.errors} erros` : '')
+      );
+    } catch (e: any) {
+      toast.error('Erro de conexão ao reclassificar');
+    } finally {
+      setReclassifying(false);
     }
   };
 
@@ -734,6 +760,18 @@ export default function DashboardEditor() {
               >
                 Importar do Google Sheets
               </Button>
+              <Button
+                variant="secondary"
+                className="w-full"
+                onClick={handleReclassify}
+                disabled={reclassifying}
+              >
+                {reclassifying ? 'Reclassificando...' : 'Reclassificar Leads'}
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Recalcula qualificados/desqualificados com base nas regras
+                acima e nos dados da pesquisa importada.
+              </p>
             </section>
           </div>
         </CardContent>

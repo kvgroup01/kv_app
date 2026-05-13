@@ -193,5 +193,102 @@ export default async function handler(req: any, res: any) {
     }
   }
 
+  if (action === 'reclassify' && req.method === 'POST') {
+    const { lancamentoId } = req.body;
+    if (!lancamentoId) return res.status(400).json({ error: 'lancamentoId obrigatório' });
+
+    try {
+      // 1. Buscar regras do lançamento
+      const lancamento = await db.getDocument(DB, 'lancamentos', lancamentoId);
+      if (!lancamento.regras_qualificacao) {
+        return res.status(400).json({ error: 'Lançamento sem regras de qualificação configuradas' });
+      }
+      const regras = JSON.parse(lancamento.regras_qualificacao);
+      const criterio = regras.criterio || 'escolaridade';
+      const escolaridadesOk = regras.escolaridades || [];
+      const rendasOk = regras.rendas || [];
+
+      // 2. Carregar todas as survey_entries do lançamento em memória
+      // para cruzamento local (evitar N queries)
+      const surveyMap = new Map<string, string>(); // email_normalizado -> renda
+      const surveyPhoneMap = new Map<string, string>(); // telefone_normalizado -> renda
+      let surveyOffset = 0;
+      while (true) {
+        const surveys = await db.listDocuments(DB, 'survey_entries', [
+          Query.equal('lancamento_id', lancamentoId),
+          Query.select(['email', 'telefone', 'renda']),
+          Query.limit(500),
+          Query.offset(surveyOffset),
+        ]);
+        for (const s of surveys.documents) {
+          const renda = s.renda || null;
+          if (s.email) surveyMap.set(s.email.toLowerCase().trim(), renda);
+          if (s.telefone) {
+            const tel = s.telefone.replace(/\D/g, '').slice(-11);
+            if (tel) surveyPhoneMap.set(tel, renda);
+          }
+        }
+        if (surveys.documents.length < 500) break;
+        surveyOffset += 500;
+      }
+
+      // 3. Carregar todos os leads e reclassificar
+      let updated = 0, errors = 0, total = 0;
+      let leadOffset = 0;
+
+      while (true) {
+        const leads = await db.listDocuments(DB, 'lead_entries', [
+          Query.equal('lancamento_id', lancamentoId),
+          Query.select(['$id', 'email', 'telefone', 'escolaridade', 'renda']),
+          Query.limit(500),
+          Query.offset(leadOffset),
+        ]);
+
+        total += leads.documents.length;
+
+        await Promise.all(leads.documents.map(async (lead: any) => {
+          try {
+            // Buscar renda: primeiro no próprio lead, depois na survey por email, depois por telefone
+            let renda = lead.renda || null;
+            if (!renda && lead.email) {
+              renda = surveyMap.get(lead.email.toLowerCase().trim()) || null;
+            }
+            if (!renda && lead.telefone) {
+              const tel = lead.telefone.replace(/\D/g, '').slice(-11);
+              if (tel) renda = surveyPhoneMap.get(tel) || null;
+            }
+
+            const escQualificada = escolaridadesOk.length === 0 ||
+              escolaridadesOk.includes(lead.escolaridade);
+            const rendaQualificada = rendasOk.length === 0 ||
+              rendasOk.includes(renda);
+
+            let qualificado = false;
+            if (criterio === 'escolaridade') qualificado = escQualificada;
+            else if (criterio === 'renda') qualificado = rendaQualificada;
+            else if (criterio === 'ambos_e') qualificado = escQualificada && rendaQualificada;
+            else if (criterio === 'ambos_ou') qualificado = escQualificada || rendaQualificada;
+
+            await db.updateDocument(DB, 'lead_entries', lead.$id, {
+              leads_qualificados: qualificado ? 1 : 0,
+              leads_desqualificados: qualificado ? 0 : 1,
+              renda: renda || lead.renda || null,
+            });
+            updated++;
+          } catch (e) {
+            errors++;
+          }
+        }));
+
+        if (leads.documents.length < 500) break;
+        leadOffset += 500;
+      }
+
+      return res.status(200).json({ updated, errors, total });
+    } catch (e: any) {
+      return res.status(500).json({ error: e.message });
+    }
+  }
+
   return res.status(400).json({ error: 'Action inválida' });
 }
