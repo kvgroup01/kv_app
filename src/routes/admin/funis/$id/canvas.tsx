@@ -453,6 +453,7 @@ function CustomEdge({
   sourcePosition, targetPosition,
 }: EdgeProps) {
   const [hovered, setHovered] = React.useState(false);
+  const hoverTimeout = React.useRef<any>(null);
   const { setEdges } = useReactFlow();
 
   const [edgePath, labelX, labelY] = getSmoothStepPath({
@@ -465,21 +466,32 @@ function CustomEdge({
     setEdges(eds => eds.filter(edge => edge.id !== id));
   };
 
+  const handleMouseEnter = () => {
+    if (hoverTimeout.current) clearTimeout(hoverTimeout.current);
+    setHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    // Delay para dar tempo de mover o mouse até o botão
+    hoverTimeout.current = setTimeout(() => setHovered(false), 200);
+  };
+
   return (
     <>
-      {/* Área invisível mais larga para facilitar o hover */}
+      {/* Área invisível larga para detectar hover */}
       <path
         d={edgePath}
         fill="none"
         stroke="transparent"
-        strokeWidth={20}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        strokeWidth={24}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         style={{ cursor: 'pointer' }}
       />
       {/* Linha visível */}
-      <BaseEdge
-        path={edgePath}
+      <path
+        d={edgePath}
+        fill="none"
         style={{
           stroke: hovered ? '#ff6d5a' : '#555',
           strokeWidth: hovered ? 2 : 1.5,
@@ -488,45 +500,38 @@ function CustomEdge({
           pointerEvents: 'none',
         }}
       />
-      {/* Botão deletar no meio da linha */}
-      {hovered && (
-        <EdgeLabelRenderer>
-          <div
+      {/* Botão deletar */}
+      <EdgeLabelRenderer>
+        <div
+          style={{
+            position: 'absolute',
+            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+            pointerEvents: 'all',
+            zIndex: 10,
+            opacity: hovered ? 1 : 0,
+            transition: 'opacity 0.15s',
+          }}
+          className="nodrag nopan"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <button
+            onClick={onDelete}
+            title="Deletar conexão"
             style={{
-              position: 'absolute',
-              transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-              pointerEvents: 'all',
-              zIndex: 10,
+              width: 24, height: 24, borderRadius: '50%',
+              background: '#1f1f1f',
+              border: '1.5px solid #ff6d5a',
+              color: '#ff6d5a', cursor: 'pointer',
+              display: 'flex', alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
             }}
-            className="nodrag nopan"
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
           >
-            <button
-              onClick={onDelete}
-              title="Deletar conexão"
-              style={{
-                width: 24, height: 24, borderRadius: '50%',
-                background: '#1f1f1f',
-                border: '1.5px solid #ff6d5a',
-                color: '#ff6d5a', cursor: 'pointer',
-                display: 'flex', alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
-                transition: 'transform 0.15s',
-              }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.2)';
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
-              }}
-            >
-              <Trash2 size={11} strokeWidth={2.5} />
-            </button>
-          </div>
-        </EdgeLabelRenderer>
-      )}
+            <Trash2 size={11} strokeWidth={2.5} />
+          </button>
+        </div>
+      </EdgeLabelRenderer>
     </>
   );
 }
