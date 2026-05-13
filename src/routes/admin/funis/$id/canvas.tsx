@@ -4,180 +4,227 @@ import {
   ReactFlow,
   Background,
   Controls,
-  MiniMap,
   addEdge,
   useNodesState,
   useEdgesState,
   type Connection,
   type NodeTypes,
   BackgroundVariant,
-  Panel,
   Handle,
   Position,
+  useReactFlow,
+  ReactFlowProvider,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { toast } from 'sonner';
-import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react';
-import { Button } from '../../../../components/ui/button';
+import {
+  ArrowLeft, MoreHorizontal, Save, Megaphone, Mail,
+  FileText, Package, LayoutTemplate, Users, CheckCircle,
+  Calendar, DollarSign, MessageCircle, ClipboardList,
+  BarChart2, Pencil, Trash2, Copy
+} from 'lucide-react';
 import { useFunil, useAtualizarFunil } from '../../../../hooks/useFunis';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-  DropdownMenuLabel,
+  DropdownMenu, DropdownMenuContent,
+  DropdownMenuItem, DropdownMenuTrigger,
 } from '../../../../components/ui/dropdown-menu';
 
-// ─── TIPOS DE NÓS ────────────────────────────────────────
+// ─── CONFIG DOS TIPOS DE NÓ ──────────────────────────────
 
 const NODE_TYPES_CONFIG = [
-  { type: 'anuncio',     label: 'Anúncio',          color: '#3b82f6', emoji: '📢' },
-  { type: 'pagina',      label: 'Página',            color: '#8b5cf6', emoji: '🌐' },
-  { type: 'formulario',  label: 'Formulário',        color: '#f59e0b', emoji: '📋' },
-  { type: 'lead',        label: 'Lead',              color: '#10b981', emoji: '👤' },
-  { type: 'email',       label: 'E-mail',            color: '#6366f1', emoji: '✉️'  },
-  { type: 'pesquisa',    label: 'Pesquisa',          color: '#ec4899', emoji: '📊' },
-  { type: 'qualificado', label: 'Qualificado',       color: '#22c55e', emoji: '✅' },
-  { type: 'reuniao',     label: 'Reunião',           color: '#f97316', emoji: '📅' },
-  { type: 'venda',       label: 'Venda',             color: '#eab308', emoji: '💰' },
-  { type: 'whatsapp',    label: 'WhatsApp',          color: '#25d366', emoji: '💬' },
+  { type: 'anuncio',     label: 'Anúncio',      Icon: Megaphone },
+  { type: 'pagina',      label: 'Página',        Icon: LayoutTemplate },
+  { type: 'email',       label: 'E-mail',        Icon: Mail },
+  { type: 'produto',     label: 'Produtos',      Icon: Package },
+  { type: 'formulario',  label: 'Formas',        Icon: FileText },
+  { type: 'lead',        label: 'Lead',          Icon: Users },
+  { type: 'pesquisa',    label: 'Pesquisa',      Icon: BarChart2 },
+  { type: 'qualificado', label: 'Qualificado',   Icon: CheckCircle },
+  { type: 'reuniao',     label: 'Reunião',       Icon: Calendar },
+  { type: 'venda',       label: 'Venda',         Icon: DollarSign },
+  { type: 'whatsapp',    label: 'WhatsApp',      Icon: MessageCircle },
 ];
 
-// ─── COMPONENTE DE NÓ CUSTOMIZADO ─────────────────────────
+// ─── NÓ CUSTOMIZADO ──────────────────────────────────────
 
-function CustomNodeWithHandles({ data, selected }: { data: any; selected: boolean }) {
+function CustomNode({ data, selected }: { data: any; selected: boolean }) {
   const config = NODE_TYPES_CONFIG.find(t => t.type === data.nodeType)
-    || { color: '#6b7280', emoji: '📦', label: data.label };
+    || NODE_TYPES_CONFIG[0];
+  const { Icon } = config;
 
   return (
-    <div
-      style={{
-        border: `2px solid ${selected ? '#fff' : config.color}`,
-        borderRadius: '12px',
-        padding: '12px 16px',
-        backgroundColor: '#1a1a1a',
-        minWidth: '160px',
-        boxShadow: selected
-          ? `0 0 0 2px ${config.color}, 0 4px 20px rgba(0,0,0,0.5)`
-          : '0 2px 8px rgba(0,0,0,0.4)',
-        transition: 'all 0.2s ease',
-      }}
-    >
+    <div style={{
+      background: '#ffffff',
+      border: selected ? '2px solid #4f46e5' : '1.5px solid #e2e8f0',
+      borderRadius: '16px',
+      width: '160px',
+      padding: '0 0 12px 0',
+      boxShadow: selected
+        ? '0 0 0 3px rgba(79,70,229,0.15), 0 4px 16px rgba(0,0,0,0.1)'
+        : '0 2px 8px rgba(0,0,0,0.06)',
+      fontFamily: 'sans-serif',
+      position: 'relative',
+      cursor: 'grab',
+      transition: 'box-shadow 0.15s, border-color 0.15s',
+    }}>
       <Handle
         type="target"
         position={Position.Left}
-        style={{ background: config.color, width: 10, height: 10, border: '2px solid #1a1a1a' }}
+        style={{
+          background: '#4f46e5',
+          width: 12, height: 12,
+          border: '2px solid #fff',
+          boxShadow: '0 0 0 2px #4f46e5',
+          left: -7,
+        }}
       />
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ fontSize: '20px' }}>{config.emoji}</span>
-        <div>
-          <div style={{
-            fontSize: '11px',
-            color: config.color,
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            marginBottom: '2px',
-          }}>
-            {config.label}
-          </div>
-          <div style={{ fontSize: '13px', color: '#e5e7eb', fontWeight: 500 }}>
-            {data.label}
-          </div>
-        </div>
+
+      {/* Título */}
+      <div style={{
+        padding: '12px 14px 8px',
+        fontSize: '14px',
+        fontWeight: 700,
+        color: '#0f172a',
+      }}>
+        {config.label}
       </div>
+
+      {/* Área de preview */}
+      <div style={{
+        margin: '0 10px',
+        background: '#f1f5f9',
+        borderRadius: '10px',
+        height: '80px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <Icon size={28} color="#94a3b8" strokeWidth={1.5} />
+      </div>
+
+      {/* Badge de status */}
+      {data.status && (
+        <div style={{
+          margin: '8px 10px 0',
+          background: '#fff0f0',
+          border: '1px solid #fecaca',
+          borderRadius: '999px',
+          padding: '3px 10px',
+          fontSize: '11px',
+          color: '#ef4444',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '4px',
+        }}>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444', display: 'inline-block' }} />
+          {data.status}
+        </div>
+      )}
+
+      {/* Linhas skeleton */}
+      <div style={{ padding: '8px 10px 0', display: 'flex', flexDirection: 'column', gap: 5 }}>
+        {[70, 55, 40].map((w, i) => (
+          <div key={i} style={{
+            height: 7,
+            width: `${w}%`,
+            background: '#e2e8f0',
+            borderRadius: 4,
+          }} />
+        ))}
+      </div>
+
       <Handle
         type="source"
         position={Position.Right}
-        style={{ background: config.color, width: 10, height: 10, border: '2px solid #1a1a1a' }}
+        style={{
+          background: '#4f46e5',
+          width: 12, height: 12,
+          border: '2px solid #fff',
+          boxShadow: '0 0 0 2px #4f46e5',
+          right: -7,
+        }}
       />
     </div>
   );
 }
 
-const nodeTypes: NodeTypes = {
-  custom: CustomNodeWithHandles,
-};
+const nodeTypes: NodeTypes = { custom: CustomNode };
 
-// ─── COMPONENTE PRINCIPAL ─────────────────────────────────
+// ─── CANVAS INNER (precisa estar dentro do ReactFlowProvider) ─
 
-export default function FunilCanvas() {
+function CanvasInner() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: funil, isLoading } = useFunil(id!);
   const atualizarMutation = useAtualizarFunil();
+  const { screenToFlowPosition } = useReactFlow();
 
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [hasChanges, setHasChanges] = React.useState(false);
+  const [editingName, setEditingName] = React.useState(false);
+  const [funilNome, setFunilNome] = React.useState('');
 
-  // Carregar nós e arestas do banco quando funil carrega
   React.useEffect(() => {
     if (funil) {
+      setFunilNome(funil.nome || '');
       try {
         const parsedNodes = funil.nos ? JSON.parse(funil.nos) : [];
         const parsedEdges = funil.arestas ? JSON.parse(funil.arestas) : [];
-        // Garantir que todos os nós usam o type 'custom'
         const normalizedNodes = parsedNodes.map((n: any) => ({
           ...n,
           type: 'custom',
-          data: { ...n.data, nodeType: n.data?.nodeType || n.type || 'lead' },
+          data: {
+            ...n.data,
+            nodeType: n.data?.nodeType || n.type || 'anuncio',
+          },
         }));
         setNodes(normalizedNodes);
         setEdges(parsedEdges);
-      } catch (e) {
+      } catch {
         setNodes([]);
         setEdges([]);
       }
     }
   }, [funil]);
 
-  const onConnect = React.useCallback(
-    (connection: Connection) => {
-      setEdges(eds => addEdge({
-        ...connection,
-        style: { stroke: '#6b7280', strokeWidth: 2 },
-        animated: true,
-      }, eds));
-      setHasChanges(true);
-    },
-    [setEdges]
-  );
-
-  const handleNodesChange = React.useCallback((changes: any) => {
-    onNodesChange(changes);
+  const onConnect = React.useCallback((connection: Connection) => {
+    setEdges(eds => addEdge({
+      ...connection,
+      type: 'smoothstep',
+      animated: true,
+      style: { stroke: '#4f46e5', strokeWidth: 2, strokeDasharray: '6 3' },
+    }, eds));
     setHasChanges(true);
+  }, [setEdges]);
+
+  const onNodesChangeWrapped = React.useCallback((changes: any) => {
+    onNodesChange(changes);
+    const meaningful = changes.some((c: any) => c.type !== 'select' && c.type !== 'dimensions');
+    if (meaningful) setHasChanges(true);
   }, [onNodesChange]);
 
-  const handleEdgesChange = React.useCallback((changes: any) => {
-    onEdgesChange(changes);
-    setHasChanges(true);
-  }, [onEdgesChange]);
+  // Drag and drop da sidebar
+  const onDragOver = React.useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  }, []);
 
-  const handleAddNode = (nodeType: string) => {
+  const onDrop = React.useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    const nodeType = e.dataTransfer.getData('application/nodeType');
+    if (!nodeType) return;
     const config = NODE_TYPES_CONFIG.find(t => t.type === nodeType)!;
+    const position = screenToFlowPosition({ x: e.clientX - 240, y: e.clientY - 60 });
     const newNode = {
       id: `${nodeType}-${Date.now()}`,
       type: 'custom',
-      position: {
-        x: 100 + Math.random() * 300,
-        y: 100 + Math.random() * 200,
-      },
-      data: {
-        label: config.label,
-        nodeType,
-      },
+      position,
+      data: { label: config.label, nodeType },
     };
     setNodes(nds => [...nds, newNode]);
     setHasChanges(true);
-  };
-
-  const handleDeleteSelected = () => {
-    setNodes(nds => nds.filter(n => !n.selected));
-    setEdges(eds => eds.filter(e => !e.selected));
-    setHasChanges(true);
-  };
+  }, [screenToFlowPosition, setNodes]);
 
   const handleSave = async () => {
     if (!id) return;
@@ -185,194 +232,218 @@ export default function FunilCanvas() {
       await atualizarMutation.mutateAsync({
         id,
         data: {
+          nome: funilNome,
           nos: JSON.stringify(nodes),
           arestas: JSON.stringify(edges),
         },
       });
       setHasChanges(false);
-      toast.success('Funil salvo com sucesso!');
-    } catch (e) {
+      toast.success('Funil salvo!');
+    } catch {
       toast.error('Erro ao salvar funil');
     }
   };
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[#0f0f0f] text-white">
-        Carregando...
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',
+        height: '100vh', background: '#f8f9fa', color: '#64748b', fontSize: 14 }}>
+        Carregando funil...
       </div>
     );
   }
 
   return (
-    <div style={{ width: '100vw', height: '100vh', background: '#0f0f0f' }}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={handleNodesChange}
-        onEdgesChange={handleEdgesChange}
-        onConnect={onConnect}
-        nodeTypes={nodeTypes}
-        fitView
-        fitViewOptions={{ padding: 0.2 }}
-        defaultEdgeOptions={{
-          style: { stroke: '#6b7280', strokeWidth: 2 },
-          animated: true,
-        }}
-        style={{ background: '#0f0f0f' }}
-      >
-        <Background
-          variant={BackgroundVariant.Dots}
-          gap={24}
-          size={1}
-          color="#2a2a2a"
-        />
-        <Controls
-          style={{
-            background: '#1a1a1a',
-            border: '1px solid #333',
-            borderRadius: '8px',
-          }}
-        />
-        <MiniMap
-          style={{
-            background: '#1a1a1a',
-            border: '1px solid #333',
-            borderRadius: '8px',
-          }}
-          nodeColor="#3b82f6"
-          maskColor="rgba(0,0,0,0.6)"
-        />
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh',
+      width: '100vw', background: '#f8f9fa', overflow: 'hidden' }}>
 
-        {/* Toolbar superior */}
-        <Panel position="top-left">
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            background: '#1a1a1a',
-            border: '1px solid #333',
-            borderRadius: '10px',
-            padding: '8px 16px',
-          }}>
-            <button
-              onClick={() => navigate('/admin/funis')}
+      {/* ── HEADER ── */}
+      <div style={{
+        height: 56,
+        background: '#ffffff',
+        borderBottom: '1px solid #e2e8f0',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 20px',
+        flexShrink: 0,
+        zIndex: 10,
+      }}>
+        {/* Esquerda */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <button
+            onClick={() => navigate('/admin/funis')}
+            style={{
+              background: '#f1f5f9', border: 'none', borderRadius: 8,
+              width: 32, height: 32, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#64748b',
+            }}
+          >
+            <ArrowLeft size={16} />
+          </button>
+          {editingName ? (
+            <input
+              autoFocus
+              value={funilNome}
+              onChange={e => setFunilNome(e.target.value)}
+              onBlur={() => { setEditingName(false); setHasChanges(true); }}
+              onKeyDown={e => e.key === 'Enter' && setEditingName(false)}
               style={{
-                background: 'none',
-                border: 'none',
-                color: '#9ca3af',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                fontSize: '13px',
+                fontSize: 16, fontWeight: 600, color: '#0f172a',
+                border: 'none', borderBottom: '2px solid #4f46e5',
+                outline: 'none', background: 'transparent', padding: '2px 4px',
               }}
+            />
+          ) : (
+            <span
+              style={{ fontSize: 16, fontWeight: 600, color: '#0f172a', cursor: 'pointer' }}
+              onClick={() => setEditingName(true)}
             >
-              ← Voltar
-            </button>
-            <div style={{ width: '1px', height: '20px', background: '#333' }} />
-            <span style={{ color: '#fff', fontWeight: 600, fontSize: '15px' }}>
-              {funil?.nome || 'Funil'}
+              {funilNome || 'Funil'}
             </span>
-            {hasChanges && (
-              <span style={{
-                fontSize: '11px',
-                color: '#f59e0b',
-                background: '#451a03',
-                padding: '2px 8px',
-                borderRadius: '999px',
+          )}
+        </div>
+
+        {/* Direita */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {hasChanges && (
+            <span style={{
+              fontSize: 11, color: '#f59e0b', background: '#fef3c7',
+              padding: '2px 10px', borderRadius: 999, fontWeight: 500,
+            }}>
+              Não salvo
+            </span>
+          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button style={{
+                background: '#f1f5f9', border: 'none', borderRadius: 8,
+                width: 36, height: 36, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: '#64748b',
               }}>
-                Não salvo
+                <MoreHorizontal size={18} />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-44">
+              <DropdownMenuItem onClick={() => setEditingName(true)}>
+                <Pencil className="mr-2 h-4 w-4" /> Renomear
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <button
+            onClick={handleSave}
+            disabled={atualizarMutation.isPending}
+            style={{
+              background: '#4f46e5', color: '#fff', border: 'none',
+              borderRadius: 8, padding: '8px 18px', fontWeight: 600,
+              fontSize: 14, cursor: 'pointer',
+              opacity: atualizarMutation.isPending ? 0.7 : 1,
+            }}
+          >
+            {atualizarMutation.isPending ? 'Salvando...' : 'Salvar'}
+          </button>
+        </div>
+      </div>
+
+      {/* ── BODY ── */}
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+
+        {/* SIDEBAR */}
+        <div style={{
+          width: 100,
+          background: '#ffffff',
+          borderRight: '1px solid #e2e8f0',
+          display: 'flex',
+          flexDirection: 'column',
+          padding: '16px 8px',
+          gap: 4,
+          overflowY: 'auto',
+          flexShrink: 0,
+        }}>
+          <p style={{
+            fontSize: 10, fontWeight: 600, color: '#94a3b8',
+            textTransform: 'uppercase', letterSpacing: '0.08em',
+            marginBottom: 8, paddingLeft: 4,
+          }}>
+            Arrastar
+          </p>
+          {NODE_TYPES_CONFIG.map(({ type, label, Icon }) => (
+            <div
+              key={type}
+              draggable
+              onDragStart={e => e.dataTransfer.setData('application/nodeType', type)}
+              style={{
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', gap: 4,
+                padding: '10px 8px', borderRadius: 10,
+                cursor: 'grab', userSelect: 'none',
+                transition: 'background 0.15s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = '#f1f5f9')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+            >
+              <div style={{
+                width: 36, height: 36, borderRadius: 8,
+                background: '#f1f5f9', border: '1px solid #e2e8f0',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Icon size={18} color="#64748b" strokeWidth={1.5} />
+              </div>
+              <span style={{ fontSize: 10, color: '#64748b', fontWeight: 500, textAlign: 'center' }}>
+                {label}
               </span>
-            )}
-          </div>
-        </Panel>
+            </div>
+          ))}
+        </div>
 
-        {/* Botões direita */}
-        <Panel position="top-right">
-          <div style={{ display: 'flex', gap: '8px' }}>
-            {/* Adicionar nó */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  background: '#1a1a1a',
-                  border: '1px solid #333',
-                  borderRadius: '8px',
-                  color: '#e5e7eb',
-                  padding: '8px 14px',
-                  cursor: 'pointer',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                }}>
-                  + Adicionar nó
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-48 bg-[#1a1a1a] border-[#333] text-white"
-              >
-                <DropdownMenuLabel className="text-xs text-muted-foreground">
-                  Tipo de nó
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-[#333]" />
-                {NODE_TYPES_CONFIG.map(t => (
-                  <DropdownMenuItem
-                    key={t.type}
-                    onClick={() => handleAddNode(t.type)}
-                    className="cursor-pointer hover:bg-[#2a2a2a] focus:bg-[#2a2a2a]"
-                  >
-                    <span className="mr-2">{t.emoji}</span>
-                    {t.label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Deletar selecionados */}
-            <button
-              onClick={handleDeleteSelected}
-              title="Deletar selecionados"
+        {/* CANVAS */}
+        <div style={{ flex: 1 }} onDragOver={onDragOver} onDrop={onDrop}>
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChangeWrapped}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            nodeTypes={nodeTypes}
+            fitView
+            fitViewOptions={{ padding: 0.2 }}
+            defaultEdgeOptions={{
+              type: 'smoothstep',
+              animated: true,
+              style: { stroke: '#4f46e5', strokeWidth: 2, strokeDasharray: '6 3' },
+            }}
+            style={{ background: '#f8f9fa' }}
+            deleteKeyCode={['Backspace', 'Delete']}
+          >
+            <Background
+              variant={BackgroundVariant.Dots}
+              gap={20}
+              size={1.5}
+              color="#cbd5e1"
+            />
+            <Controls
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                background: '#1a1a1a',
-                border: '1px solid #333',
-                borderRadius: '8px',
-                color: '#ef4444',
-                padding: '8px 12px',
-                cursor: 'pointer',
+                background: '#fff',
+                border: '1px solid #e2e8f0',
+                borderRadius: 10,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
               }}
-            >
-              🗑
-            </button>
-
-            {/* Salvar */}
-            <button
-              onClick={handleSave}
-              disabled={atualizarMutation.isPending}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                background: hasChanges ? '#2563eb' : '#1a1a1a',
-                border: `1px solid ${hasChanges ? '#3b82f6' : '#333'}`,
-                borderRadius: '8px',
-                color: '#fff',
-                padding: '8px 16px',
-                cursor: 'pointer',
-                fontSize: '13px',
-                fontWeight: 600,
-                transition: 'all 0.2s',
-              }}
-            >
-              {atualizarMutation.isPending ? 'Salvando...' : '💾 Salvar'}
-            </button>
-          </div>
-        </Panel>
-      </ReactFlow>
+            />
+          </ReactFlow>
+        </div>
+      </div>
     </div>
+  );
+}
+
+// ─── EXPORT PRINCIPAL (com ReactFlowProvider) ─────────────
+
+export default function FunilCanvas() {
+  return (
+    <ReactFlowProvider>
+      <CanvasInner />
+    </ReactFlowProvider>
   );
 }
