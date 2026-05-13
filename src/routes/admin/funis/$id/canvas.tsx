@@ -255,7 +255,7 @@ function CanvasInner() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh',
-      width: '100vw', background: '#f8f9fa', overflow: 'hidden' }}>
+      width: '100%', background: '#f8f9fa', overflow: 'hidden' }}>
 
       {/* ── HEADER ── */}
       <div style={{

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Outlet, Navigate, useNavigate } from 'react-router';
+import { Outlet, Navigate, useNavigate, useLocation } from 'react-router';
 import { Sidebar } from '../../components/admin/Sidebar';
 import { useAuth } from '../../hooks/useAuth';
 import { Skeleton } from '../../components/ui/skeleton';
@@ -8,6 +8,9 @@ import { cn } from '../../lib/utils';
 export default function AdminLayout() {
   const { user, isLoading, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isFunilCanvas = location.pathname.includes('/funis/') && 
+    location.pathname.includes('/canvas');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(() => {
     const saved = localStorage.getItem('sidebar-collapsed');
     return saved === 'true';
@@ -49,15 +52,24 @@ export default function AdminLayout() {
       />
       
       {/* Contêiner Principal ao lado da Sidebar */}
-      <main className={cn(
-        "flex-1 w-full h-full min-h-screen relative p-8 md:p-10 pb-20 overflow-y-auto overflow-x-hidden transition-all duration-300",
-        isSidebarCollapsed ? "md:ml-20" : "md:ml-64"
-      )}>
-         {/* O Outlet renderiza as rotas filhas ali dentro */}
-         <div className="max-w-[1400px] mx-auto w-full">
-            <Outlet />
-         </div>
-      </main>
+      {isFunilCanvas ? (
+        <div className={cn(
+          "flex-1 w-full h-screen overflow-hidden transition-all duration-300",
+          isSidebarCollapsed ? "md:ml-20" : "md:ml-64"
+        )}>
+          <Outlet />
+        </div>
+      ) : (
+        <main className={cn(
+          "flex-1 w-full h-full min-h-screen relative p-8 md:p-10 pb-20 overflow-y-auto overflow-x-hidden transition-all duration-300",
+          isSidebarCollapsed ? "md:ml-20" : "md:ml-64"
+        )}>
+           {/* O Outlet renderiza as rotas filhas ali dentro */}
+           <div className="max-w-[1400px] mx-auto w-full">
+              <Outlet />
+           </div>
+        </main>
+      )}
     </div>
   );
 }
