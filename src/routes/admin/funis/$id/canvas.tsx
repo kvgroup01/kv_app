@@ -5,6 +5,7 @@ import {
   useNodesState, useEdgesState, type Connection,
   type NodeTypes, BackgroundVariant, Handle, Position,
   useReactFlow, ReactFlowProvider, NodeToolbar, MiniMap,
+  EdgeLabelRenderer, BaseEdge, getSmoothStepPath, type EdgeProps
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { toast } from 'sonner';
@@ -447,7 +448,91 @@ function TextNode({ data, selected }: { data: any; selected: boolean }) {
   );
 }
 
+function CustomEdge({
+  id, sourceX, sourceY, targetX, targetY,
+  sourcePosition, targetPosition,
+}: EdgeProps) {
+  const [hovered, setHovered] = React.useState(false);
+  const { setEdges } = useReactFlow();
+
+  const [edgePath, labelX, labelY] = getSmoothStepPath({
+    sourceX, sourceY, sourcePosition,
+    targetX, targetY, targetPosition,
+  });
+
+  const onDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEdges(eds => eds.filter(edge => edge.id !== id));
+  };
+
+  return (
+    <>
+      {/* Área invisível mais larga para facilitar o hover */}
+      <path
+        d={edgePath}
+        fill="none"
+        stroke="transparent"
+        strokeWidth={20}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{ cursor: 'pointer' }}
+      />
+      {/* Linha visível */}
+      <BaseEdge
+        path={edgePath}
+        style={{
+          stroke: hovered ? '#ff6d5a' : '#555',
+          strokeWidth: hovered ? 2 : 1.5,
+          strokeDasharray: hovered ? 'none' : '5 3',
+          transition: 'stroke 0.15s, stroke-width 0.15s',
+          pointerEvents: 'none',
+        }}
+      />
+      {/* Botão deletar no meio da linha */}
+      {hovered && (
+        <EdgeLabelRenderer>
+          <div
+            style={{
+              position: 'absolute',
+              transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+              pointerEvents: 'all',
+              zIndex: 10,
+            }}
+            className="nodrag nopan"
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+          >
+            <button
+              onClick={onDelete}
+              title="Deletar conexão"
+              style={{
+                width: 24, height: 24, borderRadius: '50%',
+                background: '#1f1f1f',
+                border: '1.5px solid #ff6d5a',
+                color: '#ff6d5a', cursor: 'pointer',
+                display: 'flex', alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                transition: 'transform 0.15s',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.2)';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
+              }}
+            >
+              <Trash2 size={11} strokeWidth={2.5} />
+            </button>
+          </div>
+        </EdgeLabelRenderer>
+      )}
+    </>
+  );
+}
+
 const nodeTypes: NodeTypes = { custom: CustomNode, texto: TextNode };
+const edgeTypes = { custom: CustomEdge };
 
 // ─── CANVAS INNER ─────────────────────────────────────────
 function CanvasInner() {
@@ -522,10 +607,7 @@ function CanvasInner() {
   }, [funil, buildData]);
 
   const onConnect = React.useCallback((c: Connection) => {
-    setEdges(eds => addEdge({
-      ...c, type: 'smoothstep', animated: false,
-      style: { stroke: '#555', strokeWidth: 1.5 },
-    }, eds));
+    setEdges(eds => addEdge({ ...c, type: 'custom' }, eds));
     setHasChanges(true);
   }, [setEdges]);
 
@@ -640,10 +722,10 @@ function CanvasInner() {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
           fitView fitViewOptions={{ padding: 0.2 }}
           defaultEdgeOptions={{
-            type: 'smoothstep', animated: false,
-            style: { stroke: '#555', strokeWidth: 1.5 },
+            type: 'custom',
           }}
           style={{ background: '#2d2d2d' }}
           deleteKeyCode={['Backspace', 'Delete']}
