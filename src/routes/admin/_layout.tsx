@@ -40,7 +40,7 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-(--content-bg) w-full flex flex-col md:flex-row">
+    <div className="h-screen bg-(--content-bg) w-full flex flex-col md:flex-row overflow-hidden">
       <Sidebar 
          usuario={{ 
            nome: user.name || 'Gestor KV', 
@@ -54,9 +54,10 @@ export default function AdminLayout() {
       {/* Contêiner Principal ao lado da Sidebar */}
       {isFunilCanvas ? (
         <div className={cn(
-          "flex-1 w-full h-screen overflow-hidden transition-all duration-300",
+          "flex-1 w-full overflow-hidden transition-all duration-300",
+          "h-screen md:h-screen",
           isSidebarCollapsed ? "md:ml-20" : "md:ml-64"
-        )}>
+        )} style={{ height: '100dvh' }}>
           <Outlet />
         </div>
       ) : (
