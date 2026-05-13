@@ -17,6 +17,13 @@ import {
 } from 'lucide-react';
 import { useFunil, useAtualizarFunil } from '../../../../hooks/useFunis';
 
+// Remover marca d'água do React Flow
+const hideReactFlowAttribution = `
+  .react-flow__attribution {
+    display: none !important;
+  }
+`;
+
 // ─── TIPOS DE NÓ ─────────────────────────────────────────
 const NODE_TYPES_CONFIG = [
   { type: 'anuncio',     label: 'Anúncio',     Icon: Megaphone,      color: '#3b82f6' },
@@ -567,6 +574,7 @@ function CanvasInner() {
       height: '100%', width: '100%', minHeight: 0,
       background: '#2d2d2d', overflow: 'hidden',
     }}>
+      <style>{hideReactFlowAttribution}</style>
       {/* ── HEADER estilo N8N ── */}
       <div style={{
         height: 44, background: '#1f1f1f',
