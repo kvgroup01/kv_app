@@ -17,6 +17,7 @@ import { cn } from '../../lib/utils';
 import { Button } from '../ui/button';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from '../ui/sheet';
+import { ThemeToggle } from './ThemeToggle';
 
 interface SidebarProps {
   usuario: {
@@ -153,14 +154,18 @@ export function Sidebar({ usuario, onLogout, isCollapsed = false, onToggleCollap
                 <span className="truncate text-[13px] font-medium text-white">{usuario.nome || 'Usuário'}</span>
                 <span className="truncate text-[11px] text-(--text-tertiary)">{usuario.email}</span>
               </div>
+              <ThemeToggle />
               <Button variant="ghost" size="icon" onClick={onLogout} title="Sair" className="h-8 w-8 text-(--text-secondary) hover:bg-[#1a1a1a] hover:text-red-400">
                 <LogOut className="h-4 w-4" />
               </Button>
             </>
           ) : (
-            <Button variant="ghost" size="icon" onClick={onLogout} title="Sair" className="h-8 w-8 text-(--text-secondary) hover:bg-[#1a1a1a] hover:text-red-400">
-              <LogOut className="h-4 w-4" />
-            </Button>
+            <>
+              <ThemeToggle />
+              <Button variant="ghost" size="icon" onClick={onLogout} title="Sair" className="h-8 w-8 text-(--text-secondary) hover:bg-[#1a1a1a] hover:text-red-400">
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </>
           )}
         </div>
       </div>
