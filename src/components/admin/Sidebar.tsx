@@ -2,6 +2,7 @@ import * as React from 'react';
 import { NavLink } from 'react-router';
 import { 
   LayoutDashboard, 
+  Home,
   Users, 
   Wallet, 
   FileText, 
@@ -30,7 +31,7 @@ interface SidebarProps {
 }
 
 const NAV_ITEMS = [
-  { href: '/admin', icon: LayoutDashboard, label: 'Dashboard', exact: true },
+  { href: '/admin', icon: Home, label: 'Início', exact: true },
   { href: '/admin/clientes', icon: Users, label: 'Clientes' },
   { href: '/admin/dashboards', icon: LayoutDashboard, label: 'Dashboards' },
   { href: '/admin/funis', icon: GitBranch, label: 'Funis' },
