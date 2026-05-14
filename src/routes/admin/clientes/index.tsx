@@ -458,7 +458,7 @@ export default function ClientesIndex() {
               placeholder="Nome da pasta..." 
               value={novaPastaNome}
               onChange={(e) => setNovaPastaNome(e.target.value)}
-              className="bg-black/20 border-(--card-border)"
+              className="bg-muted border-(--card-border)"
               autoFocus
             />
           </div>

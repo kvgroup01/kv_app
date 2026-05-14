@@ -121,7 +121,7 @@ export default function Configuracoes() {
       </div>
 
       <Tabs defaultValue="perfil" className="space-y-8">
-        <TabsList className="bg-[#141414] border border-(--card-border) p-1 h-12 rounded-xl overflow-x-auto max-w-full no-scrollbar">
+        <TabsList className="bg-muted border border-(--card-border) p-1 h-12 rounded-xl overflow-x-auto max-w-full no-scrollbar">
           <TabsTrigger value="geral" className="px-6 rounded-lg data-[state=active]:bg-white data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit">
             <BarChart3 className="h-4 w-4" /> Geral
           </TabsTrigger>
@@ -278,7 +278,7 @@ export default function Configuracoes() {
                     <Input 
                       value={nomeUsuario} 
                       onChange={e => setNomeUsuario(e.target.value)} 
-                      className="bg-black/20 border-(--card-border) h-11 focus-visible:ring-blue-500"
+                      className="bg-background border-(--card-border) h-11 focus-visible:ring-blue-500"
                     />
                   </div>
                   <div className="space-y-2">
@@ -286,7 +286,7 @@ export default function Configuracoes() {
                     <Input 
                       value={usuario?.email} 
                       disabled
-                      className="bg-black/10 border-(--card-border) h-11 opacity-60"
+                      className="bg-muted border-(--card-border) h-11 opacity-60"
                     />
                   </div>
                 </div>
@@ -349,7 +349,7 @@ export default function Configuracoes() {
                     </DialogHeader>
                     <div className="py-6">
                       <Label className="text-sm font-medium mb-2 block">E-mail do colaborador</Label>
-                      <Input value={conviteEmail} onChange={e => setConviteEmail(e.target.value)} placeholder="exemplo@gmail.com" className="bg-black/20 border-(--card-border) h-11" />
+                      <Input value={conviteEmail} onChange={e => setConviteEmail(e.target.value)} placeholder="exemplo@gmail.com" className="bg-background border-(--card-border) h-11" />
                     </div>
                     <DialogFooter>
                       <Button onClick={handleConvidar} className="bg-white text-black">Enviar convite</Button>
@@ -398,7 +398,7 @@ export default function Configuracoes() {
                   <div className="py-6 space-y-4">
                     <div className="space-y-2">
                        <Label className="text-sm font-medium">Nome</Label>
-                       <Input value={pastaNome} onChange={e => setPastaNome(e.target.value)} placeholder="Ex: E-commerce" className="h-11 bg-black/20 border-(--card-border)" />
+                       <Input value={pastaNome} onChange={e => setPastaNome(e.target.value)} placeholder="Ex: E-commerce" className="h-11 bg-background border-(--card-border)" />
                     </div>
                     <div className="space-y-2">
                        <Label className="text-sm font-medium">Cor</Label>
@@ -461,15 +461,15 @@ export default function Configuracoes() {
               <CardContent className="space-y-6 max-w-md">
                 <div className="space-y-2">
                   <Label className="text-xs font-semibold text-(--text-tertiary) uppercase tracking-wider">Senha Atual</Label>
-                  <Input type="password" value={senhaAtual} onChange={e => setSenhaAtual(e.target.value)} className="bg-black/20 border-(--card-border) h-11" />
+                  <Input type="password" value={senhaAtual} onChange={e => setSenhaAtual(e.target.value)} className="bg-background border-(--card-border) h-11" />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs font-semibold text-(--text-tertiary) uppercase tracking-wider">Nova Senha</Label>
-                  <Input type="password" value={novaSenha} onChange={e => setNovaSenha(e.target.value)} className="bg-black/20 border-(--card-border) h-11" />
+                  <Input type="password" value={novaSenha} onChange={e => setNovaSenha(e.target.value)} className="bg-background border-(--card-border) h-11" />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs font-semibold text-(--text-tertiary) uppercase tracking-wider">Confirmar Nova Senha</Label>
-                  <Input type="password" value={confirmaSenha} onChange={e => setConfirmaSenha(e.target.value)} className="bg-black/20 border-(--card-border) h-11" />
+                  <Input type="password" value={confirmaSenha} onChange={e => setConfirmaSenha(e.target.value)} className="bg-background border-(--card-border) h-11" />
                 </div>
                 <div className="flex justify-start">
                    <Button 

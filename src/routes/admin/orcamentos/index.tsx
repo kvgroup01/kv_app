@@ -108,8 +108,8 @@ export default function OrcamentosIndex() {
       <div className="bg-(--card-bg) border border-(--card-border) rounded-[12px] overflow-hidden shadow-premium">
         {!isLoading && listaOrdenada.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-12 py-24 text-center">
-            <div className="w-16 h-16 bg-[#1a1a1a] rounded-full flex items-center justify-center mb-6">
-                <FileText className="h-7 w-7 text-(--text-tertiary)" />
+            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-6">
+                <FileText className="h-7 w-7 text-muted-foreground" />
             </div>
             <h3 className="text-lg font-semibold text-(--text-primary) mb-2">Nenhum orçamento</h3>
             <p className="text-(--text-secondary) text-[13px] mb-8 max-w-sm">Voce ainda não gerou propostas ou links de cobrança.</p>

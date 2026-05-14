@@ -204,7 +204,7 @@ export default function FinanceiroIndex() {
                                 <DialogHeader>
                                   <DialogTitle>Comprovante de Pagamento</DialogTitle>
                                 </DialogHeader>
-                                <div className="flex items-center justify-center p-4 bg-black/40 border border-(--card-border) rounded-md">
+                                <div className="flex items-center justify-center p-4 bg-muted border border-(--card-border) rounded-md">
                                    <img 
                                      src={orcamento.comprovante_url} 
                                      alt="Comprovante" 

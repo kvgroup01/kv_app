@@ -208,4 +208,50 @@
   :root.light select {
     color-scheme: light;
   }
+
+  /* Barras de filtro/busca com bg preto hardcoded */
+  :root.light .bg-black,
+  :root.light .bg-\[#000\],
+  :root.light .bg-\[#000000\] {
+    background-color: hsl(var(--secondary)) !important;
+    color: hsl(var(--foreground)) !important;
+  }
+
+  /* Textos brancos dentro de fundos escuros que viraram claros */
+  :root.light .bg-black *,
+  :root.light .bg-\[#000\] *,
+  :root.light .bg-\[#000000\] * {
+    color: hsl(var(--foreground)) !important;
+    border-color: hsl(var(--border)) !important;
+  }
+
+  /* Ícones com fundo preto (empty states, orçamentos) */
+  :root.light .rounded-full.bg-black,
+  :root.light .rounded-full.bg-\[#000\],
+  :root.light [class*="rounded"].bg-black {
+    background-color: hsl(var(--muted)) !important;
+    color: hsl(var(--muted-foreground)) !important;
+  }
+
+  /* Abas/tabs com fundo preto */
+  :root.light [role="tablist"].bg-black,
+  :root.light .tabs-list.bg-black {
+    background-color: hsl(var(--muted)) !important;
+  }
+
+  /* Inputs dentro de barras escuras */
+  :root.light .bg-black input,
+  :root.light .bg-black select,
+  :root.light .bg-black button {
+    background-color: hsl(var(--secondary)) !important;
+    color: hsl(var(--foreground)) !important;
+    border-color: hsl(var(--border)) !important;
+  }
+
+  /* Divisores verticais em barras escuras */
+  :root.light .bg-black .border-l,
+  :root.light .bg-black .border-r,
+  :root.light .bg-black [class*="border"] {
+    border-color: hsl(var(--border)) !important;
+  }
 }
