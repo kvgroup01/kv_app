@@ -14,14 +14,26 @@ import {
   LayoutTemplate, Users, CheckCircle, Calendar, DollarSign,
   MessageCircle, BarChart2, Pencil, Trash2, Copy,
   AlignLeft, AlignCenter, ChevronDown, Type, Save,
-  RotateCcw, ZoomIn, ZoomOut, Maximize2, MousePointer2,
+  RotateCcw, ZoomIn, ZoomOut, Maximize2, MousePointer2, LayoutGrid,
 } from 'lucide-react';
+import dagre from '@dagrejs/dagre';
 import { useFunil, useAtualizarFunil } from '../../../../hooks/useFunis';
+import { useTheme } from '../../../../hooks/useTheme';
 
 // Remover marca d'água do React Flow
 const hideReactFlowAttribution = `
-  .react-flow__attribution {
-    display: none !important;
+  .react-flow__attribution { display: none !important; }
+  :root.light .react-flow__renderer { background: #f8f9fa; }
+  :root.light .react-flow__controls button {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    color: #374151;
+  }
+  :root.light .react-flow__controls button:hover {
+    background: #f1f5f9;
+  }
+  :root.light .react-flow__minimap {
+    background: #f1f5f9;
   }
 `;
 
@@ -61,12 +73,12 @@ function ModalAddNode({ onAdd, onClose }: {
       }}
     >
       <div style={{
-        background: '#2d2d2d', borderRadius: 12, width: 420,
-        border: '1px solid #3d3d3d',
+        background: 'hsl(var(--card))', borderRadius: 12, width: 420,
+        border: '1px solid hsl(var(--border))',
         boxShadow: '0 24px 80px rgba(0,0,0,0.7)',
         overflow: 'hidden',
       }}>
-        <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid #3d3d3d' }}>
+        <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid hsl(var(--border))' }}>
           <input
             autoFocus
             value={search}
@@ -74,8 +86,8 @@ function ModalAddNode({ onAdd, onClose }: {
             placeholder="Buscar nó..."
             style={{
               width: '100%', padding: '10px 14px',
-              background: '#383838', border: '1px solid #4d4d4d',
-              borderRadius: 8, color: '#e5e7eb', fontSize: 14,
+              background: 'hsl(var(--background))', border: '1px solid hsl(var(--border))',
+              borderRadius: 8, color: 'hsl(var(--foreground))', fontSize: 14,
               outline: 'none', boxSizing: 'border-box',
             }}
           />
@@ -92,7 +104,7 @@ function ModalAddNode({ onAdd, onClose }: {
                 cursor: 'pointer', textAlign: 'left',
                 transition: 'background 0.1s',
               }}
-              onMouseEnter={e => (e.currentTarget.style.background = '#383838')}
+              onMouseEnter={e => (e.currentTarget.style.background = 'hsl(var(--accent))')}
               onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
             >
               <div style={{
@@ -102,7 +114,7 @@ function ModalAddNode({ onAdd, onClose }: {
               }}>
                 <Icon size={17} color={color} strokeWidth={1.8} />
               </div>
-              <span style={{ fontSize: 14, color: '#e5e7eb', fontWeight: 500 }}>
+              <span style={{ fontSize: 14, color: 'hsl(var(--foreground))', fontWeight: 500 }}>
                 {label}
               </span>
             </button>
@@ -127,20 +139,20 @@ function ModalPerformance({ label, onClose }: { label: string; onClose: () => vo
       }}
     >
       <div style={{
-        background: '#2d2d2d', borderRadius: 12, width: 540,
+        background: 'hsl(var(--card))', borderRadius: 12, width: 540,
         maxHeight: '80vh', overflow: 'hidden',
         display: 'flex', flexDirection: 'column',
-        border: '1px solid #3d3d3d',
+        border: '1px solid hsl(var(--border))',
         boxShadow: '0 24px 80px rgba(0,0,0,0.7)',
       }}>
         <div style={{
           display: 'flex', alignItems: 'center',
           justifyContent: 'space-between', padding: '18px 20px 0',
         }}>
-          <span style={{ fontSize: 15, fontWeight: 700, color: '#e5e7eb' }}>{label}</span>
+          <span style={{ fontSize: 15, fontWeight: 700, color: 'hsl(var(--foreground))' }}>{label}</span>
           <button onClick={onClose} style={{
-            background: '#383838', border: 'none', borderRadius: 6,
-            width: 28, height: 28, cursor: 'pointer', color: '#9ca3af',
+            background: 'hsl(var(--muted))', border: 'none', borderRadius: 6,
+            width: 28, height: 28, cursor: 'pointer', color: 'hsl(var(--muted-foreground))',
             fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>×</button>
         </div>
@@ -149,8 +161,8 @@ function ModalPerformance({ label, onClose }: { label: string; onClose: () => vo
             <button key={tab} onClick={() => setAba(tab as any)} style={{
               flex: 1, padding: '8px', borderRadius: 8, border: 'none',
               cursor: 'pointer', fontWeight: 600, fontSize: 12,
-              background: aba === tab ? '#383838' : 'transparent',
-              color: aba === tab ? '#e5e7eb' : '#6b7280',
+              background: aba === tab ? 'hsl(var(--muted))' : 'transparent',
+              color: aba === tab ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
               textTransform: 'capitalize',
             }}>
               {tab === 'performance' ? 'Performance' : 'Informações'}
@@ -161,11 +173,11 @@ function ModalPerformance({ label, onClose }: { label: string; onClose: () => vo
           {aba === 'performance' ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: 15, fontWeight: 700, color: '#e5e7eb' }}>Performance</span>
+                <span style={{ fontSize: 15, fontWeight: 700, color: 'hsl(var(--foreground))' }}>Performance</span>
                 <select style={{
-                  border: '1px solid #3d3d3d', borderRadius: 7,
-                  padding: '6px 10px', fontSize: 12, color: '#9ca3af',
-                  background: '#383838', cursor: 'pointer',
+                  border: '1px solid hsl(var(--border))', borderRadius: 7,
+                  padding: '6px 10px', fontSize: 12, color: 'hsl(var(--muted-foreground))',
+                  background: 'hsl(var(--muted))', cursor: 'pointer',
                 }}>
                   <option>Período...</option>
                   <option>Últimos 7 dias</option>
@@ -179,17 +191,17 @@ function ModalPerformance({ label, onClose }: { label: string; onClose: () => vo
                   { label: 'Conversão', value: '0%', icon: '🎯' },
                 ].map(m => (
                   <div key={m.label} style={{
-                    background: '#383838', borderRadius: 10, padding: 14,
-                    border: '1px solid #3d3d3d',
+                    background: 'hsl(var(--muted))', borderRadius: 10, padding: 14,
+                    border: '1px solid hsl(var(--border))',
                   }}>
                     <div style={{ fontSize: 18, marginBottom: 6 }}>{m.icon}</div>
-                    <div style={{ fontSize: 10, color: '#6b7280', marginBottom: 4 }}>{m.label}</div>
-                    <div style={{ fontSize: 20, fontWeight: 700, color: '#e5e7eb' }}>{m.value}</div>
+                    <div style={{ fontSize: 10, color: 'hsl(var(--muted-foreground))', marginBottom: 4 }}>{m.label}</div>
+                    <div style={{ fontSize: 20, fontWeight: 700, color: 'hsl(var(--foreground))' }}>{m.value}</div>
                   </div>
                 ))}
               </div>
               <div style={{
-                background: '#383838', borderRadius: 10, border: '1px solid #3d3d3d',
+                background: 'hsl(var(--muted))', borderRadius: 10, border: '1px solid hsl(var(--border))',
                 height: 120, display: 'flex', alignItems: 'center',
                 justifyContent: 'center', color: '#4b5563', fontSize: 13,
               }}>
@@ -198,25 +210,25 @@ function ModalPerformance({ label, onClose }: { label: string; onClose: () => vo
             </div>
           ) : (
             <div>
-              <label style={{ fontSize: 11, fontWeight: 600, color: '#6b7280',
+              <label style={{ fontSize: 11, fontWeight: 600, color: 'hsl(var(--muted-foreground))',
                 display: 'block', marginBottom: 6, textTransform: 'uppercase' }}>
                 Nome
               </label>
               <input placeholder="Nome deste nó..." style={{
-                width: '100%', padding: '9px 12px', border: '1px solid #3d3d3d',
-                borderRadius: 7, fontSize: 13, color: '#e5e7eb',
-                background: '#383838', outline: 'none', boxSizing: 'border-box',
+                width: '100%', padding: '9px 12px', border: '1px solid hsl(var(--border))',
+                borderRadius: 7, fontSize: 13, color: 'hsl(var(--foreground))',
+                background: 'hsl(var(--background))', outline: 'none', boxSizing: 'border-box',
               }} />
             </div>
           )}
         </div>
         <div style={{
-          padding: '12px 20px', borderTop: '1px solid #3d3d3d',
+          padding: '12px 20px', borderTop: '1px solid hsl(var(--border))',
           display: 'flex', justifyContent: 'flex-end', gap: 8,
         }}>
           <button onClick={onClose} style={{
-            padding: '7px 18px', borderRadius: 7, border: '1px solid #3d3d3d',
-            background: 'transparent', color: '#9ca3af', fontWeight: 600,
+            padding: '7px 18px', borderRadius: 7, border: '1px solid hsl(var(--border))',
+            background: 'transparent', color: 'hsl(var(--muted-foreground))', fontWeight: 600,
             fontSize: 12, cursor: 'pointer',
           }}>Sair</button>
           {aba === 'info' && (
@@ -238,12 +250,22 @@ function CustomNode({ data, selected }: { data: any; selected: boolean }) {
     || NODE_TYPES_CONFIG[0];
   const { Icon, color } = config;
 
+  const bg = data.isLight ? '#ffffff' : '#2d2d2d';
+  const bgSub = data.isLight ? '#f1f5f9' : '#383838';
+  const borderColor = selected
+    ? color
+    : (data.isLight ? '#e2e8f0' : '#3d3d3d');
+  const titleColor = data.isLight ? '#0f172a' : '#e5e7eb';
+  const skeletonColor = data.isLight ? '#e2e8f0' : '#383838';
+  const handleBg = data.isLight ? '#94a3b8' : '#555';
+  const handleBorder = data.isLight ? '#f8f9fa' : '#2d2d2d';
+
   return (
     <>
       <NodeToolbar isVisible={selected} position={Position.Bottom} offset={10}>
         <div style={{
-          display: 'flex', gap: 2, background: '#2d2d2d',
-          border: '1px solid #3d3d3d', borderRadius: 8,
+          display: 'flex', gap: 2, background: 'hsl(var(--card))',
+          border: '1px solid hsl(var(--border))', borderRadius: 8,
           padding: '4px 6px', boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
         }}>
           {[
@@ -256,12 +278,12 @@ function CustomNode({ data, selected }: { data: any; selected: boolean }) {
               style={{
                 width: 28, height: 28, borderRadius: 6, border: 'none',
                 background: 'transparent', cursor: 'pointer',
-                color: danger ? '#ef4444' : '#9ca3af',
+                color: danger ? '#ef4444' : 'hsl(var(--muted-foreground))',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}
               onMouseEnter={e => {
                 (e.currentTarget as HTMLButtonElement).style.background =
-                  danger ? 'rgba(239,68,68,0.15)' : '#383838';
+                  danger ? 'rgba(239,68,68,0.15)' : 'hsl(var(--muted))';
               }}
               onMouseLeave={e => {
                 (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
@@ -274,13 +296,13 @@ function CustomNode({ data, selected }: { data: any; selected: boolean }) {
       </NodeToolbar>
 
       <Handle type="target" position={Position.Left} style={{
-        background: '#555', width: 8, height: 8,
-        border: '2px solid #2d2d2d', left: -5,
+        background: handleBg, width: 8, height: 8,
+        border: `2px solid ${handleBorder}`, left: -5,
       }} />
 
       <div style={{
-        background: '#2d2d2d',
-        border: `1.5px solid ${selected ? color : '#3d3d3d'}`,
+        background: bg,
+        border: `1.5px solid ${borderColor}`,
         borderRadius: 16,
         width: 155,
         paddingBottom: 14,
@@ -293,7 +315,7 @@ function CustomNode({ data, selected }: { data: any; selected: boolean }) {
         {/* Título */}
         <div style={{
           padding: '12px 12px 10px',
-          fontSize: 13, fontWeight: 700, color: '#e5e7eb',
+          fontSize: 13, fontWeight: 700, color: titleColor,
         }}>
           {config.label}
         </div>
@@ -301,13 +323,13 @@ function CustomNode({ data, selected }: { data: any; selected: boolean }) {
         {/* Área de ícone */}
         <div style={{
           margin: '0 10px',
-          background: '#383838',
+          background: bgSub,
           borderRadius: 10,
           height: 76,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          border: '1px solid #444',
+          border: `1px solid ${data.isLight ? '#e2e8f0' : '#444'}`,
         }}>
           <Icon size={30} color={`${color}bb`} strokeWidth={1.3} />
         </div>
@@ -320,15 +342,15 @@ function CustomNode({ data, selected }: { data: any; selected: boolean }) {
           {[80, 60, 40].map((w, i) => (
             <div key={i} style={{
               height: 6, width: `${w}%`,
-              background: '#383838', borderRadius: 4,
+              background: skeletonColor, borderRadius: 4,
             }} />
           ))}
         </div>
       </div>
 
       <Handle type="source" position={Position.Right} style={{
-        background: '#555', width: 8, height: 8,
-        border: '2px solid #2d2d2d', right: -5,
+        background: handleBg, width: 8, height: 8,
+        border: `2px solid ${handleBorder}`, right: -5,
       }} />
     </>
   );
@@ -541,6 +563,28 @@ const edgeTypes = { custom: CustomEdge };
 
 // ─── CANVAS INNER ─────────────────────────────────────────
 function CanvasInner() {
+  const { theme } = useTheme();
+  const isLight = theme === 'light' ||
+    (theme === 'system' &&
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-color-scheme: light)').matches);
+
+  const COLORS = {
+    bg: isLight ? '#f8f9fa' : '#2d2d2d',
+    bgDot: isLight ? '#cbd5e1' : '#3d3d3d',
+    surface: isLight ? '#ffffff' : '#2d2d2d',
+    surfaceSub: isLight ? '#f1f5f9' : '#383838',
+    border: isLight ? '#e2e8f0' : '#3d3d3d',
+    borderActive: isLight ? '#4f46e5' : '#ff6d5a',
+    text: isLight ? '#0f172a' : '#e5e7eb',
+    textMuted: isLight ? '#64748b' : '#9ca3af',
+    header: isLight ? '#ffffff' : '#1f1f1f',
+    headerBorder: isLight ? '#e2e8f0' : '#3d3d3d',
+    skeleton: isLight ? '#e2e8f0' : '#383838',
+    handle: isLight ? '#94a3b8' : '#555',
+    handleBorder: isLight ? '#f8f9fa' : '#2d2d2d',
+  };
+
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: funil, isLoading } = useFunil(id!);
@@ -602,8 +646,8 @@ function CanvasInner() {
           type: n.data?.nodeType === 'texto' ? 'texto' : 'custom',
           data: buildData(n.data?.nodeType || 'anuncio', n.id,
             n.data?.nodeType === 'texto'
-              ? { text: n.data?.text, align: n.data?.align, bgColor: n.data?.bgColor }
-              : {}
+              ? { text: n.data?.text, align: n.data?.align, bgColor: n.data?.bgColor, isLight }
+              : { isLight }
           ),
         })));
         setEdges(es);
@@ -630,12 +674,62 @@ function CanvasInner() {
       position: { x: 200 + Math.random() * 300, y: 150 + Math.random() * 200 },
       data: buildData(nodeType, newId,
         nodeType === 'texto'
-          ? { text: 'Texto aqui', align: 'center', bgColor: '#2d2d2d' }
-          : {}
+          ? { text: 'Texto aqui', align: 'center', bgColor: '#2d2d2d', isLight }
+          : { isLight }
       ),
     }]);
     setHasChanges(true);
-  }, [buildData, setNodes]);
+  }, [buildData, setNodes, isLight]);
+
+  const handleTidyUp = React.useCallback(() => {
+    if (nodes.length === 0) return;
+
+    const g = new dagre.graphlib.Graph();
+    g.setDefaultEdgeLabel(() => ({}));
+    g.setGraph({
+      rankdir: 'LR',   // Left to Right
+      nodesep: 60,     // espaço vertical entre nós
+      ranksep: 120,    // espaço horizontal entre colunas
+      marginx: 40,
+      marginy: 40,
+    });
+
+    // Dimensões padrão dos nós
+    const NODE_WIDTH = 200;
+    const NODE_HEIGHT = 180;
+
+    nodes.forEach((node) => {
+      g.setNode(node.id, {
+        width: NODE_WIDTH,
+        height: NODE_HEIGHT,
+      });
+    });
+
+    edges.forEach((edge) => {
+      g.setEdge(edge.source, edge.target);
+    });
+
+    dagre.layout(g);
+
+    const layoutedNodes = nodes.map((node) => {
+      const nodeWithPosition = g.node(node.id);
+      return {
+        ...node,
+        position: {
+          x: nodeWithPosition.x - NODE_WIDTH / 2,
+          y: nodeWithPosition.y - NODE_HEIGHT / 2,
+        },
+      };
+    });
+
+    setNodes(layoutedNodes);
+    setHasChanges(true);
+
+    // Centralizar a view após reorganizar
+    setTimeout(() => {
+      fitView({ padding: 0.2, duration: 400 });
+    }, 50);
+  }, [nodes, edges, setNodes, fitView]);
 
   const handleSave = async () => {
     if (!id) return;
@@ -651,7 +745,7 @@ function CanvasInner() {
   if (isLoading) return (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      height: '100vh', background: '#2d2d2d', color: '#6b7280', fontSize: 14,
+      height: '100vh', background: COLORS.bg, color: COLORS.textMuted, fontSize: 14,
     }}>Carregando...</div>
   );
 
@@ -659,13 +753,13 @@ function CanvasInner() {
     <div style={{
       display: 'flex', flexDirection: 'column',
       height: '100%', width: '100%', minHeight: 0,
-      background: '#2d2d2d', overflow: 'hidden',
+      background: COLORS.bg, overflow: 'hidden',
     }}>
       <style>{hideReactFlowAttribution}</style>
       {/* ── HEADER estilo N8N ── */}
       <div style={{
-        height: 44, background: '#1f1f1f',
-        borderBottom: '1px solid #3d3d3d',
+        height: 44, background: COLORS.header,
+        borderBottom: `1px solid ${COLORS.headerBorder}`,
         display: 'flex', alignItems: 'center',
         justifyContent: 'space-between',
         padding: '0 16px', flexShrink: 0, zIndex: 10,
@@ -673,16 +767,16 @@ function CanvasInner() {
         {/* Esquerda: voltar + nome */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <button onClick={() => navigate('/admin/funis')} style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: '#6b7280', display: 'flex', alignItems: 'center',
+            background: COLORS.surfaceSub, border: 'none', cursor: 'pointer',
+            color: COLORS.textMuted, display: 'flex', alignItems: 'center',
             padding: 4, borderRadius: 6,
           }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#e5e7eb')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#6b7280')}
+            onMouseEnter={e => (e.currentTarget.style.color = COLORS.text)}
+            onMouseLeave={e => (e.currentTarget.style.color = COLORS.textMuted)}
           >
             <ArrowLeft size={16} />
           </button>
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#e5e7eb' }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>
             {funilNome || 'Funil'}
           </span>
           {hasChanges && (
@@ -699,8 +793,8 @@ function CanvasInner() {
           {['Editor', 'Histórico'].map((tab, i) => (
             <button key={tab} style={{
               padding: '5px 14px', borderRadius: 7, border: 'none',
-              background: i === 0 ? '#383838' : 'transparent',
-              color: i === 0 ? '#e5e7eb' : '#6b7280',
+              background: i === 0 ? COLORS.surfaceSub : 'transparent',
+              color: i === 0 ? COLORS.text : COLORS.textMuted,
               fontSize: 12, fontWeight: 600, cursor: 'pointer',
             }}>{tab}</button>
           ))}
@@ -732,18 +826,18 @@ function CanvasInner() {
           defaultEdgeOptions={{
             type: 'custom',
           }}
-          style={{ background: '#2d2d2d' }}
+          style={{ background: COLORS.bg }}
           deleteKeyCode={['Backspace', 'Delete']}
         >
-          <Background variant={BackgroundVariant.Dots} gap={18} size={1} color="#3d3d3d" />
+          <Background variant={BackgroundVariant.Dots} gap={18} size={1} color={COLORS.bgDot} />
           <MiniMap
             style={{
-              background: '#1f1f1f',
-              border: '1px solid #3d3d3d',
+              background: COLORS.surfaceSub,
+              border: `1px solid ${COLORS.border}`,
               borderRadius: 8,
             }}
-            nodeColor="#444"
-            maskColor="rgba(0,0,0,0.5)"
+            nodeColor={COLORS.border}
+            maskColor={isLight ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"}
           />
         </ReactFlow>
 
@@ -780,6 +874,7 @@ function CanvasInner() {
             { icon: ZoomOut,      action: () => zoomOut(),                  label: 'Zoom -' },
             { icon: ZoomIn,       action: () => zoomIn(),                   label: 'Zoom +' },
             { icon: RotateCcw,    action: () => { setNodes([]); setEdges([]); setHasChanges(true); }, label: 'Limpar' },
+            { icon: LayoutGrid,   action: handleTidyUp,                     label: 'Tidy Up' },
             { icon: MousePointer2, action: () => {},                        label: 'Selecionar' },
           ].map(({ icon: BtnIcon, action, label }) => (
             <button key={label} onClick={action} title={label} style={{
