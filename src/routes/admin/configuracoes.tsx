@@ -358,7 +358,7 @@ export default function Configuracoes() {
                 </Dialog>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-[#1a1a1a] rounded-xl border border-(--card-border)">
+                <div className="flex items-center justify-between p-4 bg-muted rounded-xl border border-(--card-border)">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-9 w-9 border border-white/10">
                       <AvatarImage src={photoUrl} />
@@ -422,7 +422,7 @@ export default function Configuracoes() {
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {pastas?.map((p: any) => (
-                  <div key={p.$id} className="flex items-center justify-between p-4 bg-[#1a1a1a] rounded-xl border border-(--card-border)">
+                  <div key={p.$id} className="flex items-center justify-between p-4 bg-muted rounded-xl border border-(--card-border)">
                     <div className="flex items-center gap-3">
                       <div className={`w-3 h-3 rounded-full ${p.cor}`} />
                       <span className="font-bold text-sm tracking-tight">{p.nome}</span>
