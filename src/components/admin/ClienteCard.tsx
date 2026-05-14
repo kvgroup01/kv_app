@@ -55,7 +55,7 @@ export function ClienteCard({ cliente, onEditar, onDeletar, onMoverPasta }: Clie
       <div className="flex justify-between items-start mb-6">
         <Avatar className="h-14 w-14 rounded-[10px] border border-(--card-border) shadow-sm">
           <AvatarImage src={cliente.logo_url} alt={cliente.nome} className="object-cover" />
-          <AvatarFallback className="bg-[#1a1a1a] text-(--text-primary) font-semibold rounded-[10px] text-lg">
+          <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-[10px] text-lg">
             {getInitials(cliente.nome)}
           </AvatarFallback>
         </Avatar>

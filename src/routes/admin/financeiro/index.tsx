@@ -125,7 +125,7 @@ export default function FinanceiroIndex() {
       )}
 
       {/* Toolbar e Filtros da Tabela */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#141414] p-2 rounded-xl border border-(--card-border) shadow-premium">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-muted p-2 rounded-xl border border-(--card-border) shadow-premium">
         <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-full sm:w-[200px] bg-transparent border-none focus:ring-0 text-[13px] h-10 text-(--text-secondary)">
@@ -196,7 +196,7 @@ export default function FinanceiroIndex() {
                           <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                             <Dialog>
                               <DialogTrigger asChild>
-                                <Button variant="ghost" size="icon" title="Ver Comprovante" className="h-8 w-8 text-(--text-tertiary) hover:text-(--text-primary) hover:bg-[#1a1a1a]">
+                                <Button variant="ghost" size="icon" title="Ver Comprovante" className="h-8 w-8 text-(--text-tertiary) hover:text-(--text-primary) hover:bg-accent">
                                   <ImageIcon className="h-3.5 w-3.5" />
                                 </Button>
                               </DialogTrigger>
@@ -212,7 +212,7 @@ export default function FinanceiroIndex() {
                                    />
                                 </div>
                                 <div className="flex justify-end gap-2 pt-2">
-                                   <Button variant="outline" className="border-(--card-border) hover:bg-[#1a1a1a]" onClick={() => window.open(orcamento.comprovante_url, '_blank')}>
+                                   <Button variant="outline" className="border-(--card-border) hover:bg-accent" onClick={() => window.open(orcamento.comprovante_url, '_blank')}>
                                       <ExternalLink className="w-4 h-4 mr-2" /> Abrir Original
                                    </Button>
                                 </div>

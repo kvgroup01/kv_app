@@ -164,11 +164,11 @@ export default function ClientesIndex() {
           <p className="text-[13px] text-(--text-secondary) mt-1">Gerencie seus painéis e base de clientes.</p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="bg-[#141414] border border-(--card-border) rounded-lg p-1 mr-2 flex items-center">
+          <div className="bg-muted border border-(--card-border) rounded-lg p-1 mr-2 flex items-center">
             <Button
               variant="ghost"
               size="icon"
-              className={cn("h-8 w-8 rounded", viewMode === 'folders' ? "bg-white text-black hover:bg-white" : "text-(--text-tertiary)")}
+              className={cn("h-8 w-8 rounded", viewMode === 'folders' ? "bg-background text-foreground hover:bg-background" : "text-(--text-tertiary)")}
               onClick={() => setViewMode('folders')}
               title="Visão por Pastas"
             >
@@ -177,7 +177,7 @@ export default function ClientesIndex() {
             <Button
               variant="ghost"
               size="icon"
-              className={cn("h-8 w-8 rounded", viewMode === 'grid' ? "bg-white text-black hover:bg-white" : "text-(--text-tertiary)")}
+              className={cn("h-8 w-8 rounded", viewMode === 'grid' ? "bg-background text-foreground hover:bg-background" : "text-(--text-tertiary)")}
               onClick={() => setViewMode('grid')}
               title="Grade Simples"
             >
@@ -198,7 +198,7 @@ export default function ClientesIndex() {
       </div>
 
       {/* Toolbar / Filtros */}
-      <div className="flex flex-col sm:flex-row items-center gap-4 bg-[#141414] p-2 rounded-xl border border-(--card-border) shadow-premium">
+      <div className="flex flex-col sm:flex-row items-center gap-4 bg-muted p-2 rounded-xl border border-(--card-border) shadow-premium">
         <div className="relative w-full sm:max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-(--text-tertiary)" />
           <Input 
