@@ -62,7 +62,7 @@ export function ClienteCard({ cliente, onEditar, onDeletar, onMoverPasta }: Clie
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-(--text-secondary) hover:text-(--text-primary) hover:bg-[#1a1a1a]">
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-(--text-secondary) hover:text-(--text-primary) hover:bg-accent">
               <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -113,7 +113,7 @@ export function ClienteCard({ cliente, onEditar, onDeletar, onMoverPasta }: Clie
       <div className="flex items-center gap-2 pt-5 border-t border-(--card-border)">
         <Button 
           variant="outline" 
-          className="flex-1 bg-transparent border-(--card-border) hover:bg-[#1a1a1a] text-(--text-primary) text-[13px] h-9" 
+          className="flex-1 bg-transparent border-(--card-border) hover:bg-accent text-(--text-primary) text-[13px] h-9" 
           onClick={() => window.open(dashboardUrl, '_blank')}
         >
           <ExternalLink className="mr-2 h-3.5 w-3.5" />
@@ -122,7 +122,7 @@ export function ClienteCard({ cliente, onEditar, onDeletar, onMoverPasta }: Clie
         <Button 
           variant="ghost" 
           size="icon" 
-          className="h-9 w-9 text-(--text-tertiary) hover:text-(--text-primary) hover:bg-[#1a1a1a] border border-(--card-border)"
+          className="h-9 w-9 text-(--text-tertiary) hover:text-(--text-primary) hover:bg-accent border border-(--card-border)"
           onClick={handleCopyLink} 
           title="Copiar link"
         >

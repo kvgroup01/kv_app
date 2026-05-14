@@ -221,7 +221,7 @@ export default function DashboardPublico() {
            <DateRangePicker 
              value={dateRange} 
              onChange={setDateRange} 
-             className="w-full md:w-auto bg-[#1a1a1a] border-(--card-border) h-11 px-4 text-(--text-primary)"
+             className="w-full md:w-auto bg-muted border-(--card-border) h-11 px-4 text-(--text-primary)"
            />
         </div>
 
@@ -243,7 +243,7 @@ export default function DashboardPublico() {
 
         {tipo === 'ambos' && (
           <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full border-none shadow-none bg-transparent animate-in fade-in duration-700">
-            <TabsList className="grid w-full grid-cols-2 max-w-[400px] mb-8 bg-[#141414] border border-(--card-border) p-1 rounded-xl h-11 mx-auto lg:mx-0">
+            <TabsList className="grid w-full grid-cols-2 max-w-[400px] mb-8 bg-muted border border-(--card-border) p-1 rounded-xl h-11 mx-auto lg:mx-0">
               <TabsTrigger value="whatsapp" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-black text-[13px] font-medium transition-all">WhatsApp View</TabsTrigger>
               <TabsTrigger value="leads" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-black text-[13px] font-medium transition-all">Leads View</TabsTrigger>
             </TabsList>

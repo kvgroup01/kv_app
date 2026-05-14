@@ -31,7 +31,7 @@ function contarOcorrencias(arr: (string | undefined | null)[]): { name: string; 
 const DarkTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-3 text-sm">
+    <div className="bg-popover border border-border rounded-lg p-3 text-sm">
       {label && <p className="font-semibold mb-1">{label}</p>}
       {payload.map((p: any, i: number) => (
         <div key={i} className="flex items-center gap-2">

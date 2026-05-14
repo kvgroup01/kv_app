@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useLancamentoPorSlug } from "../../../hooks/useLancamentos";
 import { useDashboard } from "../../../hooks/useDashboard";
 import { useSurvey } from "../../../hooks/useSurvey";
+import { useTheme } from "../../../hooks/useTheme";
 
 import { DateRangePicker } from "../../../components/shared/DateRangePicker";
 import { DashboardSkeleton } from "../../../components/dashboard/DashboardSkeleton";
@@ -53,6 +54,9 @@ type SecaoId =
 
 export default function PublicDashboardLancamento() {
   const { slug, lancamento } = useParams();
+
+  // Aplicar tema salvo pelo usuário
+  useTheme();
 
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>(undefined);
 

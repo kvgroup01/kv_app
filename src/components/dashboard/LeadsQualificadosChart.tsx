@@ -63,7 +63,7 @@ export function LeadsQualificadosChart({
       const pctQual = total > 0 ? (qualVal / total) * 100 : 0;
 
       return (
-        <div className="bg-[#1a1a1a] border border-[#2a2a2a] text-popover-foreground shadow-sm rounded-lg p-3 z-[9999]">
+        <div className="bg-popover border border-border text-popover-foreground shadow-sm rounded-lg p-3 z-[9999]">
           <p className="font-semibold mb-2">{fmtData(label)}</p>
           <div className="flex flex-col gap-1 min-w-[180px]">
             <div className="flex items-center justify-between text-sm">
@@ -82,7 +82,7 @@ export function LeadsQualificadosChart({
             </div>
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-sm bg-[#0f172a]" />
+                <div className="w-3 h-3 rounded-sm bg-foreground" />
                 <span className="text-muted-foreground">Investimento:</span>
               </div>
               <span className="font-medium ml-4">{fmtBRL(invVal)}</span>

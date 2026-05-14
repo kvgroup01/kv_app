@@ -82,7 +82,7 @@ export function FunnelWhatsApp({
     if (active && payload && payload.length) {
       const pData = payload[0].payload;
       return (
-        <div className="bg-[#1a1a1a] border border-[#2a2a2a] text-popover-foreground shadow-sm rounded-lg p-3 z-[9999]">
+        <div className="bg-popover border border-border text-popover-foreground shadow-sm rounded-lg p-3 z-[9999]">
           <p className="font-semibold mb-1">{pData.name}</p>
           <p className="text-sm">
             <span className="text-muted-foreground mr-2">Volume:</span>

@@ -29,7 +29,7 @@ export function FunnelLeads({ dados, metricas }: FunnelLeadsProps) {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-[#1a1a1a] border border-[#2a2a2a] text-popover-foreground shadow-sm rounded-lg p-3 z-[9999]">
+        <div className="bg-popover border border-border text-popover-foreground shadow-sm rounded-lg p-3 z-[9999]">
           <p className="font-semibold mb-2">{fmtData(label)}</p>
           {(payload ?? []).map((entry: any, index: number) => (
             <div
