@@ -144,3 +144,68 @@
 .recharts-surface:focus {
   outline: none !important;
 }
+
+@layer utilities {
+
+  /* No light mode, text-white vira text-foreground */
+  :root.light .text-white {
+    color: hsl(var(--foreground)) !important;
+  }
+
+  /* Backgrounds hardcoded escuros → brancos no light */
+  :root.light .bg-\[#0f0f0f\],
+  :root.light .bg-\[#0a0a0a\],
+  :root.light .bg-\[#141414\],
+  :root.light .bg-\[#1a1a1a\],
+  :root.light .bg-\[#1f1f1f\],
+  :root.light .bg-\[#2a2a2a\],
+  :root.light .bg-\[#2d2d2d\] {
+    background-color: hsl(var(--card)) !important;
+  }
+
+  /* Border hardcoded escura → light */
+  :root.light .border-\[#333\],
+  :root.light .border-\[#1a1a1a\],
+  :root.light .border-\[#2a2a2a\],
+  :root.light .border-\[#3d3d3d\] {
+    border-color: hsl(var(--border)) !important;
+  }
+
+  /* Textos hardcoded claros → escuros no light */
+  :root.light .text-\[\#ededed\],
+  :root.light .text-\[\#e5e7eb\] {
+    color: hsl(var(--foreground)) !important;
+  }
+
+  /* Textos mutados hardcoded */
+  :root.light .text-\[\#888\],
+  :root.light .text-\[\#9ca3af\],
+  :root.light .text-\[\#6b7280\] {
+    color: hsl(var(--muted-foreground)) !important;
+  }
+
+  /* bg-card e bg-background no light */
+  :root.light .bg-card {
+    background-color: hsl(var(--card));
+  }
+  :root.light .bg-background {
+    background-color: hsl(var(--background));
+  }
+
+  /* Dashboard público — fundo escuro deve virar claro */
+  :root.light .bg-\[#0f0f0f\] {
+    background-color: hsl(var(--background)) !important;
+  }
+
+  /* Scrollbar no light mode */
+  :root.light {
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+
+  /* Inputs e textareas hardcoded */
+  :root.light input,
+  :root.light textarea,
+  :root.light select {
+    color-scheme: light;
+  }
+}

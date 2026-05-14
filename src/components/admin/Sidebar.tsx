@@ -64,7 +64,7 @@ export function Sidebar({ usuario, onLogout, isCollapsed = false, onToggleCollap
             KV
           </div>
           {showLabels && (
-            <span className="text-[15px] font-semibold text-white tracking-tight animate-in fade-in duration-300 truncate">
+            <span className="text-[15px] font-semibold text-foreground tracking-tight animate-in fade-in duration-300 truncate">
               Dashboard KV
             </span>
           )}
@@ -76,7 +76,7 @@ export function Sidebar({ usuario, onLogout, isCollapsed = false, onToggleCollap
             variant="ghost" 
             size="icon" 
             onClick={onToggleCollapse}
-            className="hidden md:flex h-8 w-8 text-(--text-tertiary) hover:bg-white/5 hover:text-white transition-all"
+            className="hidden md:flex h-8 w-8 text-(--text-tertiary) hover:bg-accent hover:text-foreground transition-all"
             title="Recolher Menu"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -89,7 +89,7 @@ export function Sidebar({ usuario, onLogout, isCollapsed = false, onToggleCollap
               variant="outline" 
               size="icon" 
               onClick={onToggleCollapse}
-              className="h-6 w-6 rounded-full bg-[#1a1a1a] border-(--sidebar-border) text-white hover:bg-white hover:text-black transition-all shadow-xl"
+              className="h-6 w-6 rounded-full bg-card border-(--sidebar-border) text-foreground hover:bg-foreground hover:text-background transition-all shadow-xl"
               title="Expandir Menu"
             >
               <ChevronRight className="h-3 w-3" />
@@ -114,15 +114,15 @@ export function Sidebar({ usuario, onLogout, isCollapsed = false, onToggleCollap
                 "group flex w-full items-center transition-all duration-200 rounded-lg",
                 showLabels ? "gap-3 px-3 py-2 text-[13px]" : "justify-center p-2",
                 isActive 
-                  ? "bg-[#1f1f1f] text-white shadow-sm" 
-                  : "text-(--text-secondary) hover:bg-[#1a1a1a] hover:text-white"
+                  ? "bg-accent text-foreground shadow-sm" 
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
               )
             }
             title={!showLabels ? item.label : undefined}
           >
             <item.icon className={cn(
               "h-4 w-4 shrink-0 transition-colors",
-              "group-hover:text-white"
+              "group-hover:text-foreground"
             )} />
             {showLabels && (
               <span className="truncate animate-in fade-in slide-in-from-left-1 duration-300">
@@ -142,8 +142,8 @@ export function Sidebar({ usuario, onLogout, isCollapsed = false, onToggleCollap
           "flex items-center w-full",
           showLabels ? "gap-3" : "flex-col gap-4"
         )}>
-          <Avatar className="h-9 w-9 shrink-0 rounded-lg border border-[#333]">
-            <AvatarFallback className="bg-[#1a1a1a] text-(--text-primary) text-xs font-medium rounded-lg">
+          <Avatar className="h-9 w-9 shrink-0 rounded-lg border border-border">
+            <AvatarFallback className="bg-muted text-foreground text-xs font-medium rounded-lg">
               {usuario.nome ? getInitials(usuario.nome) : 'US'}
             </AvatarFallback>
           </Avatar>
@@ -151,18 +151,18 @@ export function Sidebar({ usuario, onLogout, isCollapsed = false, onToggleCollap
           {showLabels ? (
             <>
               <div className="flex flex-1 flex-col overflow-hidden animate-in fade-in duration-300">
-                <span className="truncate text-[13px] font-medium text-white">{usuario.nome || 'Usuário'}</span>
+                <span className="truncate text-[13px] font-medium text-foreground">{usuario.nome || 'Usuário'}</span>
                 <span className="truncate text-[11px] text-(--text-tertiary)">{usuario.email}</span>
               </div>
               <ThemeToggle />
-              <Button variant="ghost" size="icon" onClick={onLogout} title="Sair" className="h-8 w-8 text-(--text-secondary) hover:bg-[#1a1a1a] hover:text-red-400">
+              <Button variant="ghost" size="icon" onClick={onLogout} title="Sair" className="h-8 w-8 text-(--text-secondary) hover:bg-accent hover:text-red-400">
                 <LogOut className="h-4 w-4" />
               </Button>
             </>
           ) : (
             <>
               <ThemeToggle />
-              <Button variant="ghost" size="icon" onClick={onLogout} title="Sair" className="h-8 w-8 text-(--text-secondary) hover:bg-[#1a1a1a] hover:text-red-400">
+              <Button variant="ghost" size="icon" onClick={onLogout} title="Sair" className="h-8 w-8 text-(--text-secondary) hover:bg-accent hover:text-red-400">
                 <LogOut className="h-4 w-4" />
               </Button>
             </>
@@ -175,7 +175,7 @@ export function Sidebar({ usuario, onLogout, isCollapsed = false, onToggleCollap
   return (
     <>
       {/* Mobile Top Header */}
-      <div className="md:hidden flex h-16 w-full items-center justify-between border-b border-(--sidebar-border) bg-(--sidebar-bg) text-white px-4 sticky top-0 z-40">
+      <div className="md:hidden flex h-16 w-full items-center justify-between border-b border-(--sidebar-border) bg-(--sidebar-bg) text-foreground px-4 sticky top-0 z-40">
         <div className="flex items-center gap-2">
           <div className="flex h-6 w-8 items-center justify-center rounded-md bg-white text-black text-[11px] font-bold">
              KV
@@ -184,7 +184,7 @@ export function Sidebar({ usuario, onLogout, isCollapsed = false, onToggleCollap
         </div>
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="text-white hover:bg-[#1a1a1a]">
+            <Button variant="ghost" size="icon" className="text-foreground hover:bg-accent">
               <Menu className="h-5 w-5" />
               <span className="sr-only">Toggle Sidebar</span>
             </Button>
