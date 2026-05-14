@@ -14,7 +14,7 @@ import {
   LayoutTemplate, Users, CheckCircle, Calendar, DollarSign,
   MessageCircle, BarChart2, Pencil, Trash2, Copy,
   AlignLeft, AlignCenter, ChevronDown, Type, Save,
-  RotateCcw, ZoomIn, ZoomOut, Maximize2, MousePointer2, LayoutGrid,
+  RotateCcw, ZoomIn, ZoomOut, Maximize2, MousePointer2, Wand2,
 } from 'lucide-react';
 import dagre from '@dagrejs/dagre';
 import { useFunil, useAtualizarFunil } from '../../../../hooks/useFunis';
@@ -874,7 +874,7 @@ function CanvasInner() {
             { icon: ZoomOut,      action: () => zoomOut(),                  label: 'Zoom -' },
             { icon: ZoomIn,       action: () => zoomIn(),                   label: 'Zoom +' },
             { icon: RotateCcw,    action: () => { setNodes([]); setEdges([]); setHasChanges(true); }, label: 'Limpar' },
-            { icon: LayoutGrid,   action: handleTidyUp,                     label: 'Tidy Up' },
+            { icon: Wand2,        action: handleTidyUp,                     label: 'Tidy Up' },
             { icon: MousePointer2, action: () => {},                        label: 'Selecionar' },
           ].map(({ icon: BtnIcon, action, label }) => (
             <button key={label} onClick={action} title={label} style={{
