@@ -1,12 +1,9 @@
-import { Client, Databases, Query, ID } from 'node-appwrite';
+import { createClient } from '@supabase/supabase-js';
 
-const client = new Client()
-  .setEndpoint(process.env.VITE_APPWRITE_ENDPOINT!)
-  .setProject(process.env.VITE_APPWRITE_PROJECT_ID!)
-  .setKey(process.env.VITE_APPWRITE_API_KEY!);
-
-const db = new Databases(client);
-const DB = 'dashboard-kv';
+const supabase = createClient(
+  process.env.VITE_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_KEY!
+);
 
 async function fetchSheetData(spreadsheetId: string, sheet: string) {
   const encodedSheet = encodeURIComponent(sheet);
@@ -26,23 +23,15 @@ export default async function handler(req: any, res: any) {
   const { action } = req.query;
 
   // ─── ACTION: list-tabs ───────────────────────────────────
-  // GET /api/sheets?action=list-tabs&spreadsheetId=ID
-  // Retorna { tabs: string[] }
   if (action === 'list-tabs') {
     const { spreadsheetId } = req.query;
     if (!spreadsheetId) return res.status(400).json({ error: 'spreadsheetId obrigatório' });
     try {
-      // Verificar se a planilha é acessível tentando buscar a aba padrão
       const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:json`;
       const r = await fetch(url);
-      if (!r.ok) {
-        throw new Error('Planilha não acessível. Verifique se está publicada na web.');
-      }
+      if (!r.ok) throw new Error('Planilha não acessível. Verifique se está publicada na web.');
       const text = await r.text();
-      if (!text.includes('google.visualization')) {
-        throw new Error('Planilha não acessível. Verifique se está publicada na web.');
-      }
-      // Retornar indicando que a planilha é válida mas o usuário deve digitar o nome da aba
+      if (!text.includes('google.visualization')) throw new Error('Planilha não acessível. Verifique se está publicada na web.');
       return res.status(200).json({ tabs: [], manual: true });
     } catch (e: any) {
       return res.status(500).json({ error: e.message });
@@ -50,8 +39,6 @@ export default async function handler(req: any, res: any) {
   }
 
   // ─── ACTION: preview ────────────────────────────────────
-  // GET /api/sheets?action=preview&spreadsheetId=ID&sheet=NomeDaAba
-  // Retorna { columns: string[], rows: string[][], total: number }
   if (action === 'preview') {
     const { spreadsheetId, sheet } = req.query;
     if (!spreadsheetId || !sheet) return res.status(400).json({ error: 'Parâmetros obrigatórios' });
@@ -68,9 +55,6 @@ export default async function handler(req: any, res: any) {
   }
 
   // ─── ACTION: import ──────────────────────────────────────
-  // POST /api/sheets?action=import
-  // Body: { lancamentoId, tipo: 'leads' | 'pesquisa', spreadsheetId, sheet, mapeamento: Record<string, string> }
-  // Retorna { imported: number, skipped: number, errors: number }
   if (action === 'import' && req.method === 'POST') {
     const { lancamentoId, tipo, spreadsheetId, sheet, mapeamento } = req.body;
     if (!lancamentoId || !tipo || !spreadsheetId || !sheet || !mapeamento) {
@@ -90,7 +74,6 @@ export default async function handler(req: any, res: any) {
         const batch = allRows.slice(i, i + BATCH);
         await Promise.all(batch.map(async (row: string[]) => {
           try {
-            // Mapear colunas para campos usando o mapeamento fornecido
             const getValue = (campo: string) => {
               const colName = mapeamento[campo];
               if (!colName || colName === 'nao_mapear') return null;
@@ -103,12 +86,10 @@ export default async function handler(req: any, res: any) {
               let data_raw = getValue('data');
               let data_formatada = new Date().toISOString().split('T')[0];
               if (data_raw) {
-                // Tentar parsear data em vários formatos
                 const d = new Date(data_raw);
                 if (!isNaN(d.getTime())) {
                   data_formatada = d.toISOString().split('T')[0];
                 } else {
-                  // Formato dd/mm/yyyy
                   const parts = data_raw.split('/');
                   if (parts.length === 3) {
                     data_formatada = `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
@@ -116,18 +97,18 @@ export default async function handler(req: any, res: any) {
                 }
               }
 
-              // Verificar duplicata
               if (email) {
-                const existing = await db.listDocuments(DB, 'lead_entries', [
-                  Query.equal('lancamento_id', lancamentoId),
-                  Query.equal('email', email),
-                  Query.equal('data', data_formatada),
-                  Query.limit(1),
-                ]);
-                if (existing.documents.length > 0) { skipped++; return; }
+                const { data: existing } = await supabase.from('lead_entries')
+                  .select('id')
+                  .eq('lancamento_id', lancamentoId)
+                  .eq('email', email)
+                  .eq('data', data_formatada)
+                  .limit(1);
+                  
+                if (existing && existing.length > 0) { skipped++; return; }
               }
 
-              await db.createDocument(DB, 'lead_entries', ID.unique(), {
+              const { error: insertErr } = await supabase.from('lead_entries').insert({
                 lancamento_id: lancamentoId,
                 nome: getValue('nome'),
                 email,
@@ -142,20 +123,23 @@ export default async function handler(req: any, res: any) {
                 data: data_formatada,
                 leads_qualificados: 0,
                 leads_desqualificados: 0,
-              });
+              }).select().single();
+              
+              if (insertErr) throw insertErr;
+              
               imported++;
 
             } else if (tipo === 'pesquisa') {
               const email = getValue('email');
 
-              // Verificar duplicata por email
               if (email) {
-                const existing = await db.listDocuments(DB, 'survey_entries', [
-                  Query.equal('lancamento_id', lancamentoId),
-                  Query.equal('email', email),
-                  Query.limit(1),
-                ]);
-                if (existing.documents.length > 0) { skipped++; return; }
+                const { data: existing } = await supabase.from('survey_entries')
+                  .select('id')
+                  .eq('lancamento_id', lancamentoId)
+                  .eq('email', email)
+                  .limit(1);
+                
+                if (existing && existing.length > 0) { skipped++; return; }
               }
 
               let data_raw = getValue('data');
@@ -165,7 +149,7 @@ export default async function handler(req: any, res: any) {
                 if (!isNaN(d.getTime())) data_formatada = d.toISOString().split('T')[0];
               }
 
-              await db.createDocument(DB, 'survey_entries', ID.unique(), {
+              const { error: insertErr } = await supabase.from('survey_entries').insert({
                 lancamento_id: lancamentoId,
                 typeform_response_id: crypto.randomUUID(),
                 nome: getValue('nome'),
@@ -178,7 +162,10 @@ export default async function handler(req: any, res: any) {
                 estado: getValue('estado'),
                 profissao: getValue('profissao'),
                 data: data_formatada,
-              });
+              }).select().single();
+              
+              if (insertErr) throw insertErr;
+              
               imported++;
             }
           } catch (e) {
@@ -198,29 +185,28 @@ export default async function handler(req: any, res: any) {
     if (!lancamentoId) return res.status(400).json({ error: 'lancamentoId obrigatório' });
 
     try {
-      // 1. Buscar regras do lançamento
-      const lancamento = await db.getDocument(DB, 'lancamentos', lancamentoId);
-      if (!lancamento.regras_qualificacao) {
+      const { data: lancamento, error: lancErr } = await supabase.from('lancamentos').select('*').eq('id', lancamentoId).single();
+      if (lancErr || !lancamento.regras_qualificacao) {
         return res.status(400).json({ error: 'Lançamento sem regras de qualificação configuradas' });
       }
-      const regras = JSON.parse(lancamento.regras_qualificacao);
+      const regras = typeof lancamento.regras_qualificacao === 'string' ? JSON.parse(lancamento.regras_qualificacao) : lancamento.regras_qualificacao;
       const criterio = regras.criterio || 'escolaridade';
       const escolaridadesOk = regras.escolaridades || [];
       const rendasOk = regras.rendas || [];
 
-      // 2. Carregar todas as survey_entries do lançamento em memória
-      // para cruzamento local (evitar N queries)
-      const surveyMap = new Map<string, string>(); // email_normalizado -> renda
-      const surveyPhoneMap = new Map<string, string>(); // telefone_normalizado -> renda
+      const surveyMap = new Map<string, string>();
+      const surveyPhoneMap = new Map<string, string>();
       let surveyOffset = 0;
+      
       while (true) {
-        const surveys = await db.listDocuments(DB, 'survey_entries', [
-          Query.equal('lancamento_id', lancamentoId),
-          Query.select(['email', 'telefone', 'renda']),
-          Query.limit(500),
-          Query.offset(surveyOffset),
-        ]);
-        for (const s of surveys.documents) {
+        const { data: surveys } = await supabase.from('survey_entries')
+          .select('email, telefone, renda')
+          .eq('lancamento_id', lancamentoId)
+          .range(surveyOffset, surveyOffset + 499);
+          
+        if (!surveys || surveys.length === 0) break;
+        
+        for (const s of surveys) {
           const renda = s.renda || null;
           if (s.email) surveyMap.set(s.email.toLowerCase().trim(), renda);
           if (s.telefone) {
@@ -228,27 +214,26 @@ export default async function handler(req: any, res: any) {
             if (tel) surveyPhoneMap.set(tel, renda);
           }
         }
-        if (surveys.documents.length < 500) break;
+        
+        if (surveys.length < 500) break;
         surveyOffset += 500;
       }
 
-      // 3. Carregar todos os leads e reclassificar
       let updated = 0, errors = 0, total = 0;
       let leadOffset = 0;
 
       while (true) {
-        const leads = await db.listDocuments(DB, 'lead_entries', [
-          Query.equal('lancamento_id', lancamentoId),
-          Query.select(['$id', 'email', 'telefone', 'escolaridade', 'renda']),
-          Query.limit(500),
-          Query.offset(leadOffset),
-        ]);
+        const { data: leads } = await supabase.from('lead_entries')
+          .select('id, email, telefone, escolaridade, renda')
+          .eq('lancamento_id', lancamentoId)
+          .range(leadOffset, leadOffset + 499);
+          
+        if (!leads || leads.length === 0) break;
 
-        total += leads.documents.length;
+        total += leads.length;
 
-        await Promise.all(leads.documents.map(async (lead: any) => {
+        await Promise.all(leads.map(async (lead: any) => {
           try {
-            // Buscar renda: primeiro no próprio lead, depois na survey por email, depois por telefone
             let renda = lead.renda || null;
             if (!renda && lead.email) {
               renda = surveyMap.get(lead.email.toLowerCase().trim()) || null;
@@ -269,18 +254,21 @@ export default async function handler(req: any, res: any) {
             else if (criterio === 'ambos_e') qualificado = escQualificada && rendaQualificada;
             else if (criterio === 'ambos_ou') qualificado = escQualificada || rendaQualificada;
 
-            await db.updateDocument(DB, 'lead_entries', lead.$id, {
+            const { error: updErr } = await supabase.from('lead_entries').update({
               leads_qualificados: qualificado ? 1 : 0,
               leads_desqualificados: qualificado ? 0 : 1,
               renda: renda || lead.renda || null,
-            });
+            }).eq('id', lead.id);
+            
+            if (updErr) throw updErr;
+            
             updated++;
           } catch (e) {
             errors++;
           }
         }));
 
-        if (leads.documents.length < 500) break;
+        if (leads.length < 500) break;
         leadOffset += 500;
       }
 

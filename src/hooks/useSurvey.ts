@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchSurveyEntriesAppwrite } from '../lib/appwrite';
+import { supabase } from '../lib/supabase';
 import type { SurveyEntry } from '../lib/types';
 
 export function useSurvey(
@@ -8,8 +8,26 @@ export function useSurvey(
 ) {
   return useQuery<SurveyEntry[]>({
     queryKey: ['survey', lancamentoId, dateRange.from, dateRange.to],
-    queryFn: () =>
-      fetchSurveyEntriesAppwrite(lancamentoId!, dateRange.from, dateRange.to),
+    queryFn: async () => {
+      const fromStr = dateRange.from.toISOString().split('T')[0];
+      const toStr = dateRange.to.toISOString().split('T')[0];
+      
+      const { data, error } = await supabase
+        .from('survey_entries')
+        .select('*')
+        .eq('lancamento_id', lancamentoId!)
+        .gte('data', fromStr)
+        .lte('data', toStr)
+        .limit(5000);
+        
+      if (error) throw error;
+      
+      return (data || []).map((item: any) => ({
+        ...item,
+        $id: item.id,
+        $createdAt: item.criado_em,
+      }));
+    },
     enabled: !!lancamentoId,
     staleTime: 1000 * 60 * 10,
   });

@@ -1,13 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { Client, Databases, ID, Query } from 'node-appwrite';
+import { createClient } from '@supabase/supabase-js';
 
-const client = new Client()
-  .setEndpoint(process.env.VITE_APPWRITE_ENDPOINT!)
-  .setProject(process.env.VITE_APPWRITE_PROJECT_ID!)
-  .setKey(process.env.VITE_APPWRITE_API_KEY!);
-
-const db = new Databases(client);
-const DB = 'dashboard-kv';
+const supabase = createClient(
+  process.env.VITE_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_KEY!
+);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -28,13 +25,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const submittedAt = response.submitted_at;
 
     // Evitar duplicatas
-    const existing = await db.listDocuments(DB, 'survey_entries', [
-      Query.equal('typeform_response_id', responseId),
-      Query.limit(1),
-    ]);
-    if (existing.documents.length > 0) {
-      return res.status(200).json({ ok: true, duplicate: true });
-    }
+    const { data: existing } = await supabase
+      .from('survey_entries')
+      .select('id')
+      .eq('typeform_response_id', responseId)
+      .limit(1);
+    if (existing && existing.length > 0) return res.status(200).json({ ok: true });
 
     // Extrai valor pelo field.id
     const getAnswer = (fieldId: string): string | null => {
@@ -75,7 +71,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       pergunta_professor: getAnswer('ZQrkhx8ytEZ3'),
     };
 
-    await db.createDocument(DB, 'survey_entries', ID.unique(), doc);
+    const { error } = await supabase
+      .from('survey_entries')
+      .insert(doc);
+    if (error) throw error;
 
     return res.status(200).json({ ok: true, id: responseId });
   } catch (error: any) {

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { usePastas, useCriarPasta, useDeletarPasta } from '../../hooks/useClientes';
-import { account } from '../../lib/appwrite';
+import { supabase } from '../../lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar';
 import { Badge } from '../../components/ui/badge';
@@ -50,7 +50,10 @@ export default function Configuracoes() {
 
   const handleSaveIntegrations = async () => {
     try {
-      await account.updatePrefs({ ...(usuario?.prefs || {}), googleApiKey });
+      const { error } = await supabase.auth.updateUser({
+        data: { googleApiKey }
+      });
+      if (error) throw error;
       toast.success('Configurações de integração salvas!');
     } catch (e) {
       toast.error('Erro ao salvar integrações.');

@@ -1,12 +1,9 @@
-import { Client, Databases, Query } from 'node-appwrite';
+import { createClient } from '@supabase/supabase-js';
 
-const client = new Client()
-  .setEndpoint(process.env.VITE_APPWRITE_ENDPOINT!)
-  .setProject(process.env.VITE_APPWRITE_PROJECT_ID!)
-  .setKey(process.env.VITE_APPWRITE_API_KEY!);
-
-const db = new Databases(client);
-const DB = 'dashboard-kv';
+const supabase = createClient(
+  process.env.VITE_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_KEY!
+);
 
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -20,16 +17,14 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const result = await db.listDocuments(DB, 'lead_entries', [
-      Query.equal('lancamento_id', lancamentoId as string),
-      Query.orderDesc('$createdAt'),
-      Query.limit(1),
-    ]);
-
-    return res.status(200).json({
-      total: result.total,
-      latest: result.documents[0] || null,
-    });
+    const { data, count } = await supabase
+      .from('lead_entries')
+      .select('*', { count: 'exact' })
+      .eq('lancamento_id', lancamentoId)
+      .order('criado_em', { ascending: false })
+      .limit(1);
+      
+    return res.status(200).json({ total: count || 0, latest: data?.[0] || null });
   } catch (error: any) {
     return res.status(500).json({ error: error.message });
   }

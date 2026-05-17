@@ -1,14 +1,5 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import {
-  buscarClientePorSlug,
-  fetchCampanhasAppwrite,
-  fetchConjuntosAppwrite,
-  fetchCriativosAppwrite,
-  fetchMetricasAppwrite,
-  fetchManualInputsAppwrite,
-  fetchLeadEntriesAppwrite,
-  buscarLancamento,
-} from "../lib/appwrite";
+import { supabase } from "../lib/supabase";
 import {
   fetchCampanhas,
   fetchConjuntos,
@@ -64,7 +55,10 @@ export function useDashboard(
     queryKey: ["dashboard", slug, dateRange.from, dateRange.to, lancamentoId],
     queryFn: async () => {
       // 1. Busca cliente no AppWrite pelo slug
-      const cliente = await buscarClientePorSlug(slug);
+      const { data: clienteRaw, error: cErr } = await supabase
+        .from('clientes').select('*').eq('slug', slug).single();
+      if (cErr) throw new Error('Cliente não encontrado');
+      const cliente = { ...clienteRaw, $id: clienteRaw.id };
 
       if (!cliente.spreadsheet_id && !cliente.$id) {
         throw new Error("Cliente inválido ou não configurado corretamente.");
@@ -73,7 +67,9 @@ export function useDashboard(
       let lancamento: any = null;
       if (lancamentoId) {
         try {
-          lancamento = await buscarLancamento(lancamentoId);
+          const { data: lancRaw } = await supabase
+            .from('lancamentos').select('*').eq('id', lancamentoId).single();
+          lancamento = lancRaw ? { ...lancRaw, $id: lancRaw.id } : null;
         } catch (err) {
           console.warn("Lançamento não encontrado ou sem permissão", err);
         }
@@ -112,16 +108,46 @@ export function useDashboard(
         const fonte = cliente.fonte_dados || "appwrite";
 
         if (fonte === "appwrite") {
-          const [campanhasResult, conjuntosResult, criativosResult, appwriteMetricasResult] =
-            await Promise.all([
-              fetchCampanhasAppwrite(cliente.$id),
-              fetchConjuntosAppwrite(cliente.$id),
-              fetchCriativosAppwrite(cliente.$id, lancamentoId),
-              fetchMetricasAppwrite(cliente.$id, dateRange.from, dateRange.to, lancamentoId),
-            ]);
-          campanhasRaw = campanhasResult;
-          conjuntosRaw = conjuntosResult;
-          criativosRaw = criativosResult;
+          const { data: campData } = await supabase
+            .from('campaigns').select('*').eq('cliente_id', cliente.$id).limit(500);
+          campanhasRaw = (campData || []).map((r: any) => ({ ...r, $id: r.id }));
+
+          const campIds = campanhasRaw.map((c: any) => c.$id);
+          conjuntosRaw = [];
+          if (campIds.length > 0) {
+            const { data: conjData } = await supabase
+              .from('adsets').select('*').in('campaign_id', campIds).limit(500);
+            conjuntosRaw = (conjData || []).map((r: any) => ({
+              ...r, $id: r.id, campanha_id: r.campaign_id
+            }));
+          }
+
+          criativosRaw = [];
+          if (lancamentoId) {
+            const { data: mIds } = await supabase
+              .from('daily_metrics').select('criativo_id')
+              .eq('lancamento_id', lancamentoId).limit(5000);
+            const ids = [...new Set((mIds || []).map((m: any) => m.criativo_id).filter(Boolean))];
+            if (ids.length > 0) {
+              const { data: adsData } = await supabase
+                .from('ads').select('*').in('id', ids as string[]);
+              criativosRaw = (adsData || []).map((r: any) => ({
+                ...r, $id: r.id, conjunto_id: r.adset_id
+              }));
+            }
+          }
+
+          const fromStr = dateRange.from.toISOString().split('T')[0];
+          const toStr = dateRange.to.toISOString().split('T')[0];
+          let metQuery = supabase.from('daily_metrics').select('*')
+            .gte('data', fromStr).lte('data', toStr).limit(5000);
+          if (lancamentoId) {
+            metQuery = metQuery.eq('lancamento_id', lancamentoId);
+          } else {
+            metQuery = metQuery.eq('cliente_id', cliente.$id);
+          }
+          const { data: metData } = await metQuery;
+          const appwriteMetricasResult = (metData || []).map((r: any) => ({ ...r, $id: r.id }));
 
           // Filtrar conjuntos e campanhas apenas com criativos que têm métricas neste lançamento
           if (lancamentoId && criativosRaw.length > 0) {
@@ -147,24 +173,14 @@ export function useDashboard(
             cliente.tipo_campanha === "leads" ||
             cliente.tipo_campanha === "ambos"
           ) {
-            let manualInputs = await fetchManualInputsAppwrite(
-              cliente.$id,
-              dateRange.from,
-              dateRange.to,
-            );
-            if (lancamentoId) {
-              manualInputs = manualInputs.filter(
-                (m: any) => m.lancamento_id === lancamentoId,
-              );
-            }
-
+            let manualInputs: any[] = [];
             let importedLeads: any[] = [];
             if (lancamentoId) {
-              importedLeads = await fetchLeadEntriesAppwrite(
-                lancamentoId,
-                dateRange.from,
-                dateRange.to,
-              );
+              const { data: leadsData } = await supabase
+                .from('lead_entries').select('*')
+                .eq('lancamento_id', lancamentoId)
+                .gte('data', fromStr).lte('data', toStr).limit(5000);
+              importedLeads = (leadsData || []).map((r: any) => ({ ...r, $id: r.id }));
             }
 
             function classificarEscolaridade(

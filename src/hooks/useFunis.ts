@@ -1,17 +1,32 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { listarFunis, buscarFunil, criarFunil, atualizarFunil, deletarFunil } from '../lib/appwrite';
+import { supabase } from '../lib/supabase';
 
 export function useFunis() {
   return useQuery({
     queryKey: ['funis'],
-    queryFn: listarFunis,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('funis')
+        .select('*')
+        .order('criado_em', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
   });
 }
 
 export function useFunil(id: string) {
   return useQuery({
     queryKey: ['funil', id],
-    queryFn: () => buscarFunil(id),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('funis')
+        .select('*')
+        .eq('id', id)
+        .single();
+      if (error) throw error;
+      return data;
+    },
     enabled: !!id,
   });
 }
@@ -19,7 +34,15 @@ export function useFunil(id: string) {
 export function useCriarFunil() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: criarFunil,
+    mutationFn: async (data: any) => {
+      const { data: result, error } = await supabase
+        .from('funis')
+        .insert({ ...data, criado_em: new Date().toISOString(), atualizado_em: new Date().toISOString() })
+        .select()
+        .single();
+      if (error) throw error;
+      return result;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['funis'] });
     },
@@ -29,8 +52,16 @@ export function useCriarFunil() {
 export function useAtualizarFunil() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Parameters<typeof atualizarFunil>[1] }) =>
-      atualizarFunil(id, data),
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      const { data: result, error } = await supabase
+        .from('funis')
+        .update({ ...data, atualizado_em: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return result;
+    },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['funis'] });
       queryClient.invalidateQueries({ queryKey: ['funil', variables.id] });
@@ -41,7 +72,13 @@ export function useAtualizarFunil() {
 export function useDeletarFunil() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deletarFunil,
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('funis')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['funis'] });
     },

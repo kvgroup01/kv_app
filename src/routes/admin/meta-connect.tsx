@@ -3,8 +3,26 @@ import { useSearchParams, useNavigate } from 'react-router';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
-import { saveMetaAccountsAppwrite, fetchMetaAccountsAppwrite, deleteMetaAccountAppwrite } from '../../lib/appwrite';
+import { supabase } from '../../lib/supabase';
 import type { MetaAccount } from '../../lib/types';
+
+async function fetchMetaAccounts() {
+  const { data, error } = await supabase.from('meta_accounts').select('*');
+  if (error) throw error;
+  return data.map((d: any) => ({ ...d, $id: d.id }));
+}
+
+async function saveMetaAccounts(accounts: any[]) {
+  const { data, error } = await supabase.from('meta_accounts').insert(accounts).select();
+  if (error) throw error;
+  return data;
+}
+
+async function deleteMetaAccount(id: string) {
+  const { error } = await supabase.from('meta_accounts').delete().eq('id', id);
+  if (error) throw error;
+  return true;
+}
 
 interface AdAccount {
   id: string;
@@ -39,7 +57,7 @@ export default function MetaConnectPage() {
   const [loadingConnected, setLoadingConnected] = React.useState(true);
 
   React.useEffect(() => {
-    fetchMetaAccountsAppwrite()
+    fetchMetaAccounts()
       .then(setConnectedAccounts)
       .catch(console.error)
       .finally(() => setLoadingConnected(false));
@@ -114,7 +132,7 @@ export default function MetaConnectPage() {
         expires_in: expiresIn || undefined,
       }));
 
-    await saveMetaAccountsAppwrite(accountsToSave);
+    await saveMetaAccounts(accountsToSave);
     setStep('done');
   };
 
@@ -148,7 +166,7 @@ export default function MetaConnectPage() {
                   variant="destructive" 
                   size="sm"
                   onClick={async () => {
-                    await deleteMetaAccountAppwrite(acc.$id);
+                    await deleteMetaAccount(acc.$id);
                     setConnectedAccounts(prev => prev.filter(a => a.$id !== acc.$id));
                   }}
                 >

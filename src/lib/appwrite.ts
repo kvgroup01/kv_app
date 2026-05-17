@@ -1,3 +1,5 @@
+// DEPRECATED — sendo migrado para Supabase
+// Ver src/lib/supabase.ts
 import { Client, Account, Databases, Storage, ID, Query } from 'appwrite';
 import type { Cliente, Pasta, Convite, Orcamento, Pagamento, Lancamento, MetaAccount, SurveyEntry } from './types';
 

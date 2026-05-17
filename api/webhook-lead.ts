@@ -1,12 +1,9 @@
-import { Client, Databases, ID, Query } from "node-appwrite";
+import { createClient } from '@supabase/supabase-js';
 
-const client = new Client()
-  .setEndpoint(process.env.VITE_APPWRITE_ENDPOINT!)
-  .setProject(process.env.VITE_APPWRITE_PROJECT_ID!)
-  .setKey(process.env.VITE_APPWRITE_API_KEY!);
-
-const db = new Databases(client);
-const DB = "dashboard-kv";
+const supabase = createClient(
+  process.env.VITE_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_KEY!
+);
 
 export default async function handler(req: any, res: any) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -37,7 +34,9 @@ export default async function handler(req: any, res: any) {
     }
 
     // Buscar regras de qualificação do lançamento
-    const lancamento = await db.getDocument(DB, 'lancamentos', lancamentoId as string);
+    const { data: lancamento, error: lancErr } = await supabase
+      .from('lancamentos').select('*').eq('id', lancamentoId).single();
+    if (lancErr || !lancamento) return res.status(404).json({ error: 'Lançamento não encontrado' });
     let leads_qualificados = 0;
     let leads_desqualificados = 0;
 
@@ -85,19 +84,23 @@ export default async function handler(req: any, res: any) {
 
     // Verificar duplicata por email + data
     if (documentData.email && documentData.data) {
-      const existing = await db.listDocuments(DB, 'lead_entries', [
-        Query.equal('lancamento_id', lancamentoId as string),
-        Query.equal('email', documentData.email),
-        Query.equal('data', documentData.data),
-        Query.limit(1),
-      ]);
+      const { data: existing } = await supabase
+        .from('lead_entries')
+        .select('id')
+        .eq('lancamento_id', lancamentoId as string)
+        .eq('email', documentData.email)
+        .eq('data', documentData.data)
+        .limit(1);
 
-      if (existing.documents.length > 0) {
+      if (existing && existing.length > 0) {
         return res.status(200).json({ success: true, duplicate: true });
       }
     }
 
-    await db.createDocument(DB, "lead_entries", ID.unique(), documentData);
+    const { error: insertErr } = await supabase
+      .from('lead_entries')
+      .insert({ ...documentData, lancamento_id: lancamentoId as string });
+    if (insertErr) throw insertErr;
 
     // ── API de Conversões Meta (CAPI) ──────────────────
     // Executar em background, não bloquear resposta
