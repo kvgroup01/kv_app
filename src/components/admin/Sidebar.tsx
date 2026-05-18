@@ -65,7 +65,7 @@ export function Sidebar({ usuario, onLogout, isCollapsed = false, onToggleCollap
           <KVMark size={28} />
           {showLabels && (
             <span className="text-[15px] font-semibold text-foreground tracking-tight animate-in fade-in duration-300 truncate">
-              <span className="font-bold text-[15px] tracking-tight text-(--text-primary)">KV<span style={{ color: 'var(--brand)' }}>ision</span></span>
+              <span className="font-bold text-[15px] tracking-tight" style={{ color: 'var(--text-primary)' }}>KV<span style={{ color: 'var(--kvmark-color)' }}>ision</span></span>
             </span>
           )}
         </div>
@@ -179,8 +179,8 @@ export function Sidebar({ usuario, onLogout, isCollapsed = false, onToggleCollap
       <div className="md:hidden flex h-16 w-full items-center justify-between border-b border-(--sidebar-border) bg-(--sidebar-bg) text-foreground px-4 sticky top-0 z-40">
         <div className="flex items-center gap-2.5">
           <KVMark size={24} />
-          <span className="font-bold text-[15px] tracking-tight text-(--text-primary)">
-            KV<span style={{ color: 'var(--brand)' }}>ision</span>
+          <span className="font-bold text-[15px] tracking-tight" style={{ color: 'var(--text-primary)' }}>
+            KV<span style={{ color: 'var(--kvmark-color)' }}>ision</span>
           </span>
         </div>
         <Sheet open={isOpen} onOpenChange={setIsOpen}>

@@ -44,8 +44,8 @@ export default function Login() {
         <CardHeader className="text-center space-y-2 pb-8">
           <div className="flex flex-col items-center gap-3">
             <KVMark size={48} />
-            <span className="font-bold text-2xl tracking-tight text-(--text-primary)">
-              KV<span style={{ color: 'var(--brand)' }}>ision</span>
+            <span className="font-bold text-2xl tracking-tight" style={{ color: 'var(--text-primary)' }}>
+              KV<span style={{ color: 'var(--kvmark-color)' }}>ision</span>
             </span>
             <p className="text-sm text-(--text-secondary)">
               Entre com suas credenciais para acessar a administração
