@@ -69,7 +69,7 @@ export function useAuth() {
     isUpdatingProfile: updateProfileMutation.isPending,
     changePassword: changePasswordMutation.mutateAsync,
     isChangingPassword: changePasswordMutation.isPending,
-    updatePhoto: async () => {},
+    updatePhoto: async (file: File) => {},
     isUpdatingPhoto: false,
   };
 }

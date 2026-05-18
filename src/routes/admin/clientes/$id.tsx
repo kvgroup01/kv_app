@@ -245,7 +245,7 @@ export default function EditarCliente() {
                      <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-(--card-bg) border-(--card-border) text-(--text-primary)">
-                     <SelectItem value="appwrite">Banco Appwrite (Webhooks)</SelectItem>
+                     <SelectItem value="appwrite">Banco Supabase (Webhooks)</SelectItem>
                      <SelectItem value="sheets">Google Sheets (Planilhas)</SelectItem>
                      <SelectItem value="meta_api">Meta Ads API (Integração Direta)</SelectItem>
                   </SelectContent>

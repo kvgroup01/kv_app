@@ -35,7 +35,7 @@ export default function Configuracoes() {
   const totalClientes = clientes?.length || 0;
 
   // Perfis
-  const [nomeUsuario, setNomeUsuario] = React.useState(usuario?.name || '');
+  const [nomeUsuario, setNomeUsuario] = React.useState(usuario?.user_metadata?.nome || '');
   
   // Estados dos forms
   const [conviteEmail, setConviteEmail] = React.useState('');
@@ -46,7 +46,7 @@ export default function Configuracoes() {
   const [confirmaSenha, setConfirmaSenha] = React.useState('');
 
   // Integrações
-  const [googleApiKey, setGoogleApiKey] = React.useState((usuario?.prefs as any)?.googleApiKey || '');
+  const [googleApiKey, setGoogleApiKey] = React.useState(usuario?.user_metadata?.googleApiKey || '');
 
   const handleSaveIntegrations = async () => {
     try {
@@ -60,7 +60,7 @@ export default function Configuracoes() {
     }
   };
 
-  const photoUrl = (usuario?.prefs as any)?.photoUrl;
+  const photoUrl = usuario?.user_metadata?.photoUrl;
 
   const handleUpdateProfile = async () => {
     if (!nomeUsuario) return;
@@ -244,7 +244,7 @@ export default function Configuracoes() {
                   <Avatar className="w-24 h-24 border-2 border-white/10 shadow-xl rounded-2xl">
                     <AvatarImage src={photoUrl} />
                     <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-2xl font-bold uppercase rounded-2xl">
-                      {usuario?.name?.substring(0, 2) || 'AD'}
+                      {usuario?.user_metadata?.nome?.substring(0, 2) || 'AD'}
                     </AvatarFallback>
                   </Avatar>
                   <label htmlFor="photo-upload" className="absolute -bottom-2 -right-2 bg-white text-black p-2 rounded-xl shadow-lg cursor-pointer hover:bg-zinc-200 transition-colors border border-zinc-300">
@@ -252,7 +252,7 @@ export default function Configuracoes() {
                     <input id="photo-upload" type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={isUpdatingPhoto} />
                   </label>
                 </div>
-                <CardTitle className="text-xl font-bold">{usuario?.name}</CardTitle>
+                <CardTitle className="text-xl font-bold">{usuario?.user_metadata?.nome || usuario?.email}</CardTitle>
                 <CardDescription>{usuario?.email}</CardDescription>
               </CardHeader>
               <CardContent className="pt-4">
@@ -263,7 +263,7 @@ export default function Configuracoes() {
                   </div>
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-(--text-tertiary) font-medium uppercase tracking-widest">Desde</span>
-                    <span className="text-(--text-primary)">{new Date(usuario?.$createdAt || '').toLocaleDateString('pt-BR')}</span>
+                    <span className="text-(--text-primary)">{new Date(usuario?.created_at || '').toLocaleDateString('pt-BR')}</span>
                   </div>
                 </div>
               </CardContent>
@@ -365,10 +365,10 @@ export default function Configuracoes() {
                   <div className="flex items-center gap-3">
                     <Avatar className="h-9 w-9 border border-white/10">
                       <AvatarImage src={photoUrl} />
-                      <AvatarFallback className="bg-blue-600 text-white text-xs">{usuario?.name?.substring(0, 2)}</AvatarFallback>
+                      <AvatarFallback className="bg-blue-600 text-white text-xs">{usuario?.user_metadata?.nome?.substring(0, 2)}</AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-[13px] font-bold">{usuario?.name}</p>
+                      <p className="text-[13px] font-bold">{usuario?.user_metadata?.nome || usuario?.email}</p>
                       <p className="text-[11px] text-(--text-tertiary)">{usuario?.email}</p>
                     </div>
                   </div>

@@ -25,7 +25,7 @@ export function useCliente(id: string) {
         .eq('id', id)
         .single();
       if (error) throw error;
-      return data;
+      return { ...data, $id: data.id, $createdAt: data.criado_em };
     },
     enabled: !!id,
   });
@@ -104,7 +104,7 @@ export function usePastas() {
     queryFn: async () => {
       const { data, error } = await supabase.from('pastas').select('*');
       if (error) throw error;
-      return data;
+      return data.map((p: any) => ({ ...p, $id: p.id }));
     },
   });
 }

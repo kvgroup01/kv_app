@@ -43,7 +43,7 @@ export default function AdminLayout() {
     <div className="h-screen bg-(--content-bg) w-full flex flex-col md:flex-row overflow-hidden">
       <Sidebar 
          usuario={{ 
-           nome: user.name || 'Gestor KV', 
+           nome: user.user_metadata?.nome || user.email, 
            email: user.email 
          }} 
          onLogout={handleLogout} 

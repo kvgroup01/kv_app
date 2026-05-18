@@ -10,7 +10,7 @@ export function useFunis() {
         .select('*')
         .order('criado_em', { ascending: false });
       if (error) throw error;
-      return data;
+      return data.map((f: any) => ({ ...f, $id: f.id, $createdAt: f.criado_em, $updatedAt: f.atualizado_em }));
     },
   });
 }
@@ -25,7 +25,7 @@ export function useFunil(id: string) {
         .eq('id', id)
         .single();
       if (error) throw error;
-      return data;
+      return { ...data, $id: data.id, $createdAt: data.criado_em, $updatedAt: data.atualizado_em };
     },
     enabled: !!id,
   });

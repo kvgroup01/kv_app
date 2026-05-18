@@ -12,7 +12,7 @@ export function useLancamentos(clienteId?: string) {
       if (clienteId) query = query.eq('cliente_id', clienteId);
       const { data, error } = await query;
       if (error) throw error;
-      return data;
+      return data.map((l: any) => ({ ...l, $id: l.id, $createdAt: l.criado_em }));
     },
   });
 }
@@ -27,7 +27,7 @@ export function useLancamento(id: string) {
         .eq('id', id)
         .single();
       if (error) throw error;
-      return data;
+      return { ...data, $id: data.id, $createdAt: data.criado_em };
     },
     enabled: !!id,
   });
@@ -51,7 +51,7 @@ export function useLancamentoPorSlug(clienteSlug: string, lancamentoSlug: string
         .eq('slug', lancamentoSlug)
         .single();
       if (error) throw error;
-      return data;
+      return { ...data, $id: data.id, $createdAt: data.criado_em };
     },
     enabled: !!clienteSlug && !!lancamentoSlug,
   });

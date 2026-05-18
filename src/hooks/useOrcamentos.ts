@@ -9,19 +9,19 @@ export const PAGAMENTOS_KEY = ['pagamentos'];
 async function fetchOrcamentos() {
   const { data, error } = await supabase.from('orcamentos').select('*').order('criado_em', { ascending: false });
   if (error) throw error;
-  return data.map((item: any) => ({ ...item, $id: item.id, $createdAt: item.criado_em }));
+  return data.map((item: any) => ({ ...item, $id: item.id, $createdAt: item.criado_em, $updatedAt: item.atualizado_em }));
 }
 
 async function fetchOrcamento(id: string) {
   const { data, error } = await supabase.from('orcamentos').select('*').eq('id', id).single();
   if (error) throw error;
-  return { ...data, $id: data.id, $createdAt: data.criado_em };
+  return { ...data, $id: data.id, $createdAt: data.criado_em, $updatedAt: data.atualizado_em };
 }
 
 async function fetchOrcamentoPorToken(token: string) {
   const { data, error } = await supabase.from('orcamentos').select('*').eq('token', token).single();
   if (error) throw error;
-  return { ...data, $id: data.id, $createdAt: data.criado_em };
+  return { ...data, $id: data.id, $createdAt: data.criado_em, $updatedAt: data.atualizado_em };
 }
 
 async function createOrcamento(orcamento: any) {
@@ -80,7 +80,7 @@ async function confirmPagamento(orcamento_id: string, arquivoFile: File, observa
 async function fetchPagamentos() {
   const { data, error } = await supabase.from('pagamentos').select('*').order('criado_em', { ascending: false });
   if (error) throw error;
-  return data.map((item: any) => ({ ...item, $id: item.id, $createdAt: item.criado_em }));
+  return data.map((item: any) => ({ ...item, $id: item.id, $createdAt: item.criado_em, $updatedAt: item.atualizado_em }));
 }
 
 export function useOrcamentos() {
@@ -110,12 +110,30 @@ export function useCriarOrcamento() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (data: Omit<Orcamento, '$id' | '$createdAt' | 'token' | 'status' | 'link_expira_em' | 'pix_qrcode' | 'valor_total'>) => 
-      createOrcamento({
-        ...data,
-        status: 'pendente',
-        token: crypto.randomUUID().split('-')[0], // token temporario
-      }), 
+    mutationFn: async (data: any) => {
+      const valor_total = (data.itens || []).reduce(
+        (acc: number, item: any) => acc + (item.quantidade * item.valor_unitario), 0
+      );
+      const token = crypto.randomUUID().replace(/-/g, '').slice(0, 16);
+      const link_expira_em = new Date();
+      link_expira_em.setDate(link_expira_em.getDate() + 7);
+
+      const { data: result, error } = await supabase
+        .from('orcamentos')
+        .insert({
+          ...data,
+          itens: JSON.stringify(data.itens),
+          token,
+          status: 'pendente',
+          valor_total,
+          link_expira_em: link_expira_em.toISOString(),
+          criado_em: new Date().toISOString(),
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      return { ...result, $id: result.id, $createdAt: result.criado_em };
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ORCAMENTOS_KEY });
     },
