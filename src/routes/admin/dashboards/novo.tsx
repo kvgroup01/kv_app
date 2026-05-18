@@ -308,7 +308,7 @@ export default function NovoDashboard() {
                     {col.fixo ? <Lock className="h-4 w-4 text-muted-foreground" /> : <div className="w-4" />}
                     <span className="font-semibold text-sm">{col.nome}</span>
                     <Badge variant="secondary" className="text-[10px] uppercase font-bold tracking-wider">{col.tipo}</Badge>
-                    {col.obrigatorio && <Badge className="text-[10px] uppercase font-bold tracking-wider bg-primary/20 text-primary hover:bg-primary/30">Obrigatório</Badge>}
+                    {col.obrigatorio && <Badge className="text-[10px] uppercase font-bold tracking-wider bg-[#FFE500]/20 text-[#FFE500] hover:bg-[#FFE500]/30">Obrigatório</Badge>}
                   </div>
                   {!col.fixo && (
                     <Button variant="ghost" size="icon" onClick={() => removerColuna(col.nome)} className="text-muted-foreground hover:text-destructive shrink-0">
@@ -449,7 +449,7 @@ export default function NovoDashboard() {
                         key={ma.$id} 
                         className={cn(
                           "flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-colors",
-                          form.meta_account_id === ma.meta_account_id ? "bg-primary/5 border-primary" : "bg-card hover:bg-muted/50"
+                          form.meta_account_id === ma.meta_account_id ? "bg-[#FFE500]/5 border-[var(--brand)]" : "bg-card hover:bg-muted/50"
                         )}
                         onClick={() => setForm(prev => ({ 
                            ...prev, 
@@ -460,7 +460,7 @@ export default function NovoDashboard() {
                       >
                          <div className={cn(
                            "flex items-center justify-center h-4 w-4 rounded-full border",
-                           form.meta_account_id === ma.meta_account_id ? "border-primary border-4" : "border-muted-foreground"
+                           form.meta_account_id === ma.meta_account_id ? "border-[var(--brand)] border-4" : "border-muted-foreground"
                          )} />
                          <div>
                             <p className="font-semibold text-sm">{ma.nome}</p>

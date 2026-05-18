@@ -109,25 +109,26 @@ export function Sidebar({ usuario, onLogout, isCollapsed = false, onToggleCollap
             to={item.href}
             end={item.exact}
             onClick={() => setIsOpen(false)}
-            className={({ isActive }) =>
-              cn(
+            title={!showLabels ? item.label : undefined}
+          >
+            {({ isActive }) => (
+              <div className={cn(
                 "group flex w-full items-center transition-all duration-200 rounded-lg",
                 showLabels ? "gap-3 px-3 py-2 text-[13px]" : "justify-center p-2",
                 isActive 
                   ? "bg-[#FFE500] text-black font-semibold" 
                   : "text-(--text-secondary) hover:bg-(--card-hover) hover:text-(--text-primary)"
-              )
-            }
-            title={!showLabels ? item.label : undefined}
-          >
-            <item.icon className={cn(
-              "h-4 w-4 shrink-0 transition-colors",
-              isActive ? "text-black" : "text-(--text-tertiary) group-hover:text-(--text-primary)"
-            )} />
-            {showLabels && (
-              <span className="truncate animate-in fade-in slide-in-from-left-1 duration-300">
-                {item.label}
-              </span>
+              )}>
+                <item.icon className={cn(
+                  "h-4 w-4 shrink-0 transition-colors",
+                  isActive ? "text-black" : "text-(--text-tertiary) group-hover:text-(--text-primary)"
+                )} />
+                {showLabels && (
+                  <span className="truncate animate-in fade-in slide-in-from-left-1 duration-300">
+                    {item.label}
+                  </span>
+                )}
+              </div>
             )}
           </NavLink>
         ))}

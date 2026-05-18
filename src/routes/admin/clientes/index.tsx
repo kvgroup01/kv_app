@@ -82,7 +82,7 @@ export default function ClientesIndex() {
   // Actions
   const handleDeletar = () => {
     if (!clienteToDelete) return;
-    deletarMut.mutate(clienteToDelete.id || clienteToDelete.$id, {
+    deletarMut.mutate((clienteToDelete as any).id || clienteToDelete.$id, {
       onSuccess: () => setClienteToDelete(null)
     });
   };
@@ -90,7 +90,7 @@ export default function ClientesIndex() {
   const handleMover = () => {
     if (!clienteToMove) return;
     atualizarMut.mutate({ 
-      id: clienteToMove.id || clienteToMove.$id, 
+      id: (clienteToMove as any).id || clienteToMove.$id, 
       data: { pasta_id: pastaDestino === 'sem-pasta' ? '' : pastaDestino } 
     }, {
       onSuccess: () => {

@@ -119,14 +119,14 @@ export default function FunisNovo() {
           return (
             <Card 
               key={tpl.id} 
-              className="cursor-pointer hover:border-primary/50 transition-all hover:bg-muted/10 group"
+              className="cursor-pointer hover:border-[#FFE500]/50 transition-all hover:bg-muted/10 group"
               onClick={() => {
                 setTemplateAberto(tpl);
                 setNomeFunil(tpl.nome);
               }}
             >
               <CardContent className="p-6 flex items-start gap-4">
-                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <div className="h-12 w-12 rounded-lg bg-[#FFE500]/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                   <Icon className="h-6 w-6 text-(--text-primary)" />
                 </div>
                 <div>
