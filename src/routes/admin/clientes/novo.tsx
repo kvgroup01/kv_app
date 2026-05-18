@@ -80,7 +80,7 @@ export default function NovoCliente() {
           
           <div className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="nome" className="text-[14px] font-medium text-(--text-primary)">Nome do Cliente <span className="text-red-500">*</span></Label>
+              <Label htmlFor="nome" className="text-[13px] text-(--text-secondary)">Nome do Cliente <span className="text-red-500">*</span></Label>
               <Input 
                  id="nome" 
                  placeholder="Ex: Clínica Sorriso" 
@@ -88,12 +88,12 @@ export default function NovoCliente() {
                  value={nome}
                  onChange={e => setNome(e.target.value)}
                  disabled={criarMut.isPending}
-                 className="h-11 w-full bg-background border-(--card-border) focus-visible:ring-1 focus-visible:ring-blue-500 rounded-lg text-[14px]"
+                 className="h-11 w-full bg-black/40 border-(--card-border) text-(--text-primary) focus-visible:ring-1 focus-visible:ring-blue-500 rounded-lg text-[13px]"
               />
             </div>
 
             <div className="space-y-3">
-              <Label htmlFor="slug" className="text-[14px] font-medium text-(--text-primary)">Link Identificador (Slug) <span className="text-red-500">*</span></Label>
+              <Label htmlFor="slug" className="text-[13px] text-(--text-secondary)">Link Identificador (Slug) <span className="text-red-500">*</span></Label>
               <Input 
                  id="slug" 
                  placeholder="clinica-sorriso" 
@@ -104,10 +104,10 @@ export default function NovoCliente() {
                    setSlugModificado(true);
                  }}
                  disabled={criarMut.isPending}
-                 className="h-11 w-full bg-background border-(--card-border) focus-visible:ring-1 focus-visible:ring-blue-500 rounded-lg font-mono text-[14px]"
+                 className="h-11 w-full bg-black/40 border-(--card-border) text-(--text-primary) focus-visible:ring-1 focus-visible:ring-blue-500 rounded-lg font-mono text-[13px]"
               />
               {slug && (
-                <div className="flex items-center gap-2 mt-2 px-3 py-2 bg-blue-500/10 border border-blue-500/20 rounded text-[13px] text-blue-500 truncate cursor-not-allowed">
+                <div className="flex items-center gap-2 mt-2 bg-blue-500/10 border border-blue-500/20 rounded-lg px-3 py-2 text-[13px] text-blue-400 truncate cursor-not-allowed">
                   <LinkIcon className="h-4 w-4 shrink-0" />
                   <span className="truncate">{CONFIG.APP_URL.replace(/^https?:\/\//, '')}/dashboard/{slug}</span>
                 </div>
@@ -116,9 +116,9 @@ export default function NovoCliente() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label className="text-[14px] font-medium text-(--text-primary)">Tipo de Campanha</Label>
+                <Label className="text-[13px] text-(--text-secondary)">Tipo de Campanha</Label>
                 <Select value={tipoCampanha} onValueChange={setTipoCampanha} disabled={criarMut.isPending}>
-                  <SelectTrigger className="h-11 bg-background border-(--card-border) rounded-lg w-full">
+                  <SelectTrigger className="h-11 w-full bg-black/40 border-(--card-border) text-(--text-primary) focus-visible:ring-1 focus-visible:ring-blue-500 rounded-lg text-[13px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-(--card-bg) border-(--card-border) text-(--text-primary)">
@@ -142,9 +142,9 @@ export default function NovoCliente() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-[14px] font-medium text-(--text-primary)">Pasta Organizacional</Label>
+                <Label className="text-[13px] text-(--text-secondary)">Pasta Organizacional</Label>
                 <Select value={pastaId} onValueChange={setPastaId} disabled={criarMut.isPending}>
-                  <SelectTrigger className="h-11 bg-background border-(--card-border) rounded-lg w-full">
+                  <SelectTrigger className="h-11 w-full bg-black/40 border-(--card-border) text-(--text-primary) focus-visible:ring-1 focus-visible:ring-blue-500 rounded-lg text-[13px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-(--card-bg) border-(--card-border) text-(--text-primary)">
@@ -158,7 +158,7 @@ export default function NovoCliente() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="logoUrl" className="text-[14px] font-medium text-(--text-primary)">URL da Logo (Opcional)</Label>
+              <Label htmlFor="logoUrl" className="text-[13px] text-(--text-secondary)">URL da Logo (Opcional)</Label>
               <div className="flex items-center gap-4">
                 <Input 
                    id="logoUrl" 
@@ -167,9 +167,9 @@ export default function NovoCliente() {
                    value={logoUrl}
                    onChange={e => setLogoUrl(e.target.value)}
                    disabled={criarMut.isPending}
-                   className="flex-1 h-11 bg-background border-(--card-border) rounded-lg text-[14px]"
+                   className="flex-1 h-11 bg-black/40 border-(--card-border) text-(--text-primary) focus-visible:ring-1 focus-visible:ring-blue-500 rounded-lg text-[13px]"
                 />
-                <div className="w-11 h-11 bg-background border border-(--card-border) rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
+                <div className="w-11 h-11 bg-black/40 border border-(--card-border) rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
                   {logoUrl ? (
                     <img src={logoUrl} alt="Logo" className="w-full h-full object-contain p-1" onError={(e) => (e.currentTarget.style.display = 'none')} />
                   ) : (
@@ -181,11 +181,21 @@ export default function NovoCliente() {
           </div>
 
           <div className="pt-8 mt-8 flex justify-end gap-3 border-t border-(--card-border)">
-            <Button type="button" variant="ghost" className="h-11 px-6 text-(--text-tertiary) hover:text-(--text-primary) hover:bg-white/5" onClick={() => navigate('/admin/clientes')} disabled={criarMut.isPending}>
+            <Button 
+              type="button" 
+              variant="ghost" 
+              className="h-11 px-8 text-(--text-tertiary) hover:text-(--text-primary) hover:bg-white/5" 
+              onClick={() => navigate('/admin/clientes')} 
+              disabled={criarMut.isPending}
+            >
               Cancelar
             </Button>
-            <Button type="submit" disabled={criarMut.isPending || !nome || !slug} className="h-11 px-8 bg-(--accent-blue) text-white hover:opacity-90 font-medium rounded-lg">
-              {criarMut.isPending ? 'Cadastrando...' : 'Finalizar Cadastro'}
+            <Button 
+              type="submit" 
+              disabled={criarMut.isPending || !nome || !slug} 
+              className="h-11 px-10 bg-white text-black hover:bg-zinc-200 text-[13px] font-semibold disabled:opacity-40"
+            >
+              {criarMut.isPending ? 'Criando...' : 'Finalizar Cadastro'}
             </Button>
           </div>
         </div>
