@@ -95,7 +95,7 @@ export default function NovoCliente() {
                  value={nome}
                  onChange={e => setNome(e.target.value)}
                  disabled={criarMut.isPending}
-                 className="h-11 bg-black/40 border-(--card-border) focus-visible:ring-1 focus-visible:ring-blue-500 rounded-lg text-[14px]"
+                 className="h-11 bg-background border-(--card-border) focus-visible:ring-1 focus-visible:ring-blue-500 rounded-lg text-[14px]"
               />
             </div>
 
@@ -111,7 +111,7 @@ export default function NovoCliente() {
                    setSlugModificado(true);
                  }}
                  disabled={criarMut.isPending}
-                 className="h-11 bg-black/40 border-(--card-border) focus-visible:ring-1 focus-visible:ring-blue-500 rounded-lg font-mono text-[14px]"
+                 className="h-11 bg-background border-(--card-border) focus-visible:ring-1 focus-visible:ring-blue-500 rounded-lg font-mono text-[14px]"
               />
               {slug && (
                  <p className="text-[12px] text-blue-500/80 bg-blue-500/5 px-4 py-3 rounded-lg border border-blue-500/10 flex items-center gap-2">
@@ -125,7 +125,7 @@ export default function NovoCliente() {
               <div className="space-y-2">
                 <Label className="text-[13px] text-(--text-secondary)">Tipo de Campanha</Label>
                 <Select value={tipoCampanha} onValueChange={setTipoCampanha} disabled={criarMut.isPending}>
-                  <SelectTrigger className="h-11 bg-black/40 border-(--card-border) rounded-lg">
+                  <SelectTrigger className="h-11 bg-background border-(--card-border) rounded-lg">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-(--card-bg) border-(--card-border) text-(--text-primary)">
@@ -139,7 +139,7 @@ export default function NovoCliente() {
               <div className="space-y-2">
                 <Label className="text-[13px] text-(--text-secondary)">Pasta Organizacional</Label>
                 <Select value={pastaId} onValueChange={setPastaId} disabled={criarMut.isPending}>
-                  <SelectTrigger className="h-11 bg-black/40 border-(--card-border) rounded-lg">
+                  <SelectTrigger className="h-11 bg-background border-(--card-border) rounded-lg">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-(--card-bg) border-(--card-border) text-(--text-primary)">
@@ -161,13 +161,13 @@ export default function NovoCliente() {
                  value={logoUrl}
                  onChange={e => setLogoUrl(e.target.value)}
                  disabled={criarMut.isPending}
-                 className="h-11 bg-black/40 border-(--card-border) rounded-lg text-[14px]"
+                 className="h-11 bg-background border-(--card-border) rounded-lg text-[14px]"
               />
             </div>
           </div>
         </div>
 
-        <div className="group relative bg-(--card-bg) border border-(--card-border) rounded-[12px] p-8 shadow-premium hover:border-[#2a2a2a] transition-all duration-200">
+        <div className="group relative bg-(--card-bg) border border-(--card-border) rounded-[12px] p-8 shadow-premium hover:border-border transition-all duration-200">
           <div className="absolute top-0 left-6 right-6 h-[3px] bg-(--accent-green) rounded-full" />
           
           <div className="mb-10">
@@ -185,7 +185,7 @@ export default function NovoCliente() {
                  value={spreadsheetId}
                  onChange={e => setSpreadsheetId(e.target.value)}
                  disabled={criarMut.isPending}
-                 className="h-11 bg-black/40 border-(--card-border) font-mono text-[13px] rounded-lg"
+                 className="h-11 bg-background border-(--card-border) font-mono text-[13px] rounded-lg"
               />
               <p className="text-[11px] text-(--text-tertiary) italic px-1 mt-2">
                  O ID é encontrado na URL da planilha do cliente entre /d/ e /edit.

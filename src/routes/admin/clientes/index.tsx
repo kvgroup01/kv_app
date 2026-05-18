@@ -467,7 +467,7 @@ export default function ClientesIndex() {
             <Button 
               onClick={handleCriarPasta} 
               disabled={!novaPastaNome.trim() || criarPastaMut.isPending}
-              className="bg-(--accent-blue) text-white hover:bg-blue-600"
+              className="bg-(--accent-blue) text-foreground hover:bg-blue-600"
             >
               {criarPastaMut.isPending ? 'Criando...' : 'Criar Pasta'}
             </Button>
