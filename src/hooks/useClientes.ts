@@ -10,7 +10,7 @@ export function useClientes() {
         .select('*')
         .order('criado_em', { ascending: false });
       if (error) throw error;
-      return data;
+      return data.map((c: any) => ({ ...c, $id: c.id, $createdAt: c.criado_em }));
     },
   });
 }

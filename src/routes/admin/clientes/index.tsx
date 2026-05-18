@@ -82,7 +82,7 @@ export default function ClientesIndex() {
   // Actions
   const handleDeletar = () => {
     if (!clienteToDelete) return;
-    deletarMut.mutate(clienteToDelete.$id, {
+    deletarMut.mutate(clienteToDelete.id || clienteToDelete.$id, {
       onSuccess: () => setClienteToDelete(null)
     });
   };
@@ -90,7 +90,7 @@ export default function ClientesIndex() {
   const handleMover = () => {
     if (!clienteToMove) return;
     atualizarMut.mutate({ 
-      id: clienteToMove.$id, 
+      id: clienteToMove.id || clienteToMove.$id, 
       data: { pasta_id: pastaDestino === 'sem-pasta' ? '' : pastaDestino } 
     }, {
       onSuccess: () => {
@@ -305,9 +305,9 @@ export default function ClientesIndex() {
               if (viewMode === 'grid') {
                 return clients.map(cliente => (
                   <ClienteCard 
-                    key={cliente.$id} 
+                    key={cliente.id || cliente.$id} 
                     cliente={cliente}
-                    onEditar={() => navigate(`/admin/clientes/${cliente.$id}`)}
+                    onEditar={() => navigate(`/admin/clientes/${cliente.id || cliente.$id}`)}
                     onDeletar={() => setClienteToDelete(cliente)}
                     onMoverPasta={() => setClienteToMove(cliente)}
                   />
@@ -378,9 +378,9 @@ export default function ClientesIndex() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 pb-12 px-2">
                           {clients.map((cliente) => (
                              <ClienteCard 
-                               key={cliente.$id} 
+                               key={cliente.id || cliente.$id} 
                                cliente={cliente}
-                               onEditar={() => navigate(`/admin/clientes/${cliente.$id}`)}
+                               onEditar={() => navigate(`/admin/clientes/${cliente.id || cliente.$id}`)}
                                onDeletar={() => setClienteToDelete(cliente)}
                                onMoverPasta={() => setClienteToMove(cliente)}
                              />
