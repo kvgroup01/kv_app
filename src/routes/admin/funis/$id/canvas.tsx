@@ -732,10 +732,10 @@ function CanvasInner() {
   }, [nodes, edges, setNodes, fitView]);
 
   const handleSave = async () => {
-    if (!id) return;
+    if (!funil) return;
     try {
       await atualizarMutation.mutateAsync({
-        id, data: { nome: funilNome, nos: JSON.stringify(nodes), arestas: JSON.stringify(edges) },
+        id: funil.id || funil.$id, data: { nome: funilNome, nos: JSON.stringify(nodes), arestas: JSON.stringify(edges) },
       });
       setHasChanges(false);
       toast.success('Funil salvo!');

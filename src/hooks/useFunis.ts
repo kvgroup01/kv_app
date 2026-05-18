@@ -6,30 +6,28 @@ export function useFunis() {
     queryKey: ['funis'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('funis')
-        .select('*')
+        .from('funis').select('*')
         .order('criado_em', { ascending: false });
       if (error) throw error;
-      return data.map((f: any) => ({ ...f, $id: f.id, $createdAt: f.criado_em, $updatedAt: f.atualizado_em }));
+      return (data || []).map((f: any) => ({ 
+        ...f, $id: f.id, $createdAt: f.criado_em 
+      }));
     },
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 2,
   });
 }
 
-export function useFunil(id: string) {
+export function useFunil(id: string | undefined) {
   return useQuery({
     queryKey: ['funil', id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('funis')
-        .select('*')
-        .eq('id', id)
-        .single();
+        .from('funis').select('*').eq('id', id!).single();
       if (error) throw error;
-      return { ...data, $id: data.id, $createdAt: data.criado_em, $updatedAt: data.atualizado_em };
+      return { ...data, $id: data.id, $createdAt: data.criado_em };
     },
-    enabled: !!id,
+    enabled: !!id && id !== 'undefined',
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 5,
   });
@@ -39,26 +37,18 @@ export function useCriarFunil() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: any) => {
-      const sanitized = {
-        ...data,
-      };
-      if (data.cliente_id !== undefined) {
-        sanitized.cliente_id = data.cliente_id && data.cliente_id !== '' ? data.cliente_id : null;
-      }
-      if (data.lancamento_id !== undefined) {
-        sanitized.lancamento_id = data.lancamento_id && data.lancamento_id !== '' ? data.lancamento_id : null;
-      }
       const { data: result, error } = await supabase
         .from('funis')
-        .insert({ ...sanitized, criado_em: new Date().toISOString(), atualizado_em: new Date().toISOString() })
-        .select()
-        .single();
+        .insert({ 
+          ...data, 
+          criado_em: new Date().toISOString(), 
+          atualizado_em: new Date().toISOString() 
+        })
+        .select().single();
       if (error) throw error;
-      return { ...result, $id: result.id, $createdAt: result.criado_em, $updatedAt: result.atualizado_em };
+      return { ...result, $id: result.id, $createdAt: result.criado_em };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['funis'] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['funis'] }),
   });
 }
 
@@ -66,23 +56,14 @@ export function useAtualizarFunil() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      const sanitized = {
-        ...data,
-      };
-      if (data.cliente_id !== undefined) {
-        sanitized.cliente_id = data.cliente_id && data.cliente_id !== '' ? data.cliente_id : null;
-      }
-      if (data.lancamento_id !== undefined) {
-        sanitized.lancamento_id = data.lancamento_id && data.lancamento_id !== '' ? data.lancamento_id : null;
-      }
+      if (!id || id === 'undefined') throw new Error('ID do funil inválido');
       const { data: result, error } = await supabase
         .from('funis')
-        .update({ ...sanitized, atualizado_em: new Date().toISOString() })
+        .update({ ...data, atualizado_em: new Date().toISOString() })
         .eq('id', id)
-        .select()
-        .single();
+        .select().single();
       if (error) throw error;
-      return { ...result, $id: result.id, $createdAt: result.criado_em, $updatedAt: result.atualizado_em };
+      return { ...result, $id: result.id, $createdAt: result.criado_em };
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['funis'] });
@@ -95,14 +76,10 @@ export function useDeletarFunil() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('funis')
-        .delete()
-        .eq('id', id);
+      if (!id || id === 'undefined') throw new Error('ID do funil inválido');
+      const { error } = await supabase.from('funis').delete().eq('id', id);
       if (error) throw error;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['funis'] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['funis'] }),
   });
 }
