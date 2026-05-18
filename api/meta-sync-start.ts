@@ -125,6 +125,13 @@ export default async function handler(req: any, res: any) {
       `${job.id}:${process.env.SUPABASE_SERVICE_KEY}`
     ).toString('base64').slice(0, 32);
 
+    // Chama o sync service em background (não aguarda resposta)
+    fetch(`${process.env.SYNC_SERVICE_URL}/sync`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jobId: job.id, syncToken }),
+    }).catch(err => console.error('Erro ao chamar sync service:', err));
+
     return res.status(200).json({ jobId: job.id, status: "pending", syncToken });
   } catch (error: any) {
     console.error("Meta Sync Start Error:", error);
