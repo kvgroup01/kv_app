@@ -44,7 +44,7 @@ export function OrcamentoForm({ clientes, onSubmit, isLoading }: OrcamentoFormPr
   // Gera o QRCode sempre que a chave e o valor total mudam
   React.useEffect(() => {
     if (pixChave && totalCalculado > 0) {
-      const payload = gerarPayloadPix(pixChave, totalCalculado, "Gestor Dashboard KV", "SÃO PAULO");
+      const payload = gerarPayloadPix(pixChave, totalCalculado, "Gestor KVision", "SÃO PAULO");
       QRCode.toDataURL(payload, { width: 250, margin: 2, color: { dark: '#000000', light: '#ffffff' } }, (err, url) => {
         if (!err) setQrCodeImg(url);
       });

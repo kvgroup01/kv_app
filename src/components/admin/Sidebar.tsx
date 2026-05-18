@@ -66,7 +66,7 @@ export function Sidebar({ usuario, onLogout, isCollapsed = false, onToggleCollap
           </div>
           {showLabels && (
             <span className="text-[15px] font-semibold text-foreground tracking-tight animate-in fade-in duration-300 truncate">
-              Dashboard KV
+              <span className="font-bold text-[15px] tracking-tight">KV<span className="text-blue-500">ision</span></span>
             </span>
           )}
         </div>
@@ -181,7 +181,7 @@ export function Sidebar({ usuario, onLogout, isCollapsed = false, onToggleCollap
           <div className="flex h-6 w-8 items-center justify-center rounded-md bg-white text-black text-[11px] font-bold">
              KV
           </div>
-          <span className="text-sm font-semibold tracking-tight">Dashboard KV</span>
+          <span className="text-sm font-semibold tracking-tight">KV<span className="text-blue-500">ision</span></span>
         </div>
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>

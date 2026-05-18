@@ -569,7 +569,7 @@ export default function PublicDashboardLancamento() {
         <div className="container mx-auto px-4 text-center">
           <p className="text-sm text-muted-foreground">
             Relatório gerado por{" "}
-            <span className="font-semibold text-foreground">Dashboard KV</span>
+            <span className="font-semibold text-foreground">KVision</span>
           </p>
           <p className="text-xs text-muted-foreground mt-1">
             {format(new Date(), "dd 'de' MMMM 'de' yyyy, HH:mm", {

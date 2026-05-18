@@ -224,7 +224,7 @@ export default function OrcamentoPublico() {
 
         </CardContent>
         <div className="bg-slate-50 p-6 text-center text-xs text-slate-500 font-medium border-t border-slate-100">
-           <p className="flex justify-center items-center gap-1"><Receipt className="w-3 h-3" /> Gerado de forma automatizada por Dashboard KV</p>
+           <p className="flex justify-center items-center gap-1"><Receipt className="w-3 h-3" /> Gerado de forma automatizada por KVision</p>
         </div>
       </Card>
     </div>

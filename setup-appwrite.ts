@@ -30,7 +30,7 @@ async function run() {
 
   // PASSO 1 — Criar banco
   try {
-    await databases.create(DB_ID, 'Dashboard KV')
+    await databases.create(DB_ID, 'KVision')
     console.log('✅ Banco de dados criado')
   } catch (error: any) {
     console.log('⏭️ Banco de dados já existe ou erro: ' + (error.message || 'desconhecido'))

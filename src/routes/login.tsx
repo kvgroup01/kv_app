@@ -47,7 +47,7 @@ export default function Login() {
                KV
              </div>
           </div>
-          <CardTitle className="text-2xl font-bold">Dashboard KV</CardTitle>
+          <CardTitle className="text-2xl font-bold">KV<span className="text-blue-500">ision</span></CardTitle>
           <CardDescription>
             Entre com suas credenciais para acessar a administração
           </CardDescription>
