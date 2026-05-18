@@ -37,10 +37,12 @@ export function useCriarFunil() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: any) => {
+      const { data: { user } } = await supabase.auth.getUser();
       const { data: result, error } = await supabase
         .from('funis')
         .insert({ 
           ...data, 
+          user_id: user?.id,
           criado_em: new Date().toISOString(), 
           atualizado_em: new Date().toISOString() 
         })

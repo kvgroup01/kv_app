@@ -111,6 +111,7 @@ export function useCriarOrcamento() {
   
   return useMutation({
     mutationFn: async (data: any) => {
+      const { data: { user } } = await supabase.auth.getUser();
       const valor_total = (data.itens || []).reduce(
         (acc: number, item: any) => acc + (item.quantidade * item.valor_unitario), 0
       );
@@ -122,6 +123,7 @@ export function useCriarOrcamento() {
         .from('orcamentos')
         .insert({
           ...data,
+          user_id: user?.id,
           itens: JSON.stringify(data.itens),
           token,
           status: 'pendente',

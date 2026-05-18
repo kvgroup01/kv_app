@@ -35,9 +35,11 @@ export function useCriarCliente() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: any) => {
+      const { data: { user } } = await supabase.auth.getUser();
       const sanitized = {
         ...data,
         pasta_id: data.pasta_id && data.pasta_id !== '' ? data.pasta_id : null,
+        user_id: user?.id,
         criado_em: new Date().toISOString()
       };
       const { data: result, error } = await supabase
@@ -113,9 +115,15 @@ export function useCriarPasta() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ nome, cor }: { nome: string; cor: string }) => {
+      const { data: { user } } = await supabase.auth.getUser();
       const { data, error } = await supabase
         .from('pastas')
-        .insert({ nome, cor })
+        .insert({ 
+          nome, 
+          cor, 
+          user_id: user?.id,
+          criado_em: new Date().toISOString() 
+        })
         .select()
         .single();
       if (error) throw error;

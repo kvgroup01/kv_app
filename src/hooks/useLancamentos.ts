@@ -61,6 +61,7 @@ export function useCriarLancamento() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: any) => {
+      const { data: { user } } = await supabase.auth.getUser();
       const sanitized = {
         ...data,
       };
@@ -69,7 +70,11 @@ export function useCriarLancamento() {
       }
       const { data: result, error } = await supabase
         .from('lancamentos')
-        .insert({ ...sanitized, criado_em: new Date().toISOString() })
+        .insert({ 
+          ...sanitized, 
+          user_id: user?.id,
+          criado_em: new Date().toISOString() 
+        })
         .select()
         .single();
       if (error) throw error;
@@ -170,9 +175,14 @@ export function useCriarMetaAccount() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: any) => {
+      const { data: { user } } = await supabase.auth.getUser();
       const { data: result, error } = await supabase
         .from('meta_accounts')
-        .insert({ ...data, criado_em: new Date().toISOString() })
+        .insert({ 
+          ...data, 
+          user_id: user?.id,
+          criado_em: new Date().toISOString() 
+        })
         .select()
         .single();
       if (error) throw error;
