@@ -12,6 +12,8 @@ export function useFunis() {
       if (error) throw error;
       return data.map((f: any) => ({ ...f, $id: f.id, $createdAt: f.criado_em, $updatedAt: f.atualizado_em }));
     },
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 2,
   });
 }
 
@@ -28,6 +30,8 @@ export function useFunil(id: string) {
       return { ...data, $id: data.id, $createdAt: data.criado_em, $updatedAt: data.atualizado_em };
     },
     enabled: !!id,
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 5,
   });
 }
 

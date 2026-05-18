@@ -587,7 +587,7 @@ function CanvasInner() {
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { data: funil, isLoading } = useFunil(id!);
+  const { data: funil, isLoading } = useFunil(id || '');
   const atualizarMutation = useAtualizarFunil();
   const { screenToFlowPosition, zoomIn, zoomOut, fitView } = useReactFlow();
 
@@ -653,7 +653,7 @@ function CanvasInner() {
         setEdges(es);
       } catch { setNodes([]); setEdges([]); }
     }
-  }, [funil, buildData]);
+  }, [funil, buildData, setNodes, setEdges, isLight]);
 
   const onConnect = React.useCallback((c: Connection) => {
     setEdges(eds => addEdge({ ...c, type: 'custom' }, eds));
@@ -741,6 +741,15 @@ function CanvasInner() {
       toast.success('Funil salvo!');
     } catch { toast.error('Erro ao salvar'); }
   };
+
+  if (!id) {
+    return (
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        height: '100vh', background: COLORS.bg, color: COLORS.textMuted, fontSize: 14,
+      }}>ID do funil não encontrado</div>
+    );
+  }
 
   if (isLoading) return (
     <div style={{
