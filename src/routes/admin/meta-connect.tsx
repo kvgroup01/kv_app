@@ -198,6 +198,7 @@ export default function IntegracoesPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Meta_Platforms_Inc._logo_%28cropped%29.svg" alt="Meta" style={{ height: 24, width: 'auto' }} />
+                  <span className="font-semibold text-lg text-(--text-primary)">Meta Ads</span>
                 </div>
                 {connectedAccounts.length > 0 ? (
                   <Badge variant="default" className="bg-green-500/10 text-green-500 hover:bg-green-500/20 shadow-none border-none rounded-full text-xs px-3 py-1 font-medium">Conectado</Badge>

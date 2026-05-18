@@ -184,7 +184,7 @@ export default function NovoCliente() {
             <Button type="button" variant="ghost" className="h-11 px-6 text-(--text-tertiary) hover:text-(--text-primary) hover:bg-white/5" onClick={() => navigate('/admin/clientes')} disabled={criarMut.isPending}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={criarMut.isPending || !nome || !slug} className="h-11 px-8 bg-(--text-primary) text-(--body-bg) hover:bg-(--text-secondary) font-medium rounded-lg">
+            <Button type="submit" disabled={criarMut.isPending || !nome || !slug} className="h-11 px-8 bg-(--accent-blue) text-white hover:opacity-90 font-medium rounded-lg">
               {criarMut.isPending ? 'Cadastrando...' : 'Finalizar Cadastro'}
             </Button>
           </div>
