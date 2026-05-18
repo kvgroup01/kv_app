@@ -187,64 +187,63 @@ export default function IntegracoesPage() {
     return (
       <div className="max-w-5xl mx-auto mt-8 p-6 space-y-8">
         <div>
-          <h1 className="text-3xl font-bold text-(--text-primary)">Integrações</h1>
-          <p className="text-(--text-secondary) mt-1">Conecte suas ferramentas e fontes de dados automatizadas.</p>
+          <h1 className="text-[28px] font-bold text-(--text-primary)">Integrações</h1>
+          <p className="text-[14px] text-(--text-secondary) mt-1">Conecte suas ferramentas e fontes de dados.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
           {/* SEÇÃO 1: Meta Ads */}
-          <Card className="bg-(--card-bg) border-(--card-border) shadow-premium flex flex-col">
+          <Card className="bg-(--card-bg) border-(--card-border) shadow-sm rounded-xl flex flex-col overflow-hidden">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-600/10 rounded-xl flex items-center justify-center">
-                    <Facebook className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <CardTitle className="text-xl">Meta Ads</CardTitle>
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Meta_Platforms_Inc._logo_%28cropped%29.svg" alt="Meta" style={{ height: 24, width: 'auto' }} />
                 </div>
                 {connectedAccounts.length > 0 ? (
-                  <Badge variant="default" className="bg-green-500/10 text-green-500 hover:bg-green-500/20 shadow-none border-none">Conectado</Badge>
+                  <Badge variant="default" className="bg-green-500/10 text-green-500 hover:bg-green-500/20 shadow-none border-none rounded-full text-xs px-3 py-1 font-medium">Conectado</Badge>
                 ) : (
-                  <Badge variant="secondary" className="bg-muted text-muted-foreground shadow-none">Não conectado</Badge>
+                  <Badge variant="secondary" className="bg-muted text-muted-foreground shadow-none rounded-full text-xs px-3 py-1 font-medium">Não conectado</Badge>
                 )}
               </div>
             </CardHeader>
-            <CardContent className="flex-1 space-y-6">
+            
+            <div className="h-[1px] w-full bg-(--card-border)" />
+            
+            <CardContent className="flex-1 space-y-6 pt-6">
               {error && (
-                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-sm">
+                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-[13px]">
                   Erro: {error}
                 </div>
               )}
               
-              <p className="text-[14px] text-(--text-secondary)">
-                Conecte sua conta do Facebook para sincronizar campanhas, métricas e criativos automaticamente.
+              <p className="text-[14px] text-(--text-secondary) leading-relaxed">
+                Sincronize campanhas, métricas e criativos automaticamente via Graph API do Meta.
               </p>
               
-              <ul className="text-[13px] text-(--text-tertiary) space-y-2">
-                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500" /> Acesso às suas Business Managers</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500" /> Contas de anúncio vinculadas</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500" /> Campanhas, conjuntos e criativos</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500" /> Token válido por 60 dias</li>
+              <ul className="text-[13px] text-(--text-tertiary) space-y-3">
+                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" /> Campanhas, conjuntos e criativos</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" /> Métricas diárias por criativo</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" /> Token válido por 60 dias</li>
+                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" /> Sincronização sob demanda</li>
               </ul>
 
-              {connectedAccounts.length > 0 && (
-                <div className="space-y-3 mt-4 border-t border-(--card-border) pt-4">
-                  <p className="text-[12px] font-medium text-(--text-secondary) uppercase tracking-wider mb-2">Contas Ativas</p>
+              {connectedAccounts.length > 0 ? (
+                <div className="space-y-3 pt-2">
                   {connectedAccounts.map((acc) => (
-                    <div key={acc.$id} className="flex items-center justify-between p-3 bg-background/50 border border-(--card-border) rounded-lg">
+                    <div key={acc.$id} className="flex items-center justify-between p-3 bg-background/50 border border-(--card-border) rounded-lg shadow-sm transition-colors hover:border-(--text-tertiary)">
                       <div className="flex items-center gap-3 overflow-hidden">
-                        <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-xs shrink-0">
+                        <div className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-[14px] shrink-0">
                           {acc.nome.substring(0, 1).toUpperCase()}
                         </div>
                         <div className="truncate">
-                          <p className="text-[13px] font-medium text-(--text-primary) truncate">{acc.nome}</p>
-                          <p className="text-[11px] text-(--text-tertiary)">ID: {acc.meta_account_id}</p>
+                          <p className="text-[14px] font-medium text-(--text-primary) truncate">{acc.nome}</p>
+                          <p className="text-[12px] text-(--text-secondary) font-mono mt-0.5">{acc.meta_account_id}</p>
                         </div>
                       </div>
                       <Button 
                         variant="ghost" 
                         size="sm"
-                        className="text-red-500 hover:text-red-600 hover:bg-red-500/10 h-8 text-[12px]"
+                        className="text-red-500 hover:text-red-600 hover:bg-red-500/10 h-8 text-[12px] font-medium px-3"
                         onClick={async () => {
                           await deleteMetaAccount(acc.$id);
                           setConnectedAccounts(prev => prev.filter(a => a.$id !== acc.$id));
@@ -254,48 +253,62 @@ export default function IntegracoesPage() {
                       </Button>
                     </div>
                   ))}
+                  
+                  <div className="pt-4 mt-auto">
+                    <Button
+                      variant="outline"
+                      onClick={handleConnect}
+                      className="w-full border-(--card-border) text-(--text-primary) hover:bg-background h-11"
+                    >
+                      Adicionar conta
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="pt-4 mt-auto">
+                  <button
+                    onClick={handleConnect}
+                    className="flex items-center gap-0 rounded-lg overflow-hidden hover:opacity-90 transition-opacity w-full shadow-sm"
+                    style={{ fontFamily: 'Inter, sans-serif' }}
+                  >
+                    <div className="flex items-center justify-center shrink-0" style={{ backgroundColor: '#1877F2', width: '48px', height: '48px' }}>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="20" height="20">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                      </svg>
+                    </div>
+                    <div className="flex items-center justify-center flex-1" style={{ backgroundColor: '#1877F2', height: '48px', color: 'white', fontSize: '14px', fontWeight: '500', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>
+                      Continuar com Facebook
+                    </div>
+                  </button>
                 </div>
               )}
-
-              <div className="pt-4 mt-auto">
-                <button
-                  onClick={handleConnect}
-                  className="flex items-center gap-0 rounded-lg overflow-hidden hover:opacity-90 transition-opacity w-full shadow-sm"
-                  style={{ fontFamily: 'Inter, sans-serif' }}
-                >
-                  <div className="flex items-center justify-center shrink-0" style={{ backgroundColor: '#1877F2', width: '48px', height: '48px' }}>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="24" height="24">
-                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
-                  </div>
-                  <div className="flex items-center justify-center flex-1" style={{ backgroundColor: '#1877F2', height: '48px', color: 'white', fontSize: '14px', fontWeight: '500', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>
-                    {connectedAccounts.length > 0 ? "Adicionar Outra Conta" : "Continuar com Facebook"}
-                  </div>
-                </button>
-              </div>
             </CardContent>
           </Card>
 
           {/* SEÇÃO 2: Google Sheets */}
-          <Card className="bg-(--card-bg) border-(--card-border) shadow-premium flex flex-col">
+          <Card className="bg-(--card-bg) border-(--card-border) shadow-sm rounded-xl flex flex-col overflow-hidden">
             <CardHeader className="pb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-500/10 rounded-xl flex items-center justify-center">
-                  <FileSpreadsheet className="h-5 w-5 text-green-600" />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/Google_Sheets_logo_%282014-2020%29.svg" alt="Google Sheets" style={{ height: 24, width: 'auto' }} />
+                  <CardTitle className="text-[18px] font-semibold text-(--text-primary)">Google Sheets</CardTitle>
                 </div>
-                <CardTitle className="text-xl">Google Sheets</CardTitle>
+                <Badge variant="default" className="bg-green-500/10 text-green-500 hover:bg-green-500/20 shadow-none border-none rounded-full text-xs px-3 py-1 font-medium">Disponível</Badge>
               </div>
             </CardHeader>
-            <CardContent className="flex-1 space-y-6">
-              <p className="text-[14px] text-(--text-secondary)">
-                Conecte uma planilha para importar dados de leads, investimentos adicionais e métricas automaticamente para um cliente específico.
+            
+            <div className="h-[1px] w-full bg-(--card-border)" />
+            
+            <CardContent className="flex-1 space-y-6 pt-6">
+              <p className="text-[14px] text-(--text-secondary) leading-relaxed">
+                Vincule uma planilha Google para importar leads e métricas de um cliente específico.
               </p>
 
-              <div className="space-y-4 pt-2">
+              <div className="space-y-5 pt-2">
                 <div className="space-y-2">
-                  <Label className="text-[13px] text-(--text-secondary)">Selecione o Cliente</Label>
+                  <Label className="text-[13px] font-medium text-(--text-primary)">Selecione o Cliente</Label>
                   <Select value={selectedClienteId} onValueChange={setSelectedClienteId}>
-                    <SelectTrigger className="bg-background border-(--card-border) h-11">
+                    <SelectTrigger className="bg-background border-(--card-border) h-11 rounded-lg w-full">
                       <SelectValue placeholder="Escolha um cliente..." />
                     </SelectTrigger>
                     <SelectContent className="bg-(--card-bg) border-(--card-border)">
@@ -307,23 +320,23 @@ export default function IntegracoesPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-[13px] text-(--text-secondary)">ID da Planilha Google</Label>
+                  <Label className="text-[13px] font-medium text-(--text-primary)">ID da Planilha Google</Label>
                   <Input 
-                    placeholder="Ex: 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms" 
-                    className="bg-background border-(--card-border) h-11 font-mono text-[13px]"
+                    placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms" 
+                    className="bg-background border-(--card-border) h-11 font-mono text-[13px] rounded-lg w-full"
                     value={spreadsheetId}
                     onChange={e => setSpreadsheetId(e.target.value)}
                     disabled={!selectedClienteId}
                   />
-                  <p className="text-[11px] text-(--text-tertiary) italic mt-1">
-                    O ID é encontrado na URL da planilha entre /d/ e /edit.
+                  <p className="text-[12px] text-(--text-tertiary) mt-1.5 ml-1">
+                    Encontrado na URL entre <span className="font-mono bg-background px-1 py-0.5 rounded border border-(--card-border)">/d/</span> e <span className="font-mono bg-background px-1 py-0.5 rounded border border-(--card-border)">/edit</span>
                   </p>
                 </div>
               </div>
 
-              <div className="pt-4 mt-auto">
+              <div className="pt-6 mt-auto">
                 <Button 
-                  className="w-full bg-green-600 hover:bg-green-700 text-white h-11"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white h-11 rounded-lg font-medium"
                   disabled={!selectedClienteId || !spreadsheetId || isSavingSheets}
                   onClick={handleSaveSheets}
                 >
