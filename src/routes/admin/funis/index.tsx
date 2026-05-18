@@ -86,7 +86,7 @@ export default function FunisIndex() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {funis?.map((funil: any) => (
-            <Card key={funil.$id} className="h-full flex flex-col group overflow-hidden border transition-colors hover:border-primary/50">
+            <Card key={funil.id || funil.$id} className="h-full flex flex-col group overflow-hidden border transition-colors hover:border-primary/50">
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">
                   <CardTitle className="text-lg leading-tight line-clamp-1" title={funil.nome}>
@@ -99,13 +99,13 @@ export default function FunisIndex() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => navigate(`/admin/funis/${funil.$id}/canvas`)}>
+                      <DropdownMenuItem onClick={() => navigate(`/admin/funis/${funil.id || funil.$id}/canvas`)}>
                         <Pencil className="h-4 w-4 mr-2" />
                         Editar Canvas
                       </DropdownMenuItem>
                       <DropdownMenuItem 
                         className="text-destructive focus:bg-destructive/10 focus:text-destructive"
-                        onClick={() => setFunilDeletar(funil.$id)}
+                        onClick={() => setFunilDeletar(funil.id || funil.$id)}
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
                         Excluir
@@ -124,7 +124,7 @@ export default function FunisIndex() {
               </CardContent>
               <div 
                 className="p-4 border-t bg-muted/20 cursor-pointer hover:bg-muted/40 transition-colors flex items-center justify-center text-sm font-medium"
-                onClick={() => navigate(`/admin/funis/${funil.$id}/canvas`)}
+                onClick={() => navigate(`/admin/funis/${funil.id || funil.$id}/canvas`)}
               >
                 Abrir Canvas
               </div>

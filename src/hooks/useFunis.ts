@@ -50,7 +50,7 @@ export function useCriarFunil() {
         .select()
         .single();
       if (error) throw error;
-      return result;
+      return { ...result, $id: result.id, $createdAt: result.criado_em, $updatedAt: result.atualizado_em };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['funis'] });
@@ -78,7 +78,7 @@ export function useAtualizarFunil() {
         .select()
         .single();
       if (error) throw error;
-      return result;
+      return { ...result, $id: result.id, $createdAt: result.criado_em, $updatedAt: result.atualizado_em };
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['funis'] });

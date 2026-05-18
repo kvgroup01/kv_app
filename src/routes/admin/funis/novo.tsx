@@ -96,7 +96,7 @@ export default function FunisNovo() {
         arestas: templateAberto.arestas,
       });
       toast.success('Funil criado com sucesso!');
-      navigate(`/admin/funis/${funil.$id}/canvas`);
+      navigate(`/admin/funis/${funil.id || funil.$id}/canvas`);
     } catch (e: any) {
       toast.error('Erro ao criar o funil');
     }
