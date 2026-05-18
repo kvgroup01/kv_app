@@ -51,6 +51,7 @@
 /* ── DARK MODE (padrão) ── */
 :root {
   color-scheme: dark;
+  --kvmark-color: #FFE500;
   --background: 0 0% 4%;
   --foreground: 0 0% 93%;
   --card: 0 0% 8%;
@@ -93,6 +94,7 @@
 /* ── LIGHT MODE ── */
 :root.light {
   color-scheme: light;
+  --kvmark-color: #111111;
   --background: 0 0% 98%;
   --foreground: 0 0% 4%;
   --card: 0 0% 100%;

@@ -62,7 +62,7 @@ export function Sidebar({ usuario, onLogout, isCollapsed = false, onToggleCollap
         showLabels ? "px-6" : "px-4 justify-center"
       )}>
         <div className="flex items-center gap-2.5 overflow-hidden">
-          <KVMark size={28} color="var(--brand)" />
+          <KVMark size={28} />
           {showLabels && (
             <span className="text-[15px] font-semibold text-foreground tracking-tight animate-in fade-in duration-300 truncate">
               <span className="font-bold text-[15px] tracking-tight text-(--text-primary)">KV<span style={{ color: 'var(--brand)' }}>ision</span></span>
@@ -178,7 +178,7 @@ export function Sidebar({ usuario, onLogout, isCollapsed = false, onToggleCollap
       {/* Mobile Top Header */}
       <div className="md:hidden flex h-16 w-full items-center justify-between border-b border-(--sidebar-border) bg-(--sidebar-bg) text-foreground px-4 sticky top-0 z-40">
         <div className="flex items-center gap-2.5">
-          <KVMark size={24} color="var(--brand)" />
+          <KVMark size={24} />
           <span className="font-bold text-[15px] tracking-tight text-(--text-primary)">
             KV<span style={{ color: 'var(--brand)' }}>ision</span>
           </span>

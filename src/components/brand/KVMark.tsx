@@ -7,17 +7,23 @@ interface KVMarkProps {
   size?: number;
   color?: string;
   style?: CSSProperties;
+  className?: string;
 }
 
-export function KVMark({ size = 32, color = '#FFE500', style }: KVMarkProps) {
+export function KVMark({ size = 32, color, style, className }: KVMarkProps) {
   const w = size * (3873 / 2963);
   return (
     <svg
       width={w}
       height={size}
       viewBox="339 774 3873 2963"
-      fill={color}
-      style={{ display: 'block', flexShrink: 0, ...style }}
+      style={{ 
+        display: 'block', 
+        flexShrink: 0,
+        fill: color || 'var(--kvmark-color)',
+        ...style 
+      }}
+      className={className}
     >
       <path d={KV_P1} />
       <path d={KV_P2} />

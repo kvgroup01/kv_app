@@ -43,7 +43,7 @@ export default function Login() {
       <Card className="w-full max-w-[400px]">
         <CardHeader className="text-center space-y-2 pb-8">
           <div className="flex flex-col items-center gap-3">
-            <KVMark size={48} color="var(--brand)" />
+            <KVMark size={48} />
             <span className="font-bold text-2xl tracking-tight text-(--text-primary)">
               KV<span style={{ color: 'var(--brand)' }}>ision</span>
             </span>
