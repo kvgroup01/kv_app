@@ -15,7 +15,7 @@ const formatDomain = (domain: string): string => {
 };
 
 // Force dashboard domain regardless of Vite Env or AI Studio injected OS Secrets
-const APP_URL = 'https://sistema.kvgroupbr.com.br';
+const APP_URL = 'https://kvision.kvgroupbr.com.br';
 
 export const CONFIG = {
   APP_URL,

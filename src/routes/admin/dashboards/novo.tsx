@@ -371,10 +371,10 @@ export default function NovoDashboard() {
                 <div className="flex items-center gap-2">
                    <Input 
                      readOnly 
-                     value={`https://sistema.kvgroupbr.com.br/api/webhook/${form.slug || 'novo-lancamento'}`} 
+                     value={`https://kvision.kvgroupbr.com.br/api/webhook/${form.slug || 'novo-lancamento'}`} 
                      className="bg-background font-mono text-sm"
                    />
-                   <Button variant="secondary" onClick={() => copyToClipboard(`https://sistema.kvgroupbr.com.br/api/webhook/${form.slug || 'novo-lancamento'}`, 'URL copiada!')}>
+                   <Button variant="secondary" onClick={() => copyToClipboard(`https://kvision.kvgroupbr.com.br/api/webhook/${form.slug || 'novo-lancamento'}`, 'URL copiada!')}>
                      <Copy className="h-4 w-4" />
                    </Button>
                 </div>
@@ -407,7 +407,7 @@ export default function NovoDashboard() {
             </CardHeader>
             <CardContent className="pt-4 relative">
               <pre className="bg-muted p-4 rounded-lg text-sm font-mono text-muted-foreground overflow-x-auto">
-{`fetch("https://sistema.kvgroupbr.com.br/api/webhook/${form.slug || 'id'}", {
+{`fetch("https://kvision.kvgroupbr.com.br/api/webhook/${form.slug || 'id'}", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
@@ -421,7 +421,7 @@ export default function NovoDashboard() {
                 variant="outline" 
                 size="icon" 
                 className="absolute top-6 right-6"
-                onClick={() => copyToClipboard(`fetch("https://sistema.kvgroupbr.com.br/api/webhook/${form.slug || 'id'}", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) });`, 'Código copiado!')}
+                onClick={() => copyToClipboard(`fetch("https://kvision.kvgroupbr.com.br/api/webhook/${form.slug || 'id'}", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) });`, 'Código copiado!')}
               >
                 <Copy className="h-4 w-4 text-muted-foreground" />
               </Button>
@@ -612,9 +612,9 @@ export default function NovoDashboard() {
                <label className="text-sm font-semibold">Tudo pronto! Seu link de acesso será:</label>
                <div className="flex items-center gap-2 p-1 border rounded-md pr-2 bg-background">
                   <div className="flex-1 px-3 py-1 font-mono text-sm text-muted-foreground overflow-x-auto whitespace-nowrap">
-                    https://sistema.kvgroupbr.com.br/dashboard/{form.cliente_slug || 'cliente'}/{form.slug}
+                    https://kvision.kvgroupbr.com.br/dashboard/{form.cliente_slug || 'cliente'}/{form.slug}
                   </div>
-                  <Button variant="secondary" size="sm" onClick={() => copyToClipboard(`https://sistema.kvgroupbr.com.br/dashboard/${form.cliente_slug || 'cliente'}/${form.slug}`, 'Link copiado!')}>
+                  <Button variant="secondary" size="sm" onClick={() => copyToClipboard(`https://kvision.kvgroupbr.com.br/dashboard/${form.cliente_slug || 'cliente'}/${form.slug}`, 'Link copiado!')}>
                     <Copy className="h-4 w-4 mr-2" /> Copiar Link
                   </Button>
                </div>

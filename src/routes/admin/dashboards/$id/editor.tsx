@@ -604,7 +604,7 @@ export default function DashboardEditor() {
                   </p>
                   <div className="flex gap-2">
                     <Input
-                      value={`https://sistema.kvgroupbr.com.br/api/webhook-lead?lancamentoId=${id}`}
+                      value={`https://kvision.kvgroupbr.com.br/api/webhook-lead?lancamentoId=${id}`}
                       readOnly
                       className="bg-muted text-xs font-mono"
                     />
@@ -613,7 +613,7 @@ export default function DashboardEditor() {
                       size="icon"
                       onClick={() => {
                         navigator.clipboard.writeText(
-                          `https://sistema.kvgroupbr.com.br/api/webhook-lead?lancamentoId=${id}`
+                          `https://kvision.kvgroupbr.com.br/api/webhook-lead?lancamentoId=${id}`
                         );
                         toast.success('URL copiada!');
                       }}
