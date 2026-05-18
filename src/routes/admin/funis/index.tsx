@@ -44,7 +44,7 @@ export default function FunisIndex() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <GitBranch className="h-8 w-8 text-primary" />
+            <GitBranch className="h-8 w-8 text-(--text-primary)" />
             <h1 className="text-3xl font-bold tracking-tight">Funis</h1>
           </div>
           <p className="text-muted-foreground mt-1">Crie e gerencie os fluxos do seu funil</p>
@@ -73,7 +73,7 @@ export default function FunisIndex() {
       ) : funis?.length === 0 ? (
         <Card className="flex flex-col items-center justify-center p-12 text-center border-dashed">
           <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-            <GitBranch className="h-10 w-10 text-primary" />
+            <GitBranch className="h-10 w-10 text-(--text-tertiary)" />
           </div>
           <h3 className="text-xl font-semibold mb-2">Nenhum funil criado ainda</h3>
           <p className="text-muted-foreground mb-6 max-w-sm">

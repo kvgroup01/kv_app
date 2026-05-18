@@ -203,8 +203,8 @@ export default function NovoDashboard() {
           <div key={step.id} className="flex flex-col items-center gap-2 z-10 bg-background px-2">
             <div className={cn(
               "h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold transition-all",
-              passo > step.id ? "bg-primary text-primary-foreground" :
-              passo === step.id ? "bg-primary text-primary-foreground outline outline-4 outline-primary/20" :
+              passo > step.id ? "bg-[#FFE500] text-black" :
+              passo === step.id ? "bg-[#FFE500] text-black outline outline-2 outline-[#FFE500]/50" :
               "bg-muted text-muted-foreground border-2 border-muted"
             )}>
               {passo > step.id ? <Check className="h-4 w-4 stroke-[3]" /> : step.id}
@@ -261,7 +261,7 @@ export default function NovoDashboard() {
                 className="bg-background"
               />
               <p className="text-xs text-muted-foreground pt-1">
-                O URL público será: <span className="text-primary/80">/dashboard/{form.cliente_slug || '[cliente]'}/{form.slug || '[lancamento]'}</span>
+                O URL público será: <span className="text-(--text-primary)">/dashboard/{form.cliente_slug || '[cliente]'}/{form.slug || '[lancamento]'}</span>
               </p>
             </div>
 
@@ -359,9 +359,9 @@ export default function NovoDashboard() {
       {/* Passo 3 */}
       {passo === 3 && (
         <div className="space-y-6">
-          <Card className="border-primary/30 bg-primary/5">
+          <Card className="border-(--brand)/30 bg-(--brand)/5">
             <CardHeader className="pb-3">
-              <CardTitle className="text-primary flex items-center gap-2">
+              <CardTitle className="text-(--brand) flex items-center gap-2">
                 <CircleCheck className="h-5 w-5" /> Seu webhook está pronto!
               </CardTitle>
             </CardHeader>
@@ -572,9 +572,9 @@ export default function NovoDashboard() {
 
       {/* Passo 5 */}
       {passo === 5 && (
-        <Card className="border-primary/20">
+        <Card className="border-[var(--brand)]/20">
           <CardHeader className="text-center pb-2">
-            <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-[#FFE500]/10 text-[#FFE500] rounded-full flex items-center justify-center mx-auto mb-4">
               <Check className="h-8 w-8 stroke-[3]" />
             </div>
             <CardTitle className="text-2xl">Seu dashboard está pronto!</CardTitle>

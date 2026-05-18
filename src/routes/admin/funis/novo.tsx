@@ -127,7 +127,7 @@ export default function FunisNovo() {
             >
               <CardContent className="p-6 flex items-start gap-4">
                 <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                  <Icon className="h-6 w-6 text-primary" />
+                  <Icon className="h-6 w-6 text-(--text-primary)" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg mb-1">{tpl.nome}</h3>

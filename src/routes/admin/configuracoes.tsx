@@ -125,22 +125,22 @@ export default function Configuracoes() {
 
       <Tabs defaultValue="perfil" className="space-y-8">
         <TabsList className="bg-muted border border-(--card-border) p-1 h-12 rounded-xl overflow-x-auto max-w-full no-scrollbar">
-          <TabsTrigger value="geral" className="px-6 rounded-lg data-[state=active]:bg-white data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit">
+          <TabsTrigger value="geral" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit">
             <BarChart3 className="h-4 w-4" /> Geral
           </TabsTrigger>
-          <TabsTrigger value="perfil" className="px-6 rounded-lg data-[state=active]:bg-white data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit">
+          <TabsTrigger value="perfil" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit">
             <User className="h-4 w-4" /> Perfil
           </TabsTrigger>
-          <TabsTrigger value="integracoes" className="px-6 rounded-lg data-[state=active]:bg-white data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider">
+          <TabsTrigger value="integracoes" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider">
             <Globe className="h-4 w-4" /> Integrações
           </TabsTrigger>
-          <TabsTrigger value="equipe" className="px-6 rounded-lg data-[state=active]:bg-white data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider">
+          <TabsTrigger value="equipe" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider">
             <UserPlus className="h-4 w-4" /> Equipe
           </TabsTrigger>
-          <TabsTrigger value="organizacao" className="px-6 rounded-lg data-[state=active]:bg-white data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider">
+          <TabsTrigger value="organizacao" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider">
             <FolderPlus className="h-4 w-4" /> Organização
           </TabsTrigger>
-          <TabsTrigger value="seguranca" className="px-6 rounded-lg data-[state=active]:bg-white data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider">
+          <TabsTrigger value="seguranca" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider">
             <Shield className="h-4 w-4" /> Segurança
           </TabsTrigger>
         </TabsList>

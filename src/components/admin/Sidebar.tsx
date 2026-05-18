@@ -114,15 +114,15 @@ export function Sidebar({ usuario, onLogout, isCollapsed = false, onToggleCollap
                 "group flex w-full items-center transition-all duration-200 rounded-lg",
                 showLabels ? "gap-3 px-3 py-2 text-[13px]" : "justify-center p-2",
                 isActive 
-                  ? "bg-accent text-foreground shadow-sm" 
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                  ? "bg-[#FFE500] text-black font-semibold" 
+                  : "text-(--text-secondary) hover:bg-(--card-hover) hover:text-(--text-primary)"
               )
             }
             title={!showLabels ? item.label : undefined}
           >
             <item.icon className={cn(
               "h-4 w-4 shrink-0 transition-colors",
-              "group-hover:text-foreground"
+              isActive ? "text-black" : "text-(--text-tertiary) group-hover:text-(--text-primary)"
             )} />
             {showLabels && (
               <span className="truncate animate-in fade-in slide-in-from-left-1 duration-300">

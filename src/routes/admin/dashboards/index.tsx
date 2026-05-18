@@ -122,7 +122,7 @@ export default function DashboardsIndex() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <LayoutDashboard className="h-8 w-8 text-primary" />
+            <LayoutDashboard className="h-8 w-8 text-(--text-primary)" />
             <h1 className="text-3xl font-bold tracking-tight">Dashboards</h1>
           </div>
           <p className="text-muted-foreground mt-1">Gerencie os dashboards dos seus clientes</p>
@@ -196,7 +196,7 @@ export default function DashboardsIndex() {
       ) : lancamentosFiltrados?.length === 0 ? (
         <Card className="flex flex-col items-center justify-center p-12 text-center border-dashed">
           <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-            <LayoutDashboard className="h-10 w-10 text-primary" />
+            <LayoutDashboard className="h-10 w-10 text-(--text-tertiary)" />
           </div>
           <h3 className="text-xl font-semibold mb-2">Nenhum dashboard encontrado</h3>
           <p className="text-muted-foreground mb-6 max-w-sm">
