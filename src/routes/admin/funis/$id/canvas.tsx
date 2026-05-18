@@ -66,21 +66,15 @@ function ModalAddNode({ onAdd, onClose }: {
   return (
     <div
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 1000,
-        background: 'rgba(0,0,0,0.6)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}
+      className="fixed inset-0 z-[1000] bg-black/60 sm:bg-transparent"
     >
-      <div style={{
-        background: 'hsl(var(--card))', borderRadius: 12, width: 420,
-        border: '1px solid hsl(var(--border))',
-        boxShadow: '0 24px 80px rgba(0,0,0,0.7)',
-        overflow: 'hidden',
-      }}>
-        <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid hsl(var(--border))' }}>
+      <div
+        className="fixed inset-x-0 bottom-0 sm:absolute sm:inset-auto sm:top-16 sm:right-4 z-50 rounded-t-2xl sm:rounded-xl bg-(--card-bg) border border-(--card-border) max-h-[60vh] overflow-y-auto w-full sm:w-72 shadow-2xl flex flex-col"
+      >
+        <div className="shrink-0" style={{ padding: '16px 16px 12px', borderBottom: '1px solid hsl(var(--border))' }}>
           <input
-            autoFocus
+            autoFocus={false}
+            autoComplete="off"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar nó..."
@@ -92,7 +86,7 @@ function ModalAddNode({ onAdd, onClose }: {
             }}
           />
         </div>
-        <div style={{ maxHeight: 360, overflowY: 'auto', padding: 8 }}>
+        <div style={{ padding: 8 }}>
           {filtered.map(({ type, label, Icon, color }) => (
             <button
               key={type}
@@ -833,7 +827,11 @@ function CanvasInner() {
           onConnect={onConnect}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
-          fitView fitViewOptions={{ padding: 0.2 }}
+          minZoom={0.1}
+          maxZoom={2}
+          defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
+          fitView 
+          fitViewOptions={{ padding: 0.2, minZoom: 0.1, maxZoom: 1 }}
           defaultEdgeOptions={{
             type: 'custom',
           }}
