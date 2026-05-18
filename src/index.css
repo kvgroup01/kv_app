@@ -1,6 +1,10 @@
 @import "tailwindcss";
 
 @theme {
+  --color-brand: #FFE500;
+  --color-brand-hover: #FFD700;
+  --color-brand-text: #000000;
+
   --color-sidebar-bg: #0a0a0a;
   --color-sidebar-border: #1a1a1a;
   --color-content-bg: #0f0f0f;
@@ -14,6 +18,7 @@
   --color-accent-green: #22c55e;
   --color-accent-amber: #f59e0b;
   --color-accent-purple: #a855f7;
+  --color-accent-yellow: #FFE500;
 
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
@@ -34,12 +39,16 @@
   --color-popover-foreground: hsl(var(--popover-foreground));
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
-  
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
 }
 
+/* ── DARK MODE (padrão) ── */
 :root {
   color-scheme: dark;
   --background: 0 0% 4%;
@@ -48,20 +57,21 @@
   --card-foreground: 0 0% 93%;
   --popover: 0 0% 8%;
   --popover-foreground: 0 0% 93%;
-  --primary: 0 0% 93%;
-  --primary-foreground: 0 0% 4%;
+  --primary: 53 100% 50%;
+  --primary-foreground: 0 0% 0%;
   --secondary: 0 0% 11%;
   --secondary-foreground: 0 0% 93%;
   --muted: 0 0% 11%;
   --muted-foreground: 0 0% 53%;
-  --accent: 0 0% 15%;
-  --accent-foreground: 0 0% 93%;
+  --accent: 53 100% 50%;
+  --accent-foreground: 0 0% 0%;
   --destructive: 0 62% 30%;
   --destructive-foreground: 0 0% 93%;
   --border: 0 0% 15%;
   --input: 0 0% 15%;
-  --ring: 0 0% 93%;
-  --radius: 0.5rem;
+  --ring: 53 100% 50%;
+  --radius: 0.75rem;
+
   --sidebar-bg: #0a0a0a;
   --sidebar-border: #1a1a1a;
   --content-bg: #0f0f0f;
@@ -75,29 +85,34 @@
   --accent-green: #22c55e;
   --accent-amber: #f59e0b;
   --accent-purple: #a855f7;
+  --brand: #FFE500;
+  --brand-hover: #FFD700;
+  --brand-text: #000000;
 }
 
+/* ── LIGHT MODE ── */
 :root.light {
   color-scheme: light;
   --background: 0 0% 98%;
-  --foreground: 0 0% 9%;
+  --foreground: 0 0% 4%;
   --card: 0 0% 100%;
-  --card-foreground: 0 0% 9%;
+  --card-foreground: 0 0% 4%;
   --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 9%;
-  --primary: 0 0% 9%;
-  --primary-foreground: 0 0% 98%;
+  --popover-foreground: 0 0% 4%;
+  --primary: 53 100% 50%;
+  --primary-foreground: 0 0% 0%;
   --secondary: 0 0% 94%;
-  --secondary-foreground: 0 0% 9%;
+  --secondary-foreground: 0 0% 4%;
   --muted: 0 0% 94%;
   --muted-foreground: 0 0% 45%;
-  --accent: 0 0% 90%;
-  --accent-foreground: 0 0% 9%;
+  --accent: 53 100% 50%;
+  --accent-foreground: 0 0% 0%;
   --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 98%;
   --border: 0 0% 88%;
   --input: 0 0% 88%;
-  --ring: 0 0% 9%;
+  --ring: 53 100% 50%;
+
   --sidebar-bg: #f8f8f8;
   --sidebar-border: #e5e5e5;
   --content-bg: #f4f4f4;
@@ -111,11 +126,16 @@
   --accent-green: #16a34a;
   --accent-amber: #d97706;
   --accent-purple: #9333ea;
+  --brand: #FFE500;
+  --brand-hover: #FFD700;
+  --brand-text: #000000;
 }
 
 @layer base {
   * {
     border-color: hsl(var(--border));
+    transition-property: color, background-color, border-color;
+    transition-duration: 150ms;
   }
   body {
     background-color: hsl(var(--background));
@@ -123,48 +143,68 @@
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.2px;
+  }
+  ::selection {
+    background-color: #FFE500;
+    color: #000000;
   }
 }
 
-/* Custom shadow for cards */
+/* ── COMPONENTES KV GROUP ── */
+.btn-brand {
+  background-color: var(--brand);
+  color: var(--brand-text);
+  border-radius: 9999px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.btn-brand:hover {
+  background-color: var(--brand-hover);
+  transform: scale(1.02);
+  box-shadow: 0 4px 16px rgba(255, 229, 0, 0.35);
+}
+.btn-brand:active { transform: scale(0.97); }
+.btn-brand:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.card-kv {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  padding: 24px;
+  transition: all 0.2s;
+}
+.card-kv:hover {
+  border-color: var(--brand);
+  box-shadow: 0 4px 20px rgba(255, 229, 0, 0.08);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--card-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+
+/* Radix / Recharts fixes */
+[data-radix-popper-content-wrapper] { z-index: 9999 !important; }
+.recharts-tooltip-wrapper { z-index: 9999 !important; }
+.recharts-wrapper:focus,
+.recharts-wrapper *:focus,
+.recharts-surface:focus { outline: none !important; }
 .shadow-premium {
   box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.4);
 }
 
-[data-radix-popper-content-wrapper] {
-  z-index: 9999 !important;
-}
-
-.recharts-tooltip-wrapper {
-  z-index: 9999 !important;
-}
-
-.recharts-wrapper:focus,
-.recharts-wrapper *:focus,
-.recharts-surface:focus {
-  outline: none !important;
-}
-
+/* ── LIGHT MODE OVERRIDES ── */
 @layer utilities {
-
-  /* Dashboard público — fundo principal */
-  :root.light [class*="bg-\\[#0f0f0f\\]"] {
-    background-color: hsl(var(--background)) !important;
-  }
-
-  /* Tooltips dos gráficos Recharts */
-  :root.light .recharts-tooltip-wrapper > div {
-    background-color: hsl(var(--popover)) !important;
-    border-color: hsl(var(--border)) !important;
-    color: hsl(var(--foreground)) !important;
-  }
-
-  /* No light mode, text-white vira text-foreground */
-  :root.light .text-white {
-    color: hsl(var(--foreground)) !important;
-  }
-
-  /* Backgrounds hardcoded escuros → brancos no light */
+  :root.light .text-white { color: hsl(var(--foreground)) !important; }
   :root.light .bg-\[#0f0f0f\],
   :root.light .bg-\[#0a0a0a\],
   :root.light .bg-\[#141414\],
@@ -174,96 +214,25 @@
   :root.light .bg-\[#2d2d2d\] {
     background-color: hsl(var(--card)) !important;
   }
-
-  /* Border hardcoded escura → light */
   :root.light .border-\[#333\],
   :root.light .border-\[#1a1a1a\],
   :root.light .border-\[#2a2a2a\],
   :root.light .border-\[#3d3d3d\] {
     border-color: hsl(var(--border)) !important;
   }
-
-  /* Textos hardcoded claros → escuros no light */
   :root.light .text-\[\#ededed\],
-  :root.light .text-\[\#e5e7eb\] {
-    color: hsl(var(--foreground)) !important;
-  }
-
-  /* Textos mutados hardcoded */
+  :root.light .text-\[\#e5e7eb\] { color: hsl(var(--foreground)) !important; }
   :root.light .text-\[\#888\],
   :root.light .text-\[\#9ca3af\],
-  :root.light .text-\[\#6b7280\] {
-    color: hsl(var(--muted-foreground)) !important;
-  }
-
-  /* bg-card e bg-background no light */
-  :root.light .bg-card {
-    background-color: hsl(var(--card));
-  }
-  :root.light .bg-background {
-    background-color: hsl(var(--background));
-  }
-
-  /* Dashboard público — fundo escuro deve virar claro */
-  :root.light .bg-\[#0f0f0f\] {
-    background-color: hsl(var(--background)) !important;
-  }
-
-  /* Scrollbar no light mode */
-  :root.light {
-    scrollbar-color: hsl(var(--border)) transparent;
-  }
-
-  /* Inputs e textareas hardcoded */
-  :root.light input,
-  :root.light textarea,
-  :root.light select {
-    color-scheme: light;
-  }
-
-  /* Barras de filtro/busca com bg preto hardcoded */
+  :root.light .text-\[\#6b7280\] { color: hsl(var(--muted-foreground)) !important; }
   :root.light .bg-black,
   :root.light .bg-\[#000\],
   :root.light .bg-\[#000000\] {
     background-color: hsl(var(--secondary)) !important;
     color: hsl(var(--foreground)) !important;
   }
-
-  /* Textos brancos dentro de fundos escuros que viraram claros */
-  :root.light .bg-black *,
-  :root.light .bg-\[#000\] *,
-  :root.light .bg-\[#000000\] * {
-    color: hsl(var(--foreground)) !important;
-    border-color: hsl(var(--border)) !important;
-  }
-
-  /* Ícones com fundo preto (empty states, orçamentos) */
-  :root.light .rounded-full.bg-black,
-  :root.light .rounded-full.bg-\[#000\],
-  :root.light [class*="rounded"].bg-black {
-    background-color: hsl(var(--muted)) !important;
-    color: hsl(var(--muted-foreground)) !important;
-  }
-
-  /* Abas/tabs com fundo preto */
-  :root.light [role="tablist"].bg-black,
-  :root.light .tabs-list.bg-black {
-    background-color: hsl(var(--muted)) !important;
-  }
-
-  /* Inputs dentro de barras escuras */
-  :root.light .bg-black input,
-  :root.light .bg-black select,
-  :root.light .bg-black button {
-    background-color: hsl(var(--secondary)) !important;
-    color: hsl(var(--foreground)) !important;
-    border-color: hsl(var(--border)) !important;
-  }
-
-  /* Divisores verticais em barras escuras */
-  :root.light .bg-black .border-l,
-  :root.light .bg-black .border-r,
-  :root.light .bg-black [class*="border"] {
-    border-color: hsl(var(--border)) !important;
-  }
+  :root.light input,
+  :root.light textarea,
+  :root.light select { color-scheme: light; }
+  :root.light { scrollbar-color: hsl(var(--border)) transparent; }
 }

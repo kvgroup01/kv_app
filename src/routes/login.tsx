@@ -3,10 +3,10 @@ import { useNavigate, Navigate } from 'react-router';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { Button } from '../components/ui/button';
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { KVMark } from '../components/brand/KVMark';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -41,16 +41,16 @@ export default function Login() {
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-muted/20 p-4">
       <Card className="w-full max-w-[400px]">
-        <CardHeader className="text-center space-y-2">
-          <div className="flex justify-center mb-2">
-             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold text-xl">
-               KV
-             </div>
+        <CardHeader className="text-center space-y-2 pb-8">
+          <div className="flex flex-col items-center gap-3">
+            <KVMark size={48} color="var(--brand)" />
+            <span className="font-bold text-2xl tracking-tight text-(--text-primary)">
+              KV<span style={{ color: 'var(--brand)' }}>ision</span>
+            </span>
+            <p className="text-sm text-(--text-secondary)">
+              Entre com suas credenciais para acessar a administração
+            </p>
           </div>
-          <CardTitle className="text-2xl font-bold">KV<span className="text-blue-500">ision</span></CardTitle>
-          <CardDescription>
-            Entre com suas credenciais para acessar a administração
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -74,6 +74,7 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
                 disabled={isLoggingIn}
+                className="focus-visible:ring-1 focus-visible:ring-[var(--brand)] focus-visible:border-[var(--brand)]"
               />
             </div>
             <div className="space-y-2">
@@ -86,15 +87,16 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
                 disabled={isLoggingIn}
+                className="focus-visible:ring-1 focus-visible:ring-[var(--brand)] focus-visible:border-[var(--brand)]"
               />
             </div>
-            <Button 
+            <button 
                type="submit" 
-               className="w-full mt-4" 
+               className="btn-brand w-full h-11 text-[14px] disabled:opacity-50 disabled:cursor-not-allowed mt-4" 
                disabled={isLoggingIn}
             >
               {isLoggingIn ? 'Entrando...' : 'Entrar'}
-            </Button>
+            </button>
           </form>
         </CardContent>
       </Card>

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { NavLink } from 'react-router';
+import { KVMark } from '../brand/KVMark';
 import { 
   LayoutDashboard, 
   Home,
@@ -60,13 +61,11 @@ export function Sidebar({ usuario, onLogout, isCollapsed = false, onToggleCollap
         "flex h-20 shrink-0 items-center justify-between border-b border-(--sidebar-border) transition-all duration-300",
         showLabels ? "px-6" : "px-4 justify-center"
       )}>
-        <div className="flex items-center gap-3 overflow-hidden">
-          <div className="flex h-7 w-9 shrink-0 items-center justify-center rounded-md bg-white text-black text-[13px] font-bold px-2 py-1">
-            KV
-          </div>
+        <div className="flex items-center gap-2.5 overflow-hidden">
+          <KVMark size={28} color="var(--brand)" />
           {showLabels && (
             <span className="text-[15px] font-semibold text-foreground tracking-tight animate-in fade-in duration-300 truncate">
-              <span className="font-bold text-[15px] tracking-tight">KV<span className="text-blue-500">ision</span></span>
+              <span className="font-bold text-[15px] tracking-tight text-(--text-primary)">KV<span style={{ color: 'var(--brand)' }}>ision</span></span>
             </span>
           )}
         </div>
@@ -177,11 +176,11 @@ export function Sidebar({ usuario, onLogout, isCollapsed = false, onToggleCollap
     <>
       {/* Mobile Top Header */}
       <div className="md:hidden flex h-16 w-full items-center justify-between border-b border-(--sidebar-border) bg-(--sidebar-bg) text-foreground px-4 sticky top-0 z-40">
-        <div className="flex items-center gap-2">
-          <div className="flex h-6 w-8 items-center justify-center rounded-md bg-white text-black text-[11px] font-bold">
-             KV
-          </div>
-          <span className="text-sm font-semibold tracking-tight">KV<span className="text-blue-500">ision</span></span>
+        <div className="flex items-center gap-2.5">
+          <KVMark size={24} color="var(--brand)" />
+          <span className="font-bold text-[15px] tracking-tight text-(--text-primary)">
+            KV<span style={{ color: 'var(--brand)' }}>ision</span>
+          </span>
         </div>
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
