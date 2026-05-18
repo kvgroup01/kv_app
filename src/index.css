@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand: #FFE500;
-  --color-brand-hover: #FFD700;
+  --color-brand: #FBB03B;
+  --color-brand-hover: #F5A623;
   --color-brand-text: #000000;
 
   --color-sidebar-bg: #0a0a0a;
@@ -18,7 +18,7 @@
   --color-accent-green: #22c55e;
   --color-accent-amber: #f59e0b;
   --color-accent-purple: #a855f7;
-  --color-accent-yellow: #FFE500;
+  --color-accent-yellow: #FBB03B;
 
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
@@ -51,7 +51,7 @@
 /* ── DARK MODE (padrão) ── */
 :root {
   color-scheme: dark;
-  --kvmark-color: #FFE500;
+  --kvmark-color: #FBB03B;
   --background: 0 0% 4%;
   --foreground: 0 0% 93%;
   --card: 0 0% 8%;
@@ -86,8 +86,8 @@
   --accent-green: #22c55e;
   --accent-amber: #f59e0b;
   --accent-purple: #a855f7;
-  --brand: #FFE500;
-  --brand-hover: #FFD700;
+  --brand: #FBB03B;
+  --brand-hover: #F5A623;
   --brand-text: #000000;
 }
 
@@ -128,8 +128,8 @@
   --accent-green: #16a34a;
   --accent-amber: #d97706;
   --accent-purple: #9333ea;
-  --brand: #FFE500;
-  --brand-hover: #FFD700;
+  --brand: #FBB03B;
+  --brand-hover: #F5A623;
   --brand-text: #000000;
 }
 
@@ -148,7 +148,7 @@
     letter-spacing: -0.2px;
   }
   ::selection {
-    background-color: #FFE500;
+    background-color: #FBB03B;
     color: #000000;
   }
 }

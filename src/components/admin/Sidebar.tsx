@@ -116,7 +116,7 @@ export function Sidebar({ usuario, onLogout, isCollapsed = false, onToggleCollap
                 "group flex w-full items-center transition-all duration-200 rounded-lg",
                 showLabels ? "gap-3 px-3 py-2 text-[13px]" : "justify-center p-2",
                 isActive 
-                  ? "bg-[#FFE500] text-black font-semibold" 
+                  ? "bg-[#FBB03B] text-black font-semibold" 
                   : "text-(--text-secondary) hover:bg-(--card-hover) hover:text-(--text-primary)"
               )}>
                 <item.icon className={cn(

@@ -125,22 +125,22 @@ export default function Configuracoes() {
 
       <Tabs defaultValue="perfil" className="space-y-8">
         <TabsList className="flex flex-nowrap overflow-x-auto gap-1 w-full scrollbar-none bg-(--card-bg) p-1 rounded-xl border border-(--card-border)">
-          <TabsTrigger value="geral" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit whitespace-nowrap">
+          <TabsTrigger value="geral" className="px-6 rounded-lg data-[state=active]:bg-[#FBB03B] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit whitespace-nowrap">
             <BarChart3 className="h-4 w-4" /> Geral
           </TabsTrigger>
-          <TabsTrigger value="perfil" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit whitespace-nowrap">
+          <TabsTrigger value="perfil" className="px-6 rounded-lg data-[state=active]:bg-[#FBB03B] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit whitespace-nowrap">
             <User className="h-4 w-4" /> Perfil
           </TabsTrigger>
-          <TabsTrigger value="integracoes" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit whitespace-nowrap">
+          <TabsTrigger value="integracoes" className="px-6 rounded-lg data-[state=active]:bg-[#FBB03B] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit whitespace-nowrap">
             <Globe className="h-4 w-4" /> Integrações
           </TabsTrigger>
-          <TabsTrigger value="equipe" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit whitespace-nowrap">
+          <TabsTrigger value="equipe" className="px-6 rounded-lg data-[state=active]:bg-[#FBB03B] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit whitespace-nowrap">
             <UserPlus className="h-4 w-4" /> Equipe
           </TabsTrigger>
-          <TabsTrigger value="organizacao" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit whitespace-nowrap">
+          <TabsTrigger value="organizacao" className="px-6 rounded-lg data-[state=active]:bg-[#FBB03B] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit whitespace-nowrap">
             <FolderPlus className="h-4 w-4" /> Organização
           </TabsTrigger>
-          <TabsTrigger value="seguranca" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit whitespace-nowrap">
+          <TabsTrigger value="seguranca" className="px-6 rounded-lg data-[state=active]:bg-[#FBB03B] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit whitespace-nowrap">
             <Shield className="h-4 w-4" /> Segurança
           </TabsTrigger>
         </TabsList>

@@ -203,8 +203,8 @@ export default function NovoDashboard() {
           <div key={step.id} className="flex flex-col items-center gap-2 z-10 bg-background px-2">
             <div className={cn(
               "h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold transition-all",
-              passo > step.id ? "bg-[#FFE500] text-black" :
-              passo === step.id ? "bg-[#FFE500] text-black outline outline-2 outline-[#FFE500]/50" :
+              passo > step.id ? "bg-[#FBB03B] text-black" :
+              passo === step.id ? "bg-[#FBB03B] text-black outline outline-2 outline-[#FBB03B]/50" :
               "bg-muted text-muted-foreground border-2 border-muted"
             )}>
               {passo > step.id ? <Check className="h-4 w-4 stroke-[3]" /> : step.id}
@@ -308,7 +308,7 @@ export default function NovoDashboard() {
                     {col.fixo ? <Lock className="h-4 w-4 text-muted-foreground" /> : <div className="w-4" />}
                     <span className="font-semibold text-sm">{col.nome}</span>
                     <Badge variant="secondary" className="text-[10px] uppercase font-bold tracking-wider">{col.tipo}</Badge>
-                    {col.obrigatorio && <Badge className="text-[10px] uppercase font-bold tracking-wider bg-[#FFE500]/20 text-[#FFE500] hover:bg-[#FFE500]/30">Obrigatório</Badge>}
+                    {col.obrigatorio && <Badge className="text-[10px] uppercase font-bold tracking-wider bg-[#FBB03B]/20 text-[#FBB03B] hover:bg-[#FBB03B]/30">Obrigatório</Badge>}
                   </div>
                   {!col.fixo && (
                     <Button variant="ghost" size="icon" onClick={() => removerColuna(col.nome)} className="text-muted-foreground hover:text-destructive shrink-0">
@@ -449,7 +449,7 @@ export default function NovoDashboard() {
                         key={ma.$id} 
                         className={cn(
                           "flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-colors",
-                          form.meta_account_id === ma.meta_account_id ? "bg-[#FFE500]/5 border-[var(--brand)]" : "bg-card hover:bg-muted/50"
+                          form.meta_account_id === ma.meta_account_id ? "bg-[#FBB03B]/5 border-[var(--brand)]" : "bg-card hover:bg-muted/50"
                         )}
                         onClick={() => setForm(prev => ({ 
                            ...prev, 
@@ -574,7 +574,7 @@ export default function NovoDashboard() {
       {passo === 5 && (
         <Card className="border-[var(--brand)]/20">
           <CardHeader className="text-center pb-2">
-            <div className="w-16 h-16 bg-[#FFE500]/10 text-[#FFE500] rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-[#FBB03B]/10 text-[#FBB03B] rounded-full flex items-center justify-center mx-auto mb-4">
               <Check className="h-8 w-8 stroke-[3]" />
             </div>
             <CardTitle className="text-2xl">Seu dashboard está pronto!</CardTitle>
