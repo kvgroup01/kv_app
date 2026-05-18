@@ -35,9 +35,14 @@ export function useCriarCliente() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: any) => {
+      const sanitized = {
+        ...data,
+        pasta_id: data.pasta_id && data.pasta_id !== '' ? data.pasta_id : null,
+        criado_em: new Date().toISOString()
+      };
       const { data: result, error } = await supabase
         .from('clientes')
-        .insert({ ...data, criado_em: new Date().toISOString() })
+        .insert(sanitized)
         .select()
         .single();
       if (error) throw error;
@@ -53,9 +58,15 @@ export function useAtualizarCliente() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      const sanitized = {
+        ...data,
+      };
+      if (data.pasta_id !== undefined) {
+        sanitized.pasta_id = data.pasta_id && data.pasta_id !== '' ? data.pasta_id : null;
+      }
       const { data: result, error } = await supabase
         .from('clientes')
-        .update(data)
+        .update(sanitized)
         .eq('id', id)
         .select()
         .single();
