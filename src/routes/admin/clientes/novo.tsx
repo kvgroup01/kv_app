@@ -1,10 +1,8 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowLeft, MessageCircle, Users, Layers, Link as LinkIcon, Image as ImageIcon } from 'lucide-react';
-
+import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCriarCliente, usePastas } from '../../../hooks/useClientes';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../components/ui/card';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { Button } from '../../../components/ui/button';
@@ -16,26 +14,23 @@ export default function NovoCliente() {
   const criarMut = useCriarCliente();
   const { data: pastas } = usePastas();
 
-  // Estados do form
   const [nome, setNome] = React.useState('');
   const [slug, setSlug] = React.useState('');
   const [slugModificado, setSlugModificado] = React.useState(false);
-  
   const [tipoCampanha, setTipoCampanha] = React.useState('whatsapp');
   const [pastaId, setPastaId] = React.useState('sem-pasta');
   const [logoUrl, setLogoUrl] = React.useState('');
 
-  // Auto-geração do link slug
   React.useEffect(() => {
     if (!slugModificado) {
       const generated = nome
         .toLowerCase()
         .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, "") // Remove acentos
-        .replace(/\s+/g, '-') // Espaços para traço
-        .replace(/[^a-z0-9-]/g, '') // Remove especial
-        .replace(/-+/g, '-') // Traços múltiplos
-        .replace(/^-|-$/g, ''); // Traço início e fim
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
       setSlug(generated);
     }
   }, [nome, slugModificado]);
@@ -43,157 +38,138 @@ export default function NovoCliente() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!nome || !slug) return;
-
     criarMut.mutate({
       nome,
       slug,
       tipo_campanha: tipoCampanha as any,
       pasta_id: pastaId === 'sem-pasta' ? '' : pastaId,
       logo_url: logoUrl || '',
-      spreadsheet_id: '', // removed from form, kept as empty string to fit DB schema if needed
-      ativo: true
+      ativo: true,
     }, {
       onSuccess: () => {
-        toast.success("Cliente criado com sucesso!");
+        toast.success('Cliente criado com sucesso!');
         navigate('/admin/clientes');
       },
       onError: (err: any) => {
-        toast.error("Erro ao criar cliente: " + (err.message || "Erro desconhecido"));
+        toast.error('Erro ao criar cliente: ' + (err.message || 'Erro desconhecido'));
       }
     });
   };
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto pb-20">
+    <div className="space-y-8 max-w-[560px] mx-auto pb-20">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="h-10 w-10 text-(--text-tertiary) hover:text-(--text-primary) hover:bg-white/5 rounded-lg border border-transparent hover:border-(--card-border)" onClick={() => navigate('/admin/clientes')}>
-          <ArrowLeft className="h-5 w-5" />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-9 w-9 rounded-lg"
+          onClick={() => navigate('/admin/clientes')}
+        >
+          <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h2 className="text-[24px] font-bold text-(--text-primary)">Novo cliente</h2>
-          <p className="text-[14px] text-(--text-secondary) mt-1">Cadastre um novo painel para acompanhamento automatizado.</p>
+          <h2 className="text-[22px] font-semibold text-(--text-primary)">Novo cliente</h2>
+          <p className="text-[13px] text-(--text-secondary) mt-0.5">Cadastre um novo painel de acompanhamento.</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div className="bg-(--card-bg) border border-(--card-border) rounded-xl p-8 shadow-sm">
+        <div className="rounded-xl border border-(--card-border) bg-(--card-bg) divide-y divide-(--card-border)">
           
-          <div className="space-y-6">
+          {/* Nome */}
+          <div className="p-6 space-y-2">
+            <Label className="text-[13px] font-medium text-(--text-secondary)">
+              Nome do Cliente <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              placeholder="Ex: Clínica Sorriso"
+              required
+              value={nome}
+              onChange={e => setNome(e.target.value)}
+              disabled={criarMut.isPending}
+              className="h-10 bg-(--card-bg) border-(--card-border) text-(--text-primary) placeholder:text-(--text-tertiary) focus-visible:ring-1 focus-visible:ring-blue-500"
+            />
+          </div>
+
+          {/* Slug */}
+          <div className="p-6 space-y-2">
+            <Label className="text-[13px] font-medium text-(--text-secondary)">
+              Link Identificador (Slug) <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              required
+              value={slug}
+              onChange={e => { setSlug(e.target.value); setSlugModificado(true); }}
+              disabled={criarMut.isPending}
+              className="h-10 font-mono text-[13px] bg-(--card-bg) border-(--card-border) text-(--text-primary) focus-visible:ring-1 focus-visible:ring-blue-500"
+              placeholder="clinica-sorriso"
+            />
+            {slug && (
+              <p className="text-[12px] text-blue-500 mt-1">
+                {CONFIG.APP_URL}/dashboard/<strong>{slug}</strong>
+              </p>
+            )}
+          </div>
+
+          {/* Tipo e Pasta */}
+          <div className="p-6 grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="nome" className="text-[13px] text-(--text-secondary)">Nome do Cliente <span className="text-red-500">*</span></Label>
-              <Input 
-                 id="nome" 
-                 placeholder="Ex: Clínica Sorriso" 
-                 required 
-                 value={nome}
-                 onChange={e => setNome(e.target.value)}
-                 disabled={criarMut.isPending}
-                 className="h-11 w-full bg-black/40 border-(--card-border) text-(--text-primary) focus-visible:ring-1 focus-visible:ring-blue-500 rounded-lg text-[13px]"
-              />
+              <Label className="text-[13px] font-medium text-(--text-secondary)">Tipo de Campanha</Label>
+              <Select value={tipoCampanha} onValueChange={setTipoCampanha} disabled={criarMut.isPending}>
+                <SelectTrigger className="h-10 bg-(--card-bg) border-(--card-border) text-(--text-primary)">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                  <SelectItem value="leads">Leads</SelectItem>
+                  <SelectItem value="ambos">Híbrido</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-
-            <div className="space-y-3">
-              <Label htmlFor="slug" className="text-[13px] text-(--text-secondary)">Link Identificador (Slug) <span className="text-red-500">*</span></Label>
-              <Input 
-                 id="slug" 
-                 placeholder="clinica-sorriso" 
-                 required 
-                 value={slug}
-                 onChange={e => {
-                   setSlug(e.target.value);
-                   setSlugModificado(true);
-                 }}
-                 disabled={criarMut.isPending}
-                 className="h-11 w-full bg-black/40 border-(--card-border) text-(--text-primary) focus-visible:ring-1 focus-visible:ring-blue-500 rounded-lg font-mono text-[13px]"
-              />
-              {slug && (
-                <div className="flex items-center gap-2 mt-2 bg-blue-500/10 border border-blue-500/20 rounded-lg px-3 py-2 text-[13px] text-blue-400 truncate cursor-not-allowed">
-                  <LinkIcon className="h-4 w-4 shrink-0" />
-                  <span className="truncate">{CONFIG.APP_URL.replace(/^https?:\/\//, '')}/dashboard/{slug}</span>
-                </div>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label className="text-[13px] text-(--text-secondary)">Tipo de Campanha</Label>
-                <Select value={tipoCampanha} onValueChange={setTipoCampanha} disabled={criarMut.isPending}>
-                  <SelectTrigger className="h-11 w-full bg-black/40 border-(--card-border) text-(--text-primary) focus-visible:ring-1 focus-visible:ring-blue-500 rounded-lg text-[13px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-(--card-bg) border-(--card-border) text-(--text-primary)">
-                    <SelectItem value="whatsapp">
-                      <div className="flex items-center gap-2 text-[13px]">
-                        <MessageCircle className="h-4 w-4 text-green-500" /> WhatsApp
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="leads">
-                      <div className="flex items-center gap-2 text-[13px]">
-                        <Users className="h-4 w-4 text-blue-500" /> Leads List
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="ambos">
-                      <div className="flex items-center gap-2 text-[13px]">
-                        <Layers className="h-4 w-4 text-purple-500" /> Híbrido (Ambos)
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-[13px] text-(--text-secondary)">Pasta Organizacional</Label>
-                <Select value={pastaId} onValueChange={setPastaId} disabled={criarMut.isPending}>
-                  <SelectTrigger className="h-11 w-full bg-black/40 border-(--card-border) text-(--text-primary) focus-visible:ring-1 focus-visible:ring-blue-500 rounded-lg text-[13px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-(--card-bg) border-(--card-border) text-(--text-primary)">
-                    <SelectItem value="sem-pasta">Sem pasta (Avulso)</SelectItem>
-                    {pastas?.map((p: any) => (
-                      <SelectItem key={p.$id} value={p.$id}>{p.nome}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
             <div className="space-y-2">
-              <Label htmlFor="logoUrl" className="text-[13px] text-(--text-secondary)">URL da Logo (Opcional)</Label>
-              <div className="flex items-center gap-4">
-                <Input 
-                   id="logoUrl" 
-                   type="url"
-                   placeholder="https://exemplo.com/logo.png" 
-                   value={logoUrl}
-                   onChange={e => setLogoUrl(e.target.value)}
-                   disabled={criarMut.isPending}
-                   className="flex-1 h-11 bg-black/40 border-(--card-border) text-(--text-primary) focus-visible:ring-1 focus-visible:ring-blue-500 rounded-lg text-[13px]"
-                />
-                <div className="w-11 h-11 bg-black/40 border border-(--card-border) rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
-                  {logoUrl ? (
-                    <img src={logoUrl} alt="Logo" className="w-full h-full object-contain p-1" onError={(e) => (e.currentTarget.style.display = 'none')} />
-                  ) : (
-                    <ImageIcon className="h-5 w-5 text-(--text-tertiary)" />
-                  )}
-                </div>
-              </div>
+              <Label className="text-[13px] font-medium text-(--text-secondary)">Pasta</Label>
+              <Select value={pastaId} onValueChange={setPastaId} disabled={criarMut.isPending}>
+                <SelectTrigger className="h-10 bg-(--card-bg) border-(--card-border) text-(--text-primary)">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="sem-pasta">Sem pasta</SelectItem>
+                  {pastas?.map((p: any) => (
+                    <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
-          <div className="pt-8 mt-8 flex justify-end gap-3 border-t border-(--card-border)">
-            <Button 
-              type="button" 
-              variant="ghost" 
-              className="h-11 px-8 text-(--text-tertiary) hover:text-(--text-primary) hover:bg-white/5" 
-              onClick={() => navigate('/admin/clientes')} 
+          {/* Logo */}
+          <div className="p-6 space-y-2">
+            <Label className="text-[13px] font-medium text-(--text-secondary)">URL da Logo (Opcional)</Label>
+            <Input
+              type="url"
+              placeholder="https://exemplo.com/logo.png"
+              value={logoUrl}
+              onChange={e => setLogoUrl(e.target.value)}
               disabled={criarMut.isPending}
+              className="h-10 bg-(--card-bg) border-(--card-border) text-(--text-primary) placeholder:text-(--text-tertiary)"
+            />
+          </div>
+
+          {/* Ações */}
+          <div className="p-6 flex justify-end gap-3">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => navigate('/admin/clientes')}
+              disabled={criarMut.isPending}
+              className="h-10 px-6 text-(--text-secondary) hover:text-(--text-primary)"
             >
               Cancelar
             </Button>
-            <Button 
-              type="submit" 
-              disabled={criarMut.isPending || !nome || !slug} 
-              className="h-11 px-10 bg-white text-black hover:bg-zinc-200 text-[13px] font-semibold disabled:opacity-40"
+            <Button
+              type="submit"
+              disabled={criarMut.isPending || !nome || !slug}
+              className="h-10 px-8 bg-(--text-primary) text-(--card-bg) hover:opacity-90 font-medium text-[13px]"
             >
               {criarMut.isPending ? 'Criando...' : 'Finalizar Cadastro'}
             </Button>
