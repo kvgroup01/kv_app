@@ -119,28 +119,28 @@ export default function Configuracoes() {
   return (
     <div className="space-y-10 max-w-[1200px] mx-auto pb-20">
       <div className="flex flex-col gap-1">
-        <h2 className="text-3xl font-bold text-(--text-primary) tracking-tight">Centro de Comando</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-(--text-primary) tracking-tight">Centro de Comando</h2>
         <p className="text-(--text-secondary) text-sm">Gerencie sua identidade, conexões e equipe KV Group.</p>
       </div>
 
       <Tabs defaultValue="perfil" className="space-y-8">
-        <TabsList className="bg-muted border border-(--card-border) p-1 h-12 rounded-xl overflow-x-auto max-w-full no-scrollbar">
-          <TabsTrigger value="geral" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit">
+        <TabsList className="flex flex-nowrap overflow-x-auto gap-1 w-full scrollbar-none bg-(--card-bg) p-1 rounded-xl border border-(--card-border)">
+          <TabsTrigger value="geral" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit whitespace-nowrap">
             <BarChart3 className="h-4 w-4" /> Geral
           </TabsTrigger>
-          <TabsTrigger value="perfil" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit">
+          <TabsTrigger value="perfil" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit whitespace-nowrap">
             <User className="h-4 w-4" /> Perfil
           </TabsTrigger>
-          <TabsTrigger value="integracoes" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider">
+          <TabsTrigger value="integracoes" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit whitespace-nowrap">
             <Globe className="h-4 w-4" /> Integrações
           </TabsTrigger>
-          <TabsTrigger value="equipe" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider">
+          <TabsTrigger value="equipe" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit whitespace-nowrap">
             <UserPlus className="h-4 w-4" /> Equipe
           </TabsTrigger>
-          <TabsTrigger value="organizacao" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider">
+          <TabsTrigger value="organizacao" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit whitespace-nowrap">
             <FolderPlus className="h-4 w-4" /> Organização
           </TabsTrigger>
-          <TabsTrigger value="seguranca" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider">
+          <TabsTrigger value="seguranca" className="px-6 rounded-lg data-[state=active]:bg-[#FFE500] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit whitespace-nowrap">
             <Shield className="h-4 w-4" /> Segurança
           </TabsTrigger>
         </TabsList>
@@ -204,7 +204,7 @@ export default function Configuracoes() {
                  <CardTitle className="text-lg">Atalhos Rápidos</CardTitle>
                  <CardDescription>Acesso imediato às principais funcionalidades.</CardDescription>
                </CardHeader>
-               <CardContent className="grid grid-cols-2 gap-4">
+               <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Button variant="outline" className="h-20 flex flex-col gap-2 border-(--card-border) hover:bg-white/5 active:scale-95 transition-all">
                     <LayoutDashboard className="h-5 w-5 text-blue-500" />
                     <span className="text-xs font-bold uppercase tracking-widest">Dashboard Geral</span>

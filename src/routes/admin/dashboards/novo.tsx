@@ -193,7 +193,7 @@ export default function NovoDashboard() {
         <Button variant="ghost" size="icon" onClick={() => navigate('/admin/dashboards')}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <h1 className="text-3xl font-bold tracking-tight">Novo Dashboard</h1>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Novo Dashboard</h1>
       </div>
 
       {/* Indicador de fluxo */}
@@ -581,7 +581,7 @@ export default function NovoDashboard() {
             <CardDescription>Revise os detalhes antes de salvar ou publicar o seu novo lançamento.</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
-             <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 p-6 rounded-xl bg-card border">
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6 rounded-xl bg-card border">
                 <div className="space-y-1">
                   <p className="text-xs font-semibold text-muted-foreground uppercase">Lançamento</p>
                   <p className="font-semibold text-sm">{form.nome}</p>

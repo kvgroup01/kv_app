@@ -766,15 +766,15 @@ function CanvasInner() {
     }}>
       <style>{hideReactFlowAttribution}</style>
       {/* ── HEADER estilo N8N ── */}
-      <div style={{
+      <div className="overflow-x-auto scrollbar-none" style={{
         height: 44, background: COLORS.header,
         borderBottom: `1px solid ${COLORS.headerBorder}`,
         display: 'flex', alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'space-between', gap: 16,
         padding: '0 16px', flexShrink: 0, zIndex: 10,
       }}>
         {/* Esquerda: voltar + nome */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
           <button onClick={() => navigate('/admin/funis')} style={{
             background: COLORS.surfaceSub, border: 'none', cursor: 'pointer',
             color: COLORS.textMuted, display: 'flex', alignItems: 'center',
@@ -785,20 +785,20 @@ function CanvasInner() {
           >
             <ArrowLeft size={16} />
           </button>
-          <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>
+          <span className="truncate max-w-[120px] sm:max-w-none" style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>
             {funilNome || 'Funil'}
           </span>
           {hasChanges && (
             <span style={{
               fontSize: 10, color: '#f59e0b',
               background: 'rgba(245,158,11,0.1)',
-              padding: '2px 7px', borderRadius: 999,
+              padding: '2px 7px', borderRadius: 999, whiteSpace: 'nowrap'
             }}>não salvo</span>
           )}
         </div>
 
         {/* Centro: abas Editor / Histórico */}
-        <div style={{ display: 'flex', gap: 2 }}>
+        <div style={{ display: 'flex', gap: 2, flexShrink: 0 }}>
           {['Editor', 'Histórico'].map((tab, i) => (
             <button key={tab} style={{
               padding: '5px 14px', borderRadius: 7, border: 'none',
@@ -810,16 +810,18 @@ function CanvasInner() {
         </div>
 
         {/* Direita: salvar */}
-        <button onClick={handleSave} disabled={atualizarMutation.isPending} style={{
-          background: '#ff6d5a', color: '#fff', border: 'none',
-          borderRadius: 7, padding: '6px 14px', fontWeight: 600,
-          fontSize: 12, cursor: 'pointer', display: 'flex',
-          alignItems: 'center', gap: 6,
-          opacity: atualizarMutation.isPending ? 0.6 : 1,
-        }}>
-          <Save size={13} />
-          {atualizarMutation.isPending ? 'Salvando...' : 'Salvar'}
-        </button>
+        <div style={{ flexShrink: 0 }}>
+          <button onClick={handleSave} disabled={atualizarMutation.isPending} style={{
+            background: '#ff6d5a', color: '#fff', border: 'none',
+            borderRadius: 7, padding: '6px 14px', fontWeight: 600,
+            fontSize: 12, cursor: 'pointer', display: 'flex',
+            alignItems: 'center', gap: 6,
+            opacity: atualizarMutation.isPending ? 0.6 : 1,
+          }}>
+            <Save size={13} />
+            <span className="hidden sm:inline">{atualizarMutation.isPending ? 'Salvando...' : 'Salvar'}</span>
+          </button>
+        </div>
       </div>
 
       {/* ── CANVAS ── */}

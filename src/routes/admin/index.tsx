@@ -59,7 +59,7 @@ export default function AdminIndex() {
   if (isDataLoading) {
     return (
       <div className="space-y-8">
-        <h2 className="text-3xl font-bold tracking-tight">Visão Geral</h2>
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Visão Geral</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
            {Array.from({length: 4}).map((_, i) => <Skeleton key={i} className="h-32 w-full" />)}
         </div>

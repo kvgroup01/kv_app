@@ -187,7 +187,7 @@ export default function IntegracoesPage() {
     return (
       <div className="max-w-5xl mx-auto mt-8 p-6 space-y-8">
         <div>
-          <h1 className="text-[28px] font-bold text-(--text-primary)">Integrações</h1>
+          <h1 className="text-2xl md:text-[28px] font-bold text-(--text-primary)">Integrações</h1>
           <p className="text-[14px] text-(--text-secondary) mt-1">Conecte suas ferramentas e fontes de dados.</p>
         </div>
 
@@ -195,15 +195,13 @@ export default function IntegracoesPage() {
           {/* SEÇÃO 1: Meta Ads */}
           <Card className="bg-(--card-bg) border-(--card-border) shadow-sm rounded-xl flex flex-col overflow-hidden">
             <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Meta_Platforms_Inc._logo_%28cropped%29.svg" alt="Meta" style={{ height: 24, width: 'auto' }} />
-                  <span className="font-semibold text-lg text-(--text-primary)">Meta Ads</span>
-                </div>
+              <div className="flex items-center gap-3 flex-nowrap">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Meta_Platforms_Inc._logo_%28cropped%29.svg" alt="Meta" style={{ height: 24, width: 'auto' }} className="shrink-0" />
+                <span className="font-semibold text-lg text-(--text-primary) whitespace-nowrap">Meta Ads</span>
                 {connectedAccounts.length > 0 ? (
-                  <Badge variant="default" className="bg-green-500/10 text-green-500 hover:bg-green-500/20 shadow-none border-none rounded-full text-xs px-3 py-1 font-medium">Conectado</Badge>
+                  <Badge variant="default" className="ml-auto shrink-0 bg-green-500/10 text-green-500 hover:bg-green-500/20 shadow-none border-none rounded-full text-xs px-3 py-1 font-medium">Conectado</Badge>
                 ) : (
-                  <Badge variant="secondary" className="bg-muted text-muted-foreground shadow-none rounded-full text-xs px-3 py-1 font-medium">Não conectado</Badge>
+                  <Badge variant="secondary" className="ml-auto shrink-0 bg-muted text-muted-foreground shadow-none rounded-full text-xs px-3 py-1 font-medium">Não conectado</Badge>
                 )}
               </div>
             </CardHeader>
@@ -289,12 +287,10 @@ export default function IntegracoesPage() {
           {/* SEÇÃO 2: Google Sheets */}
           <Card className="bg-(--card-bg) border-(--card-border) shadow-sm rounded-xl flex flex-col overflow-hidden">
             <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/Google_Sheets_logo_%282014-2020%29.svg" alt="Google Sheets" style={{ height: 24, width: 'auto' }} />
-                  <CardTitle className="text-[18px] font-semibold text-(--text-primary)">Google Sheets</CardTitle>
-                </div>
-                <Badge variant="default" className="bg-green-500/10 text-green-500 hover:bg-green-500/20 shadow-none border-none rounded-full text-xs px-3 py-1 font-medium">Disponível</Badge>
+              <div className="flex items-center gap-3 flex-nowrap">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/Google_Sheets_logo_%282014-2020%29.svg" alt="Google Sheets" style={{ height: 24, width: 'auto' }} className="shrink-0" />
+                <CardTitle className="text-[18px] font-semibold text-(--text-primary) whitespace-nowrap">Google Sheets</CardTitle>
+                <Badge variant="default" className="ml-auto shrink-0 bg-green-500/10 text-green-500 hover:bg-green-500/20 shadow-none border-none rounded-full text-xs px-3 py-1 font-medium">Disponível</Badge>
               </div>
             </CardHeader>
             

@@ -108,7 +108,7 @@ function PreviewSkeleton() {
   return (
     <div className="space-y-6">
       {/* Resumo */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <Card key={i} className="bg-card">
             <CardHeader className="py-4">
@@ -910,7 +910,7 @@ export default function DashboardEditor() {
           <div className="max-w-6xl mx-auto space-y-6">
             {/* Header Mock do Dashboard */}
             <div className="mb-8">
-              <h2 className="text-3xl font-bold tracking-tight text-foreground">
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
                 {nome}
               </h2>
               <p className="text-muted-foreground">
@@ -926,7 +926,7 @@ export default function DashboardEditor() {
                   <h3 className="text-lg font-semibold mb-4 text-foreground">
                     {secoes.cards_metricas.titulo}
                   </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                     {[
                       { label: "Investimento", val: "R$ 0,00" },
                       { label: "Total Leads", val: "0" },

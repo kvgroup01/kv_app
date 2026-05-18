@@ -68,7 +68,7 @@ export default function OrcamentoNovo() {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Novo orçamento</h2>
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Novo orçamento</h2>
           <p className="text-muted-foreground">Preencha os serviços e gere seu link de checkout.</p>
         </div>
       </div>

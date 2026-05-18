@@ -108,7 +108,7 @@ export default function FunisNovo() {
         <Button variant="ghost" size="icon" onClick={() => navigate('/admin/funis')}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-3xl font-bold tracking-tight">Novo Funil</h1>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Novo Funil</h1>
       </div>
 
       <p className="text-muted-foreground">Selecione um template para começar ou crie em branco.</p>

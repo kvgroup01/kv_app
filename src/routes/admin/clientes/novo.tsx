@@ -112,7 +112,7 @@ export default function NovoCliente() {
           </div>
 
           {/* Tipo e Pasta */}
-          <div className="p-6 grid grid-cols-2 gap-4">
+          <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="text-[13px] font-medium text-(--text-secondary)">Tipo de Campanha</Label>
               <Select value={tipoCampanha} onValueChange={setTipoCampanha} disabled={criarMut.isPending}>

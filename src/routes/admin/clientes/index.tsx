@@ -163,8 +163,8 @@ export default function ClientesIndex() {
           <h2 className="text-[22px] font-semibold text-(--text-primary)">Meus Clientes</h2>
           <p className="text-[13px] text-(--text-secondary) mt-1">Gerencie seus painéis e base de clientes.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="bg-muted border border-(--card-border) rounded-lg p-1 mr-2 flex items-center">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="bg-muted border border-(--card-border) rounded-lg p-1 flex items-center">
             <Button
               variant="ghost"
               size="icon"
@@ -186,19 +186,24 @@ export default function ClientesIndex() {
           </div>
           <Button 
             variant="outline" 
+            size="sm"
             onClick={() => setIsNovaPastaOpen(true)} 
-            className="border-(--card-border) text-(--text-secondary) hover:text-(--text-primary) hover:bg-white/5 h-10 px-4 rounded-lg text-[13px]"
+            className="border-(--card-border) text-(--text-secondary) hover:text-(--text-primary) hover:bg-white/5 h-9 sm:h-10 px-3 sm:px-4 rounded-lg text-xs sm:text-[13px]"
           >
-            <FolderPlus className="mr-2 h-4 w-4" /> Nova Pasta
+            <FolderPlus className="mr-1 sm:mr-2 h-4 w-4" /> Nova Pasta
           </Button>
-          <Button onClick={() => navigate('/admin/clientes/novo')} className="bg-white text-black hover:bg-zinc-200 h-10 px-6 rounded-lg text-[13px] font-medium">
-            <Plus className="mr-2 h-4 w-4" /> Novo cliente
+          <Button 
+            size="sm"
+            onClick={() => navigate('/admin/clientes/novo')} 
+            className="bg-white text-black hover:bg-zinc-200 h-9 sm:h-10 px-3 sm:px-6 rounded-lg text-xs sm:text-[13px] font-medium"
+          >
+            <Plus className="mr-1 sm:mr-2 h-4 w-4" /> Novo cliente
           </Button>
         </div>
       </div>
 
       {/* Toolbar / Filtros */}
-      <div className="flex flex-col sm:flex-row items-center gap-4 bg-muted p-2 rounded-xl border border-(--card-border) shadow-premium">
+      <div className="flex flex-col sm:flex-row gap-2 bg-muted p-2 rounded-xl border border-(--card-border) shadow-premium">
         <div className="relative w-full sm:max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-(--text-tertiary)" />
           <Input 

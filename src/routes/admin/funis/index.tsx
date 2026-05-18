@@ -45,7 +45,7 @@ export default function FunisIndex() {
         <div>
           <div className="flex items-center gap-2">
             <GitBranch className="h-8 w-8 text-(--text-primary)" />
-            <h1 className="text-3xl font-bold tracking-tight">Funis</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Funis</h1>
           </div>
           <p className="text-muted-foreground mt-1">Crie e gerencie os fluxos do seu funil</p>
         </div>

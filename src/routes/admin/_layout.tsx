@@ -62,7 +62,7 @@ export default function AdminLayout() {
         </div>
       ) : (
         <main className={cn(
-          "flex-1 w-full h-full min-h-screen relative p-8 md:p-10 pb-20 overflow-y-auto overflow-x-hidden transition-all duration-300",
+          "flex-1 w-full h-full min-h-screen relative p-4 md:p-8 lg:p-10 pb-20 overflow-y-auto overflow-x-hidden transition-all duration-300",
           isSidebarCollapsed ? "md:ml-20" : "md:ml-64"
         )}>
            {/* O Outlet renderiza as rotas filhas ali dentro */}

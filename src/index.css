@@ -194,6 +194,14 @@
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
 
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* Radix / Recharts fixes */
 [data-radix-popper-content-wrapper] { z-index: 9999 !important; }
 .recharts-tooltip-wrapper { z-index: 9999 !important; }
