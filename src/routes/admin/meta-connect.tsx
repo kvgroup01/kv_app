@@ -10,7 +10,7 @@ import { supabase } from '../../lib/supabase';
 import { useClientes, useAtualizarCliente } from '../../hooks/useClientes';
 import type { MetaAccount } from '../../lib/types';
 import { toast } from 'sonner';
-import { Check, CheckCircle2, FileSpreadsheet, Facebook } from 'lucide-react';
+import { Check, CheckCircle2, FileSpreadsheet, Facebook, ChevronRight } from 'lucide-react';
 
 async function fetchMetaAccounts() {
   const { data: { user } } = await supabase.auth.getUser();
@@ -72,6 +72,7 @@ export default function IntegracoesPage() {
   const error = searchParams.get('error');
 
   const [bms, setBms] = React.useState<BusinessManager[]>([]);
+  const [selectedBM, setSelectedBM] = React.useState<BusinessManager | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [selectedAccounts, setSelectedAccounts] = React.useState<string[]>([]);
   const [step, setStep] = React.useState<'connect' | 'loading_accounts' | 'select' | 'done'>('connect');
@@ -164,7 +165,10 @@ export default function IntegracoesPage() {
 
       await saveMetaAccounts(accountsToSave);
       toast.success('Contas conectadas com sucesso!');
-      setStep('done');
+      setSelectedBM(null);
+      setStep('connect');
+      const updatedAccounts = await fetchMetaAccounts();
+      setConnectedAccounts(updatedAccounts);
     } catch (err: any) {
       toast.error('Erro ao salvar contas: ' + err.message);
     }
@@ -384,7 +388,9 @@ export default function IntegracoesPage() {
     return (
       <div className="max-w-2xl mx-auto mt-8 p-6 space-y-6">
         <div>
-          <h2 className="text-xl font-semibold">Selecionar contas de anúncio</h2>
+          <h2 className="text-xl font-semibold">
+            {!selectedBM ? 'Selecionar Business Manager' : 'Selecionar contas de anúncio'}
+          </h2>
           <p className="text-sm text-muted-foreground mt-1">
             Conectado como <strong>{userName}</strong> ({userEmail})
           </p>
@@ -398,16 +404,43 @@ export default function IntegracoesPage() {
           </Card>
         )}
 
-        {bms.map(bm => (
-          <Card key={bm.id} className="bg-(--card-bg) border-(--card-border)">
-            <CardHeader>
-              <CardTitle className="text-base">{bm.name}</CardTitle>
+        {!selectedBM && bms.length > 0 && (
+          <div className="space-y-3">
+            {bms.map(bm => (
+              <div 
+                key={bm.id}
+                onClick={() => setSelectedBM(bm)}
+                className="p-4 rounded-xl border border-(--card-border) bg-(--card-bg) cursor-pointer hover:border-blue-500 transition-colors"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-(--text-primary)">{bm.name}</p>
+                    <p className="text-sm text-(--text-secondary) mt-0.5">
+                      {bm.adAccounts.length} conta(s) de anúncio
+                    </p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-(--text-tertiary)" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {selectedBM && (
+          <Card className="bg-(--card-bg) border-(--card-border)">
+            <CardHeader className="flex flex-row items-center gap-4 space-y-0">
+              <Button variant="ghost" size="icon" onClick={() => setSelectedBM(null)} className="h-8 w-8 shrink-0">
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.85355 3.14645C7.04882 3.34171 7.04882 3.65829 6.85355 3.85355L3.70711 7H12.5C12.7761 7 13 7.22386 13 7.5C13 7.77614 12.7761 8 12.5 8H3.70711L6.85355 11.1464C7.04882 11.3417 7.04882 11.6583 6.85355 11.8536C6.65829 12.0488 6.34171 12.0488 6.14645 11.8536L2.14645 7.85355C1.95118 7.65829 1.95118 7.34171 2.14645 7.14645L6.14645 3.14645C6.34171 2.95118 6.65829 2.95118 6.85355 3.14645Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
+              </Button>
+              <div>
+                 <CardTitle className="text-base">{selectedBM.name}</CardTitle>
+              </div>
             </CardHeader>
             <CardContent className="space-y-2">
-              {bm.adAccounts.length === 0 && (
+              {selectedBM.adAccounts.length === 0 && (
                 <p className="text-sm text-muted-foreground">Nenhuma conta de anúncio.</p>
               )}
-              {bm.adAccounts.map(acc => (
+              {selectedBM.adAccounts.map(acc => (
                 <div
                   key={acc.id}
                   onClick={() => toggleAccount(acc.id)}
@@ -428,22 +461,28 @@ export default function IntegracoesPage() {
               ))}
             </CardContent>
           </Card>
-        ))}
+        )}
 
         <div className="flex gap-3 pt-4">
           <Button
             variant="outline"
             className="border-(--card-border) text-(--text-secondary) hover:text-(--text-primary) hover:bg-background h-11 px-6"
-            onClick={() => navigate('/admin')}
+            onClick={() => {
+              if (selectedBM) {
+                setSelectedBM(null);
+              } else {
+                setStep('connect');
+              }
+            }}
           >
-            Cancelar
+            {selectedBM ? '← Voltar' : 'Cancelar'}
           </Button>
           <Button
             className="flex-1 bg-blue-600 hover:bg-blue-500 text-white h-11"
             disabled={selectedAccounts.length === 0}
             onClick={handleSave}
           >
-            Salvar Meta Ads {selectedAccounts.length > 0 ? `(${selectedAccounts.length} conta${selectedAccounts.length > 1 ? 's' : ''})` : ''}
+            Salvar {selectedAccounts.length > 0 ? `${selectedAccounts.length} conta${selectedAccounts.length > 1 ? 's' : ''}` : ''}
           </Button>
         </div>
       </div>
