@@ -35,7 +35,10 @@ async function saveMetaAccounts(accounts: any[]) {
   
   const { data, error } = await supabase
     .from('meta_accounts')
-    .insert(accountsWithUser)
+    .upsert(accountsWithUser, { 
+      onConflict: 'meta_account_id,user_id',
+      ignoreDuplicates: false 
+    })
     .select();
   if (error) throw error;
   return data;
