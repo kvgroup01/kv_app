@@ -13,13 +13,30 @@ import { toast } from 'sonner';
 import { Check, CheckCircle2, FileSpreadsheet, Facebook } from 'lucide-react';
 
 async function fetchMetaAccounts() {
-  const { data, error } = await supabase.from('meta_accounts').select('*');
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+  
+  const { data, error } = await supabase
+    .from('meta_accounts')
+    .select('*')
+    .eq('user_id', user.id);
   if (error) throw error;
   return data.map((d: any) => ({ ...d, $id: d.id }));
 }
 
 async function saveMetaAccounts(accounts: any[]) {
-  const { data, error } = await supabase.from('meta_accounts').insert(accounts).select();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Usuário não autenticado');
+  
+  const accountsWithUser = accounts.map(acc => ({
+    ...acc,
+    user_id: user.id,
+  }));
+  
+  const { data, error } = await supabase
+    .from('meta_accounts')
+    .insert(accountsWithUser)
+    .select();
   if (error) throw error;
   return data;
 }
@@ -134,18 +151,23 @@ export default function IntegracoesPage() {
   };
 
   const handleSave = async () => {
-    const accountsToSave = bms
-      .flatMap(bm => bm.adAccounts)
-      .filter(acc => selectedAccounts.includes(acc.id))
-      .map(acc => ({
-        meta_account_id: acc.account_id,
-        nome: acc.name,
-        meta_access_token: token!,
-        expires_in: expiresIn || undefined,
-      }));
+    try {
+      const accountsToSave = bms
+        .flatMap(bm => bm.adAccounts)
+        .filter(acc => selectedAccounts.includes(acc.id))
+        .map(acc => ({
+          meta_account_id: acc.account_id,
+          nome: acc.name,
+          meta_access_token: token!,
+          expires_in: expiresIn || undefined,
+        }));
 
-    await saveMetaAccounts(accountsToSave);
-    setStep('done');
+      await saveMetaAccounts(accountsToSave);
+      toast.success('Contas conectadas com sucesso!');
+      setStep('done');
+    } catch (err: any) {
+      toast.error('Erro ao salvar contas: ' + err.message);
+    }
   };
 
   const handleSaveSheets = () => {
