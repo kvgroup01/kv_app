@@ -40,6 +40,11 @@ import OrcamentoPublico from './routes/orcamento/$token';
 import DashboardPublico from './routes/dashboard/$slug';
 import DashboardLancamento from './routes/dashboard/$slug/$lancamento';
 
+// Páginas Institucionais Públicas
+import Privacidade from './routes/privacidade';
+import Termos from './routes/termos';
+import DeletarDados from './routes/deletar-dados';
+
 const queryClient = new QueryClient();
 
 export default function App() {
@@ -51,6 +56,9 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           
           {/* Rotas Públicas */}
+          <Route path="/privacidade" element={<Privacidade />} />
+          <Route path="/termos" element={<Termos />} />
+          <Route path="/deletar-dados" element={<DeletarDados />} />
           <Route path="/orcamento/:token" element={<OrcamentoPublico />} />
           <Route path="/dashboard/:slug" element={<DashboardPublico />} />
           <Route path="/dashboard/:slug/:lancamento" element={<DashboardLancamento />} />
