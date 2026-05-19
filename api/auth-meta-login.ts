@@ -22,7 +22,9 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     'public_profile',
   ].join(',');
 
-  const state = Math.random().toString(36).substring(2);
+  const state = mode === 'ads' 
+    ? 'ads_' + Math.random().toString(36).substring(2)
+    : Math.random().toString(36).substring(2);
   const url = new URL('https://www.facebook.com/v19.0/dialog/oauth');
   url.searchParams.set('client_id', appId);
   url.searchParams.set('redirect_uri', redirectUri);
