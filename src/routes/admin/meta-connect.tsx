@@ -164,11 +164,16 @@ export default function IntegracoesPage() {
         }));
 
       await saveMetaAccounts(accountsToSave);
-      toast.success('Contas conectadas com sucesso!');
-      setSelectedBM(null);
+      // Recarregar contas conectadas
+      const updated = await fetchMetaAccounts();
+      setConnectedAccounts(updated);
+      // Voltar para tela inicial
       setStep('connect');
-      const updatedAccounts = await fetchMetaAccounts();
-      setConnectedAccounts(updatedAccounts);
+      setToken(null);
+      setSelectedBM(null);
+      setSelectedAccounts([]);
+      setBms([]);
+      toast.success('Conta conectada com sucesso!');
     } catch (err: any) {
       toast.error('Erro ao salvar contas: ' + err.message);
     }
@@ -467,23 +472,22 @@ export default function IntegracoesPage() {
           <Button
             variant="outline"
             className="border-(--card-border) text-(--text-secondary) hover:text-(--text-primary) hover:bg-background h-11 px-6"
-            onClick={() => {
-              if (selectedBM) {
-                setSelectedBM(null);
-              } else {
-                setStep('connect');
-              }
-            }}
+            onClick={() => selectedBM ? setSelectedBM(null) : setStep('connect')}
           >
             {selectedBM ? '← Voltar' : 'Cancelar'}
           </Button>
-          <Button
-            className="flex-1 bg-blue-600 hover:bg-blue-500 text-white h-11"
-            disabled={selectedAccounts.length === 0}
-            onClick={handleSave}
-          >
-            Salvar {selectedAccounts.length > 0 ? `${selectedAccounts.length} conta${selectedAccounts.length > 1 ? 's' : ''}` : ''}
-          </Button>
+          
+          {selectedBM && (
+            <Button
+              className="flex-1 bg-blue-600 hover:bg-blue-500 text-white h-11"
+              disabled={selectedAccounts.length === 0}
+              onClick={handleSave}
+            >
+              Salvar {selectedAccounts.length > 0 
+                ? `${selectedAccounts.length} conta${selectedAccounts.length > 1 ? 's' : ''}` 
+                : ''}
+            </Button>
+          )}
         </div>
       </div>
     );
