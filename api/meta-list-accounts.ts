@@ -49,33 +49,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       })
     );
 
-    // Também buscar contas de anúncio diretas do usuário
-    // (contas que não estão em nenhuma BM)
-    const directAccountsRes = await fetch(
-      `https://graph.facebook.com/v19.0/me/adaccounts?` +
-      `fields=id,name,account_id,currency,account_status&` +
-      `access_token=${token}&` +
-      `limit=50`
-    );
-    const directAccountsData = await directAccountsRes.json();
-    const directAccounts = directAccountsData.data || [];
-
-    // Filtrar contas diretas que já não aparecem em alguma BM
-    const accountsInBMs = new Set(
-      bmsWithAccounts.flatMap(bm => bm.adAccounts.map((a: any) => a.id))
-    );
-    const uniqueDirectAccounts = directAccounts.filter(
-      (acc: any) => !accountsInBMs.has(acc.id)
-    );
-
-    // Se tiver contas diretas, adiciona como grupo "Contas Pessoais"
-    if (uniqueDirectAccounts.length > 0) {
-      bmsWithAccounts.push({
-        id: 'personal',
-        name: 'Contas Pessoais',
-        adAccounts: uniqueDirectAccounts,
-      });
-    }
 
     return res.status(200).json({ bms: bmsWithAccounts });
 
