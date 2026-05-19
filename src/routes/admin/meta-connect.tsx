@@ -98,7 +98,7 @@ export default function IntegracoesPage() {
     const top = window.screenY + (window.outerHeight - height) / 2;
 
     const popup = window.open(
-      '/api/auth-meta-ads',
+      '/api/auth-meta-login?mode=ads',
       'meta-oauth',
       `width=${width},height=${height},left=${left},top=${top},scrollbars=yes`
     );
