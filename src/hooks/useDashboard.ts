@@ -1,4 +1,5 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { supabase } from "../lib/supabase";
 import { queryClient } from "../lib/queryClient";
 import {
@@ -274,7 +275,7 @@ export function useDashboard(
   const toStr = dateRange?.to ? dateRange.to.toISOString().split("T")[0] : "";
 
   // 1. Busca cliente
-  const { data: cliente } = useQuery({
+  const { data: cliente, isLoading: isLoadingCliente } = useQuery({
     queryKey: ["cliente-por-slug", slug],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -290,7 +291,7 @@ export function useDashboard(
   });
 
   // 2. Busca lançamento caso haja ID
-  const { data: lancamento } = useQuery({
+  const { data: lancamento, isLoading: isLoadingLancamento } = useQuery({
     queryKey: ["lancamento", lancamentoId],
     queryFn: async () => {
       if (!lancamentoId) return null;
@@ -309,6 +310,7 @@ export function useDashboard(
   // 3. Estrutura Estática
   const {
     data: estrutura,
+    isLoading: isLoadingEstrutura,
     isError: isErrEst,
     error: errEst,
   } = useDashboardEstrutura(
@@ -321,6 +323,7 @@ export function useDashboard(
   // 4. Métricas Dinâmicas
   const {
     data: metricasData,
+    isLoading: isLoadingMetricas,
     isFetching: isFetchingMetricas,
     isError: isErrMet,
     error: errMet,
@@ -335,165 +338,114 @@ export function useDashboard(
     dateRange,
   );
 
-  return useQuery<DashboardResult, Error>({
-    queryKey: ["dashboard-computed", slug, fromStr, toStr, lancamentoId],
-    queryFn: async (): Promise<DashboardResult> => {
-      if (isErrEst) throw errEst;
-      if (isErrMet) throw errMet;
+  const dashboardComputado = useMemo((): DashboardResult | undefined => {
+    if (isErrEst) throw errEst;
+    if (isErrMet) throw errMet;
 
-      if (!cliente || !estrutura || !metricasData) {
-        throw new Error("Aguardando carregamento...");
-      }
+    if (!cliente || !estrutura || !metricasData) {
+      return undefined;
+    }
 
-      let {
-        campanhas: campanhasRaw,
-        conjuntos: conjuntosRaw,
-        criativos: criativosRaw,
-      } = estrutura;
-      const { metricasDiarias, leadsGrupos } = metricasData;
+    let {
+      campanhas: campanhasRaw,
+      conjuntos: conjuntosRaw,
+      criativos: criativosRaw,
+    } = estrutura;
+    const { metricasDiarias, leadsGrupos } = metricasData;
 
-      const metricasVazias = {
-        investimento: 0,
-        impressoes: 0,
-        alcance: 0,
-        cliques: 0,
-        conversas: 0,
-        leads_qualificados: 0,
-        leads_desqualificados: 0,
-        leads_total: 0,
-        vendas: 0,
-        ctr: 0,
-        cpm: 0,
-        custo_conversa: 0,
-        cpl: 0,
-        taxa_conversao: 0,
-        pct_qualificados: 0,
-        pct_desqualificados: 0,
-        grupos_formados: 0,
-        leads_superior: 0,
-        leads_medio: 0,
-      };
+    const metricasVazias = {
+      investimento: 0,
+      impressoes: 0,
+      alcance: 0,
+      cliques: 0,
+      conversas: 0,
+      leads_qualificados: 0,
+      leads_desqualificados: 0,
+      leads_total: 0,
+      vendas: 0,
+      ctr: 0,
+      cpm: 0,
+      custo_conversa: 0,
+      cpl: 0,
+      taxa_conversao: 0,
+      pct_qualificados: 0,
+      pct_desqualificados: 0,
+      grupos_formados: 0,
+      leads_superior: 0,
+      leads_medio: 0,
+    };
 
-      // Filtrar conjuntos e campanhas apenas com criativos que têm métricas neste lançamento
-      if (
-        lancamentoId &&
-        criativosRaw.length > 0 &&
-        cliente.fonte_dados === "appwrite"
-      ) {
-        const conjuntosComCriativos = new Set(
-          criativosRaw.map((c: any) => c.conjunto_id),
-        );
-        conjuntosRaw = conjuntosRaw.filter((c: any) =>
-          conjuntosComCriativos.has(c.$id),
-        );
-
-        const campanhsComConjuntos = new Set(
-          conjuntosRaw.map((c: any) => c.campanha_id),
-        );
-        campanhasRaw = campanhasRaw.filter((c: any) =>
-          campanhsComConjuntos.has(c.$id),
-        );
-      }
-
-      // 3 & 4. Calcula métricas agregadas por Criativo
-      let criativosComMetricas: CriativoComMetricas[] = criativosRaw.map(
-        (criativo) => {
-          const metricasCriativo = metricasDiarias.filter(
-            (m) => m.criativo_id === criativo.$id,
-          );
-          const calc = calcularMetricas(metricasCriativo) ?? metricasVazias;
-          return {
-            ...criativo,
-            ...calc,
-            performance: "medio",
-          };
-        },
+    // Filtrar conjuntos e campanhas apenas com criativos que têm métricas neste lançamento
+    if (
+      lancamentoId &&
+      criativosRaw.length > 0 &&
+      cliente.fonte_dados === "appwrite"
+    ) {
+      const conjuntosComCriativos = new Set(
+        criativosRaw.map((c: any) => c.conjunto_id),
+      );
+      conjuntosRaw = conjuntosRaw.filter((c: any) =>
+        conjuntosComCriativos.has(c.$id),
       );
 
-      // 3 & 4. Calcula métricas agregadas por Conjunto e aninha criativos
-      let conjuntosComMetricas: ConjuntoComMetricas[] = conjuntosRaw.map(
-        (conjunto) => {
-          const criativosDoConjunto = criativosComMetricas.filter(
-            (c) => c.conjunto_id === conjunto.$id,
-          );
-
-          const investimento = criativosDoConjunto.reduce(
-            (acc, c) => acc + (c.investimento || 0),
-            0,
-          );
-          const conversas = criativosDoConjunto.reduce(
-            (acc, c) => acc + (c.conversas || 0),
-            0,
-          );
-          const leads_qualificados = criativosDoConjunto.reduce(
-            (acc, c) => acc + (c.leads_qualificados || 0),
-            0,
-          );
-          const leads_desqualificados = criativosDoConjunto.reduce(
-            (acc, c) => acc + (c.leads_desqualificados || 0),
-            0,
-          );
-          const leads_total = leads_qualificados + leads_desqualificados;
-          const cliques = criativosDoConjunto.reduce(
-            (acc, c) => acc + (c.cliques || 0),
-            0,
-          );
-          const alcance = criativosDoConjunto.reduce(
-            (acc, c) => acc + (c.alcance || 0),
-            0,
-          );
-
-          return {
-            ...conjunto,
-            investimento,
-            conversas,
-            leads_qualificados,
-            leads_desqualificados,
-            leads_total,
-            cliques,
-            alcance,
-            custo_conversa: conversas > 0 ? investimento / conversas : 0,
-            cpl: leads_total > 0 ? investimento / leads_total : 0,
-            performance: "medio" as const,
-            criativos: criativosDoConjunto,
-          };
-        },
+      const campanhsComConjuntos = new Set(
+        conjuntosRaw.map((c: any) => c.campanha_id),
       );
+      campanhasRaw = campanhasRaw.filter((c: any) =>
+        campanhsComConjuntos.has(c.$id),
+      );
+    }
 
-      // Calcula métricas agregadas por Campanha e aninha os conjuntos
-      const campanhasComMetricas = campanhasRaw.map((campanha) => {
-        const conjuntosDaCampanha = conjuntosComMetricas.filter(
-          (c) => c.campanha_id === campanha.$id,
+    // 3 & 4. Calcula métricas agregadas por Criativo
+    let criativosComMetricas: CriativoComMetricas[] = criativosRaw.map(
+      (criativo) => {
+        const metricasCriativo = metricasDiarias.filter(
+          (m) => m.criativo_id === criativo.$id,
+        );
+        const calc = calcularMetricas(metricasCriativo) ?? metricasVazias;
+        return {
+          ...criativo,
+          ...calc,
+          performance: "medio",
+        };
+      },
+    );
+
+    // 3 & 4. Calcula métricas agregadas por Conjunto e aninha criativos
+    let conjuntosComMetricas: ConjuntoComMetricas[] = conjuntosRaw.map(
+      (conjunto) => {
+        const criativosDoConjunto = criativosComMetricas.filter(
+          (c) => c.conjunto_id === conjunto.$id,
         );
 
-        const investimento = conjuntosDaCampanha.reduce(
+        const investimento = criativosDoConjunto.reduce(
           (acc, c) => acc + (c.investimento || 0),
           0,
         );
-        const conversas = conjuntosDaCampanha.reduce(
+        const conversas = criativosDoConjunto.reduce(
           (acc, c) => acc + (c.conversas || 0),
           0,
         );
-        const leads_qualificados = conjuntosDaCampanha.reduce(
+        const leads_qualificados = criativosDoConjunto.reduce(
           (acc, c) => acc + (c.leads_qualificados || 0),
           0,
         );
-        const leads_desqualificados = conjuntosDaCampanha.reduce(
+        const leads_desqualificados = criativosDoConjunto.reduce(
           (acc, c) => acc + (c.leads_desqualificados || 0),
           0,
         );
         const leads_total = leads_qualificados + leads_desqualificados;
-        const cliques = conjuntosDaCampanha.reduce(
+        const cliques = criativosDoConjunto.reduce(
           (acc, c) => acc + (c.cliques || 0),
           0,
         );
-        const alcance = conjuntosDaCampanha.reduce(
+        const alcance = criativosDoConjunto.reduce(
           (acc, c) => acc + (c.alcance || 0),
           0,
         );
 
         return {
-          ...campanha,
+          ...conjunto,
           investimento,
           conversas,
           leads_qualificados,
@@ -503,97 +455,161 @@ export function useDashboard(
           alcance,
           custo_conversa: conversas > 0 ? investimento / conversas : 0,
           cpl: leads_total > 0 ? investimento / leads_total : 0,
-          conjuntos: conjuntosDaCampanha,
+          performance: "medio" as const,
+          criativos: criativosDoConjunto,
         };
-      });
+      },
+    );
 
-      // 5. Calcula Performance para os Criativos
-      const criativosOrdenados = [...criativosComMetricas].sort(
-        (a, b) => (b.ctr || 0) - (a.ctr || 0),
+    // Calcula métricas agregadas por Campanha e aninha os conjuntos
+    const campanhasComMetricas = campanhasRaw.map((campanha) => {
+      const conjuntosDaCampanha = conjuntosComMetricas.filter(
+        (c) => c.campanha_id === campanha.$id,
       );
-      criativosComMetricas = criativosComMetricas.map((c) => {
-        const index = criativosOrdenados.findIndex((o) => o.$id === c.$id);
-        return {
-          ...c,
-          performance: calcularPerformance(criativosOrdenados, index),
-        };
-      });
 
-      // 5. Calcula Performance para os Conjuntos (Públicos)
-      const conjuntosOrdenados = [...conjuntosComMetricas].sort((a, b) => {
-        if (a.custo_conversa === 0 && b.custo_conversa !== 0) return 1;
-        if (a.custo_conversa !== 0 && b.custo_conversa === 0) return -1;
-        return (a.custo_conversa || 0) - (b.custo_conversa || 0);
-      });
-      conjuntosComMetricas = conjuntosComMetricas.map((c) => {
-        const index = conjuntosOrdenados.findIndex((o) => o.$id === c.$id);
-        return {
-          ...c,
-          performance: calcularPerformance(conjuntosOrdenados, index),
-        };
-      });
-
-      // Calcula métricas gerais
-      const metricasGerais =
-        calcularMetricas(metricasDiarias) ?? metricasVazias;
-
-      // Adiciona métricas de escolaridade
-      const totalSuperior = leadsGrupos.reduce(
-        (acc, g) => acc + (g.leads_ensino_superior || 0),
+      const investimento = conjuntosDaCampanha.reduce(
+        (acc, c) => acc + (c.investimento || 0),
         0,
       );
-      const totalMedio = leadsGrupos.reduce(
-        (acc, g) => acc + (g.leads_ensino_medio || 0),
+      const conversas = conjuntosDaCampanha.reduce(
+        (acc, c) => acc + (c.conversas || 0),
         0,
       );
-
-      const metricasExtended = {
-        ...metricasGerais,
-        leads_superior: totalSuperior,
-        leads_medio: totalMedio,
-      };
-
-      const totalLeads = totalSuperior + totalMedio;
-
-      const finalMetricas = {
-        ...metricasExtended,
-        leads_superior: totalSuperior,
-        leads_medio: totalMedio,
-        leads_total: totalLeads,
-        leads_qualificados: totalSuperior,
-        leads_desqualificados: totalMedio,
-        cpl:
-          metricasExtended.investimento > 0 && totalSuperior > 0
-            ? metricasExtended.investimento / totalSuperior
-            : 0,
-      };
-
-      const finalSerieHistorica = agruparPorDia(metricasDiarias) ?? [];
+      const leads_qualificados = conjuntosDaCampanha.reduce(
+        (acc, c) => acc + (c.leads_qualificados || 0),
+        0,
+      );
+      const leads_desqualificados = conjuntosDaCampanha.reduce(
+        (acc, c) => acc + (c.leads_desqualificados || 0),
+        0,
+      );
+      const leads_total = leads_qualificados + leads_desqualificados;
+      const cliques = conjuntosDaCampanha.reduce(
+        (acc, c) => acc + (c.cliques || 0),
+        0,
+      );
+      const alcance = conjuntosDaCampanha.reduce(
+        (acc, c) => acc + (c.alcance || 0),
+        0,
+      );
 
       return {
-        cliente,
-        campanhas: campanhasComMetricas ?? [],
-        conjuntos: conjuntosComMetricas ?? [],
-        criativos: criativosComMetricas ?? [],
-        metricasAgregadas: finalMetricas,
-        dadosAgrupadosPorDia: finalSerieHistorica,
-        leadsGrupos: leadsGrupos ?? [],
-        metricas: finalMetricas,
-        serieHistorica: finalSerieHistorica,
-        rankingCriativos: criativosComMetricas ?? [],
-        rankingPublicos: (conjuntosComMetricas ?? []).slice(0, 10),
-        relatorioCampanhas: campanhasComMetricas ?? [],
-        totalLeads: finalMetricas.leads_total ?? 0,
-        leadsSuperiores: [],
-        leadsMedio: [],
+        ...campanha,
+        investimento,
+        conversas,
+        leads_qualificados,
+        leads_desqualificados,
+        leads_total,
+        cliques,
+        alcance,
+        custo_conversa: conversas > 0 ? investimento / conversas : 0,
+        cpl: leads_total > 0 ? investimento / leads_total : 0,
+        conjuntos: conjuntosDaCampanha,
       };
-    },
-    enabled: (() => {
-      const isReady = !!cliente && !!estrutura && !!metricasData;
-      const hasError = isErrEst || isErrMet;
-      return isReady || hasError;
-    })(),
-    staleTime: 1000 * 60 * 5,
-    placeholderData: (prev) => prev,
-  });
+    });
+
+    // 5. Calcula Performance para os Criativos
+    const criativosOrdenados = [...criativosComMetricas].sort(
+      (a, b) => (b.ctr || 0) - (a.ctr || 0),
+    );
+    criativosComMetricas = criativosComMetricas.map((c) => {
+      const index = criativosOrdenados.findIndex((o) => o.$id === c.$id);
+      return {
+        ...c,
+        performance: calcularPerformance(criativosOrdenados, index),
+      };
+    });
+
+    // 5. Calcula Performance para os Conjuntos (Públicos)
+    const conjuntosOrdenados = [...conjuntosComMetricas].sort((a, b) => {
+      if (a.custo_conversa === 0 && b.custo_conversa !== 0) return 1;
+      if (a.custo_conversa !== 0 && b.custo_conversa === 0) return -1;
+      return (a.custo_conversa || 0) - (b.custo_conversa || 0);
+    });
+    conjuntosComMetricas = conjuntosComMetricas.map((c) => {
+      const index = conjuntosOrdenados.findIndex((o) => o.$id === c.$id);
+      return {
+        ...c,
+        performance: calcularPerformance(conjuntosOrdenados, index),
+      };
+    });
+
+    // Calcula métricas gerais
+    const metricasGerais = calcularMetricas(metricasDiarias) ?? metricasVazias;
+
+    // Adiciona métricas de escolaridade
+    const totalSuperior = leadsGrupos.reduce(
+      (acc, g) => acc + (g.leads_ensino_superior || 0),
+      0,
+    );
+    const totalMedio = leadsGrupos.reduce(
+      (acc, g) => acc + (g.leads_ensino_medio || 0),
+      0,
+    );
+
+    const metricasExtended = {
+      ...metricasGerais,
+      leads_superior: totalSuperior,
+      leads_medio: totalMedio,
+    };
+
+    const totalLeads = totalSuperior + totalMedio;
+
+    const finalMetricas = {
+      ...metricasExtended,
+      leads_superior: totalSuperior,
+      leads_medio: totalMedio,
+      leads_total: totalLeads,
+      leads_qualificados: totalSuperior,
+      leads_desqualificados: totalMedio,
+      cpl:
+        metricasExtended.investimento > 0 && totalSuperior > 0
+          ? metricasExtended.investimento / totalSuperior
+          : 0,
+    };
+
+    const finalSerieHistorica = agruparPorDia(metricasDiarias) ?? [];
+
+    return {
+      cliente,
+      campanhas: campanhasComMetricas ?? [],
+      conjuntos: conjuntosComMetricas ?? [],
+      criativos: criativosComMetricas ?? [],
+      metricasAgregadas: finalMetricas,
+      dadosAgrupadosPorDia: finalSerieHistorica,
+      leadsGrupos: leadsGrupos ?? [],
+      metricas: finalMetricas,
+      serieHistorica: finalSerieHistorica,
+      rankingCriativos: criativosComMetricas ?? [],
+      rankingPublicos: (conjuntosComMetricas ?? []).slice(0, 10),
+      relatorioCampanhas: campanhasComMetricas ?? [],
+      totalLeads: finalMetricas.leads_total ?? 0,
+      leadsSuperiores: [],
+      leadsMedio: [],
+    };
+  }, [
+    cliente,
+    estrutura,
+    metricasData,
+    lancamentoId,
+    isErrEst,
+    errEst,
+    isErrMet,
+    errMet,
+  ]);
+
+  const isLoading =
+    isLoadingCliente ||
+    (lancamentoId ? isLoadingLancamento : false) ||
+    isLoadingEstrutura ||
+    isLoadingMetricas;
+  const isFetching = isFetchingMetricas;
+
+  return {
+    data: dashboardComputado,
+    isLoading: !!(isLoading && !dashboardComputado),
+    isFetching,
+    isError: false,
+    error: null,
+  };
 }
