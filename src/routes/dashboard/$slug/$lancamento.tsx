@@ -38,7 +38,7 @@ import {
 } from "../../../components/ui/tabs";
 import { type DateRange } from "react-day-picker";
 
-const SYNC_URL = 'https://sync.kvgroupbr.com.br';
+const SYNC_URL = "https://sync.kvgroupbr.com.br";
 
 type SecaoId =
   | "cards_metricas"
@@ -58,7 +58,9 @@ export default function PublicDashboardLancamento() {
   // Aplicar tema salvo pelo usuário
   useTheme();
 
-  const [dateRange, setDateRange] = React.useState<DateRange | undefined>(undefined);
+  const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
+    undefined,
+  );
 
   const [gruposWA, setGruposWA] = React.useState({
     ensino_superior: 0,
@@ -95,11 +97,30 @@ export default function PublicDashboardLancamento() {
     isError: isErrorLancamento,
   } = useLancamentoPorSlug(slug!, lancamento!);
 
+  // Parse seções configuradas
+  const secoes = React.useMemo(() => {
+    if (!dataLancamento?.configuracao_secoes) return null;
+    try {
+      return JSON.parse(dataLancamento.configuracao_secoes) as Record<
+        | "respostas_pesquisa"
+        | "kpis_whatsapp"
+        | "ranking_criativos"
+        | "grupos_whatsapp"
+        | "visao_financeira",
+        { ativo: boolean; titulo: string }
+      >;
+    } catch {
+      return null;
+    }
+  }, [dataLancamento]);
+
+  const temSurvey = secoes ? secoes.respostas_pesquisa?.ativo !== false : true;
+
   React.useEffect(() => {
     if (!dataLancamento) return;
     if (dateRange !== undefined) return;
     const from = dataLancamento.data_inicio_sync
-      ? new Date(dataLancamento.data_inicio_sync + 'T00:00:00')
+      ? new Date(dataLancamento.data_inicio_sync + "T00:00:00")
       : subDays(new Date(), 29);
     setDateRange({
       from,
@@ -113,22 +134,13 @@ export default function PublicDashboardLancamento() {
     isFetching,
     isError: isErrorDashboard,
     error: errorDashboard,
-  } = useDashboard(
-    slug!,
-    {
-      from: dateRange?.from || subDays(new Date(), 29),
-      to: dateRange?.to || new Date(),
-    },
-    dataLancamento?.$id,
-  );
+  } = useDashboard(slug!, dateRange, dataLancamento?.$id);
 
-  const {
-    data: surveyEntries = [],
-    isLoading: isLoadingSurvey,
-  } = useSurvey(dataLancamento?.$id, {
-    from: dateRange?.from || subDays(new Date(), 29),
-    to: dateRange?.to || new Date(),
-  });
+  const { data: surveyEntries = [], isLoading: isLoadingSurvey } = useSurvey(
+    dataLancamento?.$id,
+    dateRange,
+    temSurvey,
+  );
 
   const [syncJob, setSyncJob] = React.useState<{
     jobId: string;
@@ -146,35 +158,42 @@ export default function PublicDashboardLancamento() {
           const data = await res.json();
           if (res.ok && !data.error) {
             setSyncJob((prev) =>
-              prev ? {
-                ...prev,
-                progresso: data.progresso,
-                status: data.done ? 'done' : data.status,
-              } : null,
+              prev
+                ? {
+                    ...prev,
+                    progresso: data.progresso,
+                    status: data.done ? "done" : data.status,
+                  }
+                : null,
             );
             if (data.done) {
               clearInterval(interval);
               setSyncing(false);
-              localStorage.setItem(`meta_sync_${dataLancamento?.$id}`, Date.now().toString());
+              localStorage.setItem(
+                `meta_sync_${dataLancamento?.$id}`,
+                Date.now().toString(),
+              );
               queryClient.invalidateQueries();
-              if (syncing) toast.success('Dados atualizados!');
+              if (syncing) toast.success("Dados atualizados!");
             }
-            if (data.status === 'error') {
+            if (data.status === "error") {
               clearInterval(interval);
-              setSyncJob((prev) => (prev ? { ...prev, status: 'error' } : null));
-              if (syncing) toast.error(data.erro || 'Erro ao sincronizar');
+              setSyncJob((prev) =>
+                prev ? { ...prev, status: "error" } : null,
+              );
+              if (syncing) toast.error(data.erro || "Erro ao sincronizar");
               setSyncing(false);
             }
           } else {
             clearInterval(interval);
-            setSyncJob((prev) => (prev ? { ...prev, status: 'error' } : null));
-            if (syncing) toast.error('Erro ao verificar status');
+            setSyncJob((prev) => (prev ? { ...prev, status: "error" } : null));
+            if (syncing) toast.error("Erro ao verificar status");
             setSyncing(false);
           }
         } catch (e) {
           clearInterval(interval);
-          setSyncJob((prev) => (prev ? { ...prev, status: 'error' } : null));
-          if (syncing) toast.error('Erro de conexão ao atualizar dados');
+          setSyncJob((prev) => (prev ? { ...prev, status: "error" } : null));
+          if (syncing) toast.error("Erro de conexão ao atualizar dados");
           setSyncing(false);
         }
       }, 15000);
@@ -202,8 +221,8 @@ export default function PublicDashboardLancamento() {
         setSyncJob({ jobId: data.jobId, progresso: 0, status: data.status });
         setSyncToken(newToken);
         fetch(`${SYNC_URL}/sync`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ jobId: data.jobId, syncToken: newToken }),
         }).catch(console.error);
       }
@@ -212,20 +231,6 @@ export default function PublicDashboardLancamento() {
       setSyncing(false);
     }
   };
-
-
-  // Parse seções configuradas
-  const secoes = React.useMemo(() => {
-    if (!dataLancamento?.configuracao_secoes) return null;
-    try {
-      return JSON.parse(dataLancamento.configuracao_secoes) as Record<
-        SecaoId,
-        { ativo: boolean; titulo: string }
-      >;
-    } catch {
-      return null; // fallback will be handled
-    }
-  }, [dataLancamento]);
 
   if (isLoadingLancamento || !dateRange) {
     return <DashboardSkeleton tipo="ambos" />;
@@ -268,7 +273,11 @@ export default function PublicDashboardLancamento() {
   }
 
   if (isLoadingDashboard && !dashboardData) {
-    return <DashboardSkeleton tipo={dataLancamento.tipo as unknown as "whatsapp" | "leads" | "ambos"} />;
+    return (
+      <DashboardSkeleton
+        tipo={dataLancamento.tipo as unknown as "whatsapp" | "leads" | "ambos"}
+      />
+    );
   }
 
   if (errorDashboard && !dashboardData) {
@@ -289,19 +298,21 @@ export default function PublicDashboardLancamento() {
   const leadsGrupos = dashboardData.leadsGrupos ?? [];
   const cliente = dashboardData.cliente;
 
-  const todasDatas = Array.from(new Set([
-    ...leadsGrupos.map((l: any) => l.data),
-    ...serieHistorica.map((s: any) => s.data)
-  ])).sort();
+  const todasDatas = Array.from(
+    new Set([
+      ...leadsGrupos.map((l: any) => l.data),
+      ...serieHistorica.map((s: any) => s.data),
+    ]),
+  ).sort();
 
-  const dadosCruzados = todasDatas.map(data => ({
+  const dadosCruzados = todasDatas.map((data) => ({
     data,
-    qualificados: leadsGrupos.find((l: any) => l.data === data)
-      ?.leads_ensino_superior || 0,
-    desqualificados: leadsGrupos.find((l: any) => l.data === data)
-      ?.leads_ensino_medio || 0,
-    investimento: serieHistorica.find((s: any) => s.data === data)
-      ?.investimento || 0,
+    qualificados:
+      leadsGrupos.find((l: any) => l.data === data)?.leads_ensino_superior || 0,
+    desqualificados:
+      leadsGrupos.find((l: any) => l.data === data)?.leads_ensino_medio || 0,
+    investimento:
+      serieHistorica.find((s: any) => s.data === data)?.investimento || 0,
   }));
 
   // Fallbacks if section logic isn't perfectly mapped
@@ -366,7 +377,11 @@ export default function PublicDashboardLancamento() {
           <h3 className="text-xl font-bold mb-4">
             {secaoTitulo("tabela_campanhas", "Campanhas")}
           </h3>
-          <CampanhasTable campanhasComMetricas={campanhas} tipo="leads" dateRange={dateRange} />
+          <CampanhasTable
+            campanhasComMetricas={campanhas}
+            tipo="leads"
+            dateRange={dateRange}
+          />
         </section>
       )}
 
@@ -375,7 +390,11 @@ export default function PublicDashboardLancamento() {
           <h3 className="text-xl font-bold mb-4">
             {secaoTitulo("grid_criativos", "Criativos")}
           </h3>
-          <CreativosGrid criativos={criativos} tipo="leads" dateRange={dateRange} />
+          <CreativosGrid
+            criativos={criativos}
+            tipo="leads"
+            dateRange={dateRange}
+          />
         </section>
       )}
 
@@ -425,7 +444,9 @@ export default function PublicDashboardLancamento() {
             {secaoTitulo("visao_financeira", "Visão Financeira")}
           </h3>
           <VisaoFinanceiraLeads
-            investimentoContratado={dataLancamento?.investimento_total_contratado ?? 0}
+            investimentoContratado={
+              dataLancamento?.investimento_total_contratado ?? 0
+            }
             valorUsadoCampanhas={metricas.investimento ?? 0}
             isLoading={false}
           />
@@ -464,7 +485,7 @@ export default function PublicDashboardLancamento() {
               </p>
             </div>
           </div>
-          
+
           <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 lg:gap-4 w-full lg:w-auto">
             {isFetching && (
               <div className="hidden lg:flex items-center gap-2 text-xs text-muted-foreground whitespace-nowrap">
@@ -485,9 +506,7 @@ export default function PublicDashboardLancamento() {
                 <RefreshCw
                   className={`w-3.5 h-3.5 ${syncing ? "animate-spin" : ""}`}
                 />
-                <span>
-                  {syncing ? "Atualizando..." : "Atualizar dados"}
-                </span>
+                <span>{syncing ? "Atualizando..." : "Atualizar dados"}</span>
               </Button>
             </div>
 
@@ -510,26 +529,58 @@ export default function PublicDashboardLancamento() {
               {dataLancamento.tipo === "whatsapp" ? "WhatsApp" : "Visão Geral"}
             </TabsTrigger>
             {dataLancamento.tipo === "ambos" && (
-              <TabsTrigger value="whatsapp" className="w-32">WhatsApp</TabsTrigger>
+              <TabsTrigger value="whatsapp" className="w-32">
+                WhatsApp
+              </TabsTrigger>
             )}
             <TabsTrigger value="pesquisa">Pesquisa</TabsTrigger>
             <TabsTrigger value="lista_leads">Leads</TabsTrigger>
           </TabsList>
 
           <TabsContent value="leads" className="m-0 focus-visible:outline-none">
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
               {dataLancamento.tipo === "whatsapp" ? (
                 <div className="space-y-6">
-                  <MetricCards metricas={metricas} tipo="whatsapp" isLoading={isLoadingDashboard} />
+                  <MetricCards
+                    metricas={metricas}
+                    tipo="whatsapp"
+                    isLoading={isLoadingDashboard}
+                  />
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <FunnelWhatsApp metricas={metricas} onVendasChange={() => {}} />
+                    <FunnelWhatsApp
+                      metricas={metricas}
+                      onVendasChange={() => {}}
+                    />
                     <InvestimentoChart dados={serieHistorica} tipo="whatsapp" />
                   </div>
-                  <CampanhasTable campanhasComMetricas={campanhas} tipo="whatsapp" dateRange={dateRange} />
-                  <CreativosGrid criativos={criativos} tipo="whatsapp" dateRange={dateRange} />
+                  <CampanhasTable
+                    campanhasComMetricas={campanhas}
+                    tipo="whatsapp"
+                    dateRange={dateRange}
+                  />
+                  <CreativosGrid
+                    criativos={criativos}
+                    tipo="whatsapp"
+                    dateRange={dateRange}
+                  />
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <RankingTable titulo="Melhores Públicos" items={publicos} tipo="publicos" campanhaTipo="whatsapp" dateRange={dateRange} />
-                    <RankingTable titulo="Melhores Criativos" items={criativos} tipo="criativos" campanhaTipo="whatsapp" dateRange={dateRange} />
+                    <RankingTable
+                      titulo="Melhores Públicos"
+                      items={publicos}
+                      tipo="publicos"
+                      campanhaTipo="whatsapp"
+                      dateRange={dateRange}
+                    />
+                    <RankingTable
+                      titulo="Melhores Criativos"
+                      items={criativos}
+                      tipo="criativos"
+                      campanhaTipo="whatsapp"
+                      dateRange={dateRange}
+                    />
                   </div>
                 </div>
               ) : (
@@ -539,29 +590,69 @@ export default function PublicDashboardLancamento() {
           </TabsContent>
 
           {dataLancamento.tipo === "ambos" && (
-            <TabsContent value="whatsapp" className="m-0 focus-visible:outline-none">
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                <MetricCards metricas={metricas} tipo="whatsapp" isLoading={isLoadingDashboard} />
+            <TabsContent
+              value="whatsapp"
+              className="m-0 focus-visible:outline-none"
+            >
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-6"
+              >
+                <MetricCards
+                  metricas={metricas}
+                  tipo="whatsapp"
+                  isLoading={isLoadingDashboard}
+                />
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <FunnelWhatsApp metricas={metricas} onVendasChange={() => {}} />
+                  <FunnelWhatsApp
+                    metricas={metricas}
+                    onVendasChange={() => {}}
+                  />
                   <InvestimentoChart dados={serieHistorica} tipo="whatsapp" />
                 </div>
-                <CampanhasTable campanhasComMetricas={campanhas} tipo="whatsapp" dateRange={dateRange} />
-                <CreativosGrid criativos={criativos} tipo="whatsapp" dateRange={dateRange} />
+                <CampanhasTable
+                  campanhasComMetricas={campanhas}
+                  tipo="whatsapp"
+                  dateRange={dateRange}
+                />
+                <CreativosGrid
+                  criativos={criativos}
+                  tipo="whatsapp"
+                  dateRange={dateRange}
+                />
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <RankingTable titulo="Melhores Públicos" items={publicos} tipo="publicos" campanhaTipo="whatsapp" dateRange={dateRange} />
-                  <RankingTable titulo="Melhores Criativos" items={criativos} tipo="criativos" campanhaTipo="whatsapp" dateRange={dateRange} />
+                  <RankingTable
+                    titulo="Melhores Públicos"
+                    items={publicos}
+                    tipo="publicos"
+                    campanhaTipo="whatsapp"
+                    dateRange={dateRange}
+                  />
+                  <RankingTable
+                    titulo="Melhores Criativos"
+                    items={criativos}
+                    tipo="criativos"
+                    campanhaTipo="whatsapp"
+                    dateRange={dateRange}
+                  />
                 </div>
               </motion.div>
             </TabsContent>
           )}
 
           <TabsContent value="pesquisa" className="space-y-6 mt-6">
-            <SurveyDashboard entries={surveyEntries} isLoading={isLoadingSurvey} />
+            <SurveyDashboard
+              entries={surveyEntries}
+              isLoading={isLoadingSurvey}
+            />
           </TabsContent>
 
           <TabsContent value="lista_leads" className="space-y-6 mt-6">
-            <LeadsTable lancamentoId={dataLancamento.$id} isLoading={isLoadingDashboard} />
+            <LeadsTable
+              lancamentoId={dataLancamento.$id}
+              isLoading={isLoadingDashboard}
+            />
           </TabsContent>
         </Tabs>
       </main>

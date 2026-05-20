@@ -49,29 +49,31 @@ interface DashboardResult {
 
 export function useDashboard(
   slug: string,
-  dateRange: { from: Date; to: Date },
+  dateRange: { from?: Date; to?: Date } | undefined,
   lancamentoId?: string,
 ) {
   // Ensure the query key is stable even if new Date() instances are passed
-  const fromStr = dateRange.from.toISOString().split('T')[0];
-  const toStr = dateRange.to.toISOString().split('T')[0];
+  const fromStr = dateRange?.from
+    ? dateRange.from.toISOString().split("T")[0]
+    : "";
+  const toStr = dateRange?.to ? dateRange.to.toISOString().split("T")[0] : "";
 
   return useQuery<DashboardResult, Error>({
     queryKey: ["dashboard", slug, fromStr, toStr, lancamentoId],
     queryFn: async () => {
       // 1. Busca cliente no AppWrite pelo slug usando cache
       const clienteRaw = await queryClient.fetchQuery({
-        queryKey: ['cliente-por-slug', slug],
+        queryKey: ["cliente-por-slug", slug],
         queryFn: async () => {
           const { data, error } = await supabase
-            .from('clientes')
-            .select('*')
-            .eq('slug', slug)
+            .from("clientes")
+            .select("*")
+            .eq("slug", slug)
             .single();
-          if (error) throw new Error('Cliente não encontrado');
+          if (error) throw new Error("Cliente não encontrado");
           return data;
         },
-        staleTime: 1000 * 60 * 10
+        staleTime: 1000 * 60 * 10,
       });
       const cliente = { ...clienteRaw, $id: clienteRaw.id };
 
@@ -83,14 +85,17 @@ export function useDashboard(
       if (lancamentoId) {
         try {
           const lancRaw = await queryClient.fetchQuery({
-            queryKey: ['lancamento', lancamentoId],
+            queryKey: ["lancamento", lancamentoId],
             queryFn: async () => {
               const { data, error } = await supabase
-                .from('lancamentos').select('*').eq('id', lancamentoId).single();
+                .from("lancamentos")
+                .select("*")
+                .eq("id", lancamentoId)
+                .single();
               if (error) throw error;
               return data;
             },
-            staleTime: 1000 * 60 * 10
+            staleTime: 1000 * 60 * 10,
           });
           lancamento = lancRaw ? { ...lancRaw, $id: lancRaw.id } : null;
         } catch (err) {
@@ -132,52 +137,86 @@ export function useDashboard(
 
         if (fonte === "appwrite") {
           const { data: campData, error: campErr } = await supabase
-            .from('campaigns').select('id, nome, status, objective, lancamento_id')
-            .eq('cliente_id', cliente.$id).limit(500);
-            
+            .from("campaigns")
+            .select("id, nome, status, objective, lancamento_id")
+            .eq("cliente_id", cliente.$id)
+            .limit(500);
+
           const campIds = (campData || []).map((c: any) => c.id);
-          
+
           let conjData: any[] = [];
           if (campIds.length > 0) {
             const { data } = await supabase
-              .from('adsets').select('id, nome, campaign_id, lancamento_id')
-              .in('campaign_id', campIds).limit(500);
+              .from("adsets")
+              .select("id, nome, campaign_id, lancamento_id")
+              .in("campaign_id", campIds)
+              .limit(500);
             conjData = data || [];
           }
-          
+
           const conjIds = conjData.map((c: any) => c.id);
-          
+
           let adsData: any[] = [];
           if (conjIds.length > 0) {
             const { data } = await supabase
-              .from('ads').select('id, nome, adset_id, thumbnail_url, link_anuncio, meta_ad_id, lancamento_id')
-              .in('adset_id', conjIds).limit(1000);
+              .from("ads")
+              .select(
+                "id, nome, adset_id, thumbnail_url, link_anuncio, meta_ad_id, lancamento_id",
+              )
+              .in("adset_id", conjIds)
+              .limit(1000);
             adsData = data || [];
           }
 
-          campanhasRaw = (campData || []).map((camp: any) => ({ ...camp, $id: camp.id }));
-          conjuntosRaw = conjData.map((conj: any) => ({ ...conj, $id: conj.id, campanha_id: conj.campaign_id }));
-          criativosRaw = adsData.map((ad: any) => ({ ...ad, $id: ad.id, conjunto_id: ad.adset_id }));
+          campanhasRaw = (campData || []).map((camp: any) => ({
+            ...camp,
+            $id: camp.id,
+          }));
+          conjuntosRaw = conjData.map((conj: any) => ({
+            ...conj,
+            $id: conj.id,
+            campanha_id: conj.campaign_id,
+          }));
+          criativosRaw = adsData.map((ad: any) => ({
+            ...ad,
+            $id: ad.id,
+            conjunto_id: ad.adset_id,
+          }));
 
-          const fromStr = dateRange.from.toISOString().split('T')[0];
-          const toStr = dateRange.to.toISOString().split('T')[0];
-          let metQuery = supabase.from('daily_metrics').select('id, criativo_id, data, investimento, impressoes, alcance, cliques, conversas, leads_qualificados, leads_desqualificados, ctr, cpm, frequencia, cliques_link, cpc_link, ctr_link, resultados_meta, lancamento_id')
-            .gte('data', fromStr).lte('data', toStr).limit(5000);
+          let metQuery = supabase
+            .from("daily_metrics")
+            .select(
+              "id, criativo_id, data, investimento, impressoes, alcance, cliques, conversas, leads_qualificados, leads_desqualificados, ctr, cpm, frequencia, cliques_link, cpc_link, ctr_link, resultados_meta, lancamento_id",
+            )
+            .gte("data", fromStr)
+            .lte("data", toStr)
+            .limit(5000);
           if (lancamentoId) {
-            metQuery = metQuery.eq('lancamento_id', lancamentoId);
+            metQuery = metQuery.eq("lancamento_id", lancamentoId);
           } else {
-            metQuery = metQuery.eq('cliente_id', cliente.$id);
+            metQuery = metQuery.eq("cliente_id", cliente.$id);
           }
           const { data: metData } = await metQuery;
-          const appwriteMetricasResult = (metData || []).map((r: any) => ({ ...r, $id: r.id }));
+          const appwriteMetricasResult = (metData || []).map((r: any) => ({
+            ...r,
+            $id: r.id,
+          }));
 
           // Filtrar conjuntos e campanhas apenas com criativos que têm métricas neste lançamento
           if (lancamentoId && criativosRaw.length > 0) {
-            const conjuntosComCriativos = new Set(criativosRaw.map((c: any) => c.conjunto_id));
-            conjuntosRaw = conjuntosRaw.filter((c: any) => conjuntosComCriativos.has(c.$id));
-            
-            const campanhsComConjuntos = new Set(conjuntosRaw.map((c: any) => c.campanha_id));
-            campanhasRaw = campanhasRaw.filter((c: any) => campanhsComConjuntos.has(c.$id));
+            const conjuntosComCriativos = new Set(
+              criativosRaw.map((c: any) => c.conjunto_id),
+            );
+            conjuntosRaw = conjuntosRaw.filter((c: any) =>
+              conjuntosComCriativos.has(c.$id),
+            );
+
+            const campanhsComConjuntos = new Set(
+              conjuntosRaw.map((c: any) => c.campanha_id),
+            );
+            campanhasRaw = campanhasRaw.filter((c: any) =>
+              campanhsComConjuntos.has(c.$id),
+            );
           }
           let appwriteMetricas = appwriteMetricasResult;
 
@@ -186,7 +225,6 @@ export function useDashboard(
           // vir amarradas ou simplesmente listamos. A prompt diz "filtrado pelo lancamento_id".
           // O webhook_url (não tem lancamento_id na metrica, mas para "leads" vai usar a palavra-chave).
           // Vamos apenas ignorar até ter a Graph API, mas para inputs manuais, vamos filtrar também se houver
-
 
           metricasDiarias = (appwriteMetricas ||
             []) as unknown as MetricaDiaria[];
@@ -199,10 +237,16 @@ export function useDashboard(
             let importedLeads: any[] = [];
             if (lancamentoId) {
               const { data: leadsData } = await supabase
-                .from('lead_entries').select('*')
-                .eq('lancamento_id', lancamentoId)
-                .gte('data', fromStr).lte('data', toStr).limit(5000);
-              importedLeads = (leadsData || []).map((r: any) => ({ ...r, $id: r.id }));
+                .from("lead_entries")
+                .select("*")
+                .eq("lancamento_id", lancamentoId)
+                .gte("data", fromStr)
+                .lte("data", toStr)
+                .limit(5000);
+              importedLeads = (leadsData || []).map((r: any) => ({
+                ...r,
+                $id: r.id,
+              }));
             }
 
             function classificarEscolaridade(
@@ -493,6 +537,6 @@ export function useDashboard(
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     placeholderData: (previousData) => previousData,
-    enabled: !!slug && !!dateRange.from && !!dateRange.to,
+    enabled: !!slug && !!dateRange?.from && !!dateRange?.to,
   });
 }
