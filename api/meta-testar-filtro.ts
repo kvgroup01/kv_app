@@ -20,7 +20,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Buscar campanhas ativas E pausadas
     let url = `https://graph.facebook.com/v19.0/${actId}/campaigns?` +
       `fields=id,name,status,objective&` +
-      `effective_status=["ACTIVE","PAUSED","ARCHIVED","DELETED","CAMPAIGN_PAUSED"]&` +
+      `effective_status=${encodeURIComponent('["ACTIVE","PAUSED","ARCHIVED","DELETED"]')}&` +
       `limit=200&` +
       `access_token=${token}`;
 
