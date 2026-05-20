@@ -17,10 +17,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ? accountId 
       : `act_${accountId}`;
 
-    // Buscar campanhas ativas E pausadas
     let url = `https://graph.facebook.com/v19.0/${actId}/campaigns?` +
       `fields=id,name,status,objective&` +
-      `effective_status=${encodeURIComponent('["ACTIVE","PAUSED","ARCHIVED","DELETED"]')}&` +
       `limit=200&` +
       `access_token=${token}`;
 
@@ -41,13 +39,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ erro: data.error.message });
     }
 
-    const campanhas = (data.data || []).map((c: any) => ({
-      nome: c.name,
-      status: c.status,
-      id: c.id,
-    }));
-
-    return res.status(200).json({ data: campanhas });
+    return res.status(200).json({ data: data.data || [] });
 
   } catch (error: any) {
     console.error('meta-testar-filtro erro:', error);
