@@ -49,6 +49,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../../../components/ui/dialog";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "../../../../components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "../../../../components/ui/popover";
+import { cn } from "../../../../lib/utils";
 
 const SYNC_URL = 'https://sync.kvgroupbr.com.br';
 
@@ -524,12 +530,32 @@ export default function DashboardEditor() {
               <div className="space-y-2">
                 <label className="text-sm">Data de início da sincronização</label>
                 <div className="flex gap-2">
-                  <Input
-                    type="date"
-                    value={dataInicioSync}
-                    onChange={(e) => setDataInicioSync(e.target.value)}
-                    className="bg-background"
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal h-10",
+                          "bg-(--card-bg) border-(--card-border) text-(--text-primary)",
+                          !dataInicioSync && "text-(--text-tertiary)"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4 text-(--text-tertiary)" />
+                        {dataInicioSync 
+                          ? format(new Date(dataInicioSync), "dd/MM/yyyy", { locale: ptBR })
+                          : "Selecionar data..."}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 bg-(--card-bg) border-(--card-border)" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={dataInicioSync ? new Date(dataInicioSync) : undefined}
+                        onSelect={(date) => setDataInicioSync(date ? format(date, 'yyyy-MM-dd') : '')}
+                        locale={ptBR}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
               </div>
             </section>
