@@ -47,61 +47,258 @@ interface DashboardResult {
   leadsMedio: any[];
 }
 
+export function useDashboardEstrutura(
+  cliente: Cliente | undefined,
+  lancamentoId: string | undefined,
+) {
+  return useQuery({
+    queryKey: ['dashboard-estrutura', cliente?.$id, lancamentoId],
+    queryFn: async () => {
+      if (!cliente) return null;
+      
+      const fonte = cliente.fonte_dados || "appwrite";
+
+      let campanhas: any[] = [];
+      let conjuntos: any[] = [];
+      let criativos: any[] = [];
+
+      if (fonte === "appwrite") {
+        const { data: campData } = await supabase
+          .from("campaigns")
+          .select("id, nome, status, objective, lancamento_id")
+          .eq("cliente_id", cliente.$id)
+          .limit(500);
+
+        campanhas = (campData || []).map((c: any) => ({ ...c, $id: c.id }));
+        const campIds = campanhas.map((c: any) => c.$id);
+
+        if (campIds.length > 0) {
+          const { data } = await supabase
+            .from("adsets")
+            .select("id, nome, campaign_id, lancamento_id")
+            .in("campaign_id", campIds)
+            .limit(500);
+          conjuntos = (data || []).map((c) => ({ ...c, $id: c.id, campanha_id: c.campaign_id }));
+        }
+
+        const conjIds = conjuntos.map((c: any) => c.$id);
+
+        if (conjIds.length > 0) {
+          const { data } = await supabase
+            .from("ads")
+            .select(
+              "id, nome, adset_id, thumbnail_url, link_anuncio, meta_ad_id, lancamento_id",
+            )
+            .in("adset_id", conjIds)
+            .limit(1000);
+          criativos = (data || []).map((a) => ({ ...a, $id: a.id, conjunto_id: a.adset_id }));
+        }
+      } else if (fonte === "sheets") {
+        if (!cliente.spreadsheet_id) {
+          throw new Error(
+            "Fonte de dados configurada como Google Sheets, mas o ID da planilha não foi informado no cadastro.",
+          );
+        }
+        [campanhas, conjuntos, criativos] = await Promise.all([
+          fetchCampanhas(cliente.spreadsheet_id),
+          fetchConjuntos(cliente.spreadsheet_id),
+          fetchCriativos(cliente.spreadsheet_id),
+        ]);
+      } else if (fonte === "meta_api") {
+         throw new Error(
+            "O motor Meta Ads Graph API está em manutenção temporária. Por favor repassar credenciais e use o webhook/Appwrite no momento.",
+          );
+      }
+
+      // Filtrar conjuntos e campanhas apenas com criativos que têm métricas neste lançamento (we do it lazily or keep all here and filter later if needed. The previous code did it here but depending on metrics).
+      // Since it's static, we keep all and filter in computation later if needed.
+      return { campanhas, conjuntos, criativos };
+    },
+    enabled: !!cliente,
+    staleTime: 1000 * 60 * 30, // 30 min
+    gcTime: 1000 * 60 * 60,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  });
+}
+
+export function useDashboardMetricas(
+  cliente: Cliente | undefined,
+  lancamentoId: string | undefined,
+  fromStr: string,
+  toStr: string,
+  dateRangeStr: { from?: Date; to?: Date } | undefined
+) {
+  return useQuery({
+    queryKey: ['dashboard-metricas', cliente?.$id, lancamentoId, fromStr, toStr],
+    queryFn: async () => {
+      if (!cliente || !fromStr || !toStr || !dateRangeStr?.from || !dateRangeStr?.to) return null;
+      
+      const fonte = cliente.fonte_dados || "appwrite";
+      let metricasDiarias: MetricaDiaria[] = [];
+      let leadsGrupos: LeadGrupo[] = [];
+
+      if (fonte === "appwrite") {
+        let metQuery = supabase
+          .from("daily_metrics")
+          .select(
+            "id, criativo_id, data, investimento, impressoes, alcance, cliques, conversas, leads_qualificados, leads_desqualificados, ctr, cpm, frequencia, cliques_link, cpc_link, ctr_link, resultados_meta, lancamento_id",
+          )
+          .gte("data", fromStr)
+          .lte("data", toStr)
+          .limit(5000);
+        
+        if (lancamentoId) {
+          metQuery = metQuery.eq("lancamento_id", lancamentoId);
+        } else {
+          metQuery = metQuery.eq("cliente_id", cliente.$id);
+        }
+        
+        const { data: metData } = await metQuery;
+        metricasDiarias = ((metData || []).map((r: any) => ({
+          ...r,
+          $id: r.id,
+        })) as unknown) as MetricaDiaria[];
+
+        if (
+          cliente.tipo_campanha === "leads" ||
+          cliente.tipo_campanha === "ambos"
+        ) {
+          let importedLeads: any[] = [];
+          if (lancamentoId) {
+            const { data: leadsData } = await supabase
+              .from("lead_entries")
+              .select("*")
+              .eq("lancamento_id", lancamentoId)
+              .gte("data", fromStr)
+              .lte("data", toStr)
+              .limit(5000);
+            importedLeads = (leadsData || []).map((r: any) => ({
+              ...r,
+              $id: r.id,
+            }));
+          }
+
+          function classificarEscolaridade(escolaridade: string): "superior" | "medio" {
+            const medio = ["ensino médio completo", "ensino medio completo"];
+            const valor = escolaridade?.toLowerCase().trim() ?? "";
+            return medio.includes(valor) ? "medio" : "superior";
+          }
+
+          if ((importedLeads ?? []).length > 0) {
+            const contagemPorData: Record<string, { superior: number; medio: number }> = {};
+            importedLeads.forEach((lead) => {
+              const d = lead.data || "N/A";
+              if (!contagemPorData[d]) contagemPorData[d] = { superior: 0, medio: 0 };
+              const classificacao = classificarEscolaridade(lead.escolaridade);
+              if (classificacao === "superior") contagemPorData[d].superior++;
+              else contagemPorData[d].medio++;
+            });
+
+            leadsGrupos = Object.keys(contagemPorData).map((d) => ({
+              data: d,
+              leads_ensino_superior: contagemPorData[d].superior,
+              leads_ensino_medio: contagemPorData[d].medio,
+            }));
+          }
+        }
+      } else if (fonte === "sheets") {
+        if (!cliente.spreadsheet_id) {
+            throw new Error(
+              "Fonte de dados configurada como Google Sheets, mas o ID da planilha não foi informado no cadastro.",
+            );
+        }
+        metricasDiarias = await fetchMetricasDiarias(
+          cliente.spreadsheet_id,
+          dateRangeStr.from,
+          dateRangeStr.to,
+        );
+
+        if (
+          cliente.tipo_campanha === "leads" ||
+          cliente.tipo_campanha === "ambos"
+        ) {
+          leadsGrupos = await fetchLeadsGrupos(
+            cliente.spreadsheet_id,
+            dateRangeStr.from,
+            dateRangeStr.to,
+          );
+        }
+      }
+
+      return { metricasDiarias, leadsGrupos };
+    },
+    enabled: !!cliente && !!fromStr && !!toStr,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 30,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    placeholderData: (prev) => prev,
+  });
+}
+
 export function useDashboard(
   slug: string,
   dateRange: { from?: Date; to?: Date } | undefined,
   lancamentoId?: string,
 ) {
-  // Ensure the query key is stable even if new Date() instances are passed
-  const fromStr = dateRange?.from
-    ? dateRange.from.toISOString().split("T")[0]
-    : "";
+  const fromStr = dateRange?.from ? dateRange.from.toISOString().split("T")[0] : "";
   const toStr = dateRange?.to ? dateRange.to.toISOString().split("T")[0] : "";
 
-  return useQuery<DashboardResult, Error>({
-    queryKey: ["dashboard", slug, fromStr, toStr, lancamentoId],
+  // 1. Busca cliente
+  const { data: cliente } = useQuery({
+    queryKey: ["cliente-por-slug", slug],
     queryFn: async () => {
-      // 1. Busca cliente no AppWrite pelo slug usando cache
-      const clienteRaw = await queryClient.fetchQuery({
-        queryKey: ["cliente-por-slug", slug],
-        queryFn: async () => {
-          const { data, error } = await supabase
-            .from("clientes")
-            .select("*")
-            .eq("slug", slug)
-            .single();
-          if (error) throw new Error("Cliente não encontrado");
-          return data;
-        },
-        staleTime: 1000 * 60 * 10,
-      });
-      const cliente = { ...clienteRaw, $id: clienteRaw.id };
+      const { data, error } = await supabase
+        .from("clientes")
+        .select("*")
+        .eq("slug", slug)
+        .single();
+      if (error) throw new Error("Cliente não encontrado");
+      return { ...data, $id: data.id };
+    },
+    staleTime: 1000 * 60 * 30,
+    enabled: !!slug,
+  });
 
-      if (!cliente.spreadsheet_id && !cliente.$id) {
-        throw new Error("Cliente inválido ou não configurado corretamente.");
+  // 2. Busca lançamento caso haja ID
+  const { data: lancamento } = useQuery({
+    queryKey: ["lancamento", lancamentoId],
+    queryFn: async () => {
+      if (!lancamentoId) return null;
+      const { data, error } = await supabase
+        .from("lancamentos")
+        .select("*")
+        .eq("id", lancamentoId)
+        .single();
+      if (error) throw error;
+      return { ...data, $id: data.id };
+    },
+    staleTime: 1000 * 60 * 30,
+    enabled: !!lancamentoId,
+  });
+
+  // 3. Estrutura Estática
+  const { data: estrutura } = useDashboardEstrutura(cliente, lancamentoId);
+
+  // 4. Métricas Dinâmicas
+  const { data: metricasData, isFetching: isFetchingMetricas } = useDashboardMetricas(
+    cliente,
+    lancamentoId,
+    fromStr,
+    toStr,
+    dateRange
+  );
+
+  return useQuery<DashboardResult, Error>({
+    queryKey: ["dashboard-computed", slug, fromStr, toStr, lancamentoId],
+    queryFn: async (): Promise<DashboardResult> => {
+      if (!cliente || !estrutura || !metricasData) {
+        throw new Error("Aguardando carregamento...");
       }
 
-      let lancamento: any = null;
-      if (lancamentoId) {
-        try {
-          const lancRaw = await queryClient.fetchQuery({
-            queryKey: ["lancamento", lancamentoId],
-            queryFn: async () => {
-              const { data, error } = await supabase
-                .from("lancamentos")
-                .select("*")
-                .eq("id", lancamentoId)
-                .single();
-              if (error) throw error;
-              return data;
-            },
-            staleTime: 1000 * 60 * 10,
-          });
-          lancamento = lancRaw ? { ...lancRaw, $id: lancRaw.id } : null;
-        } catch (err) {
-          console.warn("Lançamento não encontrado ou sem permissão", err);
-        }
-      }
+      let { campanhas: campanhasRaw, conjuntos: conjuntosRaw, criativos: criativosRaw } = estrutura;
+      const { metricasDiarias, leadsGrupos } = metricasData;
 
       const metricasVazias = {
         investimento: 0,
@@ -125,315 +322,73 @@ export function useDashboard(
         leads_medio: 0,
       };
 
-      try {
-        let campanhasRaw: any[] = [];
-        let conjuntosRaw: any[] = [];
-        let criativosRaw: any[] = [];
-        let metricasDiarias: MetricaDiaria[] = [];
-        let leadsGrupos: LeadGrupo[] = [];
-
-        // A lógica principal agora obedece rigorosamente a fonte_dados configurada no cliente.
-        const fonte = cliente.fonte_dados || "appwrite";
-
-        if (fonte === "appwrite") {
-          const { data: campData, error: campErr } = await supabase
-            .from("campaigns")
-            .select("id, nome, status, objective, lancamento_id")
-            .eq("cliente_id", cliente.$id)
-            .limit(500);
-
-          const campIds = (campData || []).map((c: any) => c.id);
-
-          let conjData: any[] = [];
-          if (campIds.length > 0) {
-            const { data } = await supabase
-              .from("adsets")
-              .select("id, nome, campaign_id, lancamento_id")
-              .in("campaign_id", campIds)
-              .limit(500);
-            conjData = data || [];
-          }
-
-          const conjIds = conjData.map((c: any) => c.id);
-
-          let adsData: any[] = [];
-          if (conjIds.length > 0) {
-            const { data } = await supabase
-              .from("ads")
-              .select(
-                "id, nome, adset_id, thumbnail_url, link_anuncio, meta_ad_id, lancamento_id",
-              )
-              .in("adset_id", conjIds)
-              .limit(1000);
-            adsData = data || [];
-          }
-
-          campanhasRaw = (campData || []).map((camp: any) => ({
-            ...camp,
-            $id: camp.id,
-          }));
-          conjuntosRaw = conjData.map((conj: any) => ({
-            ...conj,
-            $id: conj.id,
-            campanha_id: conj.campaign_id,
-          }));
-          criativosRaw = adsData.map((ad: any) => ({
-            ...ad,
-            $id: ad.id,
-            conjunto_id: ad.adset_id,
-          }));
-
-          let metQuery = supabase
-            .from("daily_metrics")
-            .select(
-              "id, criativo_id, data, investimento, impressoes, alcance, cliques, conversas, leads_qualificados, leads_desqualificados, ctr, cpm, frequencia, cliques_link, cpc_link, ctr_link, resultados_meta, lancamento_id",
-            )
-            .gte("data", fromStr)
-            .lte("data", toStr)
-            .limit(5000);
-          if (lancamentoId) {
-            metQuery = metQuery.eq("lancamento_id", lancamentoId);
-          } else {
-            metQuery = metQuery.eq("cliente_id", cliente.$id);
-          }
-          const { data: metData } = await metQuery;
-          const appwriteMetricasResult = (metData || []).map((r: any) => ({
-            ...r,
-            $id: r.id,
-          }));
-
-          // Filtrar conjuntos e campanhas apenas com criativos que têm métricas neste lançamento
-          if (lancamentoId && criativosRaw.length > 0) {
-            const conjuntosComCriativos = new Set(
-              criativosRaw.map((c: any) => c.conjunto_id),
-            );
-            conjuntosRaw = conjuntosRaw.filter((c: any) =>
-              conjuntosComCriativos.has(c.$id),
-            );
-
-            const campanhsComConjuntos = new Set(
-              conjuntosRaw.map((c: any) => c.campanha_id),
-            );
-            campanhasRaw = campanhasRaw.filter((c: any) =>
-              campanhsComConjuntos.has(c.$id),
-            );
-          }
-          let appwriteMetricas = appwriteMetricasResult;
-
-          // Se houver lancamentoId, filtra as campanhas e métricas correspondentes àquele lançamento
-          // Opcional: filtragem baseada em alguma lógica. Por ora, vamos assumir que as métricas podem
-          // vir amarradas ou simplesmente listamos. A prompt diz "filtrado pelo lancamento_id".
-          // O webhook_url (não tem lancamento_id na metrica, mas para "leads" vai usar a palavra-chave).
-          // Vamos apenas ignorar até ter a Graph API, mas para inputs manuais, vamos filtrar também se houver
-
-          metricasDiarias = (appwriteMetricas ||
-            []) as unknown as MetricaDiaria[];
-
-          if (
-            cliente.tipo_campanha === "leads" ||
-            cliente.tipo_campanha === "ambos"
-          ) {
-            let manualInputs: any[] = [];
-            let importedLeads: any[] = [];
-            if (lancamentoId) {
-              const { data: leadsData } = await supabase
-                .from("lead_entries")
-                .select("*")
-                .eq("lancamento_id", lancamentoId)
-                .gte("data", fromStr)
-                .lte("data", toStr)
-                .limit(5000);
-              importedLeads = (leadsData || []).map((r: any) => ({
-                ...r,
-                $id: r.id,
-              }));
-            }
-
-            function classificarEscolaridade(
-              escolaridade: string,
-            ): "superior" | "medio" {
-              const medio = ["ensino médio completo", "ensino medio completo"];
-              const valor = escolaridade?.toLowerCase().trim() ?? "";
-              return medio.includes(valor) ? "medio" : "superior";
-            }
-
-            if ((importedLeads ?? []).length > 0) {
-              // Conta agrupada por data
-              const contagemPorData: Record<
-                string,
-                { superior: number; medio: number }
-              > = {};
-              importedLeads.forEach((lead) => {
-                const d = lead.data || "N/A";
-                if (!contagemPorData[d])
-                  contagemPorData[d] = { superior: 0, medio: 0 };
-
-                const classificacao = classificarEscolaridade(
-                  lead.escolaridade,
-                );
-                if (classificacao === "superior") {
-                  contagemPorData[d].superior++;
-                } else {
-                  contagemPorData[d].medio++;
-                }
-              });
-
-              leadsGrupos = Object.keys(contagemPorData).map((d) => ({
-                data: d,
-                leads_ensino_superior: contagemPorData[d].superior,
-                leads_ensino_medio: contagemPorData[d].medio,
-              }));
-            } else {
-              leadsGrupos = manualInputs.map((m: any) => ({
-                data: m.data,
-                leads_ensino_superior: m.leads_no_grupo_superior,
-                leads_ensino_medio: m.leads_no_grupo_medio,
-              }));
-            }
-          }
-        } else if (fonte === "sheets") {
-          if (!cliente.spreadsheet_id) {
-            throw new Error(
-              "Fonte de dados configurada como Google Sheets, mas o ID da planilha não foi informado no cadastro.",
-            );
-          }
-          [campanhasRaw, conjuntosRaw, criativosRaw, metricasDiarias] =
-            await Promise.all([
-              fetchCampanhas(cliente.spreadsheet_id),
-              fetchConjuntos(cliente.spreadsheet_id),
-              fetchCriativos(cliente.spreadsheet_id),
-              fetchMetricasDiarias(
-                cliente.spreadsheet_id,
-                dateRange.from,
-                dateRange.to,
-              ),
-            ]);
-
-          if (
-            cliente.tipo_campanha === "leads" ||
-            cliente.tipo_campanha === "ambos"
-          ) {
-            leadsGrupos = await fetchLeadsGrupos(
-              cliente.spreadsheet_id,
-              dateRange.from,
-              dateRange.to,
-            );
-          }
-        } else if (fonte === "meta_api") {
-          if (!lancamento?.meta_account_id || !lancamento?.meta_access_token) {
-            throw new Error(
-              "Atenção: A fonte de dados foi configurada para Meta Ads API, mas as credenciais (Token e Account ID) não foram preenchidas neste lançamento.",
-            );
-          }
-
-          // TODO: Substituir pelas integrações reais da Graph API (Dashboard Direto)
-          // A regra 4 e 5 são aplicáveis ao painel. O frontend do dashboard reflete um catch contendo a mensagem exigida.
-          throw new Error(
-            "O motor Meta Ads Graph API está em manutenção temporária. Por favor repassar credenciais e use o webhook/Appwrite no momento.",
-          );
-        } else {
-          throw new Error("Fonte de dados desconhecida ou corrompida.");
-        }
-
-        // 3 & 4. Calcula métricas agregadas por Criativo
-        let criativosComMetricas: CriativoComMetricas[] = criativosRaw.map(
-          (criativo) => {
-            const metricasCriativo = metricasDiarias.filter(
-              (m) => m.criativo_id === criativo.$id,
-            );
-            const calc = calcularMetricas(metricasCriativo);
-            return {
-              ...criativo,
-              ...calc,
-              performance: "medio", // será calculado depois
-            };
-          },
+      // Filtrar conjuntos e campanhas apenas com criativos que têm métricas neste lançamento
+      if (lancamentoId && criativosRaw.length > 0 && cliente.fonte_dados === "appwrite") {
+        const conjuntosComCriativos = new Set(
+          criativosRaw.map((c: any) => c.conjunto_id),
+        );
+        conjuntosRaw = conjuntosRaw.filter((c: any) =>
+          conjuntosComCriativos.has(c.$id),
         );
 
-        // 3 & 4. Calcula métricas agregadas por Conjunto e aninha criativos
-        let conjuntosComMetricas: ConjuntoComMetricas[] = conjuntosRaw.map(
-          (conjunto) => {
-            const criativosDoConjunto = criativosComMetricas.filter(
-              (c) => c.conjunto_id === conjunto.$id,
-            );
-
-            const investimento = criativosDoConjunto.reduce(
-              (acc, c) => acc + c.investimento,
-              0,
-            );
-            const conversas = criativosDoConjunto.reduce(
-              (acc, c) => acc + c.conversas,
-              0,
-            );
-            const leads_qualificados = criativosDoConjunto.reduce(
-              (acc, c) => acc + c.leads_qualificados,
-              0,
-            );
-            const leads_desqualificados = criativosDoConjunto.reduce(
-              (acc, c) => acc + c.leads_desqualificados,
-              0,
-            );
-            const leads_total = leads_qualificados + leads_desqualificados;
-            const cliques = criativosDoConjunto.reduce(
-              (acc, c) => acc + c.cliques,
-              0,
-            );
-            const alcance = criativosDoConjunto.reduce(
-              (acc, c) => acc + c.alcance,
-              0,
-            );
-
-            return {
-              ...conjunto,
-              investimento,
-              conversas,
-              leads_qualificados,
-              leads_desqualificados,
-              leads_total,
-              cliques,
-              alcance,
-              custo_conversa: conversas > 0 ? investimento / conversas : 0,
-              cpl: leads_total > 0 ? investimento / leads_total : 0,
-              performance: "medio" as const,
-              criativos: criativosDoConjunto,
-            };
-          },
+        const campanhsComConjuntos = new Set(
+          conjuntosRaw.map((c: any) => c.campanha_id),
         );
+        campanhasRaw = campanhasRaw.filter((c: any) =>
+          campanhsComConjuntos.has(c.$id),
+        );
+      }
 
-        // Calcula métricas agregadas por Campanha e aninha os conjuntos
-        const campanhasComMetricas = campanhasRaw.map((campanha) => {
-          const conjuntosDaCampanha = conjuntosComMetricas.filter(
-            (c) => c.campanha_id === campanha.$id,
+      // 3 & 4. Calcula métricas agregadas por Criativo
+      let criativosComMetricas: CriativoComMetricas[] = criativosRaw.map(
+        (criativo) => {
+          const metricasCriativo = metricasDiarias.filter(
+            (m) => m.criativo_id === criativo.$id,
+          );
+          const calc = calcularMetricas(metricasCriativo) ?? metricasVazias;
+          return {
+            ...criativo,
+            ...calc,
+            performance: "medio",
+          };
+        },
+      );
+
+      // 3 & 4. Calcula métricas agregadas por Conjunto e aninha criativos
+      let conjuntosComMetricas: ConjuntoComMetricas[] = conjuntosRaw.map(
+        (conjunto) => {
+          const criativosDoConjunto = criativosComMetricas.filter(
+            (c) => c.conjunto_id === conjunto.$id,
           );
 
-          const investimento = conjuntosDaCampanha.reduce(
-            (acc, c) => acc + c.investimento,
+          const investimento = criativosDoConjunto.reduce(
+            (acc, c) => acc + (c.investimento || 0),
             0,
           );
-          const conversas = conjuntosDaCampanha.reduce(
-            (acc, c) => acc + c.conversas,
+          const conversas = criativosDoConjunto.reduce(
+            (acc, c) => acc + (c.conversas || 0),
             0,
           );
-          const leads_qualificados = conjuntosDaCampanha.reduce(
-            (acc, c) => acc + c.leads_qualificados,
+          const leads_qualificados = criativosDoConjunto.reduce(
+            (acc, c) => acc + (c.leads_qualificados || 0),
             0,
           );
-          const leads_desqualificados = conjuntosDaCampanha.reduce(
-            (acc, c) => acc + c.leads_desqualificados,
+          const leads_desqualificados = criativosDoConjunto.reduce(
+            (acc, c) => acc + (c.leads_desqualificados || 0),
             0,
           );
           const leads_total = leads_qualificados + leads_desqualificados;
-          const cliques = conjuntosDaCampanha.reduce(
-            (acc, c) => acc + c.cliques,
+          const cliques = criativosDoConjunto.reduce(
+            (acc, c) => acc + (c.cliques || 0),
             0,
           );
-          const alcance = conjuntosDaCampanha.reduce(
-            (acc, c) => acc + c.alcance,
+          const alcance = criativosDoConjunto.reduce(
+            (acc, c) => acc + (c.alcance || 0),
             0,
           );
 
           return {
-            ...campanha,
+            ...conjunto,
             investimento,
             conversas,
             leads_qualificados,
@@ -443,100 +398,142 @@ export function useDashboard(
             alcance,
             custo_conversa: conversas > 0 ? investimento / conversas : 0,
             cpl: leads_total > 0 ? investimento / leads_total : 0,
-            conjuntos: conjuntosDaCampanha,
+            performance: "medio" as const,
+            criativos: criativosDoConjunto,
           };
-        });
+        },
+      );
 
-        // 5. Calcula Performance para os Criativos
-        // Ordena usando o principal KPI dependendo do tipo da campanha (CTR ou Custo/Leading)
-        const criativosOrdenados = [...criativosComMetricas].sort(
-          (a, b) => b.ctr - a.ctr,
+      // Calcula métricas agregadas por Campanha e aninha os conjuntos
+      const campanhasComMetricas = campanhasRaw.map((campanha) => {
+        const conjuntosDaCampanha = conjuntosComMetricas.filter(
+          (c) => c.campanha_id === campanha.$id,
         );
-        criativosComMetricas = criativosComMetricas.map((c) => {
-          const index = criativosOrdenados.findIndex((o) => o.$id === c.$id);
-          return {
-            ...c,
-            performance: calcularPerformance(criativosOrdenados, index),
-          };
-        });
 
-        // 5. Calcula Performance para os Conjuntos (Públicos)
-        const conjuntosOrdenados = [...conjuntosComMetricas].sort((a, b) => {
-          if (a.custo_conversa === 0 && b.custo_conversa !== 0) return 1;
-          if (a.custo_conversa !== 0 && b.custo_conversa === 0) return -1;
-          return a.custo_conversa - b.custo_conversa;
-        });
-        conjuntosComMetricas = conjuntosComMetricas.map((c) => {
-          const index = conjuntosOrdenados.findIndex((o) => o.$id === c.$id);
-          return {
-            ...c,
-            performance: calcularPerformance(conjuntosOrdenados, index),
-          };
-        });
-
-        // Calcula métricas gerais
-        const metricasGerais =
-          calcularMetricas(metricasDiarias) ?? metricasVazias;
-
-        // Adiciona métricas de escolaridade vindas da aba LEADS_GRUPOS (ou manual_inputs)
-        const totalSuperior = leadsGrupos.reduce(
-          (acc, g) => acc + g.leads_ensino_superior,
+        const investimento = conjuntosDaCampanha.reduce(
+          (acc, c) => acc + (c.investimento || 0),
           0,
         );
-        const totalMedio = leadsGrupos.reduce(
-          (acc, g) => acc + g.leads_ensino_medio,
+        const conversas = conjuntosDaCampanha.reduce(
+          (acc, c) => acc + (c.conversas || 0),
           0,
         );
-
-        const metricasExtended = {
-          ...metricasGerais,
-          leads_superior: totalSuperior,
-          leads_medio: totalMedio,
-        };
-
-        const totalLeads = totalSuperior + totalMedio;
-
-        const finalMetricas = {
-          ...metricasExtended,
-          leads_superior: totalSuperior,
-          leads_medio: totalMedio,
-          leads_total: totalLeads,
-          leads_qualificados: totalSuperior,
-          leads_desqualificados: totalMedio,
-          cpl:
-            metricasExtended.investimento > 0 && totalSuperior > 0
-              ? metricasExtended.investimento / totalSuperior
-              : 0,
-        };
-        const finalSerieHistorica = agruparPorDia(metricasDiarias) ?? [];
+        const leads_qualificados = conjuntosDaCampanha.reduce(
+          (acc, c) => acc + (c.leads_qualificados || 0),
+          0,
+        );
+        const leads_desqualificados = conjuntosDaCampanha.reduce(
+          (acc, c) => acc + (c.leads_desqualificados || 0),
+          0,
+        );
+        const leads_total = leads_qualificados + leads_desqualificados;
+        const cliques = conjuntosDaCampanha.reduce(
+          (acc, c) => acc + (c.cliques || 0),
+          0,
+        );
+        const alcance = conjuntosDaCampanha.reduce(
+          (acc, c) => acc + (c.alcance || 0),
+          0,
+        );
 
         return {
-          cliente,
-          campanhas: campanhasComMetricas ?? [],
-          conjuntos: conjuntosComMetricas ?? [],
-          criativos: criativosComMetricas ?? [],
-          metricasAgregadas: finalMetricas,
-          dadosAgrupadosPorDia: finalSerieHistorica,
-          leadsGrupos: leadsGrupos ?? [],
-          metricas: finalMetricas,
-          serieHistorica: finalSerieHistorica,
-          rankingCriativos: criativosComMetricas ?? [],
-          rankingPublicos: (conjuntosComMetricas ?? []).slice(0, 10),
-          relatorioCampanhas: campanhasComMetricas ?? [],
-          totalLeads: finalMetricas.leads_total ?? 0,
-          leadsSuperiores: [],
-          leadsMedio: [],
+          ...campanha,
+          investimento,
+          conversas,
+          leads_qualificados,
+          leads_desqualificados,
+          leads_total,
+          cliques,
+          alcance,
+          custo_conversa: conversas > 0 ? investimento / conversas : 0,
+          cpl: leads_total > 0 ? investimento / leads_total : 0,
+          conjuntos: conjuntosDaCampanha,
         };
-      } catch (error) {
-        console.error("Erro no useDashboard:", error);
-        throw error;
-      }
+      });
+
+      // 5. Calcula Performance para os Criativos
+      const criativosOrdenados = [...criativosComMetricas].sort(
+        (a, b) => (b.ctr || 0) - (a.ctr || 0),
+      );
+      criativosComMetricas = criativosComMetricas.map((c) => {
+        const index = criativosOrdenados.findIndex((o) => o.$id === c.$id);
+        return {
+          ...c,
+          performance: calcularPerformance(criativosOrdenados, index),
+        };
+      });
+
+      // 5. Calcula Performance para os Conjuntos (Públicos)
+      const conjuntosOrdenados = [...conjuntosComMetricas].sort((a, b) => {
+        if (a.custo_conversa === 0 && b.custo_conversa !== 0) return 1;
+        if (a.custo_conversa !== 0 && b.custo_conversa === 0) return -1;
+        return (a.custo_conversa || 0) - (b.custo_conversa || 0);
+      });
+      conjuntosComMetricas = conjuntosComMetricas.map((c) => {
+        const index = conjuntosOrdenados.findIndex((o) => o.$id === c.$id);
+        return {
+          ...c,
+          performance: calcularPerformance(conjuntosOrdenados, index),
+        };
+      });
+
+      // Calcula métricas gerais
+      const metricasGerais =
+        calcularMetricas(metricasDiarias) ?? metricasVazias;
+
+      // Adiciona métricas de escolaridade
+      const totalSuperior = leadsGrupos.reduce(
+        (acc, g) => acc + (g.leads_ensino_superior || 0),
+        0,
+      );
+      const totalMedio = leadsGrupos.reduce(
+        (acc, g) => acc + (g.leads_ensino_medio || 0),
+        0,
+      );
+
+      const metricasExtended = {
+        ...metricasGerais,
+        leads_superior: totalSuperior,
+        leads_medio: totalMedio,
+      };
+
+      const totalLeads = totalSuperior + totalMedio;
+
+      const finalMetricas = {
+        ...metricasExtended,
+        leads_superior: totalSuperior,
+        leads_medio: totalMedio,
+        leads_total: totalLeads,
+        leads_qualificados: totalSuperior,
+        leads_desqualificados: totalMedio,
+        cpl:
+          metricasExtended.investimento > 0 && totalSuperior > 0
+            ? metricasExtended.investimento / totalSuperior
+            : 0,
+      };
+      
+      const finalSerieHistorica = agruparPorDia(metricasDiarias) ?? [];
+
+      return {
+        cliente,
+        campanhas: campanhasComMetricas ?? [],
+        conjuntos: conjuntosComMetricas ?? [],
+        criativos: criativosComMetricas ?? [],
+        metricasAgregadas: finalMetricas,
+        dadosAgrupadosPorDia: finalSerieHistorica,
+        leadsGrupos: leadsGrupos ?? [],
+        metricas: finalMetricas,
+        serieHistorica: finalSerieHistorica,
+        rankingCriativos: criativosComMetricas ?? [],
+        rankingPublicos: (conjuntosComMetricas ?? []).slice(0, 10),
+        relatorioCampanhas: campanhasComMetricas ?? [],
+        totalLeads: finalMetricas.leads_total ?? 0,
+        leadsSuperiores: [],
+        leadsMedio: [],
+      };
     },
-    staleTime: 1000 * 60 * 10, // 10 minutos de cache
-    gcTime: 1000 * 60 * 30, // manter no cache 30 minutos
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    placeholderData: (previousData) => previousData,
-    enabled: !!slug && !!dateRange?.from && !!dateRange?.to,
+    enabled: !!cliente && !!estrutura && !!metricasData,
+    staleTime: 1000 * 60 * 5,
+    placeholderData: (prev) => prev,
   });
 }
