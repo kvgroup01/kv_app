@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useMemo, useRef, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { queryClient } from "../lib/queryClient";
 import {
@@ -309,10 +309,17 @@ export function useDashboard(
   });
 
   // 3. Estrutura Estática
-  const clienteId = useMemo(
-    () => cliente?.$id || (cliente as any)?.id,
-    [cliente?.$id, (cliente as any)?.id],
-  );
+  const rawClienteId = cliente?.$id || (cliente as any)?.id;
+  const clienteIdRef = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (rawClienteId && !clienteIdRef.current) {
+      clienteIdRef.current = rawClienteId;
+    }
+  }, [rawClienteId]);
+
+  const clienteIdEstavel = clienteIdRef.current || rawClienteId;
+
   const clienteFonte = useMemo(
     () => cliente?.fonte_dados,
     [cliente?.fonte_dados],
@@ -332,7 +339,7 @@ export function useDashboard(
     isError: isErrEst,
     error: errEst,
   } = useDashboardEstrutura(
-    clienteId,
+    clienteIdEstavel,
     clienteFonte,
     clienteSheet,
     lancamentoId,
@@ -346,7 +353,7 @@ export function useDashboard(
     isError: isErrMet,
     error: errMet,
   } = useDashboardMetricas(
-    clienteId,
+    clienteIdEstavel,
     clienteFonte,
     clienteTipo,
     clienteSheet,
