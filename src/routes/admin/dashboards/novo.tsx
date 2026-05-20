@@ -34,6 +34,11 @@ type Coluna = {
   fixo: boolean;
 };
 
+const parseLocalDate = (dateStr: string): Date => {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
 const defaultColunas: Coluna[] = [
   { nome: 'data', tipo: 'data', obrigatorio: true, fixo: true },
   { nome: 'nome', tipo: 'texto', obrigatorio: false, fixo: false },
@@ -542,14 +547,14 @@ export default function NovoDashboard() {
                      >
                        <CalendarIcon className="mr-2 h-4 w-4 text-(--text-tertiary)" />
                        {form.data_inicio_sync 
-                         ? format(new Date(form.data_inicio_sync), "dd/MM/yyyy", { locale: ptBR })
+                         ? format(parseLocalDate(form.data_inicio_sync), "dd/MM/yyyy", { locale: ptBR })
                          : "Selecionar data..."}
                      </Button>
                    </PopoverTrigger>
                    <PopoverContent className="w-auto p-0 bg-(--card-bg) border-(--card-border)" align="start">
                      <Calendar
                        mode="single"
-                       selected={form.data_inicio_sync ? new Date(form.data_inicio_sync) : undefined}
+                       selected={form.data_inicio_sync ? parseLocalDate(form.data_inicio_sync) : undefined}
                        onSelect={(date) => setForm(prev => ({ 
                          ...prev, 
                          data_inicio_sync: date ? format(date, 'yyyy-MM-dd') : '' 

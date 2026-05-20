@@ -97,6 +97,11 @@ type SecaoConfig = {
 
 type SecoesType = Record<SecaoId, SecaoConfig>;
 
+const parseLocalDate = (dateStr: string): Date => {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
 const defaultSecoes: SecoesType = {
   cards_metricas: { ativo: true, titulo: "Métricas principais" },
   funil: { ativo: true, titulo: "Funil de tráfego" },
@@ -542,14 +547,14 @@ export default function DashboardEditor() {
                       >
                         <CalendarIcon className="mr-2 h-4 w-4 text-(--text-tertiary)" />
                         {dataInicioSync 
-                          ? format(new Date(dataInicioSync), "dd/MM/yyyy", { locale: ptBR })
+                          ? format(parseLocalDate(dataInicioSync), "dd/MM/yyyy", { locale: ptBR })
                           : "Selecionar data..."}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0 bg-(--card-bg) border-(--card-border)" align="start">
                       <Calendar
                         mode="single"
-                        selected={dataInicioSync ? new Date(dataInicioSync) : undefined}
+                        selected={dataInicioSync ? parseLocalDate(dataInicioSync) : undefined}
                         onSelect={(date) => setDataInicioSync(date ? format(date, 'yyyy-MM-dd') : '')}
                         locale={ptBR}
                         initialFocus
