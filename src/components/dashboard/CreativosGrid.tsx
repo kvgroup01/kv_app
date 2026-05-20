@@ -8,17 +8,20 @@ import type { CriativoComMetricas, TipoCampanha } from "../../lib/types";
 import { cn } from "../../lib/utils";
 import { Image as ImageIcon, Play, ZoomIn } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
+import { type DateRange } from "react-day-picker";
 
 interface CreativosGridProps {
   criativos: CriativoComMetricas[];
   tipo: TipoCampanha;
   isLoading?: boolean;
+  dateRange?: DateRange;
 }
 
 export function CreativosGrid({
   criativos,
   tipo,
   isLoading,
+  dateRange,
 }: CreativosGridProps) {
   const [verTodos, setVerTodos] = React.useState(false);
   const [modalCriativo, setModalCriativo] = React.useState<CriativoComMetricas | null>(null);

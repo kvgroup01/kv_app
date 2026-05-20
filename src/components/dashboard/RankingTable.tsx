@@ -23,6 +23,7 @@ import type {
   TipoCampanha,
 } from "../../lib/types";
 import { cn } from "../../lib/utils";
+import { type DateRange } from "react-day-picker";
 
 // Como o ranking serve tanto pra Públicos(Conjuntos) quanto para Criativos...
 interface RankingTableProps {
@@ -31,6 +32,7 @@ interface RankingTableProps {
   tipo: "publicos" | "criativos";
   campanhaTipo: TipoCampanha;
   isLoading?: boolean;
+  dateRange?: DateRange;
 }
 
 export function RankingTable({
@@ -39,6 +41,7 @@ export function RankingTable({
   tipo,
   campanhaTipo,
   isLoading,
+  dateRange,
 }: RankingTableProps) {
   if (isLoading) {
     return (

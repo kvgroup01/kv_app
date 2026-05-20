@@ -366,7 +366,7 @@ export default function PublicDashboardLancamento() {
           <h3 className="text-xl font-bold mb-4">
             {secaoTitulo("tabela_campanhas", "Campanhas")}
           </h3>
-          <CampanhasTable campanhasComMetricas={campanhas} tipo="leads" />
+          <CampanhasTable campanhasComMetricas={campanhas} tipo="leads" dateRange={dateRange} />
         </section>
       )}
 
@@ -375,7 +375,7 @@ export default function PublicDashboardLancamento() {
           <h3 className="text-xl font-bold mb-4">
             {secaoTitulo("grid_criativos", "Criativos")}
           </h3>
-          <CreativosGrid criativos={criativos} tipo="leads" />
+          <CreativosGrid criativos={criativos} tipo="leads" dateRange={dateRange} />
         </section>
       )}
 
@@ -390,6 +390,7 @@ export default function PublicDashboardLancamento() {
               items={publicos}
               tipo="publicos"
               campanhaTipo="leads"
+              dateRange={dateRange}
             />
           </section>
         )}
@@ -403,6 +404,7 @@ export default function PublicDashboardLancamento() {
               items={criativos}
               tipo="criativos"
               campanhaTipo="leads"
+              dateRange={dateRange}
             />
           </section>
         )}
@@ -523,11 +525,11 @@ export default function PublicDashboardLancamento() {
                     <FunnelWhatsApp metricas={metricas} onVendasChange={() => {}} />
                     <InvestimentoChart dados={serieHistorica} tipo="whatsapp" />
                   </div>
-                  <CampanhasTable campanhasComMetricas={campanhas} tipo="whatsapp" />
-                  <CreativosGrid criativos={criativos} tipo="whatsapp" />
+                  <CampanhasTable campanhasComMetricas={campanhas} tipo="whatsapp" dateRange={dateRange} />
+                  <CreativosGrid criativos={criativos} tipo="whatsapp" dateRange={dateRange} />
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <RankingTable titulo="Melhores Públicos" items={publicos} tipo="publicos" campanhaTipo="whatsapp" />
-                    <RankingTable titulo="Melhores Criativos" items={criativos} tipo="criativos" campanhaTipo="whatsapp" />
+                    <RankingTable titulo="Melhores Públicos" items={publicos} tipo="publicos" campanhaTipo="whatsapp" dateRange={dateRange} />
+                    <RankingTable titulo="Melhores Criativos" items={criativos} tipo="criativos" campanhaTipo="whatsapp" dateRange={dateRange} />
                   </div>
                 </div>
               ) : (
@@ -544,11 +546,11 @@ export default function PublicDashboardLancamento() {
                   <FunnelWhatsApp metricas={metricas} onVendasChange={() => {}} />
                   <InvestimentoChart dados={serieHistorica} tipo="whatsapp" />
                 </div>
-                <CampanhasTable campanhasComMetricas={campanhas} tipo="whatsapp" />
-                <CreativosGrid criativos={criativos} tipo="whatsapp" />
+                <CampanhasTable campanhasComMetricas={campanhas} tipo="whatsapp" dateRange={dateRange} />
+                <CreativosGrid criativos={criativos} tipo="whatsapp" dateRange={dateRange} />
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <RankingTable titulo="Melhores Públicos" items={publicos} tipo="publicos" campanhaTipo="whatsapp" />
-                  <RankingTable titulo="Melhores Criativos" items={criativos} tipo="criativos" campanhaTipo="whatsapp" />
+                  <RankingTable titulo="Melhores Públicos" items={publicos} tipo="publicos" campanhaTipo="whatsapp" dateRange={dateRange} />
+                  <RankingTable titulo="Melhores Criativos" items={criativos} tipo="criativos" campanhaTipo="whatsapp" dateRange={dateRange} />
                 </div>
               </motion.div>
             </TabsContent>
