@@ -20,6 +20,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { DateRangePicker } from '../../../components/shared/DateRangePicker';
 import { cn } from '../../../lib/utils';
 import { type DateRange } from 'react-day-picker';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { CalendarIcon } from 'lucide-react';
+import { Calendar } from '../../../components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '../../../components/ui/popover';
 import { TipoCampanha } from '../../../lib/types';
 
 type Coluna = {
@@ -525,12 +530,35 @@ export default function NovoDashboard() {
                <div className="space-y-2 mt-4">
                  <label className="text-sm font-medium">Data de início da sincronização (Opcional)</label>
                  <p className="text-xs text-muted-foreground pb-1">Os dados do Meta Ads serão importados a partir desta data. Se não for informado, busca os últimos 90 dias.</p>
-                 <Input 
-                    type="date"
-                    value={form.data_inicio_sync} 
-                    onChange={e => setForm(prev => ({ ...prev, data_inicio_sync: e.target.value }))}
-                    className="bg-background w-full"
-                 />
+                 <Popover>
+                   <PopoverTrigger asChild>
+                     <Button
+                       variant="outline"
+                       className={cn(
+                         "w-full justify-start text-left font-normal h-10",
+                         "bg-(--card-bg) border-(--card-border) text-(--text-primary)",
+                         !form.data_inicio_sync && "text-(--text-tertiary)"
+                       )}
+                     >
+                       <CalendarIcon className="mr-2 h-4 w-4 text-(--text-tertiary)" />
+                       {form.data_inicio_sync 
+                         ? format(new Date(form.data_inicio_sync), "dd/MM/yyyy", { locale: ptBR })
+                         : "Selecionar data..."}
+                     </Button>
+                   </PopoverTrigger>
+                   <PopoverContent className="w-auto p-0 bg-(--card-bg) border-(--card-border)" align="start">
+                     <Calendar
+                       mode="single"
+                       selected={form.data_inicio_sync ? new Date(form.data_inicio_sync) : undefined}
+                       onSelect={(date) => setForm(prev => ({ 
+                         ...prev, 
+                         data_inicio_sync: date ? format(date, 'yyyy-MM-dd') : '' 
+                       }))}
+                       locale={ptBR}
+                       initialFocus
+                     />
+                   </PopoverContent>
+                 </Popover>
                </div>
 
                {campanhasEncontradas !== null && (
