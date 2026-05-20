@@ -52,10 +52,16 @@ export function useDashboardEstrutura(
   lancamentoId: string | undefined,
 ) {
   return useQuery({
-    queryKey: ['dashboard-estrutura', cliente?.$id, lancamentoId],
+    queryKey: ["dashboard-estrutura", cliente?.$id, lancamentoId],
     queryFn: async () => {
-      if (!cliente || !cliente.$id) return null;
-      
+      console.log(
+        "[estrutura] cliente:",
+        cliente?.$id,
+        "fonte:",
+        cliente?.fonte_dados,
+      );
+      if (!cliente || !(cliente.$id || (cliente as any).id)) return null;
+
       const fonte = cliente.fonte_dados || "appwrite";
 
       let campanhas: any[] = [];
@@ -78,7 +84,11 @@ export function useDashboardEstrutura(
             .select("id, nome, campaign_id, lancamento_id")
             .in("campaign_id", campIds)
             .limit(500);
-          conjuntos = (data || []).map((c) => ({ ...c, $id: c.id, campanha_id: c.campaign_id }));
+          conjuntos = (data || []).map((c) => ({
+            ...c,
+            $id: c.id,
+            campanha_id: c.campaign_id,
+          }));
         }
 
         const conjIds = conjuntos.map((c: any) => c.$id);
@@ -91,7 +101,11 @@ export function useDashboardEstrutura(
             )
             .in("adset_id", conjIds)
             .limit(1000);
-          criativos = (data || []).map((a) => ({ ...a, $id: a.id, conjunto_id: a.adset_id }));
+          criativos = (data || []).map((a) => ({
+            ...a,
+            $id: a.id,
+            conjunto_id: a.adset_id,
+          }));
         }
       } else if (fonte === "sheets") {
         if (!cliente.spreadsheet_id) {
@@ -105,16 +119,16 @@ export function useDashboardEstrutura(
           fetchCriativos(cliente.spreadsheet_id),
         ]);
       } else if (fonte === "meta_api") {
-         throw new Error(
-            "O motor Meta Ads Graph API está em manutenção temporária. Por favor repassar credenciais e use o webhook/Appwrite no momento.",
-          );
+        throw new Error(
+          "O motor Meta Ads Graph API está em manutenção temporária. Por favor repassar credenciais e use o webhook/Appwrite no momento.",
+        );
       }
 
       // Filtrar conjuntos e campanhas apenas com criativos que têm métricas neste lançamento (we do it lazily or keep all here and filter later if needed. The previous code did it here but depending on metrics).
       // Since it's static, we keep all and filter in computation later if needed.
       return { campanhas, conjuntos, criativos };
     },
-    enabled: !!cliente && !!cliente.$id,
+    enabled: !!cliente && (!!cliente.$id || !!(cliente as any).id),
     staleTime: 1000 * 60 * 30, // 30 min
     gcTime: 1000 * 60 * 60,
     refetchOnWindowFocus: false,
@@ -127,13 +141,27 @@ export function useDashboardMetricas(
   lancamentoId: string | undefined,
   fromStr: string,
   toStr: string,
-  dateRangeStr: { from?: Date; to?: Date } | undefined
+  dateRangeStr: { from?: Date; to?: Date } | undefined,
 ) {
   return useQuery({
-    queryKey: ['dashboard-metricas', cliente?.$id, lancamentoId, fromStr, toStr],
+    queryKey: [
+      "dashboard-metricas",
+      cliente?.$id,
+      lancamentoId,
+      fromStr,
+      toStr,
+    ],
     queryFn: async () => {
-      if (!cliente || !cliente.$id || !fromStr || !toStr || !dateRangeStr?.from || !dateRangeStr?.to) return null;
-      
+      if (
+        !cliente ||
+        !(cliente.$id || (cliente as any).id) ||
+        !fromStr ||
+        !toStr ||
+        !dateRangeStr?.from ||
+        !dateRangeStr?.to
+      )
+        return null;
+
       const fonte = cliente.fonte_dados || "appwrite";
       let metricasDiarias: MetricaDiaria[] = [];
       let leadsGrupos: LeadGrupo[] = [];
@@ -147,18 +175,18 @@ export function useDashboardMetricas(
           .gte("data", fromStr)
           .lte("data", toStr)
           .limit(5000);
-        
+
         if (lancamentoId) {
           metQuery = metQuery.eq("lancamento_id", lancamentoId);
         } else {
           metQuery = metQuery.eq("cliente_id", cliente.$id);
         }
-        
+
         const { data: metData } = await metQuery;
-        metricasDiarias = ((metData || []).map((r: any) => ({
+        metricasDiarias = (metData || []).map((r: any) => ({
           ...r,
           $id: r.id,
-        })) as unknown) as MetricaDiaria[];
+        })) as unknown as MetricaDiaria[];
 
         if (
           cliente.tipo_campanha === "leads" ||
@@ -179,17 +207,23 @@ export function useDashboardMetricas(
             }));
           }
 
-          function classificarEscolaridade(escolaridade: string): "superior" | "medio" {
+          function classificarEscolaridade(
+            escolaridade: string,
+          ): "superior" | "medio" {
             const medio = ["ensino médio completo", "ensino medio completo"];
             const valor = escolaridade?.toLowerCase().trim() ?? "";
             return medio.includes(valor) ? "medio" : "superior";
           }
 
           if ((importedLeads ?? []).length > 0) {
-            const contagemPorData: Record<string, { superior: number; medio: number }> = {};
+            const contagemPorData: Record<
+              string,
+              { superior: number; medio: number }
+            > = {};
             importedLeads.forEach((lead) => {
               const d = lead.data || "N/A";
-              if (!contagemPorData[d]) contagemPorData[d] = { superior: 0, medio: 0 };
+              if (!contagemPorData[d])
+                contagemPorData[d] = { superior: 0, medio: 0 };
               const classificacao = classificarEscolaridade(lead.escolaridade);
               if (classificacao === "superior") contagemPorData[d].superior++;
               else contagemPorData[d].medio++;
@@ -204,9 +238,9 @@ export function useDashboardMetricas(
         }
       } else if (fonte === "sheets") {
         if (!cliente.spreadsheet_id) {
-            throw new Error(
-              "Fonte de dados configurada como Google Sheets, mas o ID da planilha não foi informado no cadastro.",
-            );
+          throw new Error(
+            "Fonte de dados configurada como Google Sheets, mas o ID da planilha não foi informado no cadastro.",
+          );
         }
         metricasDiarias = await fetchMetricasDiarias(
           cliente.spreadsheet_id,
@@ -228,7 +262,11 @@ export function useDashboardMetricas(
 
       return { metricasDiarias, leadsGrupos };
     },
-    enabled: !!cliente && !!cliente.$id && !!fromStr && !!toStr,
+    enabled:
+      !!cliente &&
+      (!!cliente.$id || !!(cliente as any).id) &&
+      !!fromStr &&
+      !!toStr,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
@@ -242,7 +280,9 @@ export function useDashboard(
   dateRange: { from?: Date; to?: Date } | undefined,
   lancamentoId?: string,
 ) {
-  const fromStr = dateRange?.from ? dateRange.from.toISOString().split("T")[0] : "";
+  const fromStr = dateRange?.from
+    ? dateRange.from.toISOString().split("T")[0]
+    : "";
   const toStr = dateRange?.to ? dateRange.to.toISOString().split("T")[0] : "";
 
   // 1. Busca cliente
@@ -279,25 +319,48 @@ export function useDashboard(
   });
 
   // 3. Estrutura Estática
-  const { data: estrutura } = useDashboardEstrutura(cliente, lancamentoId);
+  const {
+    data: estrutura,
+    isError: isErrEst,
+    error: errEst,
+  } = useDashboardEstrutura(cliente, lancamentoId);
 
   // 4. Métricas Dinâmicas
-  const { data: metricasData, isFetching: isFetchingMetricas } = useDashboardMetricas(
-    cliente,
-    lancamentoId,
-    fromStr,
-    toStr,
-    dateRange
+  const {
+    data: metricasData,
+    isFetching: isFetchingMetricas,
+    isError: isErrMet,
+    error: errMet,
+  } = useDashboardMetricas(cliente, lancamentoId, fromStr, toStr, dateRange);
+
+  console.log(
+    "[dashboard] cliente:",
+    !!cliente,
+    "estrutura:",
+    !!estrutura,
+    "metricas:",
+    !!metricasData,
+    "errEst:",
+    isErrEst,
+    "errMet:",
+    isErrMet,
   );
 
   return useQuery<DashboardResult, Error>({
     queryKey: ["dashboard-computed", slug, fromStr, toStr, lancamentoId],
     queryFn: async (): Promise<DashboardResult> => {
+      if (isErrEst) throw errEst;
+      if (isErrMet) throw errMet;
+
       if (!cliente || !estrutura || !metricasData) {
         throw new Error("Aguardando carregamento...");
       }
 
-      let { campanhas: campanhasRaw, conjuntos: conjuntosRaw, criativos: criativosRaw } = estrutura;
+      let {
+        campanhas: campanhasRaw,
+        conjuntos: conjuntosRaw,
+        criativos: criativosRaw,
+      } = estrutura;
       const { metricasDiarias, leadsGrupos } = metricasData;
 
       const metricasVazias = {
@@ -323,7 +386,11 @@ export function useDashboard(
       };
 
       // Filtrar conjuntos e campanhas apenas com criativos que têm métricas neste lançamento
-      if (lancamentoId && criativosRaw.length > 0 && cliente.fonte_dados === "appwrite") {
+      if (
+        lancamentoId &&
+        criativosRaw.length > 0 &&
+        cliente.fonte_dados === "appwrite"
+      ) {
         const conjuntosComCriativos = new Set(
           criativosRaw.map((c: any) => c.conjunto_id),
         );
@@ -511,7 +578,7 @@ export function useDashboard(
             ? metricasExtended.investimento / totalSuperior
             : 0,
       };
-      
+
       const finalSerieHistorica = agruparPorDia(metricasDiarias) ?? [];
 
       return {
@@ -532,7 +599,12 @@ export function useDashboard(
         leadsMedio: [],
       };
     },
-    enabled: !!cliente && !!estrutura && !!metricasData,
+    enabled: (() => {
+      const isReady = !!cliente && !!estrutura && !!metricasData;
+      const hasError = isErrEst || isErrMet;
+      console.log("[computed] enabled:", isReady || hasError);
+      return isReady || hasError;
+    })(),
     staleTime: 1000 * 60 * 5,
     placeholderData: (prev) => prev,
   });
