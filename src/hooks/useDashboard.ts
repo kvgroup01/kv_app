@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { useMemo, useRef, useEffect } from "react";
+import { useMemo } from "react";
 import { supabase } from "../lib/supabase";
 import { queryClient } from "../lib/queryClient";
 import {
@@ -124,7 +124,7 @@ export function useDashboardEstrutura(
       return { campanhas, conjuntos, criativos };
     },
     enabled: !!clienteId,
-    staleTime: Infinity,
+    staleTime: 1000 * 60 * 30, // 30 min
     gcTime: 1000 * 60 * 60 * 24, // 24 hours
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
@@ -306,42 +306,15 @@ export function useDashboard(
   });
 
   // 3. Estrutura Estática
-  const clienteIdRef = useRef<string | undefined>(undefined);
-  useEffect(() => {
-    if (cliente?.$id && !clienteIdRef.current) {
-      clienteIdRef.current = cliente.$id;
-    }
-  }, [cliente?.$id]);
-
-  const clienteIdEstavel = clienteIdRef.current ?? cliente?.$id;
-  
-  const clienteFonteEstavelRef = useRef<string | undefined>(undefined);
-  useEffect(() => {
-    if (cliente?.fonte_dados && !clienteFonteEstavelRef.current) {
-      clienteFonteEstavelRef.current = cliente.fonte_dados;
-    }
-  }, [cliente?.fonte_dados]);
-  
-  const clienteFonteEstavel = clienteFonteEstavelRef.current ?? cliente?.fonte_dados;
-
-  const clienteSheetEstavelRef = useRef<string | undefined>(undefined);
-  useEffect(() => {
-    if (cliente?.spreadsheet_id && !clienteSheetEstavelRef.current) {
-      clienteSheetEstavelRef.current = cliente.spreadsheet_id;
-    }
-  }, [cliente?.spreadsheet_id]);
-
-  const clienteSheetEstavel = clienteSheetEstavelRef.current ?? cliente?.spreadsheet_id;
-
   const {
     data: estrutura,
     isLoading: isLoadingEstrutura,
     isError: isErrEst,
     error: errEst,
   } = useDashboardEstrutura(
-    clienteIdEstavel,
-    clienteFonteEstavel,
-    clienteSheetEstavel,
+    cliente?.$id,
+    cliente?.fonte_dados,
+    cliente?.spreadsheet_id,
     lancamentoId,
   );
 
