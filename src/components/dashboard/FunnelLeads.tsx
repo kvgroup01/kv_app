@@ -96,9 +96,8 @@ export function FunnelLeads({ dados, metricas }: FunnelLeadsProps) {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="flex-1">
-        <div className="w-full" style={{ minHeight: 350 }}>
-          <ResponsiveContainer width="100%" height="100%" className="outline-none focus:outline-none">
+      <CardContent className="flex-1 min-h-[350px]">
+        <ResponsiveContainer width="100%" height={350} className="outline-none focus:outline-none">
           <ComposedChart
             className="outline-none focus:outline-none"
             data={dados}
@@ -174,7 +173,6 @@ export function FunnelLeads({ dados, metricas }: FunnelLeadsProps) {
             />
           </ComposedChart>
         </ResponsiveContainer>
-        </div>
       </CardContent>
     </Card>
   );

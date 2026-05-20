@@ -115,8 +115,8 @@ export function InvestimentoChart({
           </div>
         </div>
 
-        <div className="w-full" style={{ minHeight: 300 }}>
-          <ResponsiveContainer width="100%" height="100%" className="outline-none focus:outline-none">
+        <div className="h-48 md:h-[300px] w-full">
+          <ResponsiveContainer width="100%" height={300} className="outline-none focus:outline-none">
             <LineChart
               className="outline-none focus:outline-none"
               data={chartData}
