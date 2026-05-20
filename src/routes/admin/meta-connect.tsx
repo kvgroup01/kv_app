@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useSearchParams, useNavigate } from 'react-router';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -80,8 +81,13 @@ export default function IntegracoesPage() {
   const [selectedAccounts, setSelectedAccounts] = React.useState<string[]>([]);
   const [step, setStep] = React.useState<'connect' | 'loading_accounts' | 'select' | 'done'>('connect');
 
-  const [connectedAccounts, setConnectedAccounts] = React.useState<MetaAccount[]>([]);
-  const [loadingConnected, setLoadingConnected] = React.useState(true);
+  const queryClient = useQueryClient();
+  const { data: connectedAccounts = [], isLoading: loadingConnected } = 
+    useQuery({
+      queryKey: ['meta_accounts'],
+      queryFn: fetchMetaAccounts,
+      staleTime: 1000 * 60 * 5, // 5 minutos de cache
+    });
 
   // Google Sheets state
   const { data: clientes } = useClientes();
@@ -89,13 +95,6 @@ export default function IntegracoesPage() {
   const [selectedClienteId, setSelectedClienteId] = React.useState('');
   const [spreadsheetId, setSpreadsheetId] = React.useState('');
   const [isSavingSheets, setIsSavingSheets] = React.useState(false);
-
-  React.useEffect(() => {
-    fetchMetaAccounts()
-      .then(setConnectedAccounts)
-      .catch(console.error)
-      .finally(() => setLoadingConnected(false));
-  }, []);
 
   // Se chegou com token, busca as BMs e contas automaticamente
   React.useEffect(() => {
@@ -167,9 +166,7 @@ export default function IntegracoesPage() {
         }));
 
       await saveMetaAccounts(accountsToSave);
-      // Recarregar contas conectadas
-      const updated = await fetchMetaAccounts();
-      setConnectedAccounts(updated);
+      queryClient.invalidateQueries({ queryKey: ['meta_accounts'] });
       // Voltar para tela inicial
       setStep('connect');
       setToken(null);
@@ -279,7 +276,7 @@ export default function IntegracoesPage() {
                         className="text-red-500 hover:text-red-600 hover:bg-red-500/10 h-8 text-[12px] font-medium px-3"
                         onClick={async () => {
                           await deleteMetaAccount(acc.$id);
-                          setConnectedAccounts(prev => prev.filter(a => a.$id !== acc.$id));
+                          queryClient.invalidateQueries({ queryKey: ['meta_accounts'] });
                         }}
                       >
                         Desconectar
