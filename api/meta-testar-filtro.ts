@@ -1,36 +1,56 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node'
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') { res.status(200).end(); return; }
+
+  const { accountId, token, palavraChave } = req.body;
+
+  if (!accountId || !token) {
+    return res.status(400).json({ erro: 'accountId e token são obrigatórios' });
   }
-  
-  const { accountId, token, palavraChave } = req.body
-  
-  if (!accountId || !token || !palavraChave) {
-    return res.status(400).json({ error: 'Campos obrigatórios faltando' })
-  }
-  
+
   try {
-    const response = await fetch(
-      `https://graph.facebook.com/v19.0/${accountId}/campaigns?fields=name,status,insights{spend}&limit=100&access_token=${token}`
-    )
-    const data = await response.json() as any
-    
-    if (data.error) {
-      return res.status(400).json({ erro: data.error.message })
+    const actId = accountId.startsWith('act_') 
+      ? accountId 
+      : `act_${accountId}`;
+
+    // Buscar campanhas ativas E pausadas
+    let url = `https://graph.facebook.com/v19.0/${actId}/campaigns?` +
+      `fields=id,name,status,objective&` +
+      `effective_status=["ACTIVE","PAUSED","ARCHIVED","DELETED","CAMPAIGN_PAUSED"]&` +
+      `limit=200&` +
+      `access_token=${token}`;
+
+    if (palavraChave) {
+      const palavraLimpa = palavraChave.replace(/[\[\]]/g, '');
+      const filtering = JSON.stringify([{
+        field: 'campaign.name',
+        operator: 'CONTAIN',
+        value: palavraLimpa
+      }]);
+      url += `&filtering=${encodeURIComponent(filtering)}`;
     }
-    
-    const campanhas = (data.data || [])
-      .filter((c: any) => c.name.toLowerCase().includes(palavraChave.toLowerCase()))
-      .map((c: any) => ({
-        nome: c.name,
-        status: c.status,
-        gasto: c.insights?.data?.[0]?.spend || '0.00'
-      }))
-    
-    return res.json({ data: campanhas })
+
+    const response = await fetch(url);
+    const data = await response.json() as any;
+
+    if (data.error) {
+      return res.status(400).json({ erro: data.error.message });
+    }
+
+    const campanhas = (data.data || []).map((c: any) => ({
+      nome: c.name,
+      status: c.status,
+      id: c.id,
+    }));
+
+    return res.status(200).json({ data: campanhas });
+
   } catch (error: any) {
-    return res.status(500).json({ erro: error.message })
+    console.error('meta-testar-filtro erro:', error);
+    return res.status(500).json({ erro: error.message });
   }
 }
