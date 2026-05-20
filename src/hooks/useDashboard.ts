@@ -54,7 +54,7 @@ export function useDashboardEstrutura(
   return useQuery({
     queryKey: ['dashboard-estrutura', cliente?.$id, lancamentoId],
     queryFn: async () => {
-      if (!cliente) return null;
+      if (!cliente || !cliente.$id) return null;
       
       const fonte = cliente.fonte_dados || "appwrite";
 
@@ -114,7 +114,7 @@ export function useDashboardEstrutura(
       // Since it's static, we keep all and filter in computation later if needed.
       return { campanhas, conjuntos, criativos };
     },
-    enabled: !!cliente,
+    enabled: !!cliente && !!cliente.$id,
     staleTime: 1000 * 60 * 30, // 30 min
     gcTime: 1000 * 60 * 60,
     refetchOnWindowFocus: false,
@@ -132,7 +132,7 @@ export function useDashboardMetricas(
   return useQuery({
     queryKey: ['dashboard-metricas', cliente?.$id, lancamentoId, fromStr, toStr],
     queryFn: async () => {
-      if (!cliente || !fromStr || !toStr || !dateRangeStr?.from || !dateRangeStr?.to) return null;
+      if (!cliente || !cliente.$id || !fromStr || !toStr || !dateRangeStr?.from || !dateRangeStr?.to) return null;
       
       const fonte = cliente.fonte_dados || "appwrite";
       let metricasDiarias: MetricaDiaria[] = [];
@@ -228,7 +228,7 @@ export function useDashboardMetricas(
 
       return { metricasDiarias, leadsGrupos };
     },
-    enabled: !!cliente && !!fromStr && !!toStr,
+    enabled: !!cliente && !!cliente.$id && !!fromStr && !!toStr,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,

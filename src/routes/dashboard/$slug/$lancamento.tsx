@@ -272,7 +272,7 @@ export default function PublicDashboardLancamento() {
     );
   }
 
-  if (isLoadingDashboard && !dashboardData) {
+  if (!dashboardData && (isLoadingDashboard || isFetching)) {
     return (
       <DashboardSkeleton
         tipo={dataLancamento.tipo as unknown as "whatsapp" | "leads" | "ambos"}
@@ -290,13 +290,13 @@ export default function PublicDashboardLancamento() {
     );
   }
 
-  const metricas = dashboardData.metricas ?? metricasVazias;
-  const serieHistorica = dashboardData.serieHistorica ?? [];
-  const campanhas = dashboardData.relatorioCampanhas ?? [];
-  const criativos = dashboardData.rankingCriativos ?? [];
-  const publicos = dashboardData.rankingPublicos ?? [];
-  const leadsGrupos = dashboardData.leadsGrupos ?? [];
-  const cliente = dashboardData.cliente;
+  const metricas = dashboardData?.metricas ?? metricasVazias;
+  const serieHistorica = dashboardData?.serieHistorica ?? [];
+  const campanhas = dashboardData?.relatorioCampanhas ?? [];
+  const criativos = dashboardData?.rankingCriativos ?? [];
+  const publicos = dashboardData?.rankingPublicos ?? [];
+  const leadsGrupos = dashboardData?.leadsGrupos ?? [];
+  const cliente = dashboardData?.cliente;
 
   const todasDatas = Array.from(
     new Set([
