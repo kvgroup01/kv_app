@@ -1,5 +1,6 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
+import { queryClient } from "../lib/queryClient";
 import {
   fetchCampanhas,
   fetchConjuntos,
@@ -54,10 +55,20 @@ export function useDashboard(
   return useQuery<DashboardResult, Error>({
     queryKey: ["dashboard", slug, dateRange.from, dateRange.to, lancamentoId],
     queryFn: async () => {
-      // 1. Busca cliente no AppWrite pelo slug
-      const { data: clienteRaw, error: cErr } = await supabase
-        .from('clientes').select('*').eq('slug', slug).single();
-      if (cErr) throw new Error('Cliente não encontrado');
+      // 1. Busca cliente no AppWrite pelo slug usando cache
+      const clienteRaw = await queryClient.fetchQuery({
+        queryKey: ['cliente-por-slug', slug],
+        queryFn: async () => {
+          const { data, error } = await supabase
+            .from('clientes')
+            .select('*')
+            .eq('slug', slug)
+            .single();
+          if (error) throw new Error('Cliente não encontrado');
+          return data;
+        },
+        staleTime: 1000 * 60 * 10
+      });
       const cliente = { ...clienteRaw, $id: clienteRaw.id };
 
       if (!cliente.spreadsheet_id && !cliente.$id) {
@@ -67,8 +78,16 @@ export function useDashboard(
       let lancamento: any = null;
       if (lancamentoId) {
         try {
-          const { data: lancRaw } = await supabase
-            .from('lancamentos').select('*').eq('id', lancamentoId).single();
+          const lancRaw = await queryClient.fetchQuery({
+            queryKey: ['lancamento', lancamentoId],
+            queryFn: async () => {
+              const { data, error } = await supabase
+                .from('lancamentos').select('*').eq('id', lancamentoId).single();
+              if (error) throw error;
+              return data;
+            },
+            staleTime: 1000 * 60 * 10
+          });
           lancamento = lancRaw ? { ...lancRaw, $id: lancRaw.id } : null;
         } catch (err) {
           console.warn("Lançamento não encontrado ou sem permissão", err);
@@ -109,37 +128,45 @@ export function useDashboard(
 
         if (fonte === "appwrite") {
           const { data: campData } = await supabase
-            .from('campaigns').select('*').eq('cliente_id', cliente.$id).limit(500);
-          campanhasRaw = (campData || []).map((r: any) => ({ ...r, $id: r.id }));
+            .from('campaigns').select(`
+              *,
+              adsets (
+                *,
+                ads (*)
+              )
+            `).eq('cliente_id', cliente.$id).limit(500);
 
-          const campIds = campanhasRaw.map((c: any) => c.$id);
+          campanhasRaw = [];
           conjuntosRaw = [];
-          if (campIds.length > 0) {
-            const { data: conjData } = await supabase
-              .from('adsets').select('*').in('campaign_id', campIds).limit(500);
-            conjuntosRaw = (conjData || []).map((r: any) => ({
-              ...r, $id: r.id, campanha_id: r.campaign_id
-            }));
-          }
-
           criativosRaw = [];
-          if (lancamentoId) {
-            const { data: mIds } = await supabase
-              .from('daily_metrics').select('criativo_id')
-              .eq('lancamento_id', lancamentoId).limit(5000);
-            const ids = [...new Set((mIds || []).map((m: any) => m.criativo_id).filter(Boolean))];
-            if (ids.length > 0) {
-              const { data: adsData } = await supabase
-                .from('ads').select('*').in('id', ids as string[]);
-              criativosRaw = (adsData || []).map((r: any) => ({
-                ...r, $id: r.id, conjunto_id: r.adset_id
-              }));
-            }
+          
+          if (campData) {
+            campData.forEach((camp: any) => {
+              campanhasRaw.push({ ...camp, $id: camp.id });
+              if (camp.adsets) {
+                camp.adsets.forEach((conj: any) => {
+                  conjuntosRaw.push({ ...conj, $id: conj.id, campanha_id: conj.campaign_id });
+                  if (conj.ads) {
+                    conj.ads.forEach((ad: any) => {
+                      criativosRaw.push({ ...ad, $id: ad.id, conjunto_id: ad.adset_id });
+                    });
+                  }
+                });
+              }
+            });
           }
 
           const fromStr = dateRange.from.toISOString().split('T')[0];
           const toStr = dateRange.to.toISOString().split('T')[0];
-          let metQuery = supabase.from('daily_metrics').select('*')
+          let metQuery = supabase.from('daily_metrics').select(`
+            *,
+            ads (
+              id,
+              nome,
+              thumbnail_url,
+              link_anuncio
+            )
+          `)
             .gte('data', fromStr).lte('data', toStr).limit(5000);
           if (lancamentoId) {
             metQuery = metQuery.eq('lancamento_id', lancamentoId);

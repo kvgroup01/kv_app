@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
+import { queryClient as globalQueryClient } from '../lib/queryClient';
 
 export function useLancamentos(clienteId?: string) {
   return useQuery({
@@ -37,12 +38,19 @@ export function useLancamentoPorSlug(clienteSlug: string, lancamentoSlug: string
   return useQuery({
     queryKey: ['lancamento-slug', clienteSlug, lancamentoSlug],
     queryFn: async () => {
-      const { data: cliente, error: clienteError } = await supabase
-        .from('clientes')
-        .select('id')
-        .eq('slug', clienteSlug)
-        .single();
-      if (clienteError) throw clienteError;
+      const cliente = await globalQueryClient.fetchQuery({
+        queryKey: ['cliente-por-slug', clienteSlug],
+        queryFn: async () => {
+          const { data, error } = await supabase
+            .from('clientes')
+            .select('*')
+            .eq('slug', clienteSlug)
+            .single();
+          if (error) throw error;
+          return data;
+        },
+        staleTime: 1000 * 60 * 10
+      });
 
       const { data, error } = await supabase
         .from('lancamentos')
@@ -51,6 +59,7 @@ export function useLancamentoPorSlug(clienteSlug: string, lancamentoSlug: string
         .eq('slug', lancamentoSlug)
         .single();
       if (error) throw error;
+      globalQueryClient.setQueryData(['lancamento', data.id], data);
       return { ...data, $id: data.id, $createdAt: data.criado_em };
     },
     enabled: !!clienteSlug && !!lancamentoSlug,
