@@ -52,8 +52,12 @@ export function useDashboard(
   dateRange: { from: Date; to: Date },
   lancamentoId?: string,
 ) {
+  // Ensure the query key is stable even if new Date() instances are passed
+  const fromStr = dateRange.from.toISOString().split('T')[0];
+  const toStr = dateRange.to.toISOString().split('T')[0];
+
   return useQuery<DashboardResult, Error>({
-    queryKey: ["dashboard", slug, dateRange.from, dateRange.to, lancamentoId],
+    queryKey: ["dashboard", slug, fromStr, toStr, lancamentoId],
     queryFn: async () => {
       // 1. Busca cliente no AppWrite pelo slug usando cache
       const clienteRaw = await queryClient.fetchQuery({
@@ -127,46 +131,37 @@ export function useDashboard(
         const fonte = cliente.fonte_dados || "appwrite";
 
         if (fonte === "appwrite") {
-          const { data: campData } = await supabase
-            .from('campaigns').select(`
-              *,
-              adsets (
-                *,
-                ads (*)
-              )
-            `).eq('cliente_id', cliente.$id).limit(500);
-
-          campanhasRaw = [];
-          conjuntosRaw = [];
-          criativosRaw = [];
+          const { data: campData, error: campErr } = await supabase
+            .from('campaigns').select('id, nome, status, objective, lancamento_id')
+            .eq('cliente_id', cliente.$id).limit(500);
+            
+          const campIds = (campData || []).map((c: any) => c.id);
           
-          if (campData) {
-            campData.forEach((camp: any) => {
-              campanhasRaw.push({ ...camp, $id: camp.id });
-              if (camp.adsets) {
-                camp.adsets.forEach((conj: any) => {
-                  conjuntosRaw.push({ ...conj, $id: conj.id, campanha_id: conj.campaign_id });
-                  if (conj.ads) {
-                    conj.ads.forEach((ad: any) => {
-                      criativosRaw.push({ ...ad, $id: ad.id, conjunto_id: ad.adset_id });
-                    });
-                  }
-                });
-              }
-            });
+          let conjData: any[] = [];
+          if (campIds.length > 0) {
+            const { data } = await supabase
+              .from('adsets').select('id, nome, campaign_id, lancamento_id')
+              .in('campaign_id', campIds).limit(500);
+            conjData = data || [];
           }
+          
+          const conjIds = conjData.map((c: any) => c.id);
+          
+          let adsData: any[] = [];
+          if (conjIds.length > 0) {
+            const { data } = await supabase
+              .from('ads').select('id, nome, adset_id, thumbnail_url, link_anuncio, meta_ad_id, lancamento_id')
+              .in('adset_id', conjIds).limit(1000);
+            adsData = data || [];
+          }
+
+          campanhasRaw = (campData || []).map((camp: any) => ({ ...camp, $id: camp.id }));
+          conjuntosRaw = conjData.map((conj: any) => ({ ...conj, $id: conj.id, campanha_id: conj.campaign_id }));
+          criativosRaw = adsData.map((ad: any) => ({ ...ad, $id: ad.id, conjunto_id: ad.adset_id }));
 
           const fromStr = dateRange.from.toISOString().split('T')[0];
           const toStr = dateRange.to.toISOString().split('T')[0];
-          let metQuery = supabase.from('daily_metrics').select(`
-            *,
-            ads (
-              id,
-              nome,
-              thumbnail_url,
-              link_anuncio
-            )
-          `)
+          let metQuery = supabase.from('daily_metrics').select('id, criativo_id, data, investimento, impressoes, alcance, cliques, conversas, leads_qualificados, leads_desqualificados, ctr, cpm, frequencia, cliques_link, cpc_link, ctr_link, resultados_meta, lancamento_id')
             .gte('data', fromStr).lte('data', toStr).limit(5000);
           if (lancamentoId) {
             metQuery = metQuery.eq('lancamento_id', lancamentoId);

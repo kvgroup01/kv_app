@@ -6,12 +6,12 @@ export function useSurvey(
   lancamentoId: string | undefined,
   dateRange: { from: Date; to: Date }
 ) {
+  const fromStr = dateRange.from.toISOString().split('T')[0];
+  const toStr = dateRange.to.toISOString().split('T')[0];
+
   return useQuery<SurveyEntry[]>({
-    queryKey: ['survey', lancamentoId, dateRange.from, dateRange.to],
+    queryKey: ['survey', lancamentoId, fromStr, toStr],
     queryFn: async () => {
-      const fromStr = dateRange.from.toISOString().split('T')[0];
-      const toStr = dateRange.to.toISOString().split('T')[0];
-      
       const { data, error } = await supabase
         .from('survey_entries')
         .select('*')
