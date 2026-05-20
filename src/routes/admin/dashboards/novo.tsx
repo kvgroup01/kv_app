@@ -542,17 +542,19 @@ export default function NovoDashboard() {
                             <tr>
                               <th className="px-4 py-2 font-medium">Nome da Campanha</th>
                               <th className="px-4 py-2 font-medium">Status</th>
-                              <th className="px-4 py-2 font-medium text-right">Gasto</th>
+                              <th className="px-4 py-2 font-medium text-right">Objetivo</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y">
                              {campanhasEncontradas.map((camp, i) => (
                                <tr key={i} className="hover:bg-muted/50">
-                                 <td className="px-4 py-2 font-medium">{camp.nome}</td>
+                                 <td className="px-4 py-2 font-medium">{camp.name}</td>
                                  <td className="px-4 py-2">
-                                    <Badge variant="outline" className="text-[10px]">{camp.status}</Badge>
+                                    <Badge variant="outline" className="text-[10px]">
+                                      {camp.status === 'ACTIVE' ? 'Ativa' : camp.status === 'PAUSED' ? 'Pausada' : camp.status}
+                                    </Badge>
                                  </td>
-                                 <td className="px-4 py-2 text-right">R$ {camp.gasto}</td>
+                                 <td className="px-4 py-2 text-right">{camp.objective}</td>
                                </tr>
                              ))}
                           </tbody>
