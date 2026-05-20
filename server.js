@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
+const { WebSocket } = require('ws');
+global.WebSocket = WebSocket;
 
 const app = express();
 app.use(cors());
