@@ -229,7 +229,9 @@ export default function IntegracoesPage() {
               <div className="flex items-center gap-3 flex-nowrap">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Meta_Platforms_Inc._logo_%28cropped%29.svg" alt="Meta" style={{ height: 24, width: 'auto' }} className="shrink-0" />
                 <span className="font-semibold text-lg text-(--text-primary) whitespace-nowrap">Meta Ads</span>
-                {connectedAccounts.length > 0 ? (
+                {loadingConnected ? (
+                   <Badge variant="secondary" className="ml-auto shrink-0 bg-transparent text-transparent shadow-none border-none animate-pulse rounded-full w-20 h-6"></Badge>
+                ) : connectedAccounts.length > 0 ? (
                   <Badge variant="default" className="ml-auto shrink-0 bg-green-500/10 text-green-500 hover:bg-green-500/20 shadow-none border-none rounded-full text-xs px-3 py-1 font-medium">Conectado</Badge>
                 ) : (
                   <Badge variant="secondary" className="ml-auto shrink-0 bg-muted text-muted-foreground shadow-none rounded-full text-xs px-3 py-1 font-medium">Não conectado</Badge>
@@ -257,7 +259,22 @@ export default function IntegracoesPage() {
                 <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" /> Sincronização sob demanda</li>
               </ul>
 
-              {connectedAccounts.length > 0 ? (
+              {loadingConnected ? (
+                <div className="space-y-3 pt-2">
+                  {[1,2].map(i => (
+                    <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-(--card-border) animate-pulse">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-(--card-hover) rounded-full" />
+                        <div className="space-y-2">
+                          <div className="h-3 w-32 bg-(--card-hover) rounded" />
+                          <div className="h-3 w-20 bg-(--card-hover) rounded" />
+                        </div>
+                      </div>
+                      <div className="h-7 w-20 bg-(--card-hover) rounded" />
+                    </div>
+                  ))}
+                </div>
+              ) : connectedAccounts.length > 0 ? (
                 <div className="space-y-3 pt-2">
                   {connectedAccounts.map((acc) => (
                     <div key={acc.$id} className="flex items-center justify-between p-3 bg-background/50 border border-(--card-border) rounded-lg shadow-sm transition-colors hover:border-(--text-tertiary)">
