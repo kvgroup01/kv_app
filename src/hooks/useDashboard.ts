@@ -55,7 +55,7 @@ export function useDashboardEstrutura(
   lancamentoId: string | undefined,
 ) {
   return useQuery({
-    queryKey: ["dashboard-estrutura", clienteId, lancamentoId],
+    queryKey: ["estrutura", clienteId, lancamentoId],
     queryFn: async () => {
       if (!clienteId) return null;
 
@@ -121,16 +121,13 @@ export function useDashboardEstrutura(
         );
       }
 
-      // Filtrar conjuntos e campanhas apenas com criativos que têm métricas neste lançamento (we do it lazily or keep all here and filter later if needed. The previous code did it here but depending on metrics).
-      // Since it's static, we keep all and filter in computation later if needed.
       return { campanhas, conjuntos, criativos };
     },
     enabled: !!clienteId,
-    staleTime: 1000 * 60 * 30, // 30 min
-    gcTime: 1000 * 60 * 60 * 24, // 24 horas
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 60 * 24, // 24 hours
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
-    placeholderData: (prev) => prev,
   });
 }
 
@@ -145,10 +142,10 @@ export function useDashboardMetricas(
   dateRangeStr: { from?: Date; to?: Date } | undefined,
 ) {
   return useQuery({
-    queryKey: ["dashboard-metricas", clienteId, lancamentoId, fromStr, toStr],
+    queryKey: ["metricas", clienteId, lancamentoId, fromStr, toStr],
     queryFn: async () => {
       if (
-        !clienteId ||
+        (!lancamentoId && !clienteId) ||
         !fromStr ||
         !toStr ||
         !dateRangeStr?.from ||
@@ -172,7 +169,7 @@ export function useDashboardMetricas(
 
         if (lancamentoId) {
           metQuery = metQuery.eq("lancamento_id", lancamentoId);
-        } else {
+        } else if (clienteId) {
           metQuery = metQuery.eq("cliente_id", clienteId);
         }
 
@@ -256,12 +253,12 @@ export function useDashboardMetricas(
 
       return { metricasDiarias, leadsGrupos };
     },
-    enabled: !!clienteId && !!fromStr && !!toStr,
-    staleTime: 1000 * 60 * 5,
-    gcTime: 1000 * 60 * 30,
+    enabled: !!(lancamentoId || clienteId) && !!fromStr && !!toStr,
+    staleTime: 1000 * 60 * 5, // 5 min
+    gcTime: 1000 * 60 * 30, // 30 min
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
-    placeholderData: (prev) => prev,
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -309,39 +306,15 @@ export function useDashboard(
   });
 
   // 3. Estrutura Estática
-  const rawClienteId = cliente?.$id || (cliente as any)?.id;
-  const clienteIdRef = useRef<string | undefined>(undefined);
-
-  useEffect(() => {
-    if (rawClienteId && !clienteIdRef.current) {
-      clienteIdRef.current = rawClienteId;
-    }
-  }, [rawClienteId]);
-
-  const clienteIdEstavel = clienteIdRef.current || rawClienteId;
-
-  const clienteFonte = useMemo(
-    () => cliente?.fonte_dados,
-    [cliente?.fonte_dados],
-  );
-  const clienteSheet = useMemo(
-    () => cliente?.spreadsheet_id,
-    [cliente?.spreadsheet_id],
-  );
-  const clienteTipo = useMemo(
-    () => cliente?.tipo_campanha,
-    [cliente?.tipo_campanha],
-  );
-
   const {
     data: estrutura,
     isLoading: isLoadingEstrutura,
     isError: isErrEst,
     error: errEst,
   } = useDashboardEstrutura(
-    clienteIdEstavel,
-    clienteFonte,
-    clienteSheet,
+    cliente?.$id,
+    cliente?.fonte_dados,
+    cliente?.spreadsheet_id,
     lancamentoId,
   );
 
@@ -353,10 +326,10 @@ export function useDashboard(
     isError: isErrMet,
     error: errMet,
   } = useDashboardMetricas(
-    clienteIdEstavel,
-    clienteFonte,
-    clienteTipo,
-    clienteSheet,
+    cliente?.$id,
+    cliente?.fonte_dados,
+    cliente?.tipo_campanha,
+    cliente?.spreadsheet_id,
     lancamentoId,
     fromStr,
     toStr,
