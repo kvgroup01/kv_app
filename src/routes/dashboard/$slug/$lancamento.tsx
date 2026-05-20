@@ -297,6 +297,8 @@ export default function PublicDashboardLancamento() {
   const publicos = dashboardData?.rankingPublicos ?? [];
   const leadsGrupos = dashboardData?.leadsGrupos ?? [];
   const cliente = dashboardData?.cliente;
+  const clienteNome = cliente?.nome ?? dataLancamento?.nome ?? '';
+  const clienteLogo = cliente?.logo_url ?? '';
 
   const todasDatas = Array.from(
     new Set([
@@ -461,9 +463,9 @@ export default function PublicDashboardLancamento() {
       <header className="w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 lg:px-8 py-3 lg:py-0 lg:h-16 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-center gap-3 lg:gap-4">
-            {cliente.logo_url && (
+            {clienteLogo && (
               <img
-                src={cliente.logo_url}
+                src={clienteLogo}
                 alt="Logo"
                 className="h-6 w-6 lg:h-8 lg:w-8 rounded-full object-cover"
               />
@@ -481,7 +483,7 @@ export default function PublicDashboardLancamento() {
                 </Badge>
               </div>
               <p className="text-[10px] lg:text-xs text-muted-foreground mt-0.5">
-                {cliente.nome} • Atualizado manualmente
+                {clienteNome} • Atualizado manualmente
               </p>
             </div>
           </div>
