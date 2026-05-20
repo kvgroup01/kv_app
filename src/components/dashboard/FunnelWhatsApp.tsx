@@ -120,8 +120,9 @@ export function FunnelWhatsApp({
           />
         </div>
       </CardHeader>
-      <CardContent className="flex-1 min-h-[300px]">
-        <ResponsiveContainer width="100%" height="100%" className="outline-none focus:outline-none">
+      <CardContent className="flex-1">
+        <div className="w-full" style={{ minHeight: 300 }}>
+          <ResponsiveContainer width="100%" height="100%" className="outline-none focus:outline-none">
           <BarChart
             className="outline-none focus:outline-none"
             data={data}
@@ -161,6 +162,7 @@ export function FunnelWhatsApp({
             </Bar>
           </BarChart>
         </ResponsiveContainer>
+        </div>
       </CardContent>
     </Card>
   );

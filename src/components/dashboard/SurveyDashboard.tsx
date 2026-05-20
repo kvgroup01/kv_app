@@ -117,7 +117,8 @@ export function SurveyDashboard({ entries, isLoading }: SurveyDashboardProps) {
         <Card>
           <CardHeader><CardTitle className="text-sm">Gênero</CardTitle></CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={220}>
+            <div className="w-full" style={{ minHeight: 220 }}>
+            <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={dadosGenero} cx="50%" cy="50%" outerRadius={80}
                   dataKey="value" nameKey="name" label={({ name, percent }) =>
@@ -129,13 +130,15 @@ export function SurveyDashboard({ entries, isLoading }: SurveyDashboardProps) {
                 <Tooltip content={<DarkTooltip />} />
               </PieChart>
             </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader><CardTitle className="text-sm">Faixa Etária</CardTitle></CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={220}>
+            <div className="w-full" style={{ minHeight: 220 }}>
+            <ResponsiveContainer width="100%" height="100%">
               <BarChart data={dadosIdade} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted/50" />
                 <XAxis dataKey="name" className="text-xs" tickLine={false} axisLine={false} />
@@ -144,6 +147,7 @@ export function SurveyDashboard({ entries, isLoading }: SurveyDashboardProps) {
                 <Bar dataKey="value" name="Respostas" fill="#3b82f6" radius={[4,4,0,0]} />
               </BarChart>
             </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -153,7 +157,8 @@ export function SurveyDashboard({ entries, isLoading }: SurveyDashboardProps) {
         <Card>
           <CardHeader><CardTitle className="text-sm">Escolaridade</CardTitle></CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={220}>
+            <div className="w-full" style={{ minHeight: 220 }}>
+            <ResponsiveContainer width="100%" height="100%">
               <BarChart data={dadosEscolaridade} layout="vertical"
                 margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} className="stroke-muted/50" />
@@ -164,13 +169,15 @@ export function SurveyDashboard({ entries, isLoading }: SurveyDashboardProps) {
                 <Bar dataKey="value" name="Respostas" fill="#22c55e" radius={[0,4,4,0]} />
               </BarChart>
             </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader><CardTitle className="text-sm">Renda Atual</CardTitle></CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={220}>
+            <div className="w-full" style={{ minHeight: 220 }}>
+            <ResponsiveContainer width="100%" height="100%">
               <BarChart data={dadosRenda} layout="vertical"
                 margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} className="stroke-muted/50" />
@@ -181,6 +188,7 @@ export function SurveyDashboard({ entries, isLoading }: SurveyDashboardProps) {
                 <Bar dataKey="value" name="Respostas" fill="#eab308" radius={[0,4,4,0]} />
               </BarChart>
             </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -233,7 +241,8 @@ export function SurveyDashboard({ entries, isLoading }: SurveyDashboardProps) {
         <Card>
           <CardHeader><CardTitle className="text-sm">Mora com quem?</CardTitle></CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={220}>
+            <div className="w-full" style={{ minHeight: 220 }}>
+            <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={dadosMoraCom} cx="50%" cy="50%" outerRadius={80}
                   dataKey="value" nameKey="name">
@@ -247,6 +256,7 @@ export function SurveyDashboard({ entries, isLoading }: SurveyDashboardProps) {
                 )} />
               </PieChart>
             </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
 
