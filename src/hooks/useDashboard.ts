@@ -48,21 +48,17 @@ interface DashboardResult {
 }
 
 export function useDashboardEstrutura(
-  cliente: Cliente | undefined,
+  clienteId: string | undefined,
+  clienteFonteDados: string | undefined,
+  clienteSpreadsheetId: string | undefined,
   lancamentoId: string | undefined,
 ) {
   return useQuery({
-    queryKey: ["dashboard-estrutura", cliente?.$id, lancamentoId],
+    queryKey: ["dashboard-estrutura", clienteId, lancamentoId],
     queryFn: async () => {
-      console.log(
-        "[estrutura] cliente:",
-        cliente?.$id,
-        "fonte:",
-        cliente?.fonte_dados,
-      );
-      if (!cliente || !(cliente.$id || (cliente as any).id)) return null;
+      if (!clienteId) return null;
 
-      const fonte = cliente.fonte_dados || "appwrite";
+      const fonte = clienteFonteDados || "appwrite";
 
       let campanhas: any[] = [];
       let conjuntos: any[] = [];
@@ -72,7 +68,7 @@ export function useDashboardEstrutura(
         const { data: campData } = await supabase
           .from("campaigns")
           .select("id, nome, status, objective, lancamento_id")
-          .eq("cliente_id", cliente.$id)
+          .eq("cliente_id", clienteId)
           .limit(500);
 
         campanhas = (campData || []).map((c: any) => ({ ...c, $id: c.id }));
@@ -108,15 +104,15 @@ export function useDashboardEstrutura(
           }));
         }
       } else if (fonte === "sheets") {
-        if (!cliente.spreadsheet_id) {
+        if (!clienteSpreadsheetId) {
           throw new Error(
             "Fonte de dados configurada como Google Sheets, mas o ID da planilha não foi informado no cadastro.",
           );
         }
         [campanhas, conjuntos, criativos] = await Promise.all([
-          fetchCampanhas(cliente.spreadsheet_id),
-          fetchConjuntos(cliente.spreadsheet_id),
-          fetchCriativos(cliente.spreadsheet_id),
+          fetchCampanhas(clienteSpreadsheetId),
+          fetchConjuntos(clienteSpreadsheetId),
+          fetchCriativos(clienteSpreadsheetId),
         ]);
       } else if (fonte === "meta_api") {
         throw new Error(
@@ -128,7 +124,7 @@ export function useDashboardEstrutura(
       // Since it's static, we keep all and filter in computation later if needed.
       return { campanhas, conjuntos, criativos };
     },
-    enabled: !!cliente && (!!cliente.$id || !!(cliente as any).id),
+    enabled: !!clienteId,
     staleTime: 1000 * 60 * 30, // 30 min
     gcTime: 1000 * 60 * 60,
     refetchOnWindowFocus: false,
@@ -137,24 +133,20 @@ export function useDashboardEstrutura(
 }
 
 export function useDashboardMetricas(
-  cliente: Cliente | undefined,
+  clienteId: string | undefined,
+  clienteFonteDados: string | undefined,
+  clienteTipoCampanha: string | undefined,
+  clienteSpreadsheetId: string | undefined,
   lancamentoId: string | undefined,
   fromStr: string,
   toStr: string,
   dateRangeStr: { from?: Date; to?: Date } | undefined,
 ) {
   return useQuery({
-    queryKey: [
-      "dashboard-metricas",
-      cliente?.$id,
-      lancamentoId,
-      fromStr,
-      toStr,
-    ],
+    queryKey: ["dashboard-metricas", clienteId, lancamentoId, fromStr, toStr],
     queryFn: async () => {
       if (
-        !cliente ||
-        !(cliente.$id || (cliente as any).id) ||
+        !clienteId ||
         !fromStr ||
         !toStr ||
         !dateRangeStr?.from ||
@@ -162,7 +154,7 @@ export function useDashboardMetricas(
       )
         return null;
 
-      const fonte = cliente.fonte_dados || "appwrite";
+      const fonte = clienteFonteDados || "appwrite";
       let metricasDiarias: MetricaDiaria[] = [];
       let leadsGrupos: LeadGrupo[] = [];
 
@@ -179,7 +171,7 @@ export function useDashboardMetricas(
         if (lancamentoId) {
           metQuery = metQuery.eq("lancamento_id", lancamentoId);
         } else {
-          metQuery = metQuery.eq("cliente_id", cliente.$id);
+          metQuery = metQuery.eq("cliente_id", clienteId);
         }
 
         const { data: metData } = await metQuery;
@@ -189,8 +181,8 @@ export function useDashboardMetricas(
         })) as unknown as MetricaDiaria[];
 
         if (
-          cliente.tipo_campanha === "leads" ||
-          cliente.tipo_campanha === "ambos"
+          clienteTipoCampanha === "leads" ||
+          clienteTipoCampanha === "ambos"
         ) {
           let importedLeads: any[] = [];
           if (lancamentoId) {
@@ -237,23 +229,23 @@ export function useDashboardMetricas(
           }
         }
       } else if (fonte === "sheets") {
-        if (!cliente.spreadsheet_id) {
+        if (!clienteSpreadsheetId) {
           throw new Error(
             "Fonte de dados configurada como Google Sheets, mas o ID da planilha não foi informado no cadastro.",
           );
         }
         metricasDiarias = await fetchMetricasDiarias(
-          cliente.spreadsheet_id,
+          clienteSpreadsheetId,
           dateRangeStr.from,
           dateRangeStr.to,
         );
 
         if (
-          cliente.tipo_campanha === "leads" ||
-          cliente.tipo_campanha === "ambos"
+          clienteTipoCampanha === "leads" ||
+          clienteTipoCampanha === "ambos"
         ) {
           leadsGrupos = await fetchLeadsGrupos(
-            cliente.spreadsheet_id,
+            clienteSpreadsheetId,
             dateRangeStr.from,
             dateRangeStr.to,
           );
@@ -262,11 +254,7 @@ export function useDashboardMetricas(
 
       return { metricasDiarias, leadsGrupos };
     },
-    enabled:
-      !!cliente &&
-      (!!cliente.$id || !!(cliente as any).id) &&
-      !!fromStr &&
-      !!toStr,
+    enabled: !!clienteId && !!fromStr && !!toStr,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
@@ -323,7 +311,12 @@ export function useDashboard(
     data: estrutura,
     isError: isErrEst,
     error: errEst,
-  } = useDashboardEstrutura(cliente, lancamentoId);
+  } = useDashboardEstrutura(
+    cliente?.$id || (cliente as any)?.id,
+    cliente?.fonte_dados,
+    cliente?.spreadsheet_id,
+    lancamentoId,
+  );
 
   // 4. Métricas Dinâmicas
   const {
@@ -331,19 +324,15 @@ export function useDashboard(
     isFetching: isFetchingMetricas,
     isError: isErrMet,
     error: errMet,
-  } = useDashboardMetricas(cliente, lancamentoId, fromStr, toStr, dateRange);
-
-  console.log(
-    "[dashboard] cliente:",
-    !!cliente,
-    "estrutura:",
-    !!estrutura,
-    "metricas:",
-    !!metricasData,
-    "errEst:",
-    isErrEst,
-    "errMet:",
-    isErrMet,
+  } = useDashboardMetricas(
+    cliente?.$id || (cliente as any)?.id,
+    cliente?.fonte_dados,
+    cliente?.tipo_campanha,
+    cliente?.spreadsheet_id,
+    lancamentoId,
+    fromStr,
+    toStr,
+    dateRange,
   );
 
   return useQuery<DashboardResult, Error>({
@@ -602,7 +591,6 @@ export function useDashboard(
     enabled: (() => {
       const isReady = !!cliente && !!estrutura && !!metricasData;
       const hasError = isErrEst || isErrMet;
-      console.log("[computed] enabled:", isReady || hasError);
       return isReady || hasError;
     })(),
     staleTime: 1000 * 60 * 5,
