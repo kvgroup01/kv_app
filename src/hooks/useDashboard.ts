@@ -127,9 +127,10 @@ export function useDashboardEstrutura(
     },
     enabled: !!clienteId,
     staleTime: 1000 * 60 * 30, // 30 min
-    gcTime: 1000 * 60 * 60,
+    gcTime: 1000 * 60 * 60 * 24, // 24 horas
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
+    placeholderData: (prev) => prev,
   });
 }
 
@@ -163,7 +164,7 @@ export function useDashboardMetricas(
         let metQuery = supabase
           .from("daily_metrics")
           .select(
-            "id, criativo_id, data, investimento, impressoes, alcance, cliques, conversas, leads_qualificados, leads_desqualificados, lancamento_id",
+            "id, criativo_id, data, investimento, impressoes, alcance, cliques, conversas, leads_qualificados, leads_desqualificados, ctr, cpm, frequencia, cliques_link, cpc_link, ctr_link, resultados_meta, lancamento_id",
           )
           .gte("data", fromStr)
           .lte("data", toStr)
