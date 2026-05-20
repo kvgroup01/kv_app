@@ -45,7 +45,17 @@ import Privacidade from './routes/privacidade';
 import Termos from './routes/termos';
 import DeletarDados from './routes/deletar-dados';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 10,
+      gcTime: 1000 * 60 * 30,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      retry: 1,
+    },
+  },
+});
 
 export default function App() {
   return (

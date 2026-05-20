@@ -466,8 +466,11 @@ export function useDashboard(
         throw error;
       }
     },
-    staleTime: 1000 * 60 * 2, // 2 minutos de cache
-    placeholderData: keepPreviousData,
+    staleTime: 1000 * 60 * 10, // 10 minutos de cache
+    gcTime: 1000 * 60 * 30, // manter no cache 30 minutos
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    placeholderData: (previousData) => previousData,
     enabled: !!slug && !!dateRange.from && !!dateRange.to,
   });
 }

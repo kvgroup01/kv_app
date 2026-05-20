@@ -117,7 +117,9 @@ export function MetricCards({ metricas, tipo, isLoading }: MetricCardsProps) {
               <Icon className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent className="p-2 pt-0 sm:p-6 sm:pt-0">
-              <div className="text-lg sm:text-2xl font-bold">{card.value}</div>
+              <div className="text-lg sm:text-2xl font-bold transition-all duration-300">
+                {card.value}
+              </div>
             </CardContent>
           </Card>
         );
