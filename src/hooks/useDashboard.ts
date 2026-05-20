@@ -163,7 +163,7 @@ export function useDashboardMetricas(
         let metQuery = supabase
           .from("daily_metrics")
           .select(
-            "id, criativo_id, data, investimento, impressoes, alcance, cliques, conversas, leads_qualificados, leads_desqualificados, ctr, cpm, frequencia, cliques_link, cpc_link, ctr_link, resultados_meta, lancamento_id",
+            "id, criativo_id, data, investimento, impressoes, alcance, cliques, conversas, leads_qualificados, leads_desqualificados, lancamento_id",
           )
           .gte("data", fromStr)
           .lte("data", toStr)
@@ -308,15 +308,32 @@ export function useDashboard(
   });
 
   // 3. Estrutura Estática
+  const clienteId = useMemo(
+    () => cliente?.$id || (cliente as any)?.id,
+    [cliente?.$id, (cliente as any)?.id],
+  );
+  const clienteFonte = useMemo(
+    () => cliente?.fonte_dados,
+    [cliente?.fonte_dados],
+  );
+  const clienteSheet = useMemo(
+    () => cliente?.spreadsheet_id,
+    [cliente?.spreadsheet_id],
+  );
+  const clienteTipo = useMemo(
+    () => cliente?.tipo_campanha,
+    [cliente?.tipo_campanha],
+  );
+
   const {
     data: estrutura,
     isLoading: isLoadingEstrutura,
     isError: isErrEst,
     error: errEst,
   } = useDashboardEstrutura(
-    cliente?.$id || (cliente as any)?.id,
-    cliente?.fonte_dados,
-    cliente?.spreadsheet_id,
+    clienteId,
+    clienteFonte,
+    clienteSheet,
     lancamentoId,
   );
 
@@ -328,10 +345,10 @@ export function useDashboard(
     isError: isErrMet,
     error: errMet,
   } = useDashboardMetricas(
-    cliente?.$id || (cliente as any)?.id,
-    cliente?.fonte_dados,
-    cliente?.tipo_campanha,
-    cliente?.spreadsheet_id,
+    clienteId,
+    clienteFonte,
+    clienteTipo,
+    clienteSheet,
     lancamentoId,
     fromStr,
     toStr,

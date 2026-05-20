@@ -128,13 +128,18 @@ export default function PublicDashboardLancamento() {
     });
   }, [dataLancamento, dateRange]);
 
+  const lancamentoIdEstavel = React.useMemo(
+    () => dataLancamento?.$id,
+    [dataLancamento?.$id],
+  );
+
   const {
     data: dashboardData,
     isLoading: isLoadingDashboard,
     isFetching,
     isError: isErrorDashboard,
     error: errorDashboard,
-  } = useDashboard(slug!, dateRange, dataLancamento?.$id);
+  } = useDashboard(slug!, dateRange, lancamentoIdEstavel);
 
   const { data: surveyEntries = [], isLoading: isLoadingSurvey } = useSurvey(
     dataLancamento?.$id,
@@ -297,8 +302,8 @@ export default function PublicDashboardLancamento() {
   const publicos = dashboardData?.rankingPublicos ?? [];
   const leadsGrupos = dashboardData?.leadsGrupos ?? [];
   const cliente = dashboardData?.cliente;
-  const clienteNome = cliente?.nome ?? dataLancamento?.nome ?? '';
-  const clienteLogo = cliente?.logo_url ?? '';
+  const clienteNome = cliente?.nome ?? dataLancamento?.nome ?? "";
+  const clienteLogo = cliente?.logo_url ?? "";
 
   const todasDatas = Array.from(
     new Set([
