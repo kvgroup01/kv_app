@@ -55,9 +55,9 @@ export function useDashboardEstrutura(
   lancamentoId: string | undefined,
 ) {
   return useQuery({
-    queryKey: ["estrutura", clienteId, lancamentoId],
+    queryKey: ["dashboard-estrutura-v2", clienteId, lancamentoId],
     queryFn: async () => {
-      if (!clienteId) return null;
+      if (!clienteId) throw new Error("clienteId required");
 
       const fonte = clienteFonteDados || "appwrite";
 
