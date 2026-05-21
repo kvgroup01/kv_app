@@ -131,12 +131,23 @@ export default function PublicDashboardLancamento() {
     });
   }, [dataLancamento, dateRange]);
 
-  const lancamentoIdEstavel = React.useMemo(
-    () => dataLancamento?.$id,
-    [dataLancamento?.$id],
-  );
+  const clienteIdRef = React.useRef<string | undefined>(undefined);
+  React.useEffect(() => {
+    if (dataLancamento?.cliente_id && !clienteIdRef.current) {
+      clienteIdRef.current = dataLancamento.cliente_id;
+    }
+  }, [dataLancamento?.cliente_id]);
 
-  const clienteIdEstavel = dataLancamento?.cliente_id;
+  const clienteIdEstavel = clienteIdRef.current ?? dataLancamento?.cliente_id;
+
+  const lancamentoIdRef = React.useRef<string | undefined>(undefined);
+  React.useEffect(() => {
+    if (dataLancamento?.$id && !lancamentoIdRef.current) {
+      lancamentoIdRef.current = dataLancamento.$id;
+    }
+  }, [dataLancamento?.$id]);
+
+  const lancamentoIdEstavel = lancamentoIdRef.current ?? dataLancamento?.$id;
 
   const { data: estrutura, isLoading: isLoadingEstrutura } =
     useDashboardEstrutura(
