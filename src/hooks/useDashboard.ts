@@ -289,13 +289,6 @@ export function useDashboard(
     enabled: !!slug,
   });
 
-  console.log("[DEBUG cliente]", {
-    cliente,
-    id: (cliente as any)?.id,
-    $id: cliente?.$id,
-    fonte: cliente?.fonte_dados,
-  });
-
   // 2. Busca lançamento caso haja ID
   const { data: lancamento, isLoading: isLoadingLancamento } = useQuery({
     queryKey: ["lancamento", lancamentoId],
@@ -314,18 +307,13 @@ export function useDashboard(
   });
 
   // 3. Estrutura Estática
-  console.log("[DEBUG estrutura enabled]", {
-    clienteId: cliente?.$id,
-    enabled: !!cliente?.$id,
-  });
-
   const {
     data: estrutura,
     isLoading: isLoadingEstrutura,
     isError: isErrEst,
     error: errEst,
   } = useDashboardEstrutura(
-    cliente?.$id,
+    cliente?.id || cliente?.$id,
     cliente?.fonte_dados,
     cliente?.spreadsheet_id,
     lancamentoId,
@@ -339,7 +327,7 @@ export function useDashboard(
     isError: isErrMet,
     error: errMet,
   } = useDashboardMetricas(
-    cliente?.$id,
+    cliente?.id || cliente?.$id,
     cliente?.fonte_dados,
     cliente?.tipo_campanha,
     cliente?.spreadsheet_id,
