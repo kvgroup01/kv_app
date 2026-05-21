@@ -14,6 +14,7 @@ export function useDashboardAPI(
   return useQuery({
     queryKey: ["dashboard-api", lancamentoId, fromStr, toStr],
     queryFn: async () => {
+      console.log("[queryFn executando]", fromStr, toStr);
       if (!lancamentoId || !fromStr || !toStr) return null;
       const res = await fetch(
         `https://sync.kvgroupbr.com.br/dashboard?lancamentoId=${lancamentoId}&from=${fromStr}&to=${toStr}`,
@@ -59,7 +60,8 @@ export function useDashboardAPI(
     },
     enabled: !!lancamentoId && !!fromStr && !!toStr,
     staleTime: 0,
-    gcTime: 0,
+    gcTime: 1000 * 60 * 10,
     refetchOnWindowFocus: false,
+    placeholderData: (prev) => prev,
   });
 }
