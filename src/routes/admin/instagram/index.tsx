@@ -146,20 +146,39 @@ function ProfileDashboard({ profile }: { profile: any }) {
 
   // Media Stats
   const totalViews = mediaFiltrada.reduce((acc: number, post: any) => {
-    const ins = post.instagram_media_insights as any;
-    return acc + (ins?.[0]?.views || ins?.views || post.play_count || 0); // Handle both array [0] and object for safety, though user said it's object, post.instagram_media_insights is often single obj. Wait, user said it's an object `post.instagram_media_insights as any`.
+    const ins = (post as any).instagram_media_insights;
+    return acc + (ins?.views || 0);
   }, 0);
 
   const totalInteractions = mediaFiltrada.reduce((acc: number, post: any) => {
-    const ins = post.instagram_media_insights as any;
-    return (
-      acc +
-      (ins?.[0]?.total_interactions ||
-        ins?.total_interactions ||
-        post.like_count + post.comments_count ||
-        0)
-    );
+    const ins = (post as any).instagram_media_insights;
+    return acc + (ins?.total_interactions || 0);
   }, 0);
+
+  const totalPosts = mediaFiltrada.length;
+  const totalReels = mediaFiltrada.filter(
+    (p: any) => p.media_type === "VIDEO",
+  ).length;
+  const totalImagens = mediaFiltrada.filter(
+    (p: any) => p.media_type === "IMAGE",
+  ).length;
+  const totalCarrosseis = mediaFiltrada.filter(
+    (p: any) => p.media_type === "CAROUSEL_ALBUM",
+  ).length;
+
+  const mediaFiltradaSorted = React.useMemo(() => {
+    const sorted = [...mediaFiltrada];
+    if (dateRange?.from || dateRange?.to) {
+      sorted.sort((a, b) => {
+        const insA = (a as any).instagram_media_insights;
+        const insB = (b as any).instagram_media_insights;
+        return (
+          (insB?.total_interactions || 0) - (insA?.total_interactions || 0)
+        );
+      });
+    }
+    return sorted;
+  }, [mediaFiltrada, dateRange]);
 
   return (
     <div className="space-y-6 mb-12">
@@ -226,9 +245,24 @@ function ProfileDashboard({ profile }: { profile: any }) {
       </Card>
 
       {/* Metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <Card className="bg-card">
-          <CardContent className="p-5 flex flex-col justify-center">
+          <CardContent className="p-5 flex flex-col justify-center h-full">
+            <p className="text-sm font-medium text-muted-foreground mb-1">
+              Posts no Período
+            </p>
+            <p className="text-2xl font-bold">{totalPosts}</p>
+            <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground">
+              <span>🎬 {totalReels} Reels</span>
+              <span>🖼️ {totalImagens} Imagens</span>
+              {totalCarrosseis > 0 && (
+                <span>📑 {totalCarrosseis} Carrosséis</span>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-card">
+          <CardContent className="p-5 flex flex-col justify-center h-full">
             <p className="text-sm font-medium text-muted-foreground mb-1">
               Alcance Total
             </p>
@@ -236,7 +270,7 @@ function ProfileDashboard({ profile }: { profile: any }) {
           </CardContent>
         </Card>
         <Card className="bg-card">
-          <CardContent className="p-5 flex flex-col justify-center">
+          <CardContent className="p-5 flex flex-col justify-center h-full">
             <p className="text-sm font-medium text-muted-foreground mb-1">
               {seguidoresLabel}
             </p>
@@ -246,7 +280,7 @@ function ProfileDashboard({ profile }: { profile: any }) {
           </CardContent>
         </Card>
         <Card className="bg-card">
-          <CardContent className="p-5 flex flex-col justify-center">
+          <CardContent className="p-5 flex flex-col justify-center h-full">
             <p className="text-sm font-medium text-muted-foreground mb-1">
               Total Views
             </p>
@@ -254,7 +288,7 @@ function ProfileDashboard({ profile }: { profile: any }) {
           </CardContent>
         </Card>
         <Card className="bg-card">
-          <CardContent className="p-5 flex flex-col justify-center">
+          <CardContent className="p-5 flex flex-col justify-center h-full">
             <p className="text-sm font-medium text-muted-foreground mb-1">
               Interações
             </p>
@@ -356,11 +390,11 @@ function ProfileDashboard({ profile }: { profile: any }) {
       </Card>
 
       {/* Grid Posts */}
-      {mediaFiltrada && mediaFiltrada.length > 0 && (
+      {mediaFiltradaSorted && mediaFiltradaSorted.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-lg font-bold">Posts Recentes</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mediaFiltrada.map((post: any) => {
+            {mediaFiltradaSorted.map((post: any) => {
               const date = new Date(post.timestamp);
               // Fallbacks from post or insights
               const insightData = (post.instagram_media_insights as any) || {};
