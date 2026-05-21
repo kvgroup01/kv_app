@@ -59,8 +59,7 @@ export function useDashboardAPI(
     },
     enabled: !!lancamentoId && !!fromStr && !!toStr,
     staleTime: 0,
-    gcTime: 1000 * 60 * 30,
+    gcTime: 0,
     refetchOnWindowFocus: false,
-    placeholderData: (prev) => prev,
   });
 }
