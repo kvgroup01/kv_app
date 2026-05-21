@@ -57,7 +57,7 @@ export function useDashboardEstrutura(
   return useQuery({
     queryKey: ["dashboard-estrutura-v2", clienteId, lancamentoId],
     queryFn: async () => {
-      if (!clienteId) throw new Error("clienteId required");
+      if (!clienteId) return null;
 
       const fonte = clienteFonteDados || "appwrite";
 
@@ -124,6 +124,7 @@ export function useDashboardEstrutura(
       return { campanhas, conjuntos, criativos };
     },
     enabled: !!clienteId,
+    retry: false,
     staleTime: 1000 * 60 * 30, // 30 min
     gcTime: 1000 * 60 * 60 * 24, // 24 hours
     refetchOnWindowFocus: false,
@@ -337,9 +338,6 @@ export function useDashboard(
   );
 
   const dashboardComputado = useMemo((): DashboardResult | undefined => {
-    if (isErrEst) throw errEst;
-    if (isErrMet) throw errMet;
-
     if (!cliente || !estrutura || !metricasData) {
       return undefined;
     }
@@ -585,16 +583,7 @@ export function useDashboard(
       leadsSuperiores: [],
       leadsMedio: [],
     };
-  }, [
-    cliente,
-    estrutura,
-    metricasData,
-    lancamentoId,
-    isErrEst,
-    errEst,
-    isErrMet,
-    errMet,
-  ]);
+  }, [cliente, estrutura, metricasData, lancamentoId]);
 
   const isLoading =
     isLoadingCliente ||
