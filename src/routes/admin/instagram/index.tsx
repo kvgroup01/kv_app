@@ -305,7 +305,7 @@ function ProfileDashboard({ profile }: { profile: any }) {
             {mediaList.map((post: any) => {
               const date = new Date(post.timestamp);
               // Fallbacks from post or insights
-              const insightData = post.instagram_media_insights?.[0] || {};
+              const insightData = (post.instagram_media_insights as any) || {};
               const views = insightData.views || post.play_count || 0;
               const saved = insightData.saved || 0;
               const shares = insightData.shares || 0;
