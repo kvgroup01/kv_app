@@ -68,6 +68,16 @@ function DashboardContent({
   dateRange: DateRange;
   setDateRange: (dr: DateRange | undefined) => void;
 }) {
+  React.useEffect(() => {
+    console.log(
+      "[DashboardContent] MONTOU - clienteId:",
+      dataLancamento?.cliente_id,
+    );
+    return () => {
+      console.log("[DashboardContent] DESMONTOU");
+    };
+  }, []);
+
   const [gruposWA, setGruposWA] = React.useState({
     ensino_superior: 0,
     ensino_medio: 0,
