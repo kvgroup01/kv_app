@@ -13,7 +13,6 @@ import { useSurvey } from "../../../hooks/useSurvey";
 import { useTheme } from "../../../hooks/useTheme";
 
 import { DateRangePicker } from "../../../components/shared/DateRangePicker";
-import { DashboardSkeleton } from "../../../components/dashboard/DashboardSkeleton";
 import { MetricCards } from "../../../components/dashboard/MetricCards";
 import { InvestimentoChart } from "../../../components/dashboard/InvestimentoChart";
 import { CampanhasTable } from "../../../components/dashboard/CampanhasTable";
@@ -38,7 +37,53 @@ import {
 } from "../../../components/ui/tabs";
 import { type DateRange } from "react-day-picker";
 
+import { KVMark } from "../../../components/brand/KVMark";
+
 const SYNC_URL = "https://sync.kvgroupbr.com.br";
+
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-8">
+      {/* Logo KV */}
+      <div className="flex flex-col items-center gap-4">
+        <div className="relative">
+          <img
+            src="/kv-logo.png"
+            alt="KV Group"
+            className="h-16 w-auto"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+              const nextSibling = e.currentTarget
+                .nextElementSibling as HTMLElement;
+              if (nextSibling) {
+                nextSibling.style.display = "flex";
+              }
+            }}
+          />
+          {/* KVMark como fallback */}
+          <div className="h-16 w-16 hidden rounded-2xl bg-foreground flex items-center justify-center">
+            <KVMark color="hsl(var(--background))" size={32} />
+          </div>
+        </div>
+
+        <div className="text-center">
+          <h2 className="text-xl font-bold">KVision</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Carregando seu dashboard...
+          </p>
+        </div>
+      </div>
+
+      {/* Barra de progresso animada */}
+      <div className="w-48 h-1 bg-muted rounded-full overflow-hidden">
+        <div
+          className="h-full bg-primary rounded-full animate-loading"
+          style={{ width: "40%" }}
+        />
+      </div>
+    </div>
+  );
+}
 
 type SecaoId =
   | "cards_metricas"
@@ -237,11 +282,7 @@ function DashboardContent({
   };
 
   if (!dashboardData && (isLoadingDashboard || isFetching)) {
-    return (
-      <DashboardSkeleton
-        tipo={dataLancamento.tipo as unknown as "whatsapp" | "leads" | "ambos"}
-      />
-    );
+    return <LoadingScreen />;
   }
 
   if (errorDashboard && !dashboardData) {
@@ -663,7 +704,7 @@ export default function PublicDashboardLancamento() {
   } = useLancamentoPorSlug(slug!, lancamento!);
 
   if (isLoadingLancamento || !dataLancamento) {
-    return <DashboardSkeleton tipo="ambos" />;
+    return <LoadingScreen />;
   }
 
   if (isErrorLancamento) {
