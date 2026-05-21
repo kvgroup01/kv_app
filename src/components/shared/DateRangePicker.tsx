@@ -142,6 +142,12 @@ export function DateRangePicker({
               onSelect={setTempRange}
               numberOfMonths={isMobile ? 1 : 2}
               locale={ptBR}
+              modifiersClassNames={{
+                today: "font-normal",
+              }}
+              classNames={{
+                day_today: "font-normal",
+              }}
             />
             <div className="flex justify-end gap-2 pt-3 border-t mt-3">
               <Button
