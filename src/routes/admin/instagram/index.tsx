@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { format, parseISO, subDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { cn } from "../../../lib/utils";
 import { DateRangePicker } from "../../../components/shared/DateRangePicker";
 import { type DateRange } from "react-day-picker";
 import {
@@ -145,15 +146,23 @@ function ProfileDashboard({ profile }: { profile: any }) {
     : "Novos Seguidores";
 
   // Media Stats
-  const totalViews = mediaFiltrada.reduce((acc: number, post: any) => {
-    const ins = (post as any).instagram_media_insights;
-    return acc + (ins?.views || 0);
-  }, 0);
+  const totalViews = React.useMemo(
+    () =>
+      mediaFiltrada.reduce((acc: number, post: any) => {
+        const ins = (post as any).instagram_media_insights;
+        return acc + (Number(ins?.views) || 0);
+      }, 0),
+    [mediaFiltrada],
+  );
 
-  const totalInteractions = mediaFiltrada.reduce((acc: number, post: any) => {
-    const ins = (post as any).instagram_media_insights;
-    return acc + (ins?.total_interactions || 0);
-  }, 0);
+  const totalInteractions = React.useMemo(
+    () =>
+      mediaFiltrada.reduce((acc: number, post: any) => {
+        const ins = (post as any).instagram_media_insights;
+        return acc + (Number(ins?.total_interactions) || 0);
+      }, 0),
+    [mediaFiltrada],
+  );
 
   const totalPosts = mediaFiltrada.length;
   const totalReels = mediaFiltrada.filter(
@@ -179,6 +188,16 @@ function ProfileDashboard({ profile }: { profile: any }) {
     }
     return sorted;
   }, [mediaFiltrada, dateRange]);
+
+  const [tipoFiltro, setTipoFiltro] = React.useState<
+    "todos" | "VIDEO" | "IMAGE" | "CAROUSEL_ALBUM"
+  >("todos");
+
+  const mediaExibida = React.useMemo(() => {
+    return tipoFiltro === "todos"
+      ? mediaFiltradaSorted
+      : mediaFiltradaSorted.filter((p: any) => p.media_type === tipoFiltro);
+  }, [mediaFiltradaSorted, tipoFiltro]);
 
   return (
     <div className="space-y-6 mb-12">
@@ -245,22 +264,7 @@ function ProfileDashboard({ profile }: { profile: any }) {
       </Card>
 
       {/* Metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <Card className="bg-card">
-          <CardContent className="p-5 flex flex-col justify-center h-full">
-            <p className="text-sm font-medium text-muted-foreground mb-1">
-              Posts no Período
-            </p>
-            <p className="text-2xl font-bold">{totalPosts}</p>
-            <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground">
-              <span>🎬 {totalReels} Reels</span>
-              <span>🖼️ {totalImagens} Imagens</span>
-              {totalCarrosseis > 0 && (
-                <span>📑 {totalCarrosseis} Carrosséis</span>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="bg-card">
           <CardContent className="p-5 flex flex-col justify-center h-full">
             <p className="text-sm font-medium text-muted-foreground mb-1">
@@ -390,11 +394,42 @@ function ProfileDashboard({ profile }: { profile: any }) {
       </Card>
 
       {/* Grid Posts */}
-      {mediaFiltradaSorted && mediaFiltradaSorted.length > 0 && (
+      {mediaExibida && mediaExibida.length > 0 && (
         <div className="space-y-4">
-          <h3 className="text-lg font-bold">Posts Recentes</h3>
+          <div className="flex flex-col gap-4 mb-4">
+            <h3 className="text-lg font-bold">Posts Recentes</h3>
+            <div className="flex flex-wrap gap-2 border-b">
+              {[
+                { key: "todos", label: "Todos", count: totalPosts },
+                { key: "VIDEO", label: "Reels", count: totalReels },
+                { key: "IMAGE", label: "Imagens", count: totalImagens },
+                ...(totalCarrosseis > 0
+                  ? [
+                      {
+                        key: "CAROUSEL_ALBUM",
+                        label: "Carrosséis",
+                        count: totalCarrosseis,
+                      },
+                    ]
+                  : []),
+              ].map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setTipoFiltro(tab.key as any)}
+                  className={cn(
+                    "px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-[2px]",
+                    tipoFiltro === tab.key
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {tab.label} ({tab.count})
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mediaFiltradaSorted.map((post: any) => {
+            {mediaExibida.map((post: any) => {
               const date = new Date(post.timestamp);
               // Fallbacks from post or insights
               const insightData = (post.instagram_media_insights as any) || {};
