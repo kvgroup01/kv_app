@@ -55,16 +55,19 @@ type SecaoId =
   | "grupos_whatsapp"
   | "visao_financeira";
 
-export default function PublicDashboardLancamento() {
-  const { slug, lancamento } = useParams();
-
-  // Aplicar tema salvo pelo usuário
-  useTheme();
-
-  const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
-    undefined,
-  );
-
+function DashboardContent({
+  slug,
+  lancamento,
+  dataLancamento,
+  dateRange,
+  setDateRange,
+}: {
+  slug: string;
+  lancamento: string;
+  dataLancamento: any;
+  dateRange: DateRange;
+  setDateRange: (dr: DateRange | undefined) => void;
+}) {
   const [gruposWA, setGruposWA] = React.useState({
     ensino_superior: 0,
     ensino_medio: 0,
@@ -94,12 +97,6 @@ export default function PublicDashboardLancamento() {
     grupos_formados: 0,
   };
 
-  const {
-    data: dataLancamento,
-    isLoading: isLoadingLancamento,
-    isError: isErrorLancamento,
-  } = useLancamentoPorSlug(slug!, lancamento!);
-
   // Parse seções configuradas
   const secoes = React.useMemo(() => {
     if (!dataLancamento?.configuracao_secoes) return null;
@@ -118,18 +115,6 @@ export default function PublicDashboardLancamento() {
   }, [dataLancamento]);
 
   const temSurvey = secoes ? secoes.respostas_pesquisa?.ativo !== false : true;
-
-  React.useEffect(() => {
-    if (!dataLancamento) return;
-    if (dateRange !== undefined) return;
-    const from = dataLancamento.data_inicio_sync
-      ? new Date(dataLancamento.data_inicio_sync + "T00:00:00")
-      : subDays(new Date(), 29);
-    setDateRange({
-      from,
-      to: new Date(),
-    });
-  }, [dataLancamento, dateRange]);
 
   const clienteIdRef = React.useRef<string | undefined>(undefined);
   React.useEffect(() => {
@@ -262,46 +247,6 @@ export default function PublicDashboardLancamento() {
       setSyncing(false);
     }
   };
-
-  if (isLoadingLancamento || !dateRange) {
-    return <DashboardSkeleton tipo="ambos" />;
-  }
-
-  if (isErrorLancamento || !dataLancamento) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <div className="max-w-md text-center space-y-4">
-          <div className="w-16 h-16 bg-destructive/10 text-destructive rounded-full flex items-center justify-center mx-auto">
-            <AlertCircle className="w-8 h-8" />
-          </div>
-          <h2 className="text-2xl font-bold">Página não encontrada</h2>
-          <p className="text-muted-foreground">
-            O dashboard que você está procurando não existe ou o link está
-            incorreto.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (dataLancamento.status !== "ativo") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <div className="max-w-md text-center space-y-4">
-          <div className="w-16 h-16 bg-muted text-muted-foreground rounded-full flex items-center justify-center mx-auto">
-            <Clock className="w-8 h-8" />
-          </div>
-          <h2 className="text-2xl font-bold text-foreground">
-            Ainda não publicado
-          </h2>
-          <p className="text-muted-foreground">
-            Este dashboard está sendo configurado e ainda não foi publicado pela
-            agência.
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   if (!dashboardData && (isLoadingDashboard || isFetching)) {
     return (
@@ -705,5 +650,84 @@ export default function PublicDashboardLancamento() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function PublicDashboardLancamento() {
+  const { slug, lancamento } = useParams();
+
+  // Aplicar tema salvo pelo usuário
+  useTheme();
+
+  const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
+    undefined,
+  );
+
+  const {
+    data: dataLancamento,
+    isLoading: isLoadingLancamento,
+    isError: isErrorLancamento,
+  } = useLancamentoPorSlug(slug!, lancamento!);
+
+  React.useEffect(() => {
+    if (!dataLancamento) return;
+    if (dateRange !== undefined) return;
+    const from = dataLancamento.data_inicio_sync
+      ? new Date(dataLancamento.data_inicio_sync + "T00:00:00")
+      : subDays(new Date(), 29);
+    setDateRange({
+      from,
+      to: new Date(),
+    });
+  }, [dataLancamento, dateRange]);
+
+  if (isLoadingLancamento || !dateRange || !dataLancamento) {
+    return <DashboardSkeleton tipo="ambos" />;
+  }
+
+  if (isErrorLancamento) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <div className="max-w-md text-center space-y-4">
+          <div className="w-16 h-16 bg-destructive/10 text-destructive rounded-full flex items-center justify-center mx-auto">
+            <AlertCircle className="w-8 h-8" />
+          </div>
+          <h2 className="text-2xl font-bold">Página não encontrada</h2>
+          <p className="text-muted-foreground">
+            O dashboard que você está procurando não existe ou o link está
+            incorreto.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (dataLancamento.status !== "ativo") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <div className="max-w-md text-center space-y-4">
+          <div className="w-16 h-16 bg-muted text-muted-foreground rounded-full flex items-center justify-center mx-auto">
+            <Clock className="w-8 h-8" />
+          </div>
+          <h2 className="text-2xl font-bold text-foreground">
+            Ainda não publicado
+          </h2>
+          <p className="text-muted-foreground">
+            Este dashboard está sendo configurado e ainda não foi publicado pela
+            agência.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <DashboardContent
+      slug={slug!}
+      lancamento={lancamento!}
+      dataLancamento={dataLancamento}
+      dateRange={dateRange}
+      setDateRange={setDateRange}
+    />
   );
 }
