@@ -15,6 +15,13 @@ export function useDashboardAPI(
   const fromStr = dateRange?.from?.toISOString().split("T")[0] || "";
   const toStr = dateRange?.to?.toISOString().split("T")[0] || "";
 
+  console.log("[API dates]", {
+    from: dateRange?.from,
+    to: dateRange?.to,
+    fromStr,
+    toStr,
+  });
+
   return useQuery({
     queryKey: ["dashboard-api", lancamentoId, fromStr, toStr],
     queryFn: async () => {
@@ -26,6 +33,9 @@ export function useDashboardAPI(
       );
       if (!res.ok) throw new Error("Erro ao buscar dashboard");
       const raw = await res.json();
+
+      // Processar de forma assíncrona
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       // Toda a lógica de cálculo aqui (igual ao useDashboard atual)
       const {
