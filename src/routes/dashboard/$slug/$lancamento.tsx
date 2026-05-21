@@ -64,11 +64,6 @@ function DashboardContent({
   lancamento: string;
   dataLancamento: any;
 }) {
-  React.useEffect(() => {
-    console.log("[DashboardContent] MONTOU");
-    return () => console.log("[DashboardContent] DESMONTOU");
-  }, []);
-
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
     undefined,
   );
