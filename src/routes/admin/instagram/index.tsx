@@ -10,8 +10,10 @@ import {
   Play,
   Image as ImageIcon,
 } from "lucide-react";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, subDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { DateRangePicker } from "../../../components/shared/DateRangePicker";
+import { type DateRange } from "react-day-picker";
 import {
   useInstagramProfiles,
   useInstagramProfileInsights,
@@ -61,6 +63,33 @@ function ProfileDashboard({ profile }: { profile: any }) {
     profile.id,
   );
 
+  const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
+    from: subDays(new Date(), 29),
+    to: new Date(),
+  });
+
+  const insightsFiltrados = React.useMemo(() => {
+    if (!insights) return [];
+    return insights.filter((d: any) => {
+      const data = new Date(d.data);
+      return (
+        (!dateRange?.from || data >= dateRange.from) &&
+        (!dateRange?.to || data <= dateRange.to)
+      );
+    });
+  }, [insights, dateRange]);
+
+  const mediaFiltrada = React.useMemo(() => {
+    if (!mediaList) return [];
+    return mediaList.filter((post: any) => {
+      const data = new Date(post.timestamp);
+      return (
+        (!dateRange?.from || data >= dateRange.from) &&
+        (!dateRange?.to || data <= dateRange.to)
+      );
+    });
+  }, [mediaList, dateRange]);
+
   const handleSync = async () => {
     setSyncing(true);
     try {
@@ -79,32 +108,40 @@ function ProfileDashboard({ profile }: { profile: any }) {
   };
 
   const chartData = React.useMemo(() => {
-    if (!insights) return [];
-    return insights.map((item: any) => ({
+    return insightsFiltrados.map((item: any) => ({
       data: formatDateBr(item.data),
       alcance: item.reach || 0,
-      novosSeguidores: item.follower_count || 0, // Ou follower_count
+      novosSeguidores: item.follower_count || 0,
     }));
-  }, [insights]);
+  }, [insightsFiltrados]);
 
-  // Total Metrics 30 days
-  const totalReach =
-    insights?.reduce((acc: number, item: any) => acc + (item.reach || 0), 0) ||
-    0;
+  // Total Metrics
+  const totalReach = insightsFiltrados.reduce(
+    (acc: number, item: any) => acc + (item.reach || 0),
+    0,
+  );
+
+  const novosSeguidores = insightsFiltrados.reduce(
+    (acc: number, item: any) => acc + (item.follower_count || 0),
+    0,
+  );
 
   // Media Stats
-  const totalViews =
-    mediaList?.reduce(
-      (acc: number, item: any) =>
-        acc + (item.views_count || item.play_count || 0),
-      0,
-    ) || 0;
-  const totalInteractions =
-    mediaList?.reduce(
-      (acc: number, item: any) =>
-        acc + (item.comments_count || 0) + (item.like_count || 0),
-      0,
-    ) || 0;
+  const totalViews = mediaFiltrada.reduce((acc: number, post: any) => {
+    const ins = post.instagram_media_insights as any;
+    return acc + (ins?.[0]?.views || ins?.views || post.play_count || 0); // Handle both array [0] and object for safety, though user said it's object, post.instagram_media_insights is often single obj. Wait, user said it's an object `post.instagram_media_insights as any`.
+  }, 0);
+
+  const totalInteractions = mediaFiltrada.reduce((acc: number, post: any) => {
+    const ins = post.instagram_media_insights as any;
+    return (
+      acc +
+      (ins?.[0]?.total_interactions ||
+        ins?.total_interactions ||
+        post.like_count + post.comments_count ||
+        0)
+    );
+  }, 0);
 
   return (
     <div className="space-y-6 mb-12">
@@ -148,17 +185,24 @@ function ProfileDashboard({ profile }: { profile: any }) {
               </div>
             </div>
 
-            <Button
-              onClick={handleSync}
-              disabled={syncing}
-              variant="outline"
-              className="gap-2 shrink-0"
-            >
-              <RefreshCw
-                className={`h-4 w-4 ${syncing ? "animate-spin" : ""}`}
+            <div className="flex items-center gap-4">
+              <DateRangePicker
+                value={dateRange}
+                onChange={setDateRange}
+                className="w-full sm:w-[300px]"
               />
-              {syncing ? "Sincronizando..." : "Sincronizar"}
-            </Button>
+              <Button
+                onClick={handleSync}
+                disabled={syncing}
+                variant="outline"
+                className="gap-2 shrink-0"
+              >
+                <RefreshCw
+                  className={`h-4 w-4 ${syncing ? "animate-spin" : ""}`}
+                />
+                {syncing ? "Sincronizando..." : "Sincronizar"}
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -168,7 +212,7 @@ function ProfileDashboard({ profile }: { profile: any }) {
         <Card className="bg-card">
           <CardContent className="p-5 flex flex-col justify-center">
             <p className="text-sm font-medium text-muted-foreground mb-1">
-              Alcance Total (30d)
+              Alcance Total
             </p>
             <p className="text-2xl font-bold">{formatNumber(totalReach)}</p>
           </CardContent>
@@ -179,9 +223,7 @@ function ProfileDashboard({ profile }: { profile: any }) {
               Novos Seguidores
             </p>
             <p className="text-2xl font-bold">
-              {insights && insights.length > 0
-                ? formatNumber(insights[insights.length - 1].new_followers || 0)
-                : "0"}
+              {formatNumber(novosSeguidores)}
             </p>
           </CardContent>
         </Card>
@@ -208,11 +250,9 @@ function ProfileDashboard({ profile }: { profile: any }) {
       {/* Charts */}
       <Card className="bg-card">
         <CardHeader>
-          <CardTitle className="text-lg">
-            Alcance & Crescimento (30 dias)
-          </CardTitle>
+          <CardTitle className="text-lg">Alcance & Crescimento</CardTitle>
           <CardDescription>
-            Evolução de impressoões e seguidores neste período
+            Evolução de impressões e seguidores neste período
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -298,11 +338,11 @@ function ProfileDashboard({ profile }: { profile: any }) {
       </Card>
 
       {/* Grid Posts */}
-      {mediaList && mediaList.length > 0 && (
+      {mediaFiltrada && mediaFiltrada.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-lg font-bold">Posts Recentes</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mediaList.map((post: any) => {
+            {mediaFiltrada.map((post: any) => {
               const date = new Date(post.timestamp);
               // Fallbacks from post or insights
               const insightData = (post.instagram_media_insights as any) || {};
