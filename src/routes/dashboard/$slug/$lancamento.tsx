@@ -62,20 +62,16 @@ function DashboardContent({
   dataLancamento: any;
 }) {
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
-    undefined,
+    () => {
+      if (!dataLancamento) return undefined;
+      return {
+        from: dataLancamento.data_inicio_sync
+          ? new Date(dataLancamento.data_inicio_sync + "T00:00:00")
+          : subDays(new Date(), 29),
+        to: new Date(new Date().toDateString()), // sem hora, só data
+      };
+    },
   );
-
-  React.useEffect(() => {
-    if (!dataLancamento) return;
-    if (dateRange !== undefined) return;
-    const from = dataLancamento.data_inicio_sync
-      ? new Date(dataLancamento.data_inicio_sync + "T00:00:00")
-      : subDays(new Date(), 29);
-    setDateRange({
-      from,
-      to: new Date(),
-    });
-  }, [dataLancamento, dateRange]);
 
   const [gruposWA, setGruposWA] = React.useState({
     ensino_superior: 0,
@@ -483,10 +479,7 @@ function DashboardContent({
             <div className="w-full lg:w-[300px]">
               <DateRangePicker
                 value={dateRange}
-                onChange={(newRange) => {
-                  console.log("[picker onChange]", newRange);
-                  setDateRange(newRange);
-                }}
+                onChange={setDateRange}
                 className="w-full"
               />
             </div>
