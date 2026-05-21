@@ -72,6 +72,10 @@ export function DateRangePicker({
         to: endOfMonth(subMonths(hoje(), 1)),
       },
     },
+    {
+      label: "Máximo",
+      range: { from: new Date(2000, 0, 1), to: hoje() },
+    },
   ];
 
   function handlePreset(range: DateRange) {
