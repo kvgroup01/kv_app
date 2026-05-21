@@ -126,6 +126,24 @@ function ProfileDashboard({ profile }: { profile: any }) {
     0,
   );
 
+  const diasPeriodo =
+    dateRange?.from && dateRange?.to
+      ? Math.ceil(
+          (dateRange.to.getTime() - dateRange.from.getTime()) /
+            (1000 * 60 * 60 * 24),
+        )
+      : 30;
+
+  const isPeriodoLongo = diasPeriodo > 30;
+
+  const seguidoresMetrica = isPeriodoLongo
+    ? profile.followers_count
+    : novosSeguidores;
+
+  const seguidoresLabel = isPeriodoLongo
+    ? "Seguidores Totais"
+    : "Novos Seguidores";
+
   // Media Stats
   const totalViews = mediaFiltrada.reduce((acc: number, post: any) => {
     const ins = post.instagram_media_insights as any;
@@ -220,10 +238,10 @@ function ProfileDashboard({ profile }: { profile: any }) {
         <Card className="bg-card">
           <CardContent className="p-5 flex flex-col justify-center">
             <p className="text-sm font-medium text-muted-foreground mb-1">
-              Novos Seguidores
+              {seguidoresLabel}
             </p>
             <p className="text-2xl font-bold">
-              {formatNumber(novosSeguidores)}
+              {formatNumber(seguidoresMetrica)}
             </p>
           </CardContent>
         </Card>
