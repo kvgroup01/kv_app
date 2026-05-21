@@ -13,7 +13,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Plug2,
-  GitBranch
+  GitBranch,
+  Instagram
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/button';
@@ -38,6 +39,7 @@ const NAV_ITEMS = [
   { href: '/admin/funis', icon: GitBranch, label: 'Funis' },
   { href: '/admin/financeiro', icon: Wallet, label: 'Financeiro' },
   { href: '/admin/orcamentos', icon: FileText, label: 'Orçamentos' },
+  { href: '/admin/instagram', icon: Instagram, label: 'Instagram' },
   { href: '/admin/meta-connect', icon: Plug2, label: 'Integrações' },
   { href: '/admin/configuracoes', icon: Settings, label: 'Configurações' },
 ];
