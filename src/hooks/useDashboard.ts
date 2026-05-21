@@ -267,6 +267,11 @@ export function useDashboard(
   slug: string,
   dateRange: { from?: Date; to?: Date } | undefined,
   lancamentoId?: string,
+  estruturaExterna?: {
+    campanhas: any[];
+    conjuntos: any[];
+    criativos: any[];
+  } | null,
 ) {
   const fromStr = dateRange?.from
     ? dateRange.from.toISOString().split("T")[0]
@@ -306,19 +311,6 @@ export function useDashboard(
     enabled: !!lancamentoId,
   });
 
-  // 3. Estrutura Estática
-  const {
-    data: estrutura,
-    isLoading: isLoadingEstrutura,
-    isError: isErrEst,
-    error: errEst,
-  } = useDashboardEstrutura(
-    cliente?.id || cliente?.$id,
-    cliente?.fonte_dados,
-    cliente?.spreadsheet_id,
-    lancamentoId,
-  );
-
   // 4. Métricas Dinâmicas
   const {
     data: metricasData,
@@ -338,6 +330,7 @@ export function useDashboard(
   );
 
   const dashboardComputado = useMemo((): DashboardResult | undefined => {
+    const estrutura = estruturaExterna;
     if (!cliente || !estrutura || !metricasData) {
       return undefined;
     }
@@ -583,12 +576,11 @@ export function useDashboard(
       leadsSuperiores: [],
       leadsMedio: [],
     };
-  }, [cliente, estrutura, metricasData, lancamentoId]);
+  }, [cliente, estruturaExterna, metricasData, lancamentoId]);
 
   const isLoading =
     isLoadingCliente ||
     (lancamentoId ? isLoadingLancamento : false) ||
-    isLoadingEstrutura ||
     isLoadingMetricas;
   const isFetching = isFetchingMetricas;
 
