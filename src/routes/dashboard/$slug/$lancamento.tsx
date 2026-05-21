@@ -64,12 +64,12 @@ function DashboardContent({
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
     () => {
       if (!dataLancamento) return undefined;
-      return {
-        from: dataLancamento.data_inicio_sync
-          ? new Date(dataLancamento.data_inicio_sync + "T00:00:00")
-          : subDays(new Date(), 29),
-        to: new Date(new Date().toDateString()), // sem hora, só data
-      };
+      const to = new Date();
+      to.setHours(0, 0, 0, 0);
+      const from = dataLancamento.data_inicio_sync
+        ? new Date(dataLancamento.data_inicio_sync + "T00:00:00")
+        : subDays(to, 29);
+      return { from, to };
     },
   );
 
@@ -484,7 +484,10 @@ function DashboardContent({
             <div className="w-full lg:w-[300px]">
               <DateRangePicker
                 value={dateRange}
-                onChange={setDateRange}
+                onChange={(newRange) => {
+                  console.log('[picker]', newRange?.from, newRange?.to);
+                  setDateRange(newRange);
+                }}
                 className="w-full"
               />
             </div>
