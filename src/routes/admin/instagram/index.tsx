@@ -306,9 +306,11 @@ function ProfileDashboard({ profile }: { profile: any }) {
               const date = new Date(post.timestamp);
               // Fallbacks from post or insights
               const insightData = post.instagram_media_insights?.[0] || {};
-              const views = insightData.plays || post.play_count || 0;
+              const views = insightData.views || post.play_count || 0;
               const saved = insightData.saved || 0;
               const shares = insightData.shares || 0;
+              const likes = insightData.likes || post.like_count || 0;
+              const comments = insightData.comments || post.comments_count || 0;
 
               return (
                 <Card
@@ -347,10 +349,10 @@ function ProfileDashboard({ profile }: { profile: any }) {
 
                   <CardContent className="p-4 flex flex-col flex-1">
                     <p className="text-sm text-foreground/90 min-h-[40px]">
-                      {post.caption 
-                        ? post.caption.length > 60 
-                          ? post.caption.substring(0, 60) + "..." 
-                          : post.caption 
+                      {post.caption
+                        ? post.caption.length > 60
+                          ? post.caption.substring(0, 60) + "..."
+                          : post.caption
                         : "Sem legenda"}
                     </p>
                     <p className="text-xs text-muted-foreground mt-2 mb-4">
@@ -364,14 +366,14 @@ function ProfileDashboard({ profile }: { profile: any }) {
                       </div>
                       <div className="flex items-center gap-1" title="Likes">
                         <Heart className="h-3.5 w-3.5" />{" "}
-                        <span>{formatNumber(post.like_count)}</span>
+                        <span>{formatNumber(likes)}</span>
                       </div>
                       <div
                         className="flex items-center gap-1"
                         title="Comentários"
                       >
                         <MessageCircle className="h-3.5 w-3.5" />{" "}
-                        <span>{formatNumber(post.comments_count)}</span>
+                        <span>{formatNumber(comments)}</span>
                       </div>
                       <div className="flex items-center gap-1" title="Shares">
                         <Share2 className="h-3.5 w-3.5" />{" "}

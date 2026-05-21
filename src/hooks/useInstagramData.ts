@@ -38,7 +38,20 @@ export function useInstagramMedia(profileId: string) {
     queryFn: async () => {
       const { data } = await supabase
         .from("instagram_media")
-        .select("*, instagram_media_insights(*)")
+        .select(
+          `
+          *,
+          instagram_media_insights (
+            reach,
+            views,
+            likes,
+            comments,
+            shares,
+            saved,
+            total_interactions
+          )
+        `,
+        )
         .eq("profile_id", profileId)
         .order("timestamp", { ascending: false });
       return data || [];
