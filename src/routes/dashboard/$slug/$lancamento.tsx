@@ -8,10 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { useLancamentoPorSlug } from "../../../hooks/useLancamentos";
-import {
-  useDashboard,
-  useDashboardEstrutura,
-} from "../../../hooks/useDashboard";
+import { useDashboard } from "../../../hooks/useDashboard";
 import { useSurvey } from "../../../hooks/useSurvey";
 import { useTheme } from "../../../hooks/useTheme";
 
@@ -146,23 +143,13 @@ function DashboardContent({
 
   const lancamentoIdEstavel = lancamentoIdRef.current ?? dataLancamento?.$id;
 
-  const { data: estrutura, isLoading: isLoadingEstrutura } =
-    useDashboardEstrutura(
-      clienteIdEstavel,
-      undefined,
-      undefined,
-      lancamentoIdEstavel,
-    );
-
   const {
     data: dashboardData,
-    isLoading: isLoadingDashboardBase,
+    isLoading: isLoadingDashboard,
     isFetching,
     isError: isErrorDashboard,
     error: errorDashboard,
-  } = useDashboard(slug!, dateRange, lancamentoIdEstavel, estrutura);
-
-  const isLoadingDashboard = isLoadingDashboardBase || isLoadingEstrutura;
+  } = useDashboard(slug!, dateRange, lancamentoIdEstavel);
 
   const { data: surveyEntries = [], isLoading: isLoadingSurvey } = useSurvey(
     dataLancamento?.$id,
