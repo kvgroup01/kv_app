@@ -135,13 +135,6 @@ function DashboardContent({
   const clienteIdEstavel = clienteIdRef.current ?? dataLancamento?.cliente_id;
 
   const lancamentoIdEstavel = dataLancamento?.id || dataLancamento?.$id;
-  console.log(
-    "[dash] lancamentoId:",
-    lancamentoIdEstavel,
-    "dateRange:",
-    dateRange?.from,
-    dateRange?.to,
-  );
 
   const {
     data: dashboardData,
