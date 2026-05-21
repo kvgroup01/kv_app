@@ -134,14 +134,14 @@ function DashboardContent({
 
   const clienteIdEstavel = clienteIdRef.current ?? dataLancamento?.cliente_id;
 
-  const lancamentoIdRef = React.useRef<string | undefined>(undefined);
-  React.useEffect(() => {
-    if (dataLancamento?.$id && !lancamentoIdRef.current) {
-      lancamentoIdRef.current = dataLancamento.$id;
-    }
-  }, [dataLancamento?.$id]);
-
-  const lancamentoIdEstavel = lancamentoIdRef.current ?? dataLancamento?.$id;
+  const lancamentoIdEstavel = dataLancamento?.id || dataLancamento?.$id;
+  console.log(
+    "[dash] lancamentoId:",
+    lancamentoIdEstavel,
+    "dateRange:",
+    dateRange?.from,
+    dateRange?.to,
+  );
 
   const {
     data: dashboardData,

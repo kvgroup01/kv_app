@@ -19,6 +19,7 @@ export function useDashboardAPI(
     queryKey: ["dashboard-api", lancamentoId, fromStr, toStr],
     queryFn: async () => {
       if (!lancamentoId || !fromStr || !toStr) return null;
+      console.log(`[API] fetch:`, lancamentoId, fromStr, toStr);
 
       const res = await fetch(
         `${SYNC_URL}/dashboard?lancamentoId=${lancamentoId}&from=${fromStr}&to=${toStr}`,
