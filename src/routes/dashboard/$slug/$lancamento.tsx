@@ -423,6 +423,11 @@ function DashboardContent({
 
   return (
     <div className="min-h-screen bg-background">
+      {dataLancamento?.status === "finalizado" && (
+        <div className="bg-blue-500/10 border-b border-blue-500/20 text-blue-600 text-sm px-4 py-2 text-center flex items-center justify-center gap-2 font-medium">
+          Este lançamento foi finalizado. Os dados exibidos são históricos.
+        </div>
+      )}
       {/* Header */}
       <header className="w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 lg:px-8 py-3 lg:py-0 lg:h-16 flex flex-col lg:flex-row lg:items-center justify-between gap-4">

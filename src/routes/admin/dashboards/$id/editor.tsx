@@ -40,6 +40,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../../../../components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../../../components/ui/select";
 import { Skeleton } from "../../../../components/ui/skeleton";
 import { useClientes } from "../../../../hooks/useClientes";
 import { SheetsImporter } from "../../../../components/admin/SheetsImporter";
@@ -53,29 +60,33 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "../../../../components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "../../../../components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../../../../components/ui/popover";
 import { cn } from "../../../../lib/utils";
 
-const SYNC_URL = 'https://sync.kvgroupbr.com.br';
+const SYNC_URL = "https://sync.kvgroupbr.com.br";
 
 const ESCOLARIDADES_OPCOES = [
-  'Ensino Fundamental Completo',
-  'Ensino Médio Completo',
-  'Tecnólogo',
-  'Cursando Ensino Superior',
-  'Ensino Superior Completo',
-  'Pós-graduação',
-  'Mestrado',
-  'Doutorado',
+  "Ensino Fundamental Completo",
+  "Ensino Médio Completo",
+  "Tecnólogo",
+  "Cursando Ensino Superior",
+  "Ensino Superior Completo",
+  "Pós-graduação",
+  "Mestrado",
+  "Doutorado",
 ];
 
 const RENDAS_OPCOES = [
-  'Abaixo de um salário mínimo',
-  'De 1.518,00 a 1.903,98',
-  'De 1.903,99 até 2.826,65',
-  'De 2.826,66 até 3.751,05',
-  'De 3.751,06 até 4.664,68',
-  'Acima de 4.664,68',
+  "Abaixo de um salário mínimo",
+  "De 1.518,00 a 1.903,98",
+  "De 1.903,99 até 2.826,65",
+  "De 2.826,66 até 3.751,05",
+  "De 3.751,06 até 4.664,68",
+  "Acima de 4.664,68",
 ];
 
 type SecaoId =
@@ -98,7 +109,7 @@ type SecaoConfig = {
 type SecoesType = Record<SecaoId, SecaoConfig>;
 
 const parseLocalDate = (dateStr: string): Date => {
-  const [year, month, day] = dateStr.split('-').map(Number);
+  const [year, month, day] = dateStr.split("-").map(Number);
   return new Date(year, month - 1, day);
 };
 
@@ -166,28 +177,41 @@ export default function DashboardEditor() {
   const publicarMutation = usePublicarLancamento();
 
   const [nome, setNome] = React.useState("");
-  const [metaEventType, setMetaEventType] = React.useState('');
+  const [metaEventType, setMetaEventType] = React.useState("");
   const [showSheetsImporter, setShowSheetsImporter] = React.useState(false);
   const [reclassifying, setReclassifying] = React.useState(false);
-  const [criterioQualificacao, setCriterioQualificacao] = React.useState<'escolaridade' | 'renda' | 'ambos_e' | 'ambos_ou'>('escolaridade');
-  const [escolaridadesQualificadas, setEscolaridadesQualificadas] = React.useState<string[]>([]);
-  const [rendasQualificadas, setRendasQualificadas] = React.useState<string[]>([]);
-  const [investimentoContratado, setInvestimentoContratado] = React.useState<number | string>("");
+  const [criterioQualificacao, setCriterioQualificacao] = React.useState<
+    "escolaridade" | "renda" | "ambos_e" | "ambos_ou"
+  >("escolaridade");
+  const [escolaridadesQualificadas, setEscolaridadesQualificadas] =
+    React.useState<string[]>([]);
+  const [rendasQualificadas, setRendasQualificadas] = React.useState<string[]>(
+    [],
+  );
+  const [investimentoContratado, setInvestimentoContratado] = React.useState<
+    number | string
+  >("");
   const [dataInicioSync, setDataInicioSync] = React.useState("");
   const [secoes, setSecoes] = React.useState<SecoesType>(defaultSecoes);
   const [editSecao, setEditSecao] = React.useState<SecaoId | null>(null);
   const [syncing, setSyncing] = React.useState(false);
-  const [syncJob, setSyncJob] = React.useState<{jobId: string, progresso: number, status: string} | null>(null);
+  const [syncJob, setSyncJob] = React.useState<{
+    jobId: string;
+    progresso: number;
+    status: string;
+  } | null>(null);
   const [syncToken, setSyncToken] = React.useState<string | null>(null);
   const [listening, setListening] = React.useState(false);
   const [listenTimeout, setListenTimeout] = React.useState<any>(null);
   const [lastLead, setLastLead] = React.useState<any>(null);
   const [listenSeconds, setListenSeconds] = React.useState(0);
+  const [status, setStatus] = React.useState("rascunho");
 
   const [capiAtivo, setCapiAtivo] = React.useState(false);
-  const [capiPixelId, setCapiPixelId] = React.useState('');
-  const [capiAccessToken, setCapiAccessToken] = React.useState('');
-  const [capiApenasQualificados, setCapiApenasQualificados] = React.useState(true);
+  const [capiPixelId, setCapiPixelId] = React.useState("");
+  const [capiAccessToken, setCapiAccessToken] = React.useState("");
+  const [capiApenasQualificados, setCapiApenasQualificados] =
+    React.useState(true);
 
   const handleStartListening = async () => {
     if (!id) return;
@@ -196,10 +220,10 @@ export default function DashboardEditor() {
     setListenSeconds(0);
 
     // Conta o total de leads ANTES de começar a escutar
-    const snapshot = await fetch(
-      `/api/webhook-listen?lancamentoId=${id}`
-    ).then(r => r.json()).catch(() => ({ total: 0 }));
-    
+    const snapshot = await fetch(`/api/webhook-listen?lancamentoId=${id}`)
+      .then((r) => r.json())
+      .catch(() => ({ total: 0 }));
+
     const totalAntes = snapshot.total || 0;
     let segundos = 0;
 
@@ -217,18 +241,21 @@ export default function DashboardEditor() {
           setListening(false);
           clearInterval(polling);
           clearInterval(timer);
-          toast.success('Lead capturado com sucesso!');
+          toast.success("Lead capturado com sucesso!");
         }
       } catch (e) {}
     }, 2000);
 
     // Timeout de 3 minutos
-    const timeout = setTimeout(() => {
-      setListening(false);
-      clearInterval(polling);
-      clearInterval(timer);
-      toast.error('Tempo esgotado. Nenhum lead recebido em 3 minutos.');
-    }, 3 * 60 * 1000);
+    const timeout = setTimeout(
+      () => {
+        setListening(false);
+        clearInterval(polling);
+        clearInterval(timer);
+        toast.error("Tempo esgotado. Nenhum lead recebido em 3 minutos.");
+      },
+      3 * 60 * 1000,
+    );
 
     setListenTimeout({ polling, timer, timeout });
   };
@@ -240,7 +267,7 @@ export default function DashboardEditor() {
       clearTimeout(listenTimeout.timeout);
     }
     setListening(false);
-    toast.info('Escuta cancelada.');
+    toast.info("Escuta cancelada.");
   };
 
   React.useEffect(() => {
@@ -260,58 +287,67 @@ export default function DashboardEditor() {
       if (lancamento.regras_qualificacao) {
         try {
           const regras = JSON.parse(lancamento.regras_qualificacao);
-          setCriterioQualificacao(regras.criterio || 'escolaridade');
+          setCriterioQualificacao(regras.criterio || "escolaridade");
           setEscolaridadesQualificadas(regras.escolaridades || []);
           setRendasQualificadas(regras.rendas || []);
         } catch (e) {}
       }
 
       setCapiAtivo(lancamento.capi_ativo === true);
-      setCapiPixelId(lancamento.capi_pixel_id || '');
-      setCapiAccessToken(lancamento.capi_access_token || '');
+      setCapiPixelId(lancamento.capi_pixel_id || "");
+      setCapiAccessToken(lancamento.capi_access_token || "");
       setCapiApenasQualificados(lancamento.capi_apenas_qualificados !== false);
+      setStatus(lancamento.status || "rascunho");
     }
   }, [lancamento]);
 
   React.useEffect(() => {
     let interval: any;
-    if (syncJob && syncJob.status !== 'done' && syncJob.status !== 'error') {
+    if (syncJob && syncJob.status !== "done" && syncJob.status !== "error") {
       interval = setInterval(async () => {
         try {
           const res = await fetch(`${SYNC_URL}/status/${syncJob.jobId}`);
           const data = await res.json();
           if (res.ok && !data.error) {
-            setSyncJob(prev => prev ? {
-              ...prev,
-              progresso: data.progresso,
-              status: data.done ? 'done' : data.status,
-            } : null);
+            setSyncJob((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    progresso: data.progresso,
+                    status: data.done ? "done" : data.status,
+                  }
+                : null,
+            );
             if (data.done) {
               clearInterval(interval);
               setSyncing(false);
-              toast.success('Sincronização concluída com sucesso!');
+              toast.success("Sincronização concluída com sucesso!");
             }
-            if (data.status === 'error') {
+            if (data.status === "error") {
               clearInterval(interval);
-              setSyncJob(prev => prev ? { ...prev, status: 'error' } : null);
-              toast.error(data.erro || 'Erro ao sincronizar');
+              setSyncJob((prev) =>
+                prev ? { ...prev, status: "error" } : null,
+              );
+              toast.error(data.erro || "Erro ao sincronizar");
               setSyncing(false);
             }
           } else {
             clearInterval(interval);
-            setSyncJob(prev => prev ? { ...prev, status: 'error' } : null);
-            toast.error('Erro ao verificar status');
+            setSyncJob((prev) => (prev ? { ...prev, status: "error" } : null));
+            toast.error("Erro ao verificar status");
             setSyncing(false);
           }
-        } catch(e) {
+        } catch (e) {
           clearInterval(interval);
-          setSyncJob(prev => prev ? { ...prev, status: 'error' } : null);
-          toast.error('Erro de conexão ao atualizar dados');
+          setSyncJob((prev) => (prev ? { ...prev, status: "error" } : null));
+          toast.error("Erro de conexão ao atualizar dados");
           setSyncing(false);
         }
       }, 3000);
     }
-    return () => { if (interval) clearInterval(interval); };
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [syncJob]);
 
   const handleSyncMeta = async () => {
@@ -319,32 +355,31 @@ export default function DashboardEditor() {
     setSyncing(true);
     try {
       // Primeiro cria o job via meta-sync-start (continua na Vercel)
-      const response = await fetch('/api/meta-sync-start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/meta-sync-start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lancamentoId: id }),
       });
       const data = await response.json();
       if (!response.ok || data.error) {
-        toast.error(data.error || 'Erro ao iniciar sincronização');
+        toast.error(data.error || "Erro ao iniciar sincronização");
         setSyncing(false);
         return;
       }
 
       const jobId = data.jobId;
       const newToken = data.syncToken || null;
-      setSyncJob({ jobId, progresso: 0, status: 'running' });
+      setSyncJob({ jobId, progresso: 0, status: "running" });
       setSyncToken(newToken);
 
       // Dispara o sync na VPS (não aguarda — roda em background)
       fetch(`${SYNC_URL}/sync`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ jobId, syncToken: newToken }),
       }).catch(console.error);
-
     } catch (err: any) {
-      toast.error('Erro de conexão ao iniciar sincronização');
+      toast.error("Erro de conexão ao iniciar sincronização");
       setSyncing(false);
     }
   };
@@ -353,22 +388,22 @@ export default function DashboardEditor() {
     if (!id) return;
     setReclassifying(true);
     try {
-      const res = await fetch('/api/sheets?action=reclassify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/sheets?action=reclassify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lancamentoId: id }),
       });
       const data = await res.json();
       if (!res.ok || data.error) {
-        toast.error(data.error || 'Erro ao reclassificar leads');
+        toast.error(data.error || "Erro ao reclassificar leads");
         return;
       }
       toast.success(
         `Reclassificação concluída: ${data.updated} leads atualizados` +
-        (data.errors > 0 ? `, ${data.errors} erros` : '')
+          (data.errors > 0 ? `, ${data.errors} erros` : ""),
       );
     } catch (e: any) {
-      toast.error('Erro de conexão ao reclassificar');
+      toast.error("Erro de conexão ao reclassificar");
     } finally {
       setReclassifying(false);
     }
@@ -395,7 +430,10 @@ export default function DashboardEditor() {
         id,
         data: {
           nome,
-          investimento_total_contratado: investimentoContratado === "" ? null : Number(investimentoContratado),
+          investimento_total_contratado:
+            investimentoContratado === ""
+              ? null
+              : Number(investimentoContratado),
           meta_event_type: metaEventType || null,
           data_inicio_sync: dataInicioSync,
           configuracao_secoes: JSON.stringify(secoes),
@@ -408,6 +446,7 @@ export default function DashboardEditor() {
           capi_pixel_id: capiPixelId || null,
           capi_access_token: capiAccessToken || null,
           capi_apenas_qualificados: capiApenasQualificados,
+          status,
         },
       });
       if (showToast) toast.success("Alterações salvas com sucesso!");
@@ -468,22 +507,17 @@ export default function DashboardEditor() {
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                   Informações
                 </h3>
-                <Badge
-                  variant={
-                    lancamento?.status === "ativo" ? "default" : "secondary"
-                  }
-                  className={
-                    lancamento?.status === "ativo"
-                      ? "bg-green-500/10 text-green-500 hover:bg-green-500/20"
-                      : ""
-                  }
-                >
-                  {lancamento?.status === "ativo"
-                    ? "Ativo"
-                    : lancamento?.status === "encerrado"
-                      ? "Encerrado"
-                      : "Rascunho"}
-                </Badge>
+                <Select value={status} onValueChange={setStatus}>
+                  <SelectTrigger className="w-auto h-8 bg-background border-input text-xs font-medium">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="rascunho">Rascunho</SelectItem>
+                    <SelectItem value="ativo">Ativo</SelectItem>
+                    <SelectItem value="pausado">Pausado</SelectItem>
+                    <SelectItem value="finalizado">Finalizado</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="flex gap-2">
@@ -493,7 +527,11 @@ export default function DashboardEditor() {
                   onClick={handleSyncMeta}
                   disabled={syncing}
                 >
-                  {syncing ? (syncJob ? `Sincronizando... ${syncJob.progresso}%` : "Sincronizando...") : "Sincronizar Meta Ads"}
+                  {syncing
+                    ? syncJob
+                      ? `Sincronizando... ${syncJob.progresso}%`
+                      : "Sincronizando..."
+                    : "Sincronizar Meta Ads"}
                 </Button>
               </div>
 
@@ -508,7 +546,9 @@ export default function DashboardEditor() {
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm">Investimento Total Contratado (R$)</label>
+                <label className="text-sm">
+                  Investimento Total Contratado (R$)
+                </label>
                 <div className="flex gap-2">
                   <Input
                     type="number"
@@ -533,7 +573,9 @@ export default function DashboardEditor() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm">Data de início da sincronização</label>
+                <label className="text-sm">
+                  Data de início da sincronização
+                </label>
                 <div className="flex gap-2">
                   <Popover>
                     <PopoverTrigger asChild>
@@ -542,20 +584,35 @@ export default function DashboardEditor() {
                         className={cn(
                           "w-full justify-start text-left font-normal h-10",
                           "bg-(--card-bg) border-(--card-border) text-(--text-primary)",
-                          !dataInicioSync && "text-(--text-tertiary)"
+                          !dataInicioSync && "text-(--text-tertiary)",
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4 text-(--text-tertiary)" />
-                        {dataInicioSync 
-                          ? format(parseLocalDate(dataInicioSync), "dd/MM/yyyy", { locale: ptBR })
+                        {dataInicioSync
+                          ? format(
+                              parseLocalDate(dataInicioSync),
+                              "dd/MM/yyyy",
+                              { locale: ptBR },
+                            )
                           : "Selecionar data..."}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 bg-(--card-bg) border-(--card-border)" align="start">
+                    <PopoverContent
+                      className="w-auto p-0 bg-(--card-bg) border-(--card-border)"
+                      align="start"
+                    >
                       <Calendar
                         mode="single"
-                        selected={dataInicioSync ? parseLocalDate(dataInicioSync) : undefined}
-                        onSelect={(date) => setDataInicioSync(date ? format(date, 'yyyy-MM-dd') : '')}
+                        selected={
+                          dataInicioSync
+                            ? parseLocalDate(dataInicioSync)
+                            : undefined
+                        }
+                        onSelect={(date) =>
+                          setDataInicioSync(
+                            date ? format(date, "yyyy-MM-dd") : "",
+                          )
+                        }
                         locale={ptBR}
                         initialFocus
                       />
@@ -644,9 +701,9 @@ export default function DashboardEditor() {
                       size="icon"
                       onClick={() => {
                         navigator.clipboard.writeText(
-                          `https://kvision.kvgroupbr.com.br/api/webhook-lead?lancamentoId=${id}`
+                          `https://kvision.kvgroupbr.com.br/api/webhook-lead?lancamentoId=${id}`,
                         );
-                        toast.success('URL copiada!');
+                        toast.success("URL copiada!");
                       }}
                     >
                       <Copy className="h-4 w-4" />
@@ -658,7 +715,9 @@ export default function DashboardEditor() {
                 <div className="space-y-3 p-4 border rounded-lg bg-muted/10">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium">Escutar webhook ao vivo</p>
+                      <p className="text-sm font-medium">
+                        Escutar webhook ao vivo
+                      </p>
                       <p className="text-xs text-muted-foreground">
                         Aguarda um lead real chegar pelo formulário
                       </p>
@@ -686,7 +745,9 @@ export default function DashboardEditor() {
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
                       Aguardando lead... {listenSeconds}s
-                      <span className="text-muted-foreground/50">(timeout em {Math.max(0, 180 - listenSeconds)}s)</span>
+                      <span className="text-muted-foreground/50">
+                        (timeout em {Math.max(0, 180 - listenSeconds)}s)
+                      </span>
                     </div>
                   )}
 
@@ -697,11 +758,17 @@ export default function DashboardEditor() {
                       </p>
                       <div className="bg-muted/30 rounded-lg p-3 text-xs font-mono space-y-1 max-h-48 overflow-y-auto">
                         {Object.entries(lastLead)
-                          .filter(([k]) => !k.startsWith('$') && !k.startsWith('_'))
+                          .filter(
+                            ([k]) => !k.startsWith("$") && !k.startsWith("_"),
+                          )
                           .map(([k, v]) => (
                             <div key={k} className="flex gap-2">
-                              <span className="text-muted-foreground min-w-[120px]">{k}:</span>
-                              <span className="text-foreground">{String(v)}</span>
+                              <span className="text-muted-foreground min-w-[120px]">
+                                {k}:
+                              </span>
+                              <span className="text-foreground">
+                                {String(v)}
+                              </span>
                             </div>
                           ))}
                       </div>
@@ -726,7 +793,9 @@ export default function DashboardEditor() {
                 <label className="text-sm">Critério</label>
                 <select
                   value={criterioQualificacao}
-                  onChange={(e) => setCriterioQualificacao(e.target.value as any)}
+                  onChange={(e) =>
+                    setCriterioQualificacao(e.target.value as any)
+                  }
                   className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
                 >
                   <option value="escolaridade">Somente Escolaridade</option>
@@ -737,20 +806,30 @@ export default function DashboardEditor() {
               </div>
 
               {/* Escolaridades qualificadas */}
-              {(criterioQualificacao === 'escolaridade' || criterioQualificacao === 'ambos_e' || criterioQualificacao === 'ambos_ou') && (
+              {(criterioQualificacao === "escolaridade" ||
+                criterioQualificacao === "ambos_e" ||
+                criterioQualificacao === "ambos_ou") && (
                 <div className="space-y-2">
                   <label className="text-sm">Escolaridades qualificadas</label>
                   <div className="space-y-1 max-h-48 overflow-y-auto p-2 border rounded-lg">
-                    {ESCOLARIDADES_OPCOES.map(esc => (
-                      <label key={esc} className="flex items-center gap-2 text-xs cursor-pointer hover:bg-muted/30 p-1 rounded">
+                    {ESCOLARIDADES_OPCOES.map((esc) => (
+                      <label
+                        key={esc}
+                        className="flex items-center gap-2 text-xs cursor-pointer hover:bg-muted/30 p-1 rounded"
+                      >
                         <input
                           type="checkbox"
                           checked={escolaridadesQualificadas.includes(esc)}
                           onChange={(e) => {
                             if (e.target.checked) {
-                              setEscolaridadesQualificadas(prev => [...prev, esc]);
+                              setEscolaridadesQualificadas((prev) => [
+                                ...prev,
+                                esc,
+                              ]);
                             } else {
-                              setEscolaridadesQualificadas(prev => prev.filter(x => x !== esc));
+                              setEscolaridadesQualificadas((prev) =>
+                                prev.filter((x) => x !== esc),
+                              );
                             }
                           }}
                           className="rounded"
@@ -763,20 +842,29 @@ export default function DashboardEditor() {
               )}
 
               {/* Rendas qualificadas */}
-              {(criterioQualificacao === 'renda' || criterioQualificacao === 'ambos_e' || criterioQualificacao === 'ambos_ou') && (
+              {(criterioQualificacao === "renda" ||
+                criterioQualificacao === "ambos_e" ||
+                criterioQualificacao === "ambos_ou") && (
                 <div className="space-y-2">
-                  <label className="text-sm">Faixas de renda qualificadas</label>
+                  <label className="text-sm">
+                    Faixas de renda qualificadas
+                  </label>
                   <div className="space-y-1 p-2 border rounded-lg">
-                    {RENDAS_OPCOES.map(renda => (
-                      <label key={renda} className="flex items-center gap-2 text-xs cursor-pointer hover:bg-muted/30 p-1 rounded">
+                    {RENDAS_OPCOES.map((renda) => (
+                      <label
+                        key={renda}
+                        className="flex items-center gap-2 text-xs cursor-pointer hover:bg-muted/30 p-1 rounded"
+                      >
                         <input
                           type="checkbox"
                           checked={rendasQualificadas.includes(renda)}
                           onChange={(e) => {
                             if (e.target.checked) {
-                              setRendasQualificadas(prev => [...prev, renda]);
+                              setRendasQualificadas((prev) => [...prev, renda]);
                             } else {
-                              setRendasQualificadas(prev => prev.filter(x => x !== renda));
+                              setRendasQualificadas((prev) =>
+                                prev.filter((x) => x !== renda),
+                              );
                             }
                           }}
                           className="rounded"
@@ -811,11 +899,11 @@ export default function DashboardEditor() {
                 onClick={handleReclassify}
                 disabled={reclassifying}
               >
-                {reclassifying ? 'Reclassificando...' : 'Reclassificar Leads'}
+                {reclassifying ? "Reclassificando..." : "Reclassificar Leads"}
               </Button>
               <p className="text-xs text-muted-foreground">
-                Recalcula qualificados/desqualificados com base nas regras
-                acima e nos dados da pesquisa importada.
+                Recalcula qualificados/desqualificados com base nas regras acima
+                e nos dados da pesquisa importada.
               </p>
             </section>
 
@@ -826,13 +914,11 @@ export default function DashboardEditor() {
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                   API de Conversões (CAPI)
                 </h3>
-                <Switch
-                  checked={capiAtivo}
-                  onCheckedChange={setCapiAtivo}
-                />
+                <Switch checked={capiAtivo} onCheckedChange={setCapiAtivo} />
               </div>
               <p className="text-xs text-muted-foreground">
-                Envia eventos de lead diretamente para a API de Conversões do Meta ao receber um webhook.
+                Envia eventos de lead diretamente para a API de Conversões do
+                Meta ao receber um webhook.
               </p>
 
               {capiAtivo && (
@@ -856,14 +942,18 @@ export default function DashboardEditor() {
                       type="password"
                     />
                     <p className="text-xs text-muted-foreground">
-                      Token da API de Conversões (diferente do token de anúncios). Gere em: Meta Business → Gerenciador de Eventos → Configurações → API de Conversões.
+                      Token da API de Conversões (diferente do token de
+                      anúncios). Gere em: Meta Business → Gerenciador de Eventos
+                      → Configurações → API de Conversões.
                     </p>
                   </div>
                   <label className="flex items-center gap-2 text-xs cursor-pointer hover:bg-muted/30 p-2 rounded">
                     <input
                       type="checkbox"
                       checked={capiApenasQualificados}
-                      onChange={(e) => setCapiApenasQualificados(e.target.checked)}
+                      onChange={(e) =>
+                        setCapiApenasQualificados(e.target.checked)
+                      }
                       className="rounded"
                     />
                     Enviar apenas leads qualificados
@@ -871,7 +961,6 @@ export default function DashboardEditor() {
                 </div>
               )}
             </section>
-
           </div>
         </CardContent>
 
@@ -886,7 +975,7 @@ export default function DashboardEditor() {
             Salvar rascunho
           </Button>
 
-          {lancamento?.status !== "ativo" && (
+          {status !== "ativo" && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button className="w-full disabled:opacity-50">
@@ -924,7 +1013,7 @@ export default function DashboardEditor() {
               Preview ao Vivo
             </span>
           </div>
-          {lancamento?.status === "ativo" && (
+          {status === "ativo" && (
             <Button
               variant="ghost"
               size="sm"
@@ -1077,7 +1166,7 @@ export default function DashboardEditor() {
           </div>
         </div>
       </div>
-      
+
       <Dialog open={showSheetsImporter} onOpenChange={setShowSheetsImporter}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-full">
           <DialogHeader>
