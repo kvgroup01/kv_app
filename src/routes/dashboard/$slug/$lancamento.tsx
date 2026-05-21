@@ -59,24 +59,26 @@ function DashboardContent({
   slug,
   lancamento,
   dataLancamento,
-  dateRange,
-  setDateRange,
 }: {
   slug: string;
   lancamento: string;
   dataLancamento: any;
-  dateRange: DateRange;
-  setDateRange: (dr: DateRange | undefined) => void;
 }) {
+  const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
+    undefined,
+  );
+
   React.useEffect(() => {
-    console.log(
-      "[DashboardContent] MONTOU - clienteId:",
-      dataLancamento?.cliente_id,
-    );
-    return () => {
-      console.log("[DashboardContent] DESMONTOU");
-    };
-  }, []);
+    if (!dataLancamento) return;
+    if (dateRange !== undefined) return;
+    const from = dataLancamento.data_inicio_sync
+      ? new Date(dataLancamento.data_inicio_sync + "T00:00:00")
+      : subDays(new Date(), 29);
+    setDateRange({
+      from,
+      to: new Date(),
+    });
+  }, [dataLancamento, dateRange]);
 
   const [gruposWA, setGruposWA] = React.useState({
     ensino_superior: 0,
@@ -669,29 +671,13 @@ export default function PublicDashboardLancamento() {
   // Aplicar tema salvo pelo usuário
   useTheme();
 
-  const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
-    undefined,
-  );
-
   const {
     data: dataLancamento,
     isLoading: isLoadingLancamento,
     isError: isErrorLancamento,
   } = useLancamentoPorSlug(slug!, lancamento!);
 
-  React.useEffect(() => {
-    if (!dataLancamento) return;
-    if (dateRange !== undefined) return;
-    const from = dataLancamento.data_inicio_sync
-      ? new Date(dataLancamento.data_inicio_sync + "T00:00:00")
-      : subDays(new Date(), 29);
-    setDateRange({
-      from,
-      to: new Date(),
-    });
-  }, [dataLancamento, dateRange]);
-
-  if (isLoadingLancamento || !dateRange || !dataLancamento) {
+  if (isLoadingLancamento || !dataLancamento) {
     return <DashboardSkeleton tipo="ambos" />;
   }
 
@@ -736,8 +722,6 @@ export default function PublicDashboardLancamento() {
       slug={slug!}
       lancamento={lancamento!}
       dataLancamento={dataLancamento}
-      dateRange={dateRange}
-      setDateRange={setDateRange}
     />
   );
 }
