@@ -283,10 +283,17 @@ export function useDashboard(
         .eq("slug", slug)
         .single();
       if (error) throw new Error("Cliente não encontrado");
-      return { ...data, $id: data.id };
+      return { ...data, $id: data.id ?? data.$id ?? data.user_id };
     },
     staleTime: 1000 * 60 * 30,
     enabled: !!slug,
+  });
+
+  console.log("[DEBUG cliente]", {
+    cliente,
+    id: (cliente as any)?.id,
+    $id: cliente?.$id,
+    fonte: cliente?.fonte_dados,
   });
 
   // 2. Busca lançamento caso haja ID
@@ -307,6 +314,11 @@ export function useDashboard(
   });
 
   // 3. Estrutura Estática
+  console.log("[DEBUG estrutura enabled]", {
+    clienteId: cliente?.$id,
+    enabled: !!cliente?.$id,
+  });
+
   const {
     data: estrutura,
     isLoading: isLoadingEstrutura,
