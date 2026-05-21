@@ -485,7 +485,8 @@ function DashboardContent({
               <DateRangePicker
                 value={dateRange}
                 onChange={(newRange) => {
-                  console.log('[picker]', newRange?.from, newRange?.to);
+                  if (newRange?.from) newRange.from.setHours(0, 0, 0, 0);
+                  if (newRange?.to) newRange.to.setHours(0, 0, 0, 0);
                   setDateRange(newRange);
                 }}
                 className="w-full"
