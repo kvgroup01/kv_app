@@ -1,77 +1,88 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { format, subDays, startOfMonth, endOfMonth, subMonths } from "date-fns"
-import { ptBR } from "date-fns/locale"
-import { Calendar as CalendarIcon } from "lucide-react"
-import { type DateRange } from "react-day-picker"
-import { cn } from "../../lib/utils"
-import { Button } from "../ui/button"
-import { Calendar } from "../ui/calendar"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "../ui/popover"
+import * as React from "react";
+import { format, subDays, startOfMonth, endOfMonth, subMonths } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { type DateRange } from "react-day-picker";
+import { cn } from "../../lib/utils";
+import { Button } from "../ui/button";
+import { Calendar } from "../ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 interface DateRangePickerProps {
-  value: DateRange | undefined
-  onChange: (range: DateRange | undefined) => void
-  className?: string
+  value: DateRange | undefined;
+  onChange: (range: DateRange | undefined) => void;
+  className?: string;
 }
 
-export function DateRangePicker({ 
-  value, 
-  onChange, 
-  className 
+export function DateRangePicker({
+  value,
+  onChange,
+  className,
 }: DateRangePickerProps) {
-  const [open, setOpen] = React.useState(false)
-  const [tempRange, setTempRange] = React.useState<DateRange | undefined>(value)
+  const [open, setOpen] = React.useState(false);
+  const [tempRange, setTempRange] = React.useState<DateRange | undefined>(
+    () => {
+      if (!value) return undefined;
+      const from = value.from ? new Date(value.from) : undefined;
+      const to = value.to ? new Date(value.to) : undefined;
+      if (from) from.setHours(0, 0, 0, 0);
+      if (to) to.setHours(0, 0, 0, 0);
+      return { from, to };
+    },
+  );
   const [isMobile, setIsMobile] = React.useState(
-    typeof window !== 'undefined' && window.innerWidth < 768
-  )
+    typeof window !== "undefined" && window.innerWidth < 768,
+  );
 
   React.useEffect(() => {
-    const handler = () => setIsMobile(window.innerWidth < 768)
-    window.addEventListener('resize', handler)
-    return () => window.removeEventListener('resize', handler)
-  }, [])
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
+
+  const hoje = () => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  };
 
   const presets = [
-    { 
-      label: "Hoje", 
-      range: { from: new Date(), to: new Date() } 
+    {
+      label: "Hoje",
+      range: { from: hoje(), to: hoje() },
     },
-    { 
-      label: "Últimos 7 dias", 
-      range: { from: subDays(new Date(), 6), to: new Date() } 
+    {
+      label: "Últimos 7 dias",
+      range: { from: subDays(hoje(), 6), to: hoje() },
     },
-    { 
-      label: "Últimos 30 dias", 
-      range: { from: subDays(new Date(), 29), to: new Date() } 
+    {
+      label: "Últimos 30 dias",
+      range: { from: subDays(hoje(), 29), to: hoje() },
     },
-    { 
-      label: "Este mês", 
-      range: { from: startOfMonth(new Date()), to: new Date() } 
+    {
+      label: "Este mês",
+      range: { from: startOfMonth(hoje()), to: hoje() },
     },
-    { 
-      label: "Mês passado", 
-      range: { 
-        from: startOfMonth(subMonths(new Date(), 1)), 
-        to: endOfMonth(subMonths(new Date(), 1)) 
-      } 
+    {
+      label: "Mês passado",
+      range: {
+        from: startOfMonth(subMonths(hoje(), 1)),
+        to: endOfMonth(subMonths(hoje(), 1)),
+      },
     },
-  ]
+  ];
 
   function handlePreset(range: DateRange) {
-    onChange(range)
-    setTempRange(range)
-    setOpen(false)
+    onChange(range);
+    setTempRange(range);
+    setOpen(false);
   }
 
   function handleApply() {
-    onChange(tempRange)
-    setOpen(false)
+    onChange(tempRange);
+    setOpen(false);
   }
 
   return (
@@ -83,7 +94,7 @@ export function DateRangePicker({
           className={cn(
             "justify-start text-left font-normal",
             !value && "text-muted-foreground",
-            className
+            className,
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
@@ -103,8 +114,8 @@ export function DateRangePicker({
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent 
-        className="w-auto p-0 max-h-[90vh] overflow-y-auto" 
+      <PopoverContent
+        className="w-auto p-0 max-h-[90vh] overflow-y-auto"
         align="end"
       >
         <div className="flex">
@@ -141,11 +152,7 @@ export function DateRangePicker({
               >
                 Cancelar
               </Button>
-              <Button
-                type="button"
-                size="sm"
-                onClick={handleApply}
-              >
+              <Button type="button" size="sm" onClick={handleApply}>
                 Aplicar
               </Button>
             </div>
@@ -153,5 +160,5 @@ export function DateRangePicker({
         </div>
       </PopoverContent>
     </Popover>
-  )
+  );
 }
