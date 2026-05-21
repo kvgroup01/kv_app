@@ -9,6 +9,8 @@ export function useDashboardAPI(
     : "";
   const toStr = dateRange?.to ? dateRange.to.toISOString().split("T")[0] : "";
 
+  console.log("[API] queryKey:", lancamentoId, fromStr, toStr);
+
   return useQuery({
     queryKey: ["dashboard-api", lancamentoId, fromStr, toStr],
     queryFn: async () => {

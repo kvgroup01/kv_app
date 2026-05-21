@@ -483,7 +483,10 @@ function DashboardContent({
             <div className="w-full lg:w-[300px]">
               <DateRangePicker
                 value={dateRange}
-                onChange={setDateRange}
+                onChange={(newRange) => {
+                  console.log("[picker onChange]", newRange);
+                  setDateRange(newRange);
+                }}
                 className="w-full"
               />
             </div>
