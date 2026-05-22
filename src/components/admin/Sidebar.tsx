@@ -40,6 +40,7 @@ const NAV_ITEMS = [
   { href: '/admin/financeiro', icon: Wallet, label: 'Financeiro' },
   { href: '/admin/orcamentos', icon: FileText, label: 'Orçamentos' },
   { href: '/admin/instagram', icon: Instagram, label: 'Instagram' },
+  { href: '/admin/ads-manager', icon: LayoutDashboard, label: 'Gerenciador de Anúncios' },
   { href: '/admin/meta-connect', icon: Plug2, label: 'Integrações' },
   { href: '/admin/configuracoes', icon: Settings, label: 'Configurações' },
 ];

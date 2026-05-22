@@ -35,6 +35,7 @@ import FunisCanvas from "./routes/admin/funis/$id/canvas";
 // Integrações
 import MetaConnectPage from "./routes/admin/meta-connect";
 import InstagramPage from "./routes/admin/instagram/index";
+import AdsManagerPage from "./routes/admin/ads-manager/index";
 
 // Módulos Públicos Externos
 import OrcamentoPublico from "./routes/orcamento/$token";
@@ -91,6 +92,7 @@ export default function App() {
             <Route path="orcamentos" element={<OrcamentosIndex />} />
             <Route path="orcamentos/novo" element={<OrcamentoNovo />} />
             <Route path="instagram" element={<InstagramPage />} />
+            <Route path="ads-manager" element={<AdsManagerPage />} />
             <Route path="configuracoes" element={<Configuracoes />} />
             <Route path="meta-connect" element={<MetaConnectPage />} />
           </Route>
