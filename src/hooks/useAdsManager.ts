@@ -31,6 +31,7 @@ export interface AdsAccount {
 
 export interface AdsCampaign {
   id: string;
+  meta_campaign_id?: string;
   nome: string;
   status: string;
   objective: string;
@@ -52,6 +53,7 @@ export interface AdsCampaign {
 
 export interface AdsAdset {
   id: string;
+  meta_adset_id?: string;
   nome: string;
   total_ads: number;
   metricas: {

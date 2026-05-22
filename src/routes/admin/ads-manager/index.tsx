@@ -113,7 +113,11 @@ export default function AdsManagerPage() {
 
   const handleToggle = async (item: any) => {
     const newStatus = (item.status?.toUpperCase() === "ACTIVE" || item.status?.toUpperCase() === "ATIVO") ? "PAUSED" : "ACTIVE";
-    const metaId = activeTab === "anuncios" ? item.meta_ad_id : item.id;
+    const metaId = activeTab === "anuncios"
+      ? item.meta_ad_id
+      : activeTab === "campanhas"
+      ? (item.meta_campaign_id || item.id)
+      : (item.meta_adset_id || item.id);
     const lancId = item.lancamento_id || selectedLancamentoId;
     if (!lancId) { toast.error("Lançamento não encontrado para obter token"); return; }
     setTogglingId(item.id);
@@ -133,7 +137,11 @@ export default function AdsManagerPage() {
   const handleAtivar = async () => {
     const itemsToToggle = currentItems.filter((i: any) => checkedIds.includes(i.id));
     await Promise.allSettled(itemsToToggle.map((item: any) => {
-      const metaId = activeTab === "anuncios" ? item.meta_ad_id : item.id;
+      const metaId = activeTab === "anuncios"
+        ? item.meta_ad_id
+        : activeTab === "campanhas"
+        ? (item.meta_campaign_id || item.id)
+        : (item.meta_adset_id || item.id);
       const lancId = item.lancamento_id || selectedLancamentoId;
       return toggleEntityStatus(metaId, activeTab === "campanhas" ? "campaign" : activeTab === "conjuntos" ? "adset" : "ad", "ACTIVE", lancId!);
     }));
@@ -146,7 +154,11 @@ export default function AdsManagerPage() {
   const handlePausar = async () => {
     const itemsToToggle = currentItems.filter((i: any) => checkedIds.includes(i.id));
     await Promise.allSettled(itemsToToggle.map((item: any) => {
-      const metaId = activeTab === "anuncios" ? item.meta_ad_id : item.id;
+      const metaId = activeTab === "anuncios"
+        ? item.meta_ad_id
+        : activeTab === "campanhas"
+        ? (item.meta_campaign_id || item.id)
+        : (item.meta_adset_id || item.id);
       const lancId = item.lancamento_id || selectedLancamentoId;
       return toggleEntityStatus(metaId, activeTab === "campanhas" ? "campaign" : activeTab === "conjuntos" ? "adset" : "ad", "PAUSED", lancId!);
     }));
