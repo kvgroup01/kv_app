@@ -17,6 +17,7 @@ import { ptBR } from "date-fns/locale";
 import { cn } from "../../../lib/utils";
 import { DateRangePicker } from "../../../components/shared/DateRangePicker";
 import { type DateRange } from "react-day-picker";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   useInstagramProfiles,
   useInstagramProfileInsights,
@@ -583,11 +584,36 @@ function ProfileDashboard({ profile }: { profile: any }) {
 }
 
 export default function InstagramAnalytics() {
+  const queryClient = useQueryClient();
   const { data: profiles, isLoading } = useInstagramProfiles();
   const [perfilSelecionado, setPerfilSelecionado] = React.useState<
     string | null
   >(null);
-  const [conectando, setConectando] = React.useState(false);
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("success") === "connected") {
+      toast.success("Perfil do Instagram conectado com sucesso!");
+      window.history.replaceState({}, "", window.location.pathname);
+      queryClient.invalidateQueries({ queryKey: ["instagram-profiles"] });
+    }
+    if (params.get("error")) {
+      const error = params.get("error");
+      if (error === "no_instagram") {
+        toast.error(
+          "Nenhuma conta do Instagram Business encontrada nessa conta do Facebook.",
+        );
+      } else {
+        toast.error("Erro ao conectar: " + error);
+      }
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, [queryClient]);
+
+  function handleConectar() {
+    window.location.href =
+      "https://sync.kvgroupbr.com.br/auth/meta/login?mode=instagram";
+  }
 
   return (
     <div className="container mx-auto p-4 md:p-8 space-y-8 animate-in fade-in-50 duration-500">
@@ -657,7 +683,7 @@ export default function InstagramAnalytics() {
             ))}
 
             <button
-              onClick={() => setConectando(true)}
+              onClick={handleConectar}
               className="flex flex-col items-center gap-3 p-6 rounded-xl border border-dashed hover:border-primary hover:bg-muted/50 transition-all text-muted-foreground"
             >
               <div className="w-16 h-16 rounded-full border-2 border-dashed flex items-center justify-center">
@@ -669,12 +695,6 @@ export default function InstagramAnalytics() {
               </div>
             </button>
           </div>
-
-          {conectando && (
-            <div className="text-muted-foreground text-sm mt-4 p-4 border rounded-lg bg-card">
-              Modal de conexão - em breve
-            </div>
-          )}
         </>
       )}
     </div>
