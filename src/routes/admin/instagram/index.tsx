@@ -9,6 +9,8 @@ import {
   Bookmark,
   Play,
   Image as ImageIcon,
+  Plus,
+  ArrowLeft,
 } from "lucide-react";
 import { format, parseISO, subDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -582,6 +584,10 @@ function ProfileDashboard({ profile }: { profile: any }) {
 
 export default function InstagramAnalytics() {
   const { data: profiles, isLoading } = useInstagramProfiles();
+  const [perfilSelecionado, setPerfilSelecionado] = React.useState<
+    string | null
+  >(null);
+  const [conectando, setConectando] = React.useState(false);
 
   return (
     <div className="container mx-auto p-4 md:p-8 space-y-8 animate-in fade-in-50 duration-500">
@@ -601,30 +607,75 @@ export default function InstagramAnalytics() {
         <div className="flex items-center justify-center h-64">
           <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
-      ) : profiles && profiles.length > 0 ? (
+      ) : perfilSelecionado ? (
         <div>
-          {profiles.map((profile) => (
-            <ProfileDashboard key={profile.id} profile={profile} />
-          ))}
+          <button
+            onClick={() => setPerfilSelecionado(null)}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Voltar para perfis
+          </button>
+          {profiles
+            ?.filter((p) => p.id === perfilSelecionado)
+            .map((profile) => (
+              <ProfileDashboard key={profile.id} profile={profile} />
+            ))}
         </div>
       ) : (
-        <Card className="border-dashed border-2 py-12 bg-transparent mt-8">
-          <CardContent className="flex flex-col items-center justify-center text-center">
-            <div className="h-20 w-20 bg-muted/50 rounded-full flex items-center justify-center mb-4">
-              <Instagram className="h-10 w-10 text-muted-foreground opacity-50" />
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {profiles?.map((profile) => (
+              <button
+                key={profile.id}
+                onClick={() => setPerfilSelecionado(profile.id)}
+                className="flex flex-col items-center gap-3 p-6 rounded-xl border bg-card hover:border-primary hover:shadow-md transition-all"
+              >
+                {profile.profile_picture_url ? (
+                  <img
+                    src={profile.profile_picture_url}
+                    alt={profile.name}
+                    className="w-16 h-16 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xl">
+                    {profile.username?.[0]?.toUpperCase()}
+                  </div>
+                )}
+                <div className="text-center">
+                  <p className="font-semibold text-sm truncate max-w-[120px]">
+                    {profile.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    @{profile.username}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {profile.followers_count?.toLocaleString()} seguidores
+                  </p>
+                </div>
+              </button>
+            ))}
+
+            <button
+              onClick={() => setConectando(true)}
+              className="flex flex-col items-center gap-3 p-6 rounded-xl border border-dashed hover:border-primary hover:bg-muted/50 transition-all text-muted-foreground"
+            >
+              <div className="w-16 h-16 rounded-full border-2 border-dashed flex items-center justify-center">
+                <Plus className="w-6 h-6" />
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium">Conectar perfil</p>
+                <p className="text-xs">Instagram Business</p>
+              </div>
+            </button>
+          </div>
+
+          {conectando && (
+            <div className="text-muted-foreground text-sm mt-4 p-4 border rounded-lg bg-card">
+              Modal de conexão - em breve
             </div>
-            <h2 className="text-xl font-semibold text-foreground mb-2">
-              Nenhum perfil conectado ainda
-            </h2>
-            <p className="text-muted-foreground max-w-sm mb-6">
-              Conecte sua conta do Instagram para visualizar métricas,
-              crescimento de seguidores e performance de posts.
-            </p>
-            <Button asChild>
-              <a href="/admin/meta-connect">Conectar Conta</a>
-            </Button>
-          </CardContent>
-        </Card>
+          )}
+        </>
       )}
     </div>
   );
