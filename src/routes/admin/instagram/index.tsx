@@ -189,6 +189,14 @@ function ProfileDashboard({ profile }: { profile: any }) {
     return sorted;
   }, [mediaFiltrada, dateRange]);
 
+  React.useEffect(() => {
+    if (mediaList) {
+      console.log("tipos:", [
+        ...new Set(mediaList.map((p: any) => p.media_type)),
+      ]);
+    }
+  }, [mediaList]);
+
   const [tipoFiltro, setTipoFiltro] = React.useState<
     "todos" | "VIDEO" | "IMAGE" | "CAROUSEL_ALBUM"
   >("todos");
@@ -198,6 +206,17 @@ function ProfileDashboard({ profile }: { profile: any }) {
       ? mediaFiltradaSorted
       : mediaFiltradaSorted.filter((p: any) => p.media_type === tipoFiltro);
   }, [mediaFiltradaSorted, tipoFiltro]);
+
+  const POSTS_POR_PAGINA = 12;
+  const [pagina, setPagina] = React.useState(1);
+
+  const postsPaginados = React.useMemo(() => {
+    return mediaExibida.slice(0, pagina * POSTS_POR_PAGINA);
+  }, [mediaExibida, pagina]);
+
+  React.useEffect(() => {
+    setPagina(1);
+  }, [tipoFiltro, dateRange]);
 
   return (
     <div className="space-y-6 mb-12">
@@ -429,7 +448,7 @@ function ProfileDashboard({ profile }: { profile: any }) {
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mediaExibida.map((post: any) => {
+            {postsPaginados.map((post: any) => {
               const date = new Date(post.timestamp);
               // Fallbacks from post or insights
               const insightData = (post.instagram_media_insights as any) || {};
@@ -516,6 +535,14 @@ function ProfileDashboard({ profile }: { profile: any }) {
               );
             })}
           </div>
+          {postsPaginados.length < mediaExibida.length && (
+            <div className="flex justify-center mt-6">
+              <Button variant="outline" onClick={() => setPagina((p) => p + 1)}>
+                Ver mais ({mediaExibida.length - postsPaginados.length}{" "}
+                restantes)
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </div>
