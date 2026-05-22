@@ -273,3 +273,82 @@ export function useClientesComInstagram() {
     refetchOnWindowFocus: false,
   });
 }
+
+// ─── Hook: clientes com Meta Ads configurado
+export function useClientesComMetaAds() {
+  return useQuery({
+    queryKey: ["clientes-com-meta-ads"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("clientes")
+        .select("id, nome, meta_ad_account_id")
+        .not("meta_ad_account_id", "is", null)
+        .order("nome");
+      if (error) throw error;
+      return (data || []) as Array<{ id: string; nome: string; meta_ad_account_id: string }>;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+// ─── Hook: adsets de múltiplas campanhas selecionadas
+export function useAdsManagerAdsetsByMultipleCampaigns(
+  campaignIds: string[],
+  from?: Date,
+  to?: Date,
+) {
+  return useQuery({
+    queryKey: ["ads-manager-adsets-filtered", campaignIds.join(","), toDateStr(from), toDateStr(to)],
+    queryFn: async (): Promise<{ adsets: Array<AdsAdset & { campaign_nome: string; lancamento_id: string }> }> => {
+      const params = new URLSearchParams({ campaignIds: campaignIds.join(",") });
+      if (from) params.append("from", toDateStr(from));
+      if (to) params.append("to", toDateStr(to));
+      const res = await fetch(`${VPS}/ads-manager/adsets-filtered?${params}`);
+      if (!res.ok) throw new Error("Erro ao buscar conjuntos");
+      return res.json();
+    },
+    enabled: campaignIds.length > 0,
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+  });
+}
+
+// ─── Hook: ads de múltiplos adsets selecionados
+export function useAdsManagerAdsByMultipleAdsets(
+  adsetIds: string[],
+  from?: Date,
+  to?: Date,
+) {
+  return useQuery({
+    queryKey: ["ads-manager-ads-filtered", adsetIds.join(","), toDateStr(from), toDateStr(to)],
+    queryFn: async (): Promise<{ ads: AdsAd[] }> => {
+      const params = new URLSearchParams({ adsetIds: adsetIds.join(",") });
+      if (from) params.append("from", toDateStr(from));
+      if (to) params.append("to", toDateStr(to));
+      const res = await fetch(`${VPS}/ads-manager/ads-filtered?${params}`);
+      if (!res.ok) throw new Error("Erro ao buscar anúncios");
+      return res.json();
+    },
+    enabled: adsetIds.length > 0,
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+  });
+}
+
+// ─── Função: toggle de status via Meta API
+export async function toggleEntityStatus(
+  metaEntityId: string,
+  entityType: "campaign" | "adset" | "ad",
+  status: "ACTIVE" | "PAUSED",
+  lancamentoId: string,
+): Promise<void> {
+  const res = await fetch(`${VPS}/ads-manager/toggle-status`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ metaEntityId, entityType, status, lancamentoId }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || "Erro ao alterar status");
+  }
+}
