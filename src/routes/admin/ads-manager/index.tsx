@@ -316,7 +316,9 @@ function TabContasCampanhas() {
                   {acc.nome}
                 </div>
                 <Badge variant="secondary" className="text-[10px] uppercase">
-                  {acc.moeda}
+                  {acc.criado_em
+                    ? new Date(acc.criado_em).getFullYear() + ""
+                    : "Meta Ads"}
                 </Badge>
               </div>
               <div className="text-xs text-muted-foreground mb-4">

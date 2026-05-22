@@ -9,8 +9,10 @@ export interface AdsAccount {
   id: string;
   meta_account_id: string;
   nome: string;
-  moeda: string;
-  expires_at: string;
+  meta_access_token: string;
+  expires_in: string;
+  criado_em: string;
+  user_id: string;
   lancamentos: Array<{
     id: string;
     nome: string;
