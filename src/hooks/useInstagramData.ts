@@ -32,6 +32,23 @@ export function useInstagramProfileInsights(profileId: string) {
   });
 }
 
+export function useInstagramMediaFresh(profileId: string) {
+  return useQuery({
+    queryKey: ["instagram-media-fresh", profileId],
+    queryFn: async () => {
+      if (!profileId) return [];
+      const res = await fetch(
+        `https://sync.kvgroupbr.com.br/instagram/media/${profileId}`,
+      );
+      const json = await res.json();
+      return json.data || [];
+    },
+    enabled: !!profileId,
+    staleTime: 1000 * 60 * 10, // 10 min
+    refetchOnWindowFocus: false,
+  });
+}
+
 export function useInstagramMedia(profileId: string) {
   return useQuery({
     queryKey: ["instagram-media", profileId],

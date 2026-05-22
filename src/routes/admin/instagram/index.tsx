@@ -19,6 +19,7 @@ import {
   useInstagramProfiles,
   useInstagramProfileInsights,
   useInstagramMedia,
+  useInstagramMediaFresh,
 } from "../../../hooks/useInstagramData";
 import { Button } from "../../../components/ui/button";
 import {
@@ -60,9 +61,27 @@ function ProfileDashboard({ profile }: { profile: any }) {
   const [syncing, setSyncing] = React.useState(false);
   const { data: insights, isLoading: loadingInsights } =
     useInstagramProfileInsights(profile.id);
-  const { data: mediaList, isLoading: loadingMedia } = useInstagramMedia(
-    profile.id,
-  );
+
+  const { data: mediaFresh = [], isLoading: loadingFresh } =
+    useInstagramMediaFresh(profile.id);
+  const { data: mediaInsights = [], isLoading: loadingMediaDb } =
+    useInstagramMedia(profile.id);
+
+  const loadingMedia = loadingFresh || loadingMediaDb;
+
+  // Combinar: pegar URL fresca + insights do banco
+  const mediaCombinada = React.useMemo(() => {
+    return mediaFresh.map((fresh: any) => {
+      const insight = mediaInsights.find(
+        (m: any) => m.instagram_media_id === fresh.id || m.id === fresh.id,
+      );
+      return {
+        ...fresh,
+        instagram_media_id: fresh.id,
+        instagram_media_insights: (insight as any)?.instagram_media_insights,
+      };
+    });
+  }, [mediaFresh, mediaInsights]);
 
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
     from: subDays(new Date(), 29),
@@ -81,15 +100,15 @@ function ProfileDashboard({ profile }: { profile: any }) {
   }, [insights, dateRange]);
 
   const mediaFiltrada = React.useMemo(() => {
-    if (!mediaList) return [];
-    return mediaList.filter((post: any) => {
+    if (!mediaCombinada) return [];
+    return mediaCombinada.filter((post: any) => {
       const data = new Date(post.timestamp);
       return (
         (!dateRange?.from || data >= dateRange.from) &&
         (!dateRange?.to || data <= dateRange.to)
       );
     });
-  }, [mediaList, dateRange]);
+  }, [mediaCombinada, dateRange]);
 
   const handleSync = async () => {
     setSyncing(true);
@@ -190,16 +209,18 @@ function ProfileDashboard({ profile }: { profile: any }) {
   }, [mediaFiltrada, dateRange]);
 
   React.useEffect(() => {
-    if (mediaList) {
+    if (mediaCombinada) {
       console.log("tipos:", [
-        ...new Set(mediaList.map((p: any) => p.media_type)),
+        ...new Set(mediaCombinada.map((p: any) => p.media_type)),
       ]);
     }
-  }, [mediaList]);
+  }, [mediaCombinada]);
 
   const [tipoFiltro, setTipoFiltro] = React.useState<
     "todos" | "VIDEO" | "IMAGE" | "CAROUSEL_ALBUM"
   >("todos");
+
+  const [videoAtivo, setVideoAtivo] = React.useState<string | null>(null);
 
   const mediaExibida = React.useMemo(() => {
     return tipoFiltro === "todos"
@@ -464,12 +485,22 @@ function ProfileDashboard({ profile }: { profile: any }) {
                   className="overflow-hidden group flex flex-col bg-card hover:border-primary/50 transition-colors"
                 >
                   <div className="relative aspect-square bg-muted">
-                    {post.media_url ? (
-                      <img
+                    {post.media_type === "VIDEO" && videoAtivo === post.id ? (
+                      <video
                         src={post.media_url}
+                        controls
+                        autoPlay
                         className="w-full h-full object-cover"
+                      />
+                    ) : post.media_url || post.thumbnail_url ? (
+                      <img
+                        src={post.thumbnail_url || post.media_url}
+                        className="w-full h-full object-cover cursor-pointer"
                         loading="lazy"
                         alt="Post"
+                        onClick={() =>
+                          post.media_type === "VIDEO" && setVideoAtivo(post.id)
+                        }
                       />
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground">
