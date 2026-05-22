@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Input } from "../../../components/ui/input";
 import { toast } from "sonner";
 import {
-  useClientesComMetaAds,
+  useAdsManagerOverview,
   useAdsManagerCampaigns,
   useAdsManagerAdsetsByMultipleCampaigns,
   useAdsManagerAdsByMultipleAdsets,
@@ -70,7 +70,8 @@ export default function AdsManagerPage() {
   const [statusFilter, setStatusFilter] = React.useState<"TODOS" | "ACTIVE" | "PAUSED">("TODOS");
   const [togglingId, setTogglingId] = React.useState<string | null>(null);
 
-  const { data: clientes = [] } = useClientesComMetaAds();
+  const { data: overviewData } = useAdsManagerOverview();
+  const contas = overviewData?.accounts || [];
   const { data: campData, isLoading: loadingCamps } = useAdsManagerCampaigns(selectedAccountId, dateRange?.from, dateRange?.to);
   const { data: adsetsData, isLoading: loadingAdsets } = useAdsManagerAdsetsByMultipleCampaigns(filterCampaignIds, dateRange?.from, dateRange?.to);
   const { data: adsData, isLoading: loadingAds } = useAdsManagerAdsByMultipleAdsets(filterAdsetIds, dateRange?.from, dateRange?.to);
@@ -93,9 +94,12 @@ export default function AdsManagerPage() {
 
   React.useEffect(() => {
     if (selectedClienteId) {
-      const cliente = clientes.find((c: any) => c.id === selectedClienteId);
-      if (cliente) {
-        setSelectedAccountId(cliente.meta_ad_account_id);
+      const conta = contas.find((c: any) => c.meta_account_id === selectedClienteId);
+      if (conta) {
+        setSelectedAccountId(conta.meta_account_id);
+        // pegar lancamento_id do primeiro lancamento da conta para uso no toggle
+        const primeiroLanc = conta.lancamentos?.[0];
+        if (primeiroLanc) setSelectedLancamentoId(primeiroLanc.id);
       }
       setCheckedIds([]);
       setFilterCampaignIds([]);
@@ -103,14 +107,9 @@ export default function AdsManagerPage() {
       setActiveTab("campanhas");
     } else {
       setSelectedAccountId(null);
+      setSelectedLancamentoId(null);
     }
-  }, [selectedClienteId, clientes]);
-
-  React.useEffect(() => {
-    if (campData?.campaigns?.length && !selectedLancamentoId) {
-      setSelectedLancamentoId(campData.campaigns[0]?.lancamento_id || null);
-    }
-  }, [campData, selectedLancamentoId]);
+  }, [selectedClienteId, contas]);
 
   const handleToggle = async (item: any) => {
     const newStatus = (item.status?.toUpperCase() === "ACTIVE" || item.status?.toUpperCase() === "ATIVO") ? "PAUSED" : "ACTIVE";
@@ -181,11 +180,13 @@ export default function AdsManagerPage() {
       <div className="border rounded-t-lg bg-card p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
         <Select value={selectedClienteId || ""} onValueChange={setSelectedClienteId}>
           <SelectTrigger className="w-full sm:w-64">
-            <SelectValue placeholder="Selecionar cliente..." />
+            <SelectValue placeholder="Selecionar conta Meta Ads..." />
           </SelectTrigger>
           <SelectContent>
-            {clientes.map((c: any) => (
-              <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+            {contas.map((c: any) => (
+              <SelectItem key={c.meta_account_id} value={c.meta_account_id}>
+                {c.nome || c.meta_account_id}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
