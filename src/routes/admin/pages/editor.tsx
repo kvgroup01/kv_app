@@ -1,8 +1,10 @@
 import * as React from "react";
 import { useNavigate, useParams } from "react-router";
-import { ArrowLeft, Save, Globe, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Globe, Loader2, Sparkles } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { Badge } from "../../../components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../../components/ui/dialog";
+import { Textarea } from "../../../components/ui/textarea";
 import { toast } from "sonner";
 import grapesjs, { type Editor } from "grapesjs";
 import "grapesjs/dist/css/grapes.min.css";
@@ -161,9 +163,37 @@ export default function PagesEditor() {
   const initializedRef = React.useRef(false);
   const [saving, setSaving] = React.useState(false);
   const [publishing, setPublishing] = React.useState(false);
+  const [aiModalOpen, setAiModalOpen] = React.useState(false);
+  const [prompt, setPrompt] = React.useState("");
+  const [generatingAI, setGeneratingAI] = React.useState(false);
 
   const { data: page, isLoading } = usePage(id ?? null);
   const updatePage = useUpdatePage();
+
+  const handleGenerateAI = async () => {
+    if (!prompt.trim() || !editorRef.current) return;
+    setGeneratingAI(true);
+    try {
+      const res = await fetch("https://sync.kvgroupbr.com.br/pages/ai-generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: prompt.trim() }),
+      });
+      if (!res.ok) throw new Error("Erro na solicitação");
+      const { html } = await res.json();
+      if (html) {
+        editorRef.current.setComponents(html);
+        editorRef.current.setStyle('');
+        toast.success("Página gerada com sucesso!");
+        setAiModalOpen(false);
+        setPrompt("");
+      }
+    } catch (e: any) {
+      toast.error(e.message || "Erro ao gerar página com IA");
+    } finally {
+      setGeneratingAI(false);
+    }
+  };
 
   React.useEffect(() => {
     if (!containerRef.current || isLoading || initializedRef.current) return;
@@ -263,6 +293,14 @@ export default function PagesEditor() {
         </Badge>
         <Button
           size="sm"
+          onClick={() => setAiModalOpen(true)}
+          className="bg-violet-600 hover:bg-violet-700 text-white gap-2"
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          Gerar com IA
+        </Button>
+        <Button
+          size="sm"
           variant="outline"
           onClick={() => handleSave(false)}
           disabled={saving}
@@ -284,6 +322,51 @@ export default function PagesEditor() {
 
       {/* GrapesJS editor */}
       <div ref={containerRef} style={{ flex: 1, overflow: "hidden" }} />
+
+      <Dialog open={aiModalOpen} onOpenChange={setAiModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-violet-600" />
+              Gerar Página com IA
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Descreva detalhadamente a página que você quer gerar. A IA criará a estrutura e os textos para você.
+            </p>
+            <Textarea
+              placeholder="Ex: landing page de captura para curso de inglês online, fundo azul escuro, tom profissional e moderno"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              rows={4}
+              disabled={generatingAI}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAiModalOpen(false)} disabled={generatingAI}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleGenerateAI}
+              disabled={!prompt.trim() || generatingAI}
+              className="bg-violet-600 hover:bg-violet-700 text-white gap-2"
+            >
+              {generatingAI ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  A IA está criando sua página...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  Gerar página
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
