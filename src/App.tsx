@@ -37,6 +37,10 @@ import MetaConnectPage from "./routes/admin/meta-connect";
 import InstagramPage from "./routes/admin/instagram/index";
 import AdsManagerPage from "./routes/admin/ads-manager/index";
 
+// Páginas (Módulo de Landing Pages)
+import PagesIndex from "./routes/admin/pages/index";
+import PagesEditor from "./routes/admin/pages/editor";
+
 // Módulos Públicos Externos
 import OrcamentoPublico from "./routes/orcamento/$token";
 import DashboardPublico from "./routes/dashboard/$slug";
@@ -86,6 +90,10 @@ export default function App() {
             <Route path="funis" element={<FunisIndex />} />
             <Route path="funis/novo" element={<FunisNovo />} />
             <Route path="funis/:id/canvas" element={<FunisCanvas />} />
+
+            {/* Sub-rotas de Páginas */}
+            <Route path="pages" element={<PagesIndex />} />
+            <Route path="pages/:id/editor" element={<PagesEditor />} />
 
             {/* Sub-rotas Auxiliares */}
             <Route path="financeiro" element={<FinanceiroIndex />} />
