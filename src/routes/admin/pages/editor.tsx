@@ -1,358 +1,418 @@
 import * as React from "react";
-import { useNavigate, useParams } from "react-router";
-import { ArrowLeft, Save, Globe, Loader2, Sparkles } from "lucide-react";
+import { useParams, useNavigate } from "react-router";
+import { ArrowLeft, Sparkles, Undo2, Redo2, Save, Globe, ChevronRight, X, Loader2, Clock } from "lucide-react";
 import { Button } from "../../../components/ui/button";
-import { Badge } from "../../../components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../../components/ui/dialog";
 import { Textarea } from "../../../components/ui/textarea";
+import { Badge } from "../../../components/ui/badge";
 import { toast } from "sonner";
-import grapesjs, { type Editor } from "grapesjs";
-import "grapesjs/dist/css/grapes.min.css";
-// @ts-ignore
-import gjsPresetWebpage from "grapesjs-preset-webpage";
+import { cn } from "../../../lib/utils";
 import { usePage, useUpdatePage } from "../../../hooks/usePages";
 
-const KV_BLOCKS = [
-  {
-    id: "kv-hero",
-    label: "🎯 Hero",
-    category: "KVision Blocos",
-    content: `<section style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:80px 20px;text-align:center;min-height:500px;display:flex;align-items:center;justify-content:center;">
-  <div style="max-width:800px;margin:0 auto;">
-    <h1 style="font-family:Inter,sans-serif;font-size:48px;font-weight:900;color:white;margin:0 0 20px;line-height:1.1;">Seu título principal aqui</h1>
-    <p style="font-family:Inter,sans-serif;font-size:20px;color:rgba(255,255,255,0.85);margin:0 0 40px;line-height:1.6;">Uma descrição convincente que explica o valor da sua oferta em poucas palavras.</p>
-    <a href="#" style="display:inline-block;background:#f59e0b;color:white;font-family:Inter,sans-serif;font-size:18px;font-weight:700;padding:18px 48px;border-radius:50px;text-decoration:none;box-shadow:0 4px 20px rgba(245,158,11,0.4);">QUERO PARTICIPAR →</a>
-  </div>
-</section>`,
-  },
-  {
-    id: "kv-capture",
-    label: "📋 Formulário de Captura",
-    category: "KVision Blocos",
-    content: `<section style="background:#f8fafc;padding:60px 20px;text-align:center;">
-  <div style="max-width:500px;margin:0 auto;background:white;padding:48px;border-radius:16px;box-shadow:0 4px 40px rgba(0,0,0,0.08);">
-    <h2 style="font-family:Inter,sans-serif;font-size:28px;font-weight:800;color:#1e293b;margin:0 0 8px;">Garanta sua vaga gratuita</h2>
-    <p style="font-family:Inter,sans-serif;font-size:16px;color:#64748b;margin:0 0 32px;">Preencha o formulário e receba o acesso imediatamente.</p>
-    <form style="display:flex;flex-direction:column;gap:16px;">
-      <input type="text" placeholder="Seu nome completo" style="padding:16px;border:2px solid #e2e8f0;border-radius:8px;font-family:Inter,sans-serif;font-size:16px;width:100%;box-sizing:border-box;"/>
-      <input type="email" placeholder="Seu melhor e-mail" style="padding:16px;border:2px solid #e2e8f0;border-radius:8px;font-family:Inter,sans-serif;font-size:16px;width:100%;box-sizing:border-box;"/>
-      <button type="submit" style="background:#10b981;color:white;font-family:Inter,sans-serif;font-size:18px;font-weight:700;padding:18px;border-radius:8px;border:none;cursor:pointer;width:100%;">QUERO MEU ACESSO GRÁTIS →</button>
-    </form>
-    <p style="font-family:Inter,sans-serif;font-size:13px;color:#94a3b8;margin:16px 0 0;">🔒 Seus dados estão seguros. Sem spam.</p>
-  </div>
-</section>`,
-  },
-  {
-    id: "kv-benefits",
-    label: "✅ Benefícios",
-    category: "KVision Blocos",
-    content: `<section style="padding:80px 20px;background:white;">
-  <div style="max-width:1100px;margin:0 auto;">
-    <h2 style="font-family:Inter,sans-serif;font-size:36px;font-weight:800;color:#1e293b;text-align:center;margin:0 0 60px;">O que você vai aprender</h2>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px;">
-      <div style="text-align:center;padding:32px 24px;">
-        <div style="font-size:48px;margin-bottom:16px;">🎯</div>
-        <h3 style="font-family:Inter,sans-serif;font-size:20px;font-weight:700;color:#1e293b;margin:0 0 12px;">Benefício 1</h3>
-        <p style="font-family:Inter,sans-serif;font-size:16px;color:#64748b;line-height:1.6;margin:0;">Descreva o primeiro grande benefício que o participante vai ter acesso.</p>
-      </div>
-      <div style="text-align:center;padding:32px 24px;">
-        <div style="font-size:48px;margin-bottom:16px;">🚀</div>
-        <h3 style="font-family:Inter,sans-serif;font-size:20px;font-weight:700;color:#1e293b;margin:0 0 12px;">Benefício 2</h3>
-        <p style="font-family:Inter,sans-serif;font-size:16px;color:#64748b;line-height:1.6;margin:0;">Descreva o segundo grande benefício que o participante vai ter acesso.</p>
-      </div>
-      <div style="text-align:center;padding:32px 24px;">
-        <div style="font-size:48px;margin-bottom:16px;">💎</div>
-        <h3 style="font-family:Inter,sans-serif;font-size:20px;font-weight:700;color:#1e293b;margin:0 0 12px;">Benefício 3</h3>
-        <p style="font-family:Inter,sans-serif;font-size:16px;color:#64748b;line-height:1.6;margin:0;">Descreva o terceiro grande benefício que o participante vai ter acesso.</p>
-      </div>
-    </div>
-  </div>
-</section>`,
-  },
-  {
-    id: "kv-testimonials",
-    label: "💬 Depoimentos",
-    category: "KVision Blocos",
-    content: `<section style="padding:80px 20px;background:#f8fafc;">
-  <div style="max-width:1100px;margin:0 auto;">
-    <h2 style="font-family:Inter,sans-serif;font-size:36px;font-weight:800;color:#1e293b;text-align:center;margin:0 0 60px;">O que dizem nossos alunos</h2>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
-      <div style="background:white;padding:32px;border-radius:16px;box-shadow:0 2px 20px rgba(0,0,0,0.06);">
-        <p style="font-family:Inter,sans-serif;font-size:15px;color:#475569;line-height:1.7;margin:0 0 24px;font-style:italic;">"Depoimento incrível aqui. Fale sobre a transformação que o produto trouxe."</p>
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div style="width:48px;height:48px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:20px;">👤</div>
-          <div><p style="font-family:Inter,sans-serif;font-size:15px;font-weight:700;color:#1e293b;margin:0;">Nome do Cliente</p><p style="font-family:Inter,sans-serif;font-size:13px;color:#94a3b8;margin:0;">Profissão / Cidade</p></div>
-        </div>
-      </div>
-      <div style="background:white;padding:32px;border-radius:16px;box-shadow:0 2px 20px rgba(0,0,0,0.06);">
-        <p style="font-family:Inter,sans-serif;font-size:15px;color:#475569;line-height:1.7;margin:0 0 24px;font-style:italic;">"Outro depoimento poderoso que convence o visitante a tomar uma ação."</p>
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div style="width:48px;height:48px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:20px;">👤</div>
-          <div><p style="font-family:Inter,sans-serif;font-size:15px;font-weight:700;color:#1e293b;margin:0;">Nome do Cliente</p><p style="font-family:Inter,sans-serif;font-size:13px;color:#94a3b8;margin:0;">Profissão / Cidade</p></div>
-        </div>
-      </div>
-      <div style="background:white;padding:32px;border-radius:16px;box-shadow:0 2px 20px rgba(0,0,0,0.06);">
-        <p style="font-family:Inter,sans-serif;font-size:15px;color:#475569;line-height:1.7;margin:0 0 24px;font-style:italic;">"Resultado concreto: antes eu tinha X problema, depois consegui Y resultado."</p>
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div style="width:48px;height:48px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:20px;">👤</div>
-          <div><p style="font-family:Inter,sans-serif;font-size:15px;font-weight:700;color:#1e293b;margin:0;">Nome do Cliente</p><p style="font-family:Inter,sans-serif;font-size:13px;color:#94a3b8;margin:0;">Profissão / Cidade</p></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>`,
-  },
-  {
-    id: "kv-video",
-    label: "▶️ Vídeo",
-    category: "KVision Blocos",
-    content: `<section style="padding:80px 20px;background:white;text-align:center;">
-  <div style="max-width:800px;margin:0 auto;">
-    <h2 style="font-family:Inter,sans-serif;font-size:36px;font-weight:800;color:#1e293b;margin:0 0 16px;">Assista ao vídeo completo</h2>
-    <p style="font-family:Inter,sans-serif;font-size:18px;color:#64748b;margin:0 0 40px;">Entenda tudo sobre o método antes de garantir sua vaga.</p>
-    <div style="position:relative;padding-bottom:56.25%;height:0;border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.15);">
-      <iframe src="https://www.youtube.com/embed/SEU_VIDEO_ID" style="position:absolute;top:0;left:0;width:100%;height:100%;" frameborder="0" allowfullscreen></iframe>
-    </div>
-  </div>
-</section>`,
-  },
-  {
-    id: "kv-cta",
-    label: "🔥 CTA Final",
-    category: "KVision Blocos",
-    content: `<section style="background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);padding:80px 20px;text-align:center;">
-  <div style="max-width:700px;margin:0 auto;">
-    <h2 style="font-family:Inter,sans-serif;font-size:40px;font-weight:900;color:white;margin:0 0 16px;line-height:1.1;">Não perca essa oportunidade</h2>
-    <p style="font-family:Inter,sans-serif;font-size:18px;color:rgba(255,255,255,0.7);margin:0 0 40px;line-height:1.6;">Vagas limitadas. Garanta a sua agora antes que encerrem.</p>
-    <a href="#" style="display:inline-block;background:#f59e0b;color:white;font-family:Inter,sans-serif;font-size:20px;font-weight:800;padding:20px 56px;border-radius:50px;text-decoration:none;box-shadow:0 4px 30px rgba(245,158,11,0.5);">GARANTIR MINHA VAGA →</a>
-    <p style="font-family:Inter,sans-serif;font-size:14px;color:rgba(255,255,255,0.4);margin:20px 0 0;">🔒 Pagamento 100% seguro</p>
-  </div>
-</section>`,
-  },
-  {
-    id: "kv-countdown",
-    label: "⏱️ Countdown",
-    category: "KVision Blocos",
-    content: `<section style="padding:60px 20px;background:#fef3c7;text-align:center;">
-  <div style="max-width:600px;margin:0 auto;">
-    <p style="font-family:Inter,sans-serif;font-size:16px;font-weight:600;color:#92400e;margin:0 0 24px;text-transform:uppercase;letter-spacing:2px;">⚡ OFERTA EXPIRA EM</p>
-    <div style="display:flex;justify-content:center;gap:16px;">
-      <div style="background:#1e293b;color:white;padding:20px 24px;border-radius:12px;min-width:80px;"><div style="font-family:Inter,sans-serif;font-size:40px;font-weight:900;line-height:1;">12</div><div style="font-family:Inter,sans-serif;font-size:12px;color:#94a3b8;margin-top:4px;">HORAS</div></div>
-      <div style="background:#1e293b;color:white;padding:20px 24px;border-radius:12px;min-width:80px;"><div style="font-family:Inter,sans-serif;font-size:40px;font-weight:900;line-height:1;">34</div><div style="font-family:Inter,sans-serif;font-size:12px;color:#94a3b8;margin-top:4px;">MINUTOS</div></div>
-      <div style="background:#1e293b;color:white;padding:20px 24px;border-radius:12px;min-width:80px;"><div style="font-family:Inter,sans-serif;font-size:40px;font-weight:900;line-height:1;">57</div><div style="font-family:Inter,sans-serif;font-size:12px;color:#94a3b8;margin-top:4px;">SEGUNDOS</div></div>
-    </div>
-  </div>
-</section>`,
-  },
-  {
-    id: "kv-footer",
-    label: "📌 Rodapé",
-    category: "KVision Blocos",
-    content: `<footer style="background:#0f172a;padding:40px 20px;text-align:center;">
-  <p style="font-family:Inter,sans-serif;font-size:14px;color:#475569;margin:0;">© 2026 Nome da Empresa. Todos os direitos reservados.</p>
-  <p style="font-family:Inter,sans-serif;font-size:12px;color:#334155;margin:8px 0 0;">Política de Privacidade · Termos de Uso</p>
-</footer>`,
-  },
-];
+const VPS_URL = import.meta.env.VITE_VPS_URL || "https://sync.kvgroupbr.com.br";
+
+const buildIframeSrcdoc = (code: string) => `
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/framer-motion@11/dist/framer-motion.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>* { font-family: 'Inter', sans-serif; } [data-section] { cursor: pointer; transition: outline 0.15s; } [data-section]:hover { outline: 2px solid #7c3aed; outline-offset: 2px; } [data-section].selected { outline: 3px solid #7c3aed; outline-offset: 3px; }</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+    // Expor libs no escopo global para o JSX do usuário
+    const { motion, AnimatePresence, useAnimation } = FramerMotion;
+    const { useState, useEffect, useRef } = React;
+  </script>
+  <script type="text/babel">
+    // CÓDIGO DO USUÁRIO AQUI (interpolado)
+    ${code}
+    
+    // Script de seleção de seções
+    try {
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(React.createElement(LandingPage));
+      
+      // Após render, injetar listeners de clique
+      setTimeout(() => {
+        document.querySelectorAll('[data-section]').forEach(el => {
+          el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.querySelectorAll('[data-section]').forEach(s => s.classList.remove('selected'));
+            el.classList.add('selected');
+            window.parent.postMessage({
+              type: 'SECTION_SELECTED',
+              sectionId: el.dataset.section,
+              sectionLabel: el.dataset.sectionLabel || el.dataset.section,
+              sectionHtml: el.outerHTML.substring(0, 500)
+            }, '*');
+          });
+        });
+        // Clique fora deseleciona
+        document.addEventListener('click', () => {
+          document.querySelectorAll('[data-section]').forEach(s => s.classList.remove('selected'));
+          window.parent.postMessage({ type: 'SECTION_DESELECTED' }, '*');
+        });
+      }, 500);
+    } catch(err) {
+      console.error("Erro ao renderizar:", err);
+    }
+  </script>
+</body>
+</html>
+`;
 
 export default function PagesEditor() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const editorRef = React.useRef<Editor | null>(null);
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  const initializedRef = React.useRef(false);
-  const [saving, setSaving] = React.useState(false);
-  const [publishing, setPublishing] = React.useState(false);
-  const [aiModalOpen, setAiModalOpen] = React.useState(false);
-  const [prompt, setPrompt] = React.useState("");
-  const [generatingAI, setGeneratingAI] = React.useState(false);
-
   const { data: page, isLoading } = usePage(id ?? null);
   const updatePage = useUpdatePage();
 
-  const handleGenerateAI = async () => {
-    if (!prompt.trim() || !editorRef.current) return;
-    setGeneratingAI(true);
+  const [code, setCode] = React.useState("");
+  const [history, setHistory] = React.useState<{code: string, timestamp: Date}[]>([]);
+  const [historyIndex, setHistoryIndex] = React.useState(-1);
+  const [selectedSection, setSelectedSection] = React.useState<{id: string, label: string} | null>(null);
+  const [editPrompt, setEditPrompt] = React.useState("");
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [isGenerating, setIsGenerating] = React.useState(false);
+  const [showGenerateModal, setShowGenerateModal] = React.useState(false);
+  const [generatePrompt, setGeneratePrompt] = React.useState("");
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [isPublishing, setIsPublishing] = React.useState(false);
+  
+  const iframeSrc = React.useMemo(() => buildIframeSrcdoc(code), [code]);
+
+  React.useEffect(() => {
+    if (page?.html && history.length === 0) {
+      setCode(page.html);
+      setHistory([{ code: page.html, timestamp: new Date() }]);
+      setHistoryIndex(0);
+    }
+  }, [page, history]);
+
+  React.useEffect(() => {
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data?.type === 'SECTION_SELECTED') {
+        setSelectedSection({ id: e.data.sectionId, label: e.data.sectionLabel });
+      }
+      if (e.data?.type === 'SECTION_DESELECTED') {
+        setSelectedSection(null);
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+  const handleCodeChange = (newCode: string) => {
+    setCode(newCode);
+    setHistory(prev => {
+      const newHist = prev.slice(0, historyIndex + 1);
+      newHist.push({ code: newCode, timestamp: new Date() });
+      if (newHist.length > 20) newHist.shift();
+      setHistoryIndex(newHist.length - 1);
+      return newHist;
+    });
+  };
+
+  const handleGenerate = async () => {
+    if (!generatePrompt.trim()) return;
+    setIsGenerating(true);
     try {
-      const res = await fetch("https://sync.kvgroupbr.com.br/pages/ai-generate", {
+      const res = await fetch(`${VPS_URL}/pages/ai-generate-v2`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: prompt.trim() }),
+        body: JSON.stringify({ prompt: generatePrompt.trim() })
       });
       if (!res.ok) throw new Error("Erro na solicitação");
-      const { html } = await res.json();
-      if (html) {
-        editorRef.current.setComponents(html);
-        editorRef.current.setStyle('');
-        toast.success("Página gerada com sucesso!");
-        setAiModalOpen(false);
-        setPrompt("");
+      const data = await res.json();
+      if (data.code || data.html) {
+        handleCodeChange(data.code || data.html);
+        setShowGenerateModal(false);
+        setGeneratePrompt("");
+        toast.success("Página gerada!");
       }
     } catch (e: any) {
-      toast.error(e.message || "Erro ao gerar página com IA");
+      toast.error(e.message || "Erro ao gerar página");
     } finally {
-      setGeneratingAI(false);
+      setIsGenerating(false);
     }
   };
 
-  React.useEffect(() => {
-    if (!containerRef.current || isLoading || initializedRef.current) return;
-    initializedRef.current = true;
-
-    const editor = grapesjs.init({
-      container: containerRef.current,
-      fromElement: false,
-      height: "100%",
-      width: "auto",
-      plugins: [gjsPresetWebpage],
-      pluginsOpts: { [gjsPresetWebpage as any]: {} },
-      storageManager: false,
-      canvas: {
-        styles: [
-          "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap",
-        ],
-      },
-    });
-
-    KV_BLOCKS.forEach((b) =>
-      editor.BlockManager.add(b.id, {
-        label: b.label,
-        category: b.category,
-        content: b.content,
-      })
-    );
-
-    if (page?.gjs_data) {
-      editor.loadProjectData(page.gjs_data);
-    }
-
-    editorRef.current = editor;
-
-    return () => {
-      editor.destroy();
-      editorRef.current = null;
-      initializedRef.current = false;
-    };
-  }, [isLoading, page]);
-
-  const handleSave = async (publish = false) => {
-    if (!editorRef.current || !page) return;
-    publish ? setPublishing(true) : setSaving(true);
+  const handleEditSection = async () => {
+    if (!editPrompt.trim() || !selectedSection) return;
+    setIsEditing(true);
     try {
-      const projectData = editorRef.current.getProjectData();
-      const html = editorRef.current.getHtml();
-      const css = editorRef.current.getCss();
+      const res = await fetch(`${VPS_URL}/pages/ai-edit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          code, 
+          sectionId: selectedSection.id, 
+          sectionLabel: selectedSection.label, 
+          editPrompt: editPrompt.trim() 
+        })
+      });
+      if (!res.ok) throw new Error("Erro na solicitação");
+      const data = await res.json();
+      if (data.code || data.html) {
+        handleCodeChange(data.code || data.html);
+        setEditPrompt("");
+        setSelectedSection(null);
+        toast.success("Seção editada!");
+      }
+    } catch (e: any) {
+      toast.error(e.message || "Erro ao editar seção");
+    } finally {
+      setIsEditing(false);
+    }
+  };
+
+  const handleUndo = () => {
+    if (historyIndex > 0) {
+      const prevIdx = historyIndex - 1;
+      setHistoryIndex(prevIdx);
+      setCode(history[prevIdx].code);
+    }
+  };
+
+  const handleRedo = () => {
+    if (historyIndex < history.length - 1) {
+      const nextIdx = historyIndex + 1;
+      setHistoryIndex(nextIdx);
+      setCode(history[nextIdx].code);
+    }
+  };
+
+  const handleSave = async (isPublish = false) => {
+    if (!page) return;
+    isPublish ? setIsPublishing(true) : setIsSaving(true);
+    try {
       await updatePage.mutateAsync({
         id: page.id,
-        gjs_data: projectData,
-        html,
-        css,
-        ...(publish
-          ? { status: "published" as const, publicado_em: new Date().toISOString() }
-          : {}),
+        html: code,
+        ...(isPublish
+          ? { status: "published", publicado_em: new Date().toISOString() }
+          : { status: page.status })
       });
-      toast.success(publish ? "Página publicada!" : "Rascunho salvo!");
-    } catch {
-      toast.error("Erro ao salvar");
+      toast.success(isPublish ? "Página publicada!" : "Rascunho salvo!");
+    } catch (e) {
+      toast.error("Erro ao salvar página");
     } finally {
-      setSaving(false);
-      setPublishing(false);
+      isPublish ? setIsPublishing(false) : setIsSaving(false);
     }
   };
 
   if (isLoading) {
     return (
-      <div style={{ height: "100dvh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0f172a" }}>
+      <div className="flex h-screen items-center justify-center bg-slate-900">
         <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
       </div>
     );
   }
 
   return (
-    <div style={{ height: "100dvh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-      {/* Top bar */}
-      <div style={{ background: "#0f172a", borderBottom: "1px solid #1e293b", padding: "0 16px", height: "52px", display: "flex", alignItems: "center", gap: "12px", flexShrink: 0, zIndex: 10 }}>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate("/admin/pages")}
-          style={{ color: "#94a3b8", gap: "6px" }}
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Voltar
+    <div className="flex flex-col h-screen overflow-hidden bg-slate-950 text-slate-100">
+      {/* TopBar - h-14 border-b */}
+      <div className="h-14 border-b border-slate-800 px-4 flex items-center gap-3 shrink-0 bg-slate-900 z-10 w-full relative">
+        <Button variant="ghost" size="sm" onClick={() => navigate("/admin/pages")} className="text-slate-400 gap-2 hover:text-slate-100">
+          <ArrowLeft className="w-4 h-4" /> Voltar
         </Button>
-        <div style={{ width: "1px", height: "24px", background: "#1e293b" }} />
-        <span style={{ color: "white", fontWeight: 600, fontSize: "14px", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-          {page?.nome}
-        </span>
-        <Badge
-          variant={page?.status === "published" ? "default" : "secondary"}
-          style={{ fontSize: "11px", flexShrink: 0 }}
-        >
+        <div className="w-px h-6 bg-slate-800" />
+        <span className="font-semibold text-sm flex-1 truncate">{page?.nome}</span>
+        <Badge variant={page?.status === "published" ? "default" : "secondary"} className="shrink-0 text-[11px]">
           {page?.status === "published" ? "Publicada" : "Rascunho"}
         </Badge>
+        
         <Button
           size="sm"
-          onClick={() => setAiModalOpen(true)}
-          className="bg-violet-600 hover:bg-violet-700 text-white gap-2"
+          onClick={() => setShowGenerateModal(true)}
+          className="bg-violet-600 hover:bg-violet-700 text-white gap-2 ml-2"
         >
-          <Sparkles className="w-3.5 h-3.5" />
-          Gerar com IA
+          <Sparkles className="w-3.5 h-3.5" /> Gerar com IA
         </Button>
+        
         <Button
           size="sm"
           variant="outline"
           onClick={() => handleSave(false)}
-          disabled={saving}
-          style={{ borderColor: "#334155", color: "#94a3b8", gap: "6px" }}
+          disabled={isSaving}
+          className="border-slate-700 text-slate-400 gap-2 hover:text-slate-100 hover:bg-slate-800"
         >
-          {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+          {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
           Salvar
         </Button>
         <Button
           size="sm"
           onClick={() => handleSave(true)}
-          disabled={publishing}
-          style={{ background: "#16a34a", color: "white", gap: "6px" }}
+          disabled={isPublishing}
+          className="bg-green-600 hover:bg-green-700 text-white gap-2"
         >
-          {publishing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Globe className="w-3.5 h-3.5" />}
+          {isPublishing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Globe className="w-3.5 h-3.5" />}
           Publicar
         </Button>
       </div>
 
-      {/* GrapesJS editor */}
-      <div ref={containerRef} style={{ flex: 1, overflow: "hidden" }} />
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* LeftPanel 280px */}
+        <div className="w-[280px] border-r border-slate-800 bg-slate-900/50 flex flex-col shrink-0 h-full">
+          <div className="p-4 flex items-center justify-between border-b border-slate-800">
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Histórico</span>
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleUndo} disabled={historyIndex <= 0}>
+                <Undo2 className="w-3.5 h-3.5" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleRedo} disabled={historyIndex === history.length - 1}>
+                <Redo2 className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto p-2 space-y-1">
+            {history.map((h, i) => (
+              <button
+                key={i}
+                onClick={() => {
+                  setHistoryIndex(i);
+                  setCode(history[i].code);
+                }}
+                className={cn(
+                  "w-full flex items-center gap-2 p-2 rounded-md text-xs transition-colors",
+                  historyIndex === i 
+                    ? "bg-violet-500/10 text-violet-400 font-medium" 
+                    : "text-slate-500 hover:bg-slate-800/50 hover:text-slate-300"
+                )}
+              >
+                <Clock className="w-3 h-3" />
+                {h.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                <span className="ml-auto text-[10px] opacity-50">v{i + 1}</span>
+              </button>
+            ))}
+            {history.length === 0 && (
+              <div className="p-4 text-center text-xs text-slate-500">
+                Nenhuma alteração ainda
+              </div>
+            )}
+          </div>
+        </div>
 
-      <Dialog open={aiModalOpen} onOpenChange={setAiModalOpen}>
-        <DialogContent>
+        {/* iframe */}
+        <div className="flex-1 relative bg-white overflow-hidden h-full">
+          {!code ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-50 text-slate-900">
+              <div className="max-w-md text-center space-y-4">
+                <Sparkles className="w-12 h-12 text-violet-600 mx-auto" />
+                <h2 className="text-xl font-bold">Nenhum conteúdo ainda</h2>
+                <p className="text-slate-500 text-sm">
+                  Comece gerando sua página com Inteligência Artificial
+                </p>
+                <Button 
+                  onClick={() => setShowGenerateModal(true)}
+                  className="bg-violet-600 hover:bg-violet-700 text-white mt-4 gap-2"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  Gerar Página Agora
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <iframe
+              srcDoc={iframeSrc}
+              className="w-full h-full border-0"
+              title="Page Preview"
+              sandbox="allow-scripts allow-same-origin"
+            />
+          )}
+        </div>
+
+        {/* RightPanel 320px */}
+        <div className={cn(
+          "w-[320px] bg-slate-900 border-l border-slate-800 shrink-0 h-full flex flex-col transition-all duration-300 absolute right-0 top-0 bottom-0 z-20 shadow-2xl",
+          selectedSection ? "translate-x-0" : "translate-x-full"
+        )}>
+          {selectedSection && (
+            <>
+              <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900">
+                <div>
+                  <h3 className="font-semibold text-sm line-clamp-1">Editar seção:</h3>
+                  <p className="text-xs text-violet-400 mt-0.5 capitalize">{selectedSection.label}</p>
+                </div>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 shrink-0" onClick={() => setSelectedSection(null)}>
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs text-slate-400 font-medium">O que você quer mudar?</label>
+                  <Textarea
+                    placeholder="Ex: Mude a cor de fundo para azul, deixe o texto mais persuasivo e adicione um subtítulo"
+                    value={editPrompt}
+                    onChange={(e) => setEditPrompt(e.target.value)}
+                    className="min-h-[120px] bg-slate-950 border-slate-800 resize-none focus-visible:ring-violet-500"
+                  />
+                </div>
+              </div>
+              
+              <div className="p-4 border-t border-slate-800 bg-slate-900">
+                <Button 
+                  className="w-full bg-violet-600 hover:bg-violet-700 text-white gap-2" 
+                  onClick={handleEditSection}
+                  disabled={!editPrompt.trim() || isEditing}
+                >
+                  {isEditing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Aplicando edição...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      Aplicar edição IA
+                    </>
+                  )}
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      <Dialog open={showGenerateModal} onOpenChange={setShowGenerateModal}>
+        <DialogContent className="bg-slate-900 border-slate-800 text-slate-100">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-violet-600" />
+              <Sparkles className="w-5 h-5 text-violet-500" />
               Gerar Página com IA
             </DialogTitle>
           </DialogHeader>
           <div className="py-4 space-y-4">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-slate-400">
               Descreva detalhadamente a página que você quer gerar. A IA criará a estrutura e os textos para você.
             </p>
             <Textarea
               placeholder="Ex: landing page de captura para curso de inglês online, fundo azul escuro, tom profissional e moderno"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
+              value={generatePrompt}
+              onChange={(e) => setGeneratePrompt(e.target.value)}
               rows={4}
-              disabled={generatingAI}
+              disabled={isGenerating}
+              className="bg-slate-950 border-slate-800 focus-visible:ring-violet-500 text-slate-100"
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setAiModalOpen(false)} disabled={generatingAI}>
+            <Button variant="outline" onClick={() => setShowGenerateModal(false)} disabled={isGenerating} className="border-slate-700 text-slate-300 hover:bg-slate-800 text-white">
               Cancelar
             </Button>
             <Button
-              onClick={handleGenerateAI}
-              disabled={!prompt.trim() || generatingAI}
+              onClick={handleGenerate}
+              disabled={!generatePrompt.trim() || isGenerating}
               className="bg-violet-600 hover:bg-violet-700 text-white gap-2"
             >
-              {generatingAI ? (
+              {isGenerating ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
                   A IA está criando sua página...
