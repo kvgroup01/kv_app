@@ -11,62 +11,76 @@ import { usePage, useUpdatePage } from "../../../hooks/usePages";
 
 const VPS_URL = import.meta.env.VITE_VPS_URL || "https://sync.kvgroupbr.com.br";
 
-const buildIframeSrcdoc = (code: string) => `
-<!DOCTYPE html>
+function buildIframeSrcdoc(code: string): string {
+  return `<!DOCTYPE html>
 <html>
 <head>
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://unpkg.com/framer-motion@11/dist/framer-motion.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.5/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <style>* { font-family: 'Inter', sans-serif; } [data-section] { cursor: pointer; transition: outline 0.15s; } [data-section]:hover { outline: 2px solid #7c3aed; outline-offset: 2px; } [data-section].selected { outline: 3px solid #7c3aed; outline-offset: 3px; }</style>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    [data-section] { cursor: pointer; }
+    [data-section]:hover { outline: 2px solid #7c3aed; outline-offset: 2px; }
+    [data-section].kv-selected { outline: 3px solid #7c3aed !important; outline-offset: 3px; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .kv-fadeInUp { animation: fadeInUp 0.7s ease forwards; }
+    .kv-fadeIn { animation: fadeIn 0.8s ease forwards; }
+    .kv-scaleIn { animation: scaleIn 0.5s ease forwards; }
+  </style>
 </head>
 <body>
   <div id="root"></div>
   <script>
-    // Expor libs no escopo global para o JSX do usuário
-    const { motion, AnimatePresence, useAnimation } = FramerMotion;
-    const { useState, useEffect, useRef } = React;
+    // Expor hooks no escopo global para o JSX gerado
+    var useState = React.useState;
+    var useEffect = React.useEffect;
+    var useRef = React.useRef;
+    var useCallback = React.useCallback;
+    var useMemo = React.useMemo;
   </script>
-  <script type="text/babel">
-    // CÓDIGO DO USUÁRIO AQUI (interpolado)
-    ${code}
-    
-    // Script de seleção de seções
-    try {
-      const root = ReactDOM.createRoot(document.getElementById('root'));
-      root.render(React.createElement(LandingPage));
-      
-      // Após render, injetar listeners de clique
-      setTimeout(() => {
-        document.querySelectorAll('[data-section]').forEach(el => {
-          el.addEventListener('click', (e) => {
-            e.stopPropagation();
-            document.querySelectorAll('[data-section]').forEach(s => s.classList.remove('selected'));
-            el.classList.add('selected');
-            window.parent.postMessage({
-              type: 'SECTION_SELECTED',
-              sectionId: el.dataset.section,
-              sectionLabel: el.dataset.sectionLabel || el.dataset.section,
-              sectionHtml: el.outerHTML.substring(0, 500)
-            }, '*');
+  <script type="text/babel" data-presets="react">
+${code}
+
+    const __root = ReactDOM.createRoot(document.getElementById('root'));
+    __root.render(React.createElement(LandingPage));
+  </script>
+  <script>
+    // Injetar listeners de seleção após o React renderizar
+    setTimeout(function() {
+      var sections = document.querySelectorAll('[data-section]');
+      sections.forEach(function(el) {
+        el.addEventListener('click', function(e) {
+          e.stopPropagation();
+          document.querySelectorAll('[data-section]').forEach(function(s) {
+            s.classList.remove('kv-selected');
           });
+          el.classList.add('kv-selected');
+          window.parent.postMessage({
+            type: 'SECTION_SELECTED',
+            sectionId: el.dataset.section,
+            sectionLabel: el.dataset.sectionLabel || el.dataset.section
+          }, '*');
         });
-        // Clique fora deseleciona
-        document.addEventListener('click', () => {
-          document.querySelectorAll('[data-section]').forEach(s => s.classList.remove('selected'));
-          window.parent.postMessage({ type: 'SECTION_DESELECTED' }, '*');
+      });
+      document.addEventListener('click', function() {
+        document.querySelectorAll('[data-section]').forEach(function(s) {
+          s.classList.remove('kv-selected');
         });
-      }, 500);
-    } catch(err) {
-      console.error("Erro ao renderizar:", err);
-    }
+        window.parent.postMessage({ type: 'SECTION_DESELECTED' }, '*');
+      });
+    }, 800);
   </script>
 </body>
-</html>
-`;
+</html>`;
+}
 
 export default function PagesEditor() {
   const { id } = useParams<{ id: string }>();
