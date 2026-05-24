@@ -60,9 +60,12 @@ export default function PagesEditor() {
 
   // Inicializa o estado com os dados da página
   useEffect(() => {
-    if (page && pageName === '') {
+    if (page?.nome) {
       setPageName(page.nome)
     }
+  }, [page?.nome])
+
+  useEffect(() => {
     if (page?.page_data?.blocks && history.length === 0) {
       setBlocks(page.page_data.blocks)
       setHistory([page.page_data.blocks])
@@ -345,7 +348,7 @@ export default function PagesEditor() {
       <div className="h-[44px] bg-[#1A1A1A] border-b border-[#2a2a2a] flex items-center justify-between px-4 shrink-0 z-30">
         {/* ESQUERDA */}
         <div className="flex items-center gap-0">
-          <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-white hover:text-white text-[13px] font-medium transition-colors px-2 h-full hover:bg-transparent">
+          <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-white hover:text-[#d1d1d1] text-[13px] font-medium transition-colors px-2 h-full hover:bg-transparent">
             <ArrowLeft className="w-3.5 h-3.5" /> Páginas
           </Button>
           <div className="w-px h-4 bg-[#3a3a3a] mx-3" />
@@ -364,7 +367,7 @@ export default function PagesEditor() {
               onClick={() => setIsEditingName(true)}
             >
               {pageName}
-              <Pencil className="w-3 h-3 text-[#484848]" />
+              <Pencil className="w-3 h-3 text-[#767676]" />
             </div>
           )}
         </div>
@@ -394,9 +397,17 @@ export default function PagesEditor() {
             <Eye className="w-3.5 h-3.5" />
           </Button>
           <div className="w-px h-4 bg-[#3a3a3a]" />
-          <Button variant="outline" className={cn("h-7 px-3 text-[13px] font-medium rounded-md border border-[#484848] text-white hover:text-white hover:border-[#484848] bg-transparent transition-all", isDirty && "border-[#FBB03B]/30 text-[#FBB03B] hover:text-[#FBB03B]")} onClick={handleSave}>
-            {isDirty ? <span className="flex items-center gap-1.5"><span className="text-[#FBB03B] text-[15px] leading-none mb-0.5">·</span> Salvar</span> : 'Salvo'}
-          </Button>
+          <button
+            onClick={handleSave}
+            className={cn(
+              "h-7 px-3 text-[13px] font-medium rounded-md border transition-all",
+              isDirty
+                ? "border-[#FBB03B]/40 text-[#FBB03B] bg-transparent hover:bg-[#FBB03B]/10"
+                : "border-[#484848] text-white bg-transparent hover:border-[#767676]"
+            )}
+          >
+            {isDirty ? '· Salvar' : 'Salvo'}
+          </button>
           <Button className="h-7 px-3 text-[13px] font-semibold rounded-md bg-[#FBB03B] text-[#1A1A1A] hover:bg-[#f0a824] transition-colors" onClick={handlePublish}>
             <Globe className="w-3.5 h-3.5 mr-1" /> Publicar
           </Button>
