@@ -1,13 +1,8 @@
 import * as React from "react";
 import { useNavigate } from "react-router";
 import { Plus, FileText, Globe, Trash2, Pencil, ExternalLink } from "lucide-react";
-import { Button } from "../../../components/ui/button";
-import { Badge } from "../../../components/ui/badge";
-import { Skeleton } from "../../../components/ui/skeleton";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../../components/ui/dialog";
 import { Input } from "../../../components/ui/input";
-import { Label } from "../../../components/ui/label";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../../../lib/supabase";
@@ -76,84 +71,129 @@ export default function PagesIndex() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <FileText className="w-6 h-6 text-primary" />
+          <h1 className="text-[22px] font-semibold text-[#1A1A1A] tracking-[-0.01em]">
             Páginas
           </h1>
-          <p className="text-muted-foreground text-sm mt-1">
+          <p className="text-[13px] text-[#767676] mt-0.5">
             Crie e gerencie landing pages dos seus clientes
           </p>
         </div>
-        <Button
+        <button
           onClick={() => setShowCreateModal(true)}
           disabled={!selectedClienteId}
-          className="gap-2"
+          className="flex items-center gap-1.5 bg-[#1A1A1A] text-white text-[13px] font-semibold px-4 py-2 rounded-lg hover:bg-[#484848] transition-colors disabled:opacity-40 disabled:cursor-not-allowed border-none outline-none cursor-pointer"
         >
-          <Plus className="w-4 h-4" />
-          Nova página
-        </Button>
+          <Plus className="w-4 h-4" /> Nova página
+        </button>
       </div>
 
-      <Select value={selectedClienteId || ""} onValueChange={setSelectedClienteId}>
-        <SelectTrigger className="w-64">
-          <SelectValue placeholder="Selecionar cliente..." />
-        </SelectTrigger>
-        <SelectContent>
-          {clientes.map((c: any) => (
-            <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <select
+        value={selectedClienteId || ''}
+        onChange={(e) => setSelectedClienteId(e.target.value || null)}
+        className="h-9 w-64 border border-[#e6e6e6] rounded-lg px-3 text-[13px] text-[#1A1A1A] bg-white appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#FBB03B] focus:border-[#FBB03B] transition-all"
+      >
+        <option value="">Selecionar cliente...</option>
+        {clientes.map((c: any) => (
+          <option key={c.id} value={c.id}>{c.nome}</option>
+        ))}
+      </select>
 
       {!selectedClienteId ? (
-        <div className="flex flex-col items-center justify-center py-24 text-muted-foreground gap-3">
-          <FileText className="w-12 h-12 opacity-20" />
-          <p>Selecione um cliente para ver suas páginas</p>
+        <div className="flex flex-col items-center justify-center py-32">
+          <div className="w-12 h-12 rounded-xl bg-[#f2f2f2] flex items-center justify-center mb-4">
+            <FileText className="w-5 h-5 text-[#a3a3a3]" />
+          </div>
+          <p className="text-[14px] font-medium text-[#1A1A1A]">
+            Selecione um cliente
+          </p>
+          <p className="text-[13px] text-[#767676] mt-1">
+            para ver e gerenciar suas landing pages
+          </p>
         </div>
       ) : isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-40 rounded-xl" />)}
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-[160px] rounded-xl bg-[#f2f2f2] animate-pulse" />
+          ))}
         </div>
       ) : pages.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-muted-foreground gap-3">
-          <Globe className="w-12 h-12 opacity-20" />
-          <p>Nenhuma página criada ainda</p>
-          <Button variant="outline" onClick={() => setShowCreateModal(true)} className="gap-2">
+        <div className="flex flex-col items-center justify-center py-32">
+          <div className="w-12 h-12 rounded-xl bg-[#f2f2f2] flex items-center justify-center mb-4">
+            <Globe className="w-5 h-5 text-[#a3a3a3]" />
+          </div>
+          <p className="text-[14px] font-medium text-[#1A1A1A]">Nenhuma página ainda</p>
+          <p className="text-[13px] text-[#767676] mt-1 mb-5">
+            Crie sua primeira landing page
+          </p>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center gap-1.5 border border-[#e6e6e6] text-[#1A1A1A] text-[13px] font-medium px-4 py-2 rounded-lg hover:bg-[#f2f2f2] transition-colors bg-white outline-none cursor-pointer"
+          >
             <Plus className="w-4 h-4" /> Criar primeira página
-          </Button>
+          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {pages.map((page) => (
-            <div key={page.id} className="border border-border rounded-xl p-5 bg-card hover:shadow-md transition-shadow flex flex-col gap-3">
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold truncate">{page.nome}</h3>
-                  <p className="text-xs text-muted-foreground truncate mt-0.5">/{page.slug}</p>
-                </div>
-                <Badge variant={page.status === "published" ? "default" : "secondary"} className="shrink-0">
-                  {page.status === "published" ? "Publicada" : "Rascunho"}
-                </Badge>
+            <div key={page.id} 
+              className="bg-white border border-[#e6e6e6] rounded-xl overflow-hidden hover:border-[#d1d1d1] transition-all group flex flex-col"
+            >
+              {/* Área de thumbnail/preview — fundo neutro com inicial */}
+              <div className="h-[100px] bg-[#f2f2f2] flex items-center justify-center border-b border-[#e6e6e6] relative">
+                <span className="text-[32px] font-bold text-[#d1d1d1] select-none uppercase">
+                  {page.nome.charAt(0)}
+                </span>
+                {/* Badge status no canto superior direito */}
+                <span className={cn(
+                  "absolute top-3 right-3 text-[10px] font-semibold px-2 py-0.5 rounded-md",
+                  page.status === 'published'
+                    ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                    : "bg-[#f2f2f2] text-[#767676] border border-[#e6e6e6]"
+                )}>
+                  {page.status === 'published' ? 'Publicada' : 'Rascunho'}
+                </span>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Atualizada {formatDistanceToNow(new Date(page.atualizado_em), { locale: ptBR, addSuffix: true })}
-              </p>
-              <div className="flex gap-2 mt-auto pt-2 border-t border-border">
-                <Button size="sm" variant="outline" className="flex-1 gap-1" onClick={() => navigate(`/admin/pages/${page.id}/editor`)}>
+
+              {/* Info */}
+              <div className="px-4 py-3 flex-1">
+                <h3 className="text-[14px] font-semibold text-[#1A1A1A] truncate">
+                  {page.nome}
+                </h3>
+                <p className="text-[12px] text-[#a3a3a3] truncate mt-0.5">
+                  /{page.slug}
+                </p>
+                <p className="text-[11px] text-[#a3a3a3] mt-2">
+                  Atualizada {formatDistanceToNow(new Date(page.atualizado_em), 
+                    { locale: ptBR, addSuffix: true })}
+                </p>
+              </div>
+
+              {/* Ações */}
+              <div className="px-4 py-3 border-t border-[#f2f2f2] flex items-center gap-2">
+                <button
+                  onClick={() => navigate(`/admin/pages/${page.id}/editor`)}
+                  className="flex-1 flex items-center justify-center gap-1.5 h-8 border border-[#e6e6e6] rounded-lg text-[12px] font-medium text-[#1A1A1A] hover:bg-[#f2f2f2] transition-colors bg-white outline-none cursor-pointer"
+                >
                   <Pencil className="w-3.5 h-3.5" /> Editar
-                </Button>
-                {page.status === "published" && (
-                  <Button size="sm" variant="outline" className="gap-1" asChild>
-                    <a href={`/${page.slug}`} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  </Button>
+                </button>
+                {page.status === 'published' && (
+                  <a
+                    href={`/${page.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 flex items-center justify-center border border-[#e6e6e6] rounded-lg text-[#767676] hover:bg-[#f2f2f2] hover:text-[#1A1A1A] transition-colors"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
                 )}
-                <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => handleDelete(page)}>
+                <button
+                  onClick={() => handleDelete(page)}
+                  className="w-8 h-8 flex items-center justify-center border border-[#e6e6e6] rounded-lg text-[#a3a3a3] hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-colors bg-white outline-none cursor-pointer"
+                >
                   <Trash2 className="w-3.5 h-3.5" />
-                </Button>
+                </button>
               </div>
             </div>
           ))}
@@ -161,37 +201,48 @@ export default function PagesIndex() {
       )}
 
       <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
-        <DialogContent>
+        <DialogContent className="max-w-md sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Nova página</DialogTitle>
+            <DialogTitle className="text-[17px] font-semibold text-[#1A1A1A] tracking-[-0.01em]">Nova página</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
-              <Label>Nome da página</Label>
+              <label className="text-[12px] text-[#767676] font-medium">Nome da página</label>
               <Input
                 placeholder="Ex: Página de captura SEMSA"
                 value={newPageNome}
                 onChange={(e) => handleNomeChange(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleCreate()}
+                className="h-9 text-[13px] focus:ring-[#FBB03B] focus-visible:ring-[#FBB03B] focus:border-[#FBB03B]"
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Slug (URL)</Label>
+              <label className="text-[12px] text-[#767676] font-medium">Slug (URL)</label>
               <div className="flex items-center gap-2">
-                <span className="text-muted-foreground text-sm shrink-0">kvpages.com.br/</span>
+                <span className="text-[13px] text-[#a3a3a3] shrink-0">kvpages.com.br/</span>
                 <Input
                   value={newPageSlug}
                   onChange={(e) => { setSlugManual(true); setNewPageSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-")); }}
                   placeholder="minha-pagina"
+                  className="h-9 text-[13px] focus:ring-[#FBB03B] focus-visible:ring-[#FBB03B] focus:border-[#FBB03B]"
                 />
               </div>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreateModal(false)}>Cancelar</Button>
-            <Button onClick={handleCreate} disabled={!newPageNome.trim() || createPage.isPending}>
+            <button 
+              onClick={() => setShowCreateModal(false)}
+              className="h-9 px-4 rounded-lg border border-[#e6e6e6] text-[#767676] text-[13px] font-medium hover:bg-[#f2f2f2] transition-colors bg-white outline-none cursor-pointer"
+            >
+              Cancelar
+            </button>
+            <button 
+              onClick={handleCreate} 
+              disabled={!newPageNome.trim() || createPage.isPending}
+              className="h-9 px-4 rounded-lg bg-[#1A1A1A] text-white text-[13px] font-semibold hover:bg-[#484848] transition-colors disabled:opacity-40 disabled:cursor-not-allowed outline-none border-none cursor-pointer"
+            >
               {createPage.isPending ? "Criando..." : "Criar e abrir editor"}
-            </Button>
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
