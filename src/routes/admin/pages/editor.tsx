@@ -267,18 +267,18 @@ export default function PagesEditor() {
   const renderField = (field: FieldSchema, value: any, onChange: (val: any) => void, blockId: string) => {
     switch (field.type) {
       case 'textarea':
-        return <Textarea value={value || ''} onChange={(e) => onChange(e.target.value)} rows={4} />
+        return <Textarea value={value || ''} onChange={(e) => onChange(e.target.value)} rows={4} className="text-[13px]" />
       case 'boolean':
         return <Switch checked={!!value} onCheckedChange={onChange} />
       case 'select':
         return (
           <Select value={value || ''} onValueChange={onChange}>
-            <SelectTrigger>
+            <SelectTrigger className="h-8 text-[13px]">
               <SelectValue placeholder="Selecione..." />
             </SelectTrigger>
             <SelectContent>
               {field.options?.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
+                <SelectItem key={opt.value} value={opt.value} className="text-[13px]">
                   {opt.label}
                 </SelectItem>
               ))}
@@ -288,39 +288,36 @@ export default function PagesEditor() {
       case 'color':
         return (
           <div className="flex gap-2">
-            <input type="color" className="w-10 h-10 p-1 border rounded cursor-pointer shrink-0" value={value || '#000000'} onChange={(e) => onChange(e.target.value)} />
-            <Input value={value || ''} onChange={(e) => onChange(e.target.value)} className="font-mono text-xs uppercase" />
+            <input type="color" className="w-8 h-8 p-1 border border-[#e6e6e6] rounded cursor-pointer shrink-0" value={value || '#000000'} onChange={(e) => onChange(e.target.value)} />
+            <Input value={value || ''} onChange={(e) => onChange(e.target.value)} className="h-8 font-mono text-[13px] uppercase" />
           </div>
         )
       case 'array':
         return (
-          <div className="space-y-3 p-3 bg-slate-50 border border-slate-200 rounded-lg">
+          <div className="space-y-2 rounded-lg border border-[#e6e6e6] p-3 bg-[#f2f2f2]">
             {((value as any[]) || []).map((item, i) => (
-              <div key={i} className="space-y-4 bg-white p-4 border rounded-md shadow-sm relative pt-10 group/item">
-                <button title="Remover item" onClick={() => handleRemoveArrayItem(blockId, field.key, i)} className="absolute top-2 right-2 text-slate-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-md opacity-0 group-hover/item:opacity-100 transition-opacity">
-                  <Trash2 className="w-4 h-4" />
+              <div key={i} className="bg-white rounded-lg border border-[#e6e6e6] p-3 space-y-3 relative group/item">
+                <button title="Remover item" onClick={() => handleRemoveArrayItem(blockId, field.key, i)} className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center text-[#a3a3a3] hover:text-red-500 rounded transition-colors opacity-0 group-hover/item:opacity-100">
+                  <Trash2 className="w-3.5 h-3.5" />
                 </button>
-                <div className="absolute top-3 left-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  ITEM {i + 1}
-                </div>
                 {field.subFields?.map((subF) => (
-                  <div key={subF.key} className="space-y-1.5">
-                    <label className="text-xs font-medium text-slate-600">{subF.label}</label>
+                  <div key={subF.key} className="space-y-1.5 mt-2">
+                    <label className="text-[12px] text-[#767676] font-medium tracking-normal">{subF.label}</label>
                     {renderField(subF, item[subF.key], (val) => handleUpdateArrayItem(blockId, field.key, i, subF.key, val), blockId)}
                   </div>
                 ))}
               </div>
             ))}
-            <Button variant="outline" size="sm" className="w-full text-xs h-9 border-dashed border-2 text-slate-600 bg-white hover:bg-slate-50" onClick={() => handleAddArrayItem(blockId, field.key, field.subFields || [])}>
-              <Plus className="w-4 h-4 mr-1 text-slate-400" /> Adicionar item
-            </Button>
+            <button className="w-full h-8 border border-dashed border-[#d1d1d1] rounded-lg text-[12px] text-[#a3a3a3] hover:border-[#FBB03B] hover:text-[#FBB03B] transition-colors flex items-center justify-center gap-1.5 bg-white" onClick={() => handleAddArrayItem(blockId, field.key, field.subFields || [])}>
+              <Plus className="w-3.5 h-3.5" /> Adicionar item
+            </button>
           </div>
         )
       case 'text':
       case 'url':
       case 'image':
       default:
-        return <Input value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={field.type === 'image' ? 'URL da Imagem' : ''} />
+        return <Input value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={field.type === 'image' ? 'URL da Imagem' : ''} className="h-8 text-[13px]" />
     }
   }
 
@@ -337,106 +334,106 @@ export default function PagesEditor() {
   return (
     <div className="flex flex-col h-screen w-full overflow-hidden bg-background font-sans">
       {/* 1. TOPBAR - Atualizado visual*/}
-      <div className="h-14 bg-slate-950 border-b border-slate-800 flex items-center justify-between px-4 shrink-0 z-30">
+      <div className="h-[44px] bg-[#1A1A1A] border-b border-[#2a2a2a] flex items-center justify-between px-4 shrink-0 z-30">
         {/* ESQUERDA */}
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="text-slate-300 font-semibold hover:text-white hover:bg-slate-800 h-9 px-3 transition-colors">
-            <ArrowLeft className="w-4 h-4 mr-2" /> Páginas
+        <div className="flex items-center gap-0">
+          <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-[#a3a3a3] hover:text-white text-[13px] font-medium transition-colors px-2 h-full hover:bg-transparent">
+            <ArrowLeft className="w-3.5 h-3.5" /> Páginas
           </Button>
-          <div className="w-px h-5 bg-slate-700 mx-2" />
+          <div className="w-px h-4 bg-[#2a2a2a] mx-3" />
           {isEditingName ? (
             <Input 
               autoFocus
               value={pageName} 
               onChange={(e) => setPageName(e.target.value)} 
-              className="h-8 w-64 bg-slate-800 border-slate-700 text-white text-sm font-semibold focus-visible:ring-slate-500" 
+              className="h-7 w-52 bg-[#2a2a2a] border border-[#3a3a3a] text-white text-[13px] rounded-md px-2 focus-visible:ring-1 focus-visible:ring-[#FBB03B] focus-visible:ring-offset-0" 
               onBlur={handleNameSave}
               onKeyDown={(e) => e.key === 'Enter' && handleNameSave()}
             />
           ) : (
             <div 
-              className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 px-3 py-1.5 rounded-md transition-colors text-sm font-semibold text-white"
+              className="text-white text-[13px] font-medium cursor-pointer hover:text-[#a3a3a3] transition-colors flex items-center gap-1.5"
               onClick={() => setIsEditingName(true)}
             >
               {pageName}
-              <Pencil className="w-3 h-3 text-slate-300" />
+              <Pencil className="w-3 h-3 text-[#484848]" />
             </div>
           )}
         </div>
 
         {/* CENTRO */}
-        <div className="absolute left-1/2 -translate-x-1/2 flex items-center bg-slate-800 rounded-lg p-1 border border-slate-700 hidden md:flex">
+        <div className="absolute left-1/2 -translate-x-1/2 items-center bg-[#2a2a2a] rounded-full p-0.5 border border-[#3a3a3a] hidden md:flex">
           <button 
             onClick={() => setViewport('desktop')}
-            className={cn("p-1.5 px-4 transition-all text-xs flex items-center", viewport === 'desktop' ? 'bg-[#FBB03B] text-black font-bold rounded-md' : 'text-slate-400 hover:text-white')}
+            className={cn(viewport === 'desktop' ? 'flex items-center gap-1.5 px-3 h-6 rounded-full bg-[#FBB03B] text-[#1A1A1A] text-[12px] font-semibold transition-all' : 'flex items-center gap-1.5 px-3 h-6 rounded-full text-[#767676] hover:text-[#a3a3a3] text-[12px] font-medium transition-all')}
           >
-            <Monitor className="w-4 h-4 mr-2" /> Desktop
+            <Monitor className="w-3.5 h-3.5" /> Desktop
           </button>
           <button 
             onClick={() => setViewport('mobile')}
-            className={cn("p-1.5 px-4 transition-all text-xs flex items-center", viewport === 'mobile' ? 'bg-[#FBB03B] text-black font-bold rounded-md' : 'text-slate-400 hover:text-white')}
+            className={cn(viewport === 'mobile' ? 'flex items-center gap-1.5 px-3 h-6 rounded-full bg-[#FBB03B] text-[#1A1A1A] text-[12px] font-semibold transition-all' : 'flex items-center gap-1.5 px-3 h-6 rounded-full text-[#767676] hover:text-[#a3a3a3] text-[12px] font-medium transition-all')}
           >
-            <Smartphone className="w-4 h-4 mr-2" /> Mobile
+            <Smartphone className="w-3.5 h-3.5" /> Mobile
           </button>
         </div>
 
         {/* DIREITA */}
         <div className="flex items-center gap-2">
-           <Badge variant="outline" className={cn("px-2 py-1 text-xs font-semibold cursor-default", page?.status === 'published' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 rounded-md' : 'bg-slate-800 text-slate-400 border border-slate-700 rounded-md')}>
+           <Badge variant="outline" className={cn(page?.status === 'published' ? 'text-[11px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md' : 'text-[11px] font-medium text-[#767676] bg-[#2a2a2a] border border-[#3a3a3a] px-2 py-0.5 rounded-md')}>
             {page?.status === 'published' ? 'Publicado' : 'Rascunho'}
           </Badge>
-          <Button variant="ghost" size="icon" title="Pré-visualizar em nova aba" className="text-slate-300 hover:text-white hover:bg-slate-800 h-8 w-8" onClick={handlePreview}>
-            <Eye className="w-5 h-5" />
+          <Button variant="ghost" size="icon" title="Pré-visualizar em nova aba" className="w-7 h-7 flex items-center justify-center text-[#767676] hover:text-white transition-colors rounded-md hover:bg-[#2a2a2a]" onClick={handlePreview}>
+            <Eye className="w-3.5 h-3.5" />
           </Button>
-          <div className="w-px h-5 bg-slate-700 mx-1" />
-          <Button variant="outline" className={cn("h-8 px-4 bg-slate-800 border border-slate-600 text-white hover:bg-slate-700 text-sm font-semibold rounded-md transition-all", isDirty && "border-slate-500")} onClick={handleSave}>
-            {isDirty ? <span className="flex items-center gap-1.5"><span className="text-[#FBB03B] text-[10px]">●</span> Salvar</span> : 'Salvo'}
+          <div className="w-px h-4 bg-[#2a2a2a]" />
+          <Button variant="outline" className={cn("h-7 px-3 text-[13px] font-medium rounded-md border border-[#3a3a3a] text-[#a3a3a3] hover:text-white hover:border-[#484848] bg-transparent transition-all", isDirty && "border-[#FBB03B]/30 text-[#FBB03B] hover:text-[#FBB03B]")} onClick={handleSave}>
+            {isDirty ? <span className="flex items-center gap-1.5"><span className="text-[#FBB03B] text-[15px] leading-none mb-0.5">·</span> Salvar</span> : 'Salvo'}
           </Button>
-          <Button className="h-8 px-4 bg-[#FBB03B] hover:bg-[#f0a824] text-black font-bold rounded-md text-sm transition-colors" onClick={handlePublish}>
-            <Globe className="w-4 h-4 mr-2" /> Publicar
+          <Button className="h-7 px-3 text-[13px] font-semibold rounded-md bg-[#FBB03B] text-[#1A1A1A] hover:bg-[#f0a824] transition-colors" onClick={handlePublish}>
+            <Globe className="w-3.5 h-3.5 mr-1" /> Publicar
           </Button>
         </div>
       </div>
 
       <div className="flex flex-1 overflow-hidden relative">
         {/* 3. CANVAS - Principal ao centro */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden relative flex flex-col bg-slate-100 custom-scrollbar pr-[340px]">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden relative flex flex-col bg-[#f2f2f2] pr-[300px]">
           
           {/* UNDO / REDO Pill - Canto inferior esquerdo flotante */}
-          <div className="fixed bottom-8 left-8 z-50 bg-slate-950 border border-slate-700 rounded-lg shadow-lg px-0.5 text-white flex items-center h-10 gap-0.5">
-             <button title="Desfazer" disabled={historyIndex <= 0} onClick={undo} className="p-2 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-800 rounded-md text-slate-300 hover:text-white transition-colors"><Undo2 className="w-4 h-4" /></button>
-             <div className="w-px h-5 bg-slate-700 mx-0.5" />
-             <button title="Refazer" disabled={historyIndex >= history.length - 1} onClick={redo} className="p-2 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-800 rounded-md text-slate-300 hover:text-white transition-colors"><Redo2 className="w-4 h-4" /></button>
+          <div className="fixed bottom-6 left-6 z-50 flex items-center bg-[#1A1A1A] border border-[#2a2a2a] rounded-lg overflow-hidden h-8">
+             <button title="Desfazer" disabled={historyIndex <= 0} onClick={undo} className="w-8 h-8 flex items-center justify-center text-[#767676] hover:text-white hover:bg-[#2a2a2a] disabled:opacity-25 disabled:cursor-not-allowed transition-colors"><Undo2 className="w-3.5 h-3.5" /></button>
+             <div className="w-px h-4 bg-[#2a2a2a]" />
+             <button title="Refazer" disabled={historyIndex >= history.length - 1} onClick={redo} className="w-8 h-8 flex items-center justify-center text-[#767676] hover:text-white hover:bg-[#2a2a2a] disabled:opacity-25 disabled:cursor-not-allowed transition-colors"><Redo2 className="w-3.5 h-3.5" /></button>
           </div>
 
-          <div className="w-full flex justify-center sticky top-0 py-0 z-20 pointer-events-none bg-slate-100/80 backdrop-blur-sm">
-             <p className="text-center text-xs text-slate-400 py-3 font-medium pointer-events-auto">
-               {viewport === 'desktop' ? 'Desktop — 1024px' : 'Mobile — 390px'}
+          <div className="w-full flex justify-center sticky top-0 py-0 z-20 pointer-events-none">
+             <p className="text-center text-[11px] text-[#a3a3a3] pt-3 pb-1 font-medium tracking-wide select-none pointer-events-auto">
+               {viewport === 'desktop' ? 'Desktop · 1024px' : 'Mobile · 390px'}
              </p>
           </div>
           
           <div className="py-4 pb-40 px-4 flex flex-col items-center min-h-[calc(100vh-100px)]">
              {blocks.length === 0 ? (
                // ESTADO VAZIO
-               <div className="flex flex-col items-center justify-center pt-20 w-full max-w-2xl mx-auto text-center px-4">
-                 <svg width="240" height="160" viewBox="0 0 240 160" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-8 opacity-30">
-                     <rect x="2" y="2" width="236" height="156" rx="14" stroke="#64748B" strokeWidth="4" strokeDasharray="8 8"/>
-                     <line x1="40" y1="40" x2="200" y2="40" stroke="#64748B" strokeWidth="4" strokeLinecap="round"/>
-                     <line x1="40" y1="60" x2="160" y2="60" stroke="#64748B" strokeWidth="4" strokeLinecap="round"/>
-                     <line x1="40" y1="80" x2="180" y2="80" stroke="#64748B" strokeWidth="4" strokeLinecap="round"/>
-                     <rect x="40" y="100" width="80" height="24" rx="6" fill="#64748B"/>
+               <div className="flex flex-col items-center justify-center py-24 px-8 w-full max-w-2xl mx-auto text-center">
+                 <svg width="180" height="120" viewBox="0 0 240 160" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-6 opacity-20">
+                     <rect x="2" y="2" width="236" height="156" rx="14" stroke="#a3a3a3" strokeWidth="4" strokeDasharray="8 8"/>
+                     <line x1="40" y1="40" x2="200" y2="40" stroke="#a3a3a3" strokeWidth="4" strokeLinecap="round"/>
+                     <line x1="40" y1="60" x2="160" y2="60" stroke="#a3a3a3" strokeWidth="4" strokeLinecap="round"/>
+                     <line x1="40" y1="80" x2="180" y2="80" stroke="#a3a3a3" strokeWidth="4" strokeLinecap="round"/>
+                     <rect x="40" y="100" width="80" height="24" rx="6" fill="#a3a3a3"/>
                  </svg>
-                 <h3 className="text-xl font-semibold text-slate-700 mb-3">Sua página está em branco</h3>
-                 <p className="text-sm text-slate-400 mb-10 max-w-sm">Crie seu layout adicionando blocos pré-construídos para compor sua Landing Page perfeita.</p>
+                 <h3 className="text-[17px] font-semibold text-[#1A1A1A] mb-2 tracking-[-0.01em]">Sua página está em branco</h3>
+                 <p className="text-[14px] text-[#767676] mb-8 text-center max-w-xs leading-relaxed">Crie seu layout adicionando blocos pré-construídos para compor sua Landing Page perfeita.</p>
                  <Button 
-                    className="bg-[#FBB03B] hover:bg-[#f0a824] text-black px-8 py-3 h-auto text-base rounded-xl font-bold transition-colors"
+                    className="bg-[#FBB03B] text-[#1A1A1A] font-semibold text-[14px] px-6 py-2.5 rounded-lg hover:bg-[#f0a824] transition-colors flex items-center gap-2 h-auto"
                     onClick={() => { setInsertAfterIndex(-1); setShowBlockModal(true) }}
                  >
-                    <Plus className="w-5 h-5 mr-3" strokeWidth={3} /> Adicionar primeiro bloco
+                    <Plus className="w-5 h-5" strokeWidth={3} /> Adicionar primeiro bloco
                  </Button>
                </div>
              ) : (
-               <div className={cn("bg-white min-h-[500px] w-full transition-all duration-300 relative shadow-lg flex flex-col", viewport === 'desktop' ? 'max-w-5xl' : 'max-w-[390px] mx-auto mt-4 overflow-hidden border border-slate-200')}>
+               <div className={cn("bg-white min-h-[500px] w-full transition-all duration-300 relative shadow-sm flex flex-col", viewport === 'desktop' ? 'max-w-4xl mx-auto border-x border-[#e6e6e6]' : 'max-w-[390px] mx-auto border border-[#e6e6e6] rounded-b-xl overflow-hidden mt-4')}>
                   {blocks.map((block, index) => {
                      const def = getBlockByType(block.type)
                      if (!def) return null
@@ -446,7 +443,7 @@ export default function PagesEditor() {
                         <div key={block.id} className="w-full relative flex flex-col">
                            {/* Add block above */}
                            <div className="w-full h-8 opacity-0 hover:opacity-100 flex items-center justify-center -my-4 relative z-30 cursor-pointer pointer-events-auto transition-opacity duration-200" onClick={() => { setInsertAfterIndex(index - 1); setShowBlockModal(true) }}>
-                              <div className="bg-[#FBB03B] text-black text-[10px] uppercase font-bold tracking-widest px-4 py-1.5 rounded-full shadow-lg hover:bg-[#f0a824] transition-colors flex items-center gap-1.5 focus:outline-none ring-4 ring-white">
+                              <div className="bg-[#FBB03B] text-[#1A1A1A] text-[11px] font-semibold px-3 py-1 rounded-md flex items-center gap-1 hover:bg-[#f0a824] transition-colors shadow-none">
                                 <Plus className="w-3 h-3" strokeWidth={3} /> Inserir Acima
                               </div>
                            </div>
@@ -455,26 +452,28 @@ export default function PagesEditor() {
                               className={cn("relative group transition-all", block.hidden && "opacity-40 grayscale")}
                               style={{
                                 outlineOffset: '-2px',
-                                outline: selectedBlockId === block.id || editingBlockId === block.id ? '3px solid #FBB03B' : 'none'
+                                outline: selectedBlockId === block.id || editingBlockId === block.id ? '2px solid #FBB03B' : 'none'
                               }}
                               onMouseEnter={() => setSelectedBlockId(block.id)}
                               onMouseLeave={() => setSelectedBlockId(null)}
                               onClick={() => setEditingBlockId(block.id)}
                            >
                               {/* FLOTING TOOLBAR - Acima do bloco */}
-                              <div className={cn("absolute -top-12 right-2 bg-slate-900 border border-slate-700 text-white rounded-lg hidden items-center gap-1 p-1 px-1.5 shadow-xl z-40 transition-all", (selectedBlockId === block.id || editingBlockId === block.id) && "group-hover:flex")}>
-                                  <button title="Subir" onClick={(e) => { e.stopPropagation(); moveUp(index) }} disabled={index === 0} className="w-8 h-8 flex items-center justify-center hover:bg-slate-700 disabled:opacity-30 rounded-md text-slate-300 hover:text-white transition-colors"><ChevronUp className="w-4 h-4"/></button>
-                                  <button title="Descer" onClick={(e) => { e.stopPropagation(); moveDown(index) }} disabled={index === blocks.length - 1} className="w-8 h-8 flex items-center justify-center hover:bg-slate-700 disabled:opacity-30 rounded-md text-slate-300 hover:text-white transition-colors"><ChevronDown className="w-4 h-4"/></button>
-                                  <div className="w-px h-5 bg-slate-700 mx-1" />
-                                  <button title="Ocultar" onClick={(e) => { e.stopPropagation(); toggleHidden(block.id) }} className="w-8 h-8 flex items-center justify-center hover:bg-slate-700 rounded-md text-slate-300 hover:text-white transition-colors">{block.hidden ? <EyeOff className="w-4 h-4"/> : <Eye className="w-4 h-4"/>}</button>
-                                  <button title="Duplicar" onClick={(e) => { 
-                                     e.stopPropagation()
-                                     const newBlocks = [...blocks]
-                                     newBlocks.splice(index + 1, 0, { ...block, id: uuidv4() })
-                                     setBlocks(newBlocks); setIsDirty(true); pushHistoryDebounced(newBlocks)
-                                  }} className="w-8 h-8 flex items-center justify-center hover:bg-slate-700 rounded-md text-slate-300 hover:text-white transition-colors"><Copy className="w-4 h-4"/></button>
-                                  <div className="w-px h-5 bg-slate-700 mx-1" />
-                                  <button title="Excluir" onClick={(e) => { e.stopPropagation(); deleteBlock(block.id) }} className="w-8 h-8 flex items-center justify-center hover:bg-red-500/20 hover:text-red-400 rounded-md text-slate-400 transition-colors"><Trash2 className="w-4 h-4"/></button>
+                              <div className={cn("absolute -top-9 left-0 right-0 flex justify-center z-40 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto", (selectedBlockId === block.id || editingBlockId === block.id) && "")}>
+                                  <div className="flex items-center bg-[#1A1A1A] border border-[#2a2a2a] rounded-lg px-1 py-1 gap-0.5">
+                                      <button title="Subir" onClick={(e) => { e.stopPropagation(); moveUp(index) }} disabled={index === 0} className="w-7 h-7 flex items-center justify-center text-[#767676] hover:text-white hover:bg-[#2a2a2a] rounded-md transition-colors disabled:opacity-50"><ChevronUp className="w-3.5 h-3.5"/></button>
+                                      <button title="Descer" onClick={(e) => { e.stopPropagation(); moveDown(index) }} disabled={index === blocks.length - 1} className="w-7 h-7 flex items-center justify-center text-[#767676] hover:text-white hover:bg-[#2a2a2a] rounded-md transition-colors disabled:opacity-50"><ChevronDown className="w-3.5 h-3.5"/></button>
+                                      <div className="w-px h-4 bg-[#2a2a2a] mx-0.5" />
+                                      <button title="Ocultar" onClick={(e) => { e.stopPropagation(); toggleHidden(block.id) }} className="w-7 h-7 flex items-center justify-center text-[#767676] hover:text-white hover:bg-[#2a2a2a] rounded-md transition-colors">{block.hidden ? <EyeOff className="w-3.5 h-3.5"/> : <Eye className="w-3.5 h-3.5"/>}</button>
+                                      <button title="Duplicar" onClick={(e) => { 
+                                         e.stopPropagation()
+                                         const newBlocks = [...blocks]
+                                         newBlocks.splice(index + 1, 0, { ...block, id: uuidv4() })
+                                         setBlocks(newBlocks); setIsDirty(true); pushHistoryDebounced(newBlocks)
+                                      }} className="w-7 h-7 flex items-center justify-center text-[#767676] hover:text-white hover:bg-[#2a2a2a] rounded-md transition-colors"><Copy className="w-3.5 h-3.5"/></button>
+                                      <div className="w-px h-4 bg-[#2a2a2a] mx-0.5" />
+                                      <button title="Excluir" onClick={(e) => { e.stopPropagation(); deleteBlock(block.id) }} className="w-7 h-7 flex items-center justify-center text-[#767676] hover:text-white hover:bg-[#2a2a2a] rounded-md transition-colors hover:text-red-400"><Trash2 className="w-3.5 h-3.5"/></button>
+                                  </div>
                               </div>
 
                               <div dangerouslySetInnerHTML={{ __html: html }} className="min-h-[40px]" />
@@ -485,7 +484,7 @@ export default function PagesEditor() {
                            {/* Add block below (special case for last block) */}
                            {index === blocks.length - 1 && (
                               <div className="w-full h-8 opacity-0 hover:opacity-100 flex items-center justify-center -my-4 relative z-30 cursor-pointer pointer-events-auto transition-opacity duration-200 mt-2" onClick={() => { setInsertAfterIndex(index); setShowBlockModal(true) }}>
-                                 <div className="bg-[#FBB03B] text-black text-[10px] uppercase font-bold tracking-widest px-4 py-1.5 rounded-full shadow-lg hover:bg-[#f0a824] transition-colors flex items-center gap-1.5 ring-4 ring-white">
+                                 <div className="bg-[#FBB03B] text-[#1A1A1A] text-[11px] font-semibold px-3 py-1 rounded-md flex items-center gap-1 hover:bg-[#f0a824] transition-colors shadow-none">
                                    <Plus className="w-3 h-3" strokeWidth={3} /> Inserir Abaixo
                                  </div>
                               </div>
@@ -499,72 +498,72 @@ export default function PagesEditor() {
         </div>
 
         {/* 2. SIDEBAR DIREITA - Painel de Config ou Layers */}
-        <div className="w-[340px] bg-white border-l border-slate-200 shadow-xl shrink-0 z-20 flex flex-col h-full absolute right-0 top-0 overflow-hidden">
+        <div className="w-[300px] bg-white border-l border-[#e6e6e6] shrink-0 z-20 flex flex-col h-full absolute right-0 top-0 overflow-hidden">
            {editingBlockId && editingBlock && editingBlockDef ? (
               // FORMULÁRIO DE EDIÇÃO
               <div className="flex flex-col h-full w-full">
-                 <div className="h-14 border-b border-slate-100 flex items-center justify-between px-4 bg-white shrink-0">
-                    <div>
-                       <p className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Editar:</p>
-                       <h3 className="font-semibold text-slate-800 text-sm leading-tight">{editingBlockDef.name}</h3>
+                 <div className="h-11 border-b border-[#e6e6e6] flex items-center justify-between px-4 bg-white shrink-0">
+                    <div className="flex gap-2 items-baseline">
+                       <p className="text-[11px] text-[#a3a3a3] font-medium">{editingBlockDef.type}</p>
+                       <h3 className="text-[13px] font-semibold text-[#1A1A1A] tracking-[-0.01em] leading-tight">{editingBlockDef.name}</h3>
                     </div>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md" onClick={() => setEditingBlockId(null)}><X className="w-4 h-4"/></Button>
+                    <Button variant="ghost" size="icon" className="w-6 h-6 flex items-center justify-center text-[#a3a3a3] hover:text-[#1A1A1A] rounded transition-colors" onClick={() => setEditingBlockId(null)}><X className="w-4 h-4"/></Button>
                  </div>
                  
                  <Tabs defaultValue="conteudo" className="flex-1 flex flex-col w-full overflow-hidden">
-                    <TabsList className="w-full justify-start h-10 bg-transparent border-b border-slate-100 rounded-none px-4 space-x-4 shrink-0">
-                       <TabsTrigger value="conteudo" className="data-[state=active]:border-b-2 data-[state=active]:border-[#FBB03B] data-[state=active]:text-[#FBB03B] data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none px-0 h-full text-xs font-bold uppercase tracking-wider text-slate-500 transition-colors">Conteúdo</TabsTrigger>
-                       <TabsTrigger value="secao" className="data-[state=active]:border-b-2 data-[state=active]:border-[#FBB03B] data-[state=active]:text-[#FBB03B] data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none px-0 h-full text-xs font-bold uppercase tracking-wider text-slate-500 transition-colors">Seção</TabsTrigger>
+                    <TabsList className="flex w-full border-b border-[#e6e6e6] bg-white rounded-none h-9 p-0 px-4 gap-4 shrink-0">
+                       <TabsTrigger value="conteudo" className="h-full rounded-none border-b-2 border-transparent text-[12px] font-medium text-[#a3a3a3] px-0 pb-0 data-[state=active]:border-[#FBB03B] data-[state=active]:text-[#1A1A1A] data-[state=active]:shadow-none data-[state=active]:bg-transparent transition-all">Conteúdo</TabsTrigger>
+                       <TabsTrigger value="secao" className="h-full rounded-none border-b-2 border-transparent text-[12px] font-medium text-[#a3a3a3] px-0 pb-0 data-[state=active]:border-[#FBB03B] data-[state=active]:text-[#1A1A1A] data-[state=active]:shadow-none data-[state=active]:bg-transparent transition-all">Seção</TabsTrigger>
                     </TabsList>
                     
-                    <div className="flex-1 overflow-y-auto custom-scrollbar bg-slate-50/50">
-                       <TabsContent value="conteudo" className="p-5 m-0 space-y-6">
+                    <div className="flex-1 overflow-y-auto bg-white">
+                       <TabsContent value="conteudo" className="p-4 m-0 space-y-4">
                            {editingBlockDef.fields.map(field => (
-                              <div key={field.key} className="space-y-2.5">
-                                 <label className="text-xs font-medium text-slate-600">{field.label}</label>
+                              <div key={field.key} className="space-y-1.5">
+                                 <label className="text-[12px] text-[#767676] font-medium tracking-normal">{field.label}</label>
                                  {renderField(field, editingBlock.data[field.key], (val) => updateBlockData(editingBlock.id, field.key, val), editingBlock.id)}
                               </div>
                            ))}
                        </TabsContent>
                        
-                       <TabsContent value="secao" className="p-5 m-0 space-y-6">
-                          <div className="space-y-2.5">
-                             <label className="text-xs font-medium text-slate-600">Imagem de Fundo (URL)</label>
-                             <Input value={editingBlock.sectionStyles.backgroundImage || ''} onChange={(e) => updateBlockStyles(editingBlock.id, { backgroundImage: e.target.value })} placeholder="Ex: https://..." className="bg-white" />
+                       <TabsContent value="secao" className="p-4 m-0 space-y-4">
+                          <div className="space-y-1.5">
+                             <label className="text-[12px] text-[#767676] font-medium tracking-normal">Imagem de Fundo (URL)</label>
+                             <Input value={editingBlock.sectionStyles.backgroundImage || ''} onChange={(e) => updateBlockStyles(editingBlock.id, { backgroundImage: e.target.value })} placeholder="Ex: https://..." className="bg-white h-8 text-[13px]" />
                           </div>
                           
-                          <div className="space-y-2.5">
-                             <label className="text-xs font-medium text-slate-600">Cor de Fundo</label>
+                          <div className="space-y-1.5">
+                             <label className="text-[12px] text-[#767676] font-medium tracking-normal">Cor de Fundo</label>
                              <div className="flex gap-2">
-                                <input type="color" className="w-10 h-10 p-1 border rounded cursor-pointer shrink-0 bg-white" value={editingBlock.sectionStyles.backgroundColor || '#ffffff'} onChange={e => updateBlockStyles(editingBlock.id, { backgroundColor: e.target.value })} />
-                                <Input className="font-mono text-xs uppercase bg-white" value={editingBlock.sectionStyles.backgroundColor || ''} onChange={e => updateBlockStyles(editingBlock.id, { backgroundColor: e.target.value })} />
+                                <input type="color" className="w-8 h-8 p-1 border border-[#e6e6e6] rounded cursor-pointer shrink-0 bg-white" value={editingBlock.sectionStyles.backgroundColor || '#ffffff'} onChange={e => updateBlockStyles(editingBlock.id, { backgroundColor: e.target.value })} />
+                                <Input className="h-8 font-mono text-[13px] bg-white uppercase" value={editingBlock.sectionStyles.backgroundColor || ''} onChange={e => updateBlockStyles(editingBlock.id, { backgroundColor: e.target.value })} />
                              </div>
                           </div>
 
-                          <div className="space-y-2.5">
-                             <label className="text-xs font-medium text-slate-600">Cor de Sobreposição (Overlay)</label>
+                          <div className="space-y-1.5">
+                             <label className="text-[12px] text-[#767676] font-medium tracking-normal">Cor de Sobreposição (Overlay)</label>
                              <div className="flex gap-2">
-                                <input type="color" className="w-10 h-10 p-1 border rounded cursor-pointer shrink-0 bg-white" value={editingBlock.sectionStyles.overlayColor || '#000000'} onChange={e => updateBlockStyles(editingBlock.id, { overlayColor: e.target.value })} />
-                                <Input className="font-mono text-xs uppercase bg-white" value={editingBlock.sectionStyles.overlayColor || ''} onChange={e => updateBlockStyles(editingBlock.id, { overlayColor: e.target.value })} />
+                                <input type="color" className="w-8 h-8 p-1 border border-[#e6e6e6] rounded cursor-pointer shrink-0 bg-white" value={editingBlock.sectionStyles.overlayColor || '#000000'} onChange={e => updateBlockStyles(editingBlock.id, { overlayColor: e.target.value })} />
+                                <Input className="h-8 font-mono text-[13px] bg-white uppercase" value={editingBlock.sectionStyles.overlayColor || ''} onChange={e => updateBlockStyles(editingBlock.id, { overlayColor: e.target.value })} />
                              </div>
                           </div>
 
                           <div className="space-y-3 pt-3">
                              <div className="flex justify-between items-center">
-                                <label className="text-xs font-medium text-slate-600">Opacidade do Overlay</label>
-                                <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-mono font-bold text-slate-700">{editingBlock.sectionStyles.overlayOpacity || 0}%</span>
+                                <label className="text-[12px] text-[#767676] font-medium tracking-normal">Opacidade do Overlay</label>
+                                <span className="text-[12px] font-mono text-[#767676] bg-[#f2f2f2] px-2 py-0.5 rounded-md">{editingBlock.sectionStyles.overlayOpacity || 0}%</span>
                              </div>
-                             <Slider min={0} max={100} step={1} value={[editingBlock.sectionStyles.overlayOpacity || 0]} onValueChange={vals => updateBlockStyles(editingBlock.id, { overlayOpacity: vals[0] })} className="py-2" />
+                             <Slider min={0} max={100} step={1} value={[editingBlock.sectionStyles.overlayOpacity || 0]} onValueChange={vals => updateBlockStyles(editingBlock.id, { overlayOpacity: vals[0] })} className="py-2 [&_[role=slider]]:bg-[#FBB03B]" />
                           </div>
 
                           <div className="grid grid-cols-2 gap-4 pt-3">
-                             <div className="space-y-2.5">
-                                <label className="text-xs font-medium text-slate-600">Espaço Topo (px)</label>
-                                <Input type="number" className="bg-white" value={editingBlock.sectionStyles.paddingTop ?? 80} onChange={e => updateBlockStyles(editingBlock.id, { paddingTop: parseInt(e.target.value) || 0 })} />
+                             <div className="space-y-1.5">
+                                <label className="text-[12px] text-[#767676] font-medium tracking-normal">Espaço Topo (px)</label>
+                                <Input type="number" className="h-8 text-[13px] bg-white" value={editingBlock.sectionStyles.paddingTop ?? 80} onChange={e => updateBlockStyles(editingBlock.id, { paddingTop: parseInt(e.target.value) || 0 })} />
                              </div>
-                             <div className="space-y-2.5">
-                                <label className="text-xs font-medium text-slate-600">Espaço Base (px)</label>
-                                <Input type="number" className="bg-white" value={editingBlock.sectionStyles.paddingBottom ?? 80} onChange={e => updateBlockStyles(editingBlock.id, { paddingBottom: parseInt(e.target.value) || 0 })} />
+                             <div className="space-y-1.5">
+                                <label className="text-[12px] text-[#767676] font-medium tracking-normal">Espaço Base (px)</label>
+                                <Input type="number" className="h-8 text-[13px] bg-white" value={editingBlock.sectionStyles.paddingBottom ?? 80} onChange={e => updateBlockStyles(editingBlock.id, { paddingBottom: parseInt(e.target.value) || 0 })} />
                              </div>
                           </div>
                        </TabsContent>
@@ -574,35 +573,32 @@ export default function PagesEditor() {
            ) : (
               // PAINE L DE CAMADAS (LAYERS)
               <div className="flex flex-col h-full w-full bg-white">
-                 <div className="h-14 border-b border-slate-100 flex items-center justify-between px-4 shrink-0">
-                    <h3 className="font-semibold text-slate-800 text-sm">Camadas</h3>
-                    <Button size="sm" className="h-8 bg-[#FBB03B] hover:bg-[#f0a824] text-black text-xs px-3 font-bold rounded-md transition-colors" onClick={() => { setInsertAfterIndex(blocks.length - 1); setShowBlockModal(true) }}>
-                       <Plus className="w-3.5 h-3.5 mr-1" strokeWidth={3} /> Bloco
-                    </Button>
+                 <div className="h-11 border-b border-[#e6e6e6] px-4 flex items-center justify-between shrink-0">
+                    <h3 className="text-[13px] font-semibold text-[#1A1A1A] tracking-[-0.01em]">Camadas</h3>
+                    <button className="flex items-center gap-1 text-[13px] font-semibold bg-[#FBB03B] text-[#1A1A1A] px-2.5 py-1 rounded-md hover:bg-[#f0a824] transition-colors" onClick={() => { setInsertAfterIndex(blocks.length - 1); setShowBlockModal(true) }}>
+                       <Plus className="w-3.5 h-3.5" strokeWidth={3} /> Bloco
+                    </button>
                  </div>
-                 <div className="flex-1 overflow-y-auto p-3 space-y-1.5 custom-scrollbar bg-white">
+                 <div className="flex-1 overflow-y-auto bg-white flex flex-col">
                     {blocks.map((block, i) => {
                        const def = getBlockByType(block.type)
                        return (
                          <div 
                            key={block.id} 
-                           className={cn("flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer group", selectedBlockId === block.id || editingBlockId === block.id ? "border-[#FBB03B] bg-amber-50" : "border-slate-100 hover:border-slate-200 hover:bg-slate-50 relative")}
+                           className={cn("flex items-center gap-2.5 px-3 py-2.5 cursor-pointer hover:bg-[#f2f2f2] border-b border-[#f2f2f2] transition-colors group/layer", selectedBlockId === block.id || editingBlockId === block.id ? "bg-[#FBB03B]/8 border-b-[#FBB03B]/20" : "")}
                            onClick={() => setEditingBlockId(block.id)}
                            onMouseEnter={() => setSelectedBlockId(block.id)}
                            onMouseLeave={() => setSelectedBlockId(null)}
                          >
-                           <div className="flex items-center gap-3 overflow-hidden">
-                             <GripVertical className="w-4 h-4 text-slate-300 group-hover:text-slate-400 cursor-grab shrink-0" />
-                             <div className="flex flex-col">
-                                <span className={cn("text-sm font-medium truncate", block.hidden ? "text-slate-400" : "text-slate-700")}>{def?.name || 'Bloco'}</span>
-                                {block.hidden && <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400 mt-0.5">Oculto</span>}
-                             </div>
-                           </div>
-                           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                             <button onClick={(e) => { e.stopPropagation(); toggleHidden(block.id) }} className="p-1 hover:bg-slate-200 rounded-md text-slate-400 hover:text-slate-600">
+                           <GripVertical className="w-3.5 h-3.5 text-[#d1d1d1] group-hover/layer:text-[#a3a3a3] shrink-0" />
+                           <span className={cn("text-[13px] text-[#1A1A1A] font-medium flex-1 truncate", block.hidden && "text-[#a3a3a3]")}>{def?.name || 'Bloco'}</span>
+                           {block.hidden && <span className="text-[9px] uppercase font-bold text-[#a3a3a3] mt-0.5">Oculto</span>}
+                           
+                           <div className="flex items-center gap-0.5 opacity-0 group-hover/layer:opacity-100 transition-opacity">
+                             <button onClick={(e) => { e.stopPropagation(); toggleHidden(block.id) }} className="w-6 h-6 flex items-center justify-center text-[#a3a3a3] hover:text-[#1A1A1A] rounded transition-colors">
                                 {block.hidden ? <EyeOff className="w-3.5 h-3.5"/> : <Eye className="w-3.5 h-3.5"/>}
                              </button>
-                             <button onClick={(e) => { e.stopPropagation(); deleteBlock(block.id) }} className="p-1 hover:bg-slate-200 rounded-md text-slate-400 hover:text-red-500">
+                             <button onClick={(e) => { e.stopPropagation(); deleteBlock(block.id) }} className="w-6 h-6 flex items-center justify-center text-[#a3a3a3] hover:text-[#1A1A1A] hover:bg-red-50 hover:text-red-500 rounded transition-colors">
                                <Trash2 className="w-3.5 h-3.5" />
                              </button>
                            </div>
@@ -610,10 +606,10 @@ export default function PagesEditor() {
                        )
                     })}
                     {blocks.length === 0 && (
-                      <div className="flex flex-col items-center justify-center py-16 text-center">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-slate-300 mb-2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 12 12 17 22 12"/><polyline points="2 17 12 22 22 17"/></svg>
-                         <p className="text-sm font-medium text-slate-400">Nenhum bloco ainda</p>
-                      </div>
+                      <div className="flex flex-col items-center justify-center py-16 gap-2 opacity-60">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-[#d1d1d1]"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 12 12 17 22 12"/><polyline points="2 17 12 22 22 17"/></svg>
+                         <p className="text-[13px] text-[#a3a3a3]">Nenhum bloco ainda</p>
+                       </div>
                     )}
                  </div>
               </div>
@@ -623,26 +619,26 @@ export default function PagesEditor() {
 
       {/* 5. MODAL DE BLOCOS - Sheet vindo da direita */}
       <Sheet open={showBlockModal} onOpenChange={setShowBlockModal}>
-        <SheetContent side="right" className="w-[700px] sm:max-w-[700px] p-0 flex flex-col border-l-0 bg-slate-50 gap-0 shadow-2xl">
-          <div className="px-8 py-6 border-b border-slate-100 bg-white shrink-0">
-             <SheetHeader className="text-left space-y-0 pb-4">
-                <SheetTitle className="text-xl font-semibold text-slate-900">Adicionar Bloco</SheetTitle>
+        <SheetContent side="right" className="w-[640px] sm:max-w-[640px] p-0 flex flex-col border-l border-[#e6e6e6] bg-white gap-0">
+          <div className="px-6 py-5 border-b border-[#e6e6e6]">
+             <SheetHeader className="text-left space-y-0">
+                <SheetTitle className="text-[17px] font-semibold text-[#1A1A1A] tracking-[-0.01em] mb-3">Adicionar Bloco</SheetTitle>
              </SheetHeader>
              <div className="relative">
-                <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
-                <Input placeholder="Buscar por nome do bloco..." className="pl-10 h-10 bg-slate-50 border-slate-200" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+                <Search className="w-4 h-4 absolute left-3 top-2.5 text-[#a3a3a3]" />
+                <Input placeholder="Buscar por nome do bloco..." className="pl-9 h-9 text-[13px] rounded-lg bg-[#f2f2f2] border-transparent focus-visible:ring-[#FBB03B]" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
              </div>
           </div>
           
           <Tabs defaultValue="vazio" value={activeCategory} onValueChange={setActiveCategory} className="flex-1 flex flex-col overflow-hidden">
-             <div className="px-6 py-2 border-b border-slate-100 bg-white shrink-0 relative">
+             <div className="w-full bg-white shrink-0">
                 <ScrollArea className="w-full">
-                   <TabsList className="h-10 bg-transparent p-0 gap-2 flex w-max">
-                      <TabsTrigger value="vazio" className="data-[state=active]:bg-[#FBB03B] data-[state=active]:text-black rounded-lg px-5 py-1.5 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all">
+                   <TabsList className="flex gap-1.5 px-6 py-3 border-b border-[#e6e6e6] w-full overflow-x-auto bg-white rounded-none h-auto">
+                      <TabsTrigger value="vazio" className="px-3 py-1 rounded-md text-[12px] font-medium text-[#767676] bg-[#f2f2f2] hover:bg-[#e6e6e6] data-[state=active]:bg-[#FBB03B] data-[state=active]:text-[#1A1A1A] transition-colors whitespace-nowrap h-7 data-[state=active]:shadow-none">
                          Bloco Vazio
                       </TabsTrigger>
                       {BLOCK_CATEGORIES.map(cat => (
-                         <TabsTrigger key={cat} value={cat} className="data-[state=active]:bg-[#FBB03B] data-[state=active]:text-black rounded-lg px-5 py-1.5 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all">
+                         <TabsTrigger key={cat} value={cat} className="px-3 py-1 rounded-md text-[12px] font-medium text-[#767676] bg-[#f2f2f2] hover:bg-[#e6e6e6] data-[state=active]:bg-[#FBB03B] data-[state=active]:text-[#1A1A1A] transition-colors whitespace-nowrap h-7 data-[state=active]:shadow-none">
                             {cat}
                          </TabsTrigger>
                       ))}
@@ -650,31 +646,30 @@ export default function PagesEditor() {
                 </ScrollArea>
              </div>
 
-             <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+             <div className="flex-1 overflow-y-auto p-6 bg-[#f2f2f2]/30">
                 {activeCategory === 'vazio' && searchQuery === '' ? (
                    <div className="flex flex-col items-center justify-center pt-24 text-center">
-                       <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mb-6">
+                       <div className="w-16 h-16 bg-[#FBB03B]/10 rounded-full flex items-center justify-center mb-4">
                            <Plus className="w-8 h-8 text-[#FBB03B]" />
                        </div>
-                       <h3 className="text-xl font-bold text-slate-800 mb-2">Bloco Vazio</h3>
-                       <p className="text-slate-500 max-w-sm mb-6 text-sm">Use o espaço vazio para codificar layouts do zero. Requer habilidades avançadas.</p>
-                       <Button disabled variant="outline" className="border-slate-300 font-bold bg-white">Recurso em Breve</Button>
+                       <h3 className="text-[17px] font-semibold text-[#1A1A1A] tracking-[-0.01em] mb-2">Bloco Vazio</h3>
+                       <p className="text-[#767676] max-w-sm mb-6 text-[14px]">Use o espaço vazio para codificar layouts do zero. Requer habilidades avançadas.</p>
                    </div>
                 ) : (
-                   <div className="grid grid-cols-2 gap-6">
+                   <div className="grid grid-cols-2 gap-4">
                        {filteredCategories.map(def => (
-                          <div key={def.type} className="group flex flex-col bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-[#FBB03B] hover:shadow-lg transition-all duration-300">
-                             <div className="w-full aspect-[280/160] bg-slate-50 border-b border-slate-100 flex items-center justify-center p-4 relative overflow-hidden" dangerouslySetInnerHTML={{ __html: def.thumbnail }} />
-                             <div className="p-4 flex items-center justify-between bg-white z-10 relative">
-                                <span className="font-semibold text-sm text-slate-800">{def.name}</span>
-                                <Button size="sm" className="bg-[#FBB03B] hover:bg-[#f0a824] text-black font-bold opacity-0 group-hover:opacity-100 transition-opacity h-8 px-4" onClick={() => addBlock(def.type, insertAfterIndex)}>Usar</Button>
+                          <div key={def.type} className="group flex flex-col bg-white border border-[#e6e6e6] rounded-xl overflow-hidden hover:border-[#FBB03B] cursor-pointer transition-all" onClick={() => addBlock(def.type, insertAfterIndex)}>
+                             <div className="w-full aspect-video bg-[#f2f2f2] flex items-center justify-center border-b border-[#e6e6e6]" dangerouslySetInnerHTML={{ __html: def.thumbnail }} />
+                             <div className="flex items-center justify-between px-3 py-2.5">
+                                <span className="text-[13px] font-medium text-[#1A1A1A]">{def.name}</span>
+                                <button className="text-[12px] font-semibold bg-[#FBB03B] text-[#1A1A1A] px-2.5 py-1 rounded-md opacity-0 group-hover:opacity-100 hover:bg-[#f0a824] transition-all">Usar</button>
                              </div>
                           </div>
                        ))}
                        {filteredCategories.length === 0 && (
                           <div className="col-span-2 py-20 text-center flex flex-col items-center">
-                             <Search className="w-10 h-10 text-slate-300 mb-3" />
-                             <p className="text-slate-500 font-semibold">Nenhum bloco encontrado na categoria.</p>
+                             <Search className="w-10 h-10 text-[#d1d1d1] mb-3" />
+                             <p className="text-[#a3a3a3] font-medium text-[13px]">Nenhum bloco encontrado na categoria.</p>
                           </div>
                        )}
                    </div>
@@ -683,22 +678,6 @@ export default function PagesEditor() {
           </Tabs>
         </SheetContent>
       </Sheet>
-
-      <style dangerouslySetInnerHTML={{__html: `
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #cbd5e1;
-          border-radius: 20px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #94a3b8;
-        }
-      `}} />
     </div>
   )
 }
