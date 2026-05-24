@@ -17,7 +17,8 @@ import { ScrollArea } from '../../../components/ui/scroll-area'
 import { 
   ArrowLeft, Monitor, Smartphone, Eye, EyeOff, 
   Trash2, ChevronUp, ChevronDown, Undo2, Redo2,
-  Plus, Search, GripVertical, Pencil, Globe, X, Copy
+  Plus, Search, GripVertical, Pencil, Globe, X, Copy,
+  ChevronLeft, ChevronRight
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '../../../lib/utils'
@@ -45,6 +46,13 @@ export default function PagesEditor() {
   const [pageName, setPageName] = useState('')
 
   const historyIndexRef = useRef(historyIndex)
+  const categoryScrollRef = useRef<HTMLDivElement>(null)
+
+  const scrollCategories = (dir: 'left' | 'right') => {
+    if (categoryScrollRef.current) {
+      categoryScrollRef.current.scrollBy({ left: dir === 'right' ? 160 : -160, behavior: 'smooth' })
+    }
+  }
 
   useEffect(() => {
     historyIndexRef.current = historyIndex
@@ -337,7 +345,7 @@ export default function PagesEditor() {
       <div className="h-[44px] bg-[#1A1A1A] border-b border-[#2a2a2a] flex items-center justify-between px-4 shrink-0 z-30">
         {/* ESQUERDA */}
         <div className="flex items-center gap-0">
-          <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-[#d1d1d1] hover:text-white text-[13px] font-medium transition-colors px-2 h-full hover:bg-transparent">
+          <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-white hover:text-white text-[13px] font-medium transition-colors px-2 h-full hover:bg-transparent">
             <ArrowLeft className="w-3.5 h-3.5" /> Páginas
           </Button>
           <div className="w-px h-4 bg-[#3a3a3a] mx-3" />
@@ -352,11 +360,11 @@ export default function PagesEditor() {
             />
           ) : (
             <div 
-              className="text-white text-[13px] font-medium cursor-pointer hover:text-[#a3a3a3] transition-colors flex items-center gap-1.5"
+              className="text-white text-[13px] font-medium cursor-pointer hover:text-[#d1d1d1] transition-colors flex items-center gap-1.5"
               onClick={() => setIsEditingName(true)}
             >
               {pageName}
-              <Pencil className="w-3 h-3 text-[#767676]" />
+              <Pencil className="w-3 h-3 text-[#484848]" />
             </div>
           )}
         </div>
@@ -365,13 +373,13 @@ export default function PagesEditor() {
         <div className="absolute left-1/2 -translate-x-1/2 items-center bg-[#2a2a2a] rounded-full p-0.5 border border-[#3a3a3a] hidden md:flex">
           <button 
             onClick={() => setViewport('desktop')}
-            className={cn(viewport === 'desktop' ? 'flex items-center gap-1.5 px-3 h-6 rounded-full bg-[#FBB03B] text-[#1A1A1A] text-[12px] font-semibold transition-all' : 'flex items-center gap-1.5 px-3 h-6 rounded-full text-[#767676] hover:text-[#a3a3a3] text-[12px] font-medium transition-all')}
+            className={cn(viewport === 'desktop' ? 'flex items-center gap-1.5 px-3 h-6 rounded-full bg-[#FBB03B] text-[#1A1A1A] text-[12px] font-semibold transition-all' : 'flex items-center gap-1.5 px-3 h-6 rounded-full text-[#a3a3a3] hover:text-[#a3a3a3] text-[12px] font-medium transition-all')}
           >
             <Monitor className="w-3.5 h-3.5" /> Desktop
           </button>
           <button 
             onClick={() => setViewport('mobile')}
-            className={cn(viewport === 'mobile' ? 'flex items-center gap-1.5 px-3 h-6 rounded-full bg-[#FBB03B] text-[#1A1A1A] text-[12px] font-semibold transition-all' : 'flex items-center gap-1.5 px-3 h-6 rounded-full text-[#767676] hover:text-[#a3a3a3] text-[12px] font-medium transition-all')}
+            className={cn(viewport === 'mobile' ? 'flex items-center gap-1.5 px-3 h-6 rounded-full bg-[#FBB03B] text-[#1A1A1A] text-[12px] font-semibold transition-all' : 'flex items-center gap-1.5 px-3 h-6 rounded-full text-[#a3a3a3] hover:text-[#a3a3a3] text-[12px] font-medium transition-all')}
           >
             <Smartphone className="w-3.5 h-3.5" /> Mobile
           </button>
@@ -379,14 +387,14 @@ export default function PagesEditor() {
 
         {/* DIREITA */}
         <div className="flex items-center gap-2">
-           <Badge variant="outline" className={cn(page?.status === 'published' ? 'text-[11px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md' : 'text-[11px] font-medium text-[#a3a3a3] bg-[#2a2a2a] border border-[#3a3a3a] px-2 py-0.5 rounded-md')}>
+           <Badge variant="outline" className={cn(page?.status === 'published' ? 'text-[11px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md' : 'text-[11px] font-medium text-[#d1d1d1] bg-[#2a2a2a] border border-[#3a3a3a] px-2 py-0.5 rounded-md')}>
             {page?.status === 'published' ? 'Publicado' : 'Rascunho'}
           </Badge>
-          <Button variant="ghost" size="icon" title="Pré-visualizar em nova aba" className="w-7 h-7 flex items-center justify-center text-[#a3a3a3] hover:text-white transition-colors rounded-md hover:bg-[#2a2a2a]" onClick={handlePreview}>
+          <Button variant="ghost" size="icon" title="Pré-visualizar em nova aba" className="w-7 h-7 flex items-center justify-center text-[#d1d1d1] hover:text-white transition-colors rounded-md hover:bg-[#2a2a2a]" onClick={handlePreview}>
             <Eye className="w-3.5 h-3.5" />
           </Button>
           <div className="w-px h-4 bg-[#3a3a3a]" />
-          <Button variant="outline" className={cn("h-7 px-3 text-[13px] font-medium rounded-md border border-[#484848] text-[#d1d1d1] hover:text-white hover:border-[#484848] bg-transparent transition-all", isDirty && "border-[#FBB03B]/30 text-[#FBB03B] hover:text-[#FBB03B]")} onClick={handleSave}>
+          <Button variant="outline" className={cn("h-7 px-3 text-[13px] font-medium rounded-md border border-[#484848] text-white hover:text-white hover:border-[#484848] bg-transparent transition-all", isDirty && "border-[#FBB03B]/30 text-[#FBB03B] hover:text-[#FBB03B]")} onClick={handleSave}>
             {isDirty ? <span className="flex items-center gap-1.5"><span className="text-[#FBB03B] text-[15px] leading-none mb-0.5">·</span> Salvar</span> : 'Salvo'}
           </Button>
           <Button className="h-7 px-3 text-[13px] font-semibold rounded-md bg-[#FBB03B] text-[#1A1A1A] hover:bg-[#f0a824] transition-colors" onClick={handlePublish}>
@@ -401,9 +409,9 @@ export default function PagesEditor() {
           
           {/* UNDO / REDO Pill - Canto inferior esquerdo flotante */}
           <div className="fixed bottom-6 left-6 z-50 flex items-center bg-[#1A1A1A] border border-[#2a2a2a] rounded-lg overflow-hidden h-8">
-             <button title="Desfazer" disabled={historyIndex <= 0} onClick={undo} className="w-8 h-8 flex items-center justify-center text-[#d1d1d1] hover:text-white hover:bg-[#2a2a2a] disabled:opacity-25 disabled:cursor-not-allowed transition-colors"><Undo2 className="w-3.5 h-3.5" /></button>
+             <button title="Desfazer" disabled={historyIndex <= 0} onClick={undo} className="w-8 h-8 flex items-center justify-center text-white hover:text-white hover:bg-[#2a2a2a] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"><Undo2 className="w-3.5 h-3.5" /></button>
              <div className="w-px h-4 bg-[#2a2a2a]" />
-             <button title="Refazer" disabled={historyIndex >= history.length - 1} onClick={redo} className="w-8 h-8 flex items-center justify-center text-[#d1d1d1] hover:text-white hover:bg-[#2a2a2a] disabled:opacity-25 disabled:cursor-not-allowed transition-colors"><Redo2 className="w-3.5 h-3.5" /></button>
+             <button title="Refazer" disabled={historyIndex >= history.length - 1} onClick={redo} className="w-8 h-8 flex items-center justify-center text-white hover:text-white hover:bg-[#2a2a2a] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"><Redo2 className="w-3.5 h-3.5" /></button>
           </div>
 
           <div className="w-full flex justify-center sticky top-0 py-0 z-20 pointer-events-none">
@@ -631,35 +639,52 @@ export default function PagesEditor() {
           </div>
           
           <div className="flex-1 flex flex-col overflow-hidden">
-             <div 
-               className="flex gap-1.5 px-6 py-3 border-b border-[#e6e6e6] overflow-x-auto scrollbar-none shrink-0" 
-               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-             >
-                <button
-                  onClick={() => setActiveCategory('vazio')}
-                  className={cn(
-                    "px-3 py-1 rounded-md text-[12px] font-medium whitespace-nowrap h-7 transition-colors shrink-0",
-                    activeCategory === 'vazio' 
-                      ? "bg-[#FBB03B] text-[#1A1A1A]" 
-                      : "bg-[#f2f2f2] text-[#767676] hover:bg-[#e6e6e6]"
-                  )}
-                >
-                  Bloco Vazio
-                </button>
-                {BLOCK_CATEGORIES.map(cat => (
-                  <button
-                    key={cat}
-                    onClick={() => setActiveCategory(cat)}
-                    className={cn(
-                      "px-3 py-1 rounded-md text-[12px] font-medium whitespace-nowrap h-7 transition-colors shrink-0",
-                      activeCategory === cat 
-                        ? "bg-[#FBB03B] text-[#1A1A1A]" 
-                        : "bg-[#f2f2f2] text-[#767676] hover:bg-[#e6e6e6]"
-                    )}
-                  >
-                    {cat}
-                  </button>
-                ))}
+             <div className="flex items-center border-b border-[#e6e6e6] px-4 py-2 gap-1">
+               <button
+                 onClick={() => scrollCategories('left')}
+                 className="shrink-0 w-6 h-6 flex items-center justify-center rounded-md text-[#767676] hover:text-[#1A1A1A] hover:bg-[#f2f2f2] transition-colors"
+               >
+                 <ChevronLeft className="w-4 h-4" />
+               </button>
+
+               <div
+                 ref={categoryScrollRef}
+                 className="flex gap-1.5 overflow-x-auto flex-1"
+                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+               >
+                 <button
+                   onClick={() => setActiveCategory('vazio')}
+                   className={cn(
+                     "px-3 py-1 rounded-md text-[12px] font-medium whitespace-nowrap h-7 transition-colors shrink-0",
+                     activeCategory === 'vazio'
+                       ? "bg-[#FBB03B] text-[#1A1A1A]"
+                       : "bg-[#f2f2f2] text-[#767676] hover:bg-[#e6e6e6]"
+                   )}
+                 >
+                   Bloco Vazio
+                 </button>
+                 {BLOCK_CATEGORIES.map(cat => (
+                   <button
+                     key={cat}
+                     onClick={() => setActiveCategory(cat)}
+                     className={cn(
+                       "px-3 py-1 rounded-md text-[12px] font-medium whitespace-nowrap h-7 transition-colors shrink-0",
+                       activeCategory === cat
+                         ? "bg-[#FBB03B] text-[#1A1A1A]"
+                         : "bg-[#f2f2f2] text-[#767676] hover:bg-[#e6e6e6]"
+                     )}
+                   >
+                     {cat}
+                   </button>
+                 ))}
+               </div>
+
+               <button
+                 onClick={() => scrollCategories('right')}
+                 className="shrink-0 w-6 h-6 flex items-center justify-center rounded-md text-[#767676] hover:text-[#1A1A1A] hover:bg-[#f2f2f2] transition-colors"
+               >
+                 <ChevronRight className="w-4 h-4" />
+               </button>
              </div>
 
              <div className="flex-1 overflow-y-auto p-6 bg-[#f2f2f2]/30">
