@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Slider } from '../../../components/ui/slider'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../../../components/ui/sheet'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs'
-import { Badge } from '../../../components/ui/badge'
 import { Separator } from '../../../components/ui/separator'
 import { ScrollArea } from '../../../components/ui/scroll-area'
 import { 
@@ -348,9 +347,12 @@ export default function PagesEditor() {
       <div className="h-[44px] bg-[#1A1A1A] border-b border-[#2a2a2a] flex items-center justify-between px-4 shrink-0 z-30">
         {/* ESQUERDA */}
         <div className="flex items-center gap-0">
-          <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-white hover:text-[#d1d1d1] text-[13px] font-medium transition-colors px-2 h-full hover:bg-transparent">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-1.5 text-white hover:text-[#d1d1d1] text-[13px] font-medium transition-colors px-2 h-full bg-transparent border-none outline-none cursor-pointer"
+          >
             <ArrowLeft className="w-3.5 h-3.5" /> Páginas
-          </Button>
+          </button>
           <div className="w-px h-4 bg-[#3a3a3a] mx-3" />
           {isEditingName ? (
             <Input 
@@ -390,12 +392,22 @@ export default function PagesEditor() {
 
         {/* DIREITA */}
         <div className="flex items-center gap-2">
-           <Badge variant="outline" className={cn(page?.status === 'published' ? 'text-[11px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md' : 'text-[11px] font-medium text-[#d1d1d1] bg-[#2a2a2a] border border-[#3a3a3a] px-2 py-0.5 rounded-md')}>
-            {page?.status === 'published' ? 'Publicado' : 'Rascunho'}
-          </Badge>
-          <Button variant="ghost" size="icon" title="Pré-visualizar em nova aba" className="w-7 h-7 flex items-center justify-center text-[#d1d1d1] hover:text-white transition-colors rounded-md hover:bg-[#2a2a2a]" onClick={handlePreview}>
+          {page?.status === 'published' ? (
+            <span className="text-[11px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md">
+              Publicado
+            </span>
+          ) : (
+            <span className="text-[11px] font-medium text-[#d1d1d1] bg-[#2a2a2a] border border-[#3a3a3a] px-2 py-0.5 rounded-md">
+              Rascunho
+            </span>
+          )}
+          <button
+            title="Pré-visualizar em nova aba"
+            onClick={handlePreview}
+            className="w-7 h-7 flex items-center justify-center text-[#d1d1d1] hover:text-white transition-colors rounded-md hover:bg-[#2a2a2a] bg-transparent border-none outline-none cursor-pointer"
+          >
             <Eye className="w-3.5 h-3.5" />
-          </Button>
+          </button>
           <div className="w-px h-4 bg-[#3a3a3a]" />
           <button
             onClick={handleSave}
@@ -408,9 +420,12 @@ export default function PagesEditor() {
           >
             {isDirty ? '· Salvar' : 'Salvo'}
           </button>
-          <Button className="h-7 px-3 text-[13px] font-semibold rounded-md bg-[#FBB03B] text-[#1A1A1A] hover:bg-[#f0a824] transition-colors" onClick={handlePublish}>
-            <Globe className="w-3.5 h-3.5 mr-1" /> Publicar
-          </Button>
+          <button
+            onClick={handlePublish}
+            className="h-7 px-3 text-[13px] font-semibold rounded-md bg-[#FBB03B] text-[#1A1A1A] hover:bg-[#f0a824] transition-colors border-none outline-none cursor-pointer flex items-center gap-1"
+          >
+            <Globe className="w-3.5 h-3.5" /> Publicar
+          </button>
         </div>
       </div>
 
