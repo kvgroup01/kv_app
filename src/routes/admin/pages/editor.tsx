@@ -12,6 +12,7 @@ import { Slider } from '../../../components/ui/slider'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../../../components/ui/sheet'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs'
 import { Separator } from '../../../components/ui/separator'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../../components/ui/alert-dialog'
 import { ScrollArea } from '../../../components/ui/scroll-area'
 import { 
   ArrowLeft, Monitor, Smartphone, Eye, EyeOff, 
@@ -43,6 +44,7 @@ export default function PagesEditor() {
   const [searchQuery, setSearchQuery] = useState('')
   const [isEditingName, setIsEditingName] = useState(false)
   const [pageName, setPageName] = useState('')
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
   const historyIndexRef = useRef(historyIndex)
   const categoryScrollRef = useRef<HTMLDivElement>(null)
@@ -146,13 +148,11 @@ export default function PagesEditor() {
   }
 
   function deleteBlock(blockId: string) {
-    if (confirm('Deletar bloco permanentemente?')) {
-      const newBlocks = blocks.filter((b) => b.id !== blockId)
-      setBlocks(newBlocks)
-      setIsDirty(true)
-      pushHistoryDebounced(newBlocks)
-      if (editingBlockId === blockId) setEditingBlockId(null)
-    }
+    const newBlocks = blocks.filter((b) => b.id !== blockId)
+    setBlocks(newBlocks)
+    setIsDirty(true)
+    pushHistoryDebounced(newBlocks)
+    if (editingBlockId === blockId) setEditingBlockId(null)
   }
 
   function toggleHidden(blockId: string) {
@@ -503,8 +503,7 @@ export default function PagesEditor() {
                               onClick={() => setEditingBlockId(block.id)}
                            >
                               {/* FLOTING TOOLBAR - Acima do bloco */}
-                              <div className={cn("absolute -top-9 left-0 right-0 justify-center z-40 transition-opacity pointer-events-auto", editingBlockId === block.id ? "flex" : "hidden")}>
-                                  <div className="flex items-center bg-[#1A1A1A] border border-[#2a2a2a] rounded-lg px-1 py-1 gap-0.5">
+                              <div onClick={(e) => e.stopPropagation()} className={cn("absolute top-2 right-2 bg-[#1A1A1A] border border-[#2a2a2a] text-white rounded-lg items-center gap-0.5 p-1 shadow-2xl z-50 transition-all pointer-events-auto", editingBlockId === block.id ? "flex" : "hidden")}>
                                       <button title="Subir" onClick={(e) => { e.stopPropagation(); moveUp(index) }} disabled={index === 0} className="w-7 h-7 flex items-center justify-center text-white hover:text-white hover:bg-[#2a2a2a] rounded-md transition-colors disabled:opacity-50"><ChevronUp className="w-3.5 h-3.5 text-inherit"/></button>
                                       <button title="Descer" onClick={(e) => { e.stopPropagation(); moveDown(index) }} disabled={index === blocks.length - 1} className="w-7 h-7 flex items-center justify-center text-white hover:text-white hover:bg-[#2a2a2a] rounded-md transition-colors disabled:opacity-50"><ChevronDown className="w-3.5 h-3.5 text-inherit"/></button>
                                       <div className="w-px h-4 bg-[#2a2a2a] mx-0.5" />
@@ -516,8 +515,7 @@ export default function PagesEditor() {
                                          setBlocks(newBlocks); setIsDirty(true); pushHistoryDebounced(newBlocks)
                                       }} className="w-7 h-7 flex items-center justify-center text-white hover:text-white hover:bg-[#2a2a2a] rounded-md transition-colors"><Copy className="w-3.5 h-3.5 text-inherit"/></button>
                                       <div className="w-px h-4 bg-[#2a2a2a] mx-0.5" />
-                                      <button title="Excluir" onClick={(e) => { e.stopPropagation(); deleteBlock(block.id) }} className="w-7 h-7 flex items-center justify-center text-white hover:text-white hover:bg-[#2a2a2a] rounded-md transition-colors hover:text-red-400"><Trash2 className="w-3.5 h-3.5 text-inherit"/></button>
-                                  </div>
+                                      <button title="Excluir" onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(block.id) }} className="w-7 h-7 flex items-center justify-center text-white hover:text-white hover:bg-[#2a2a2a] rounded-md transition-colors hover:text-red-400"><Trash2 className="w-3.5 h-3.5 text-inherit"/></button>
                               </div>
 
                               <div dangerouslySetInnerHTML={{ __html: html }} className="min-h-[40px]" />
@@ -642,7 +640,7 @@ export default function PagesEditor() {
                              <button onClick={(e) => { e.stopPropagation(); toggleHidden(block.id) }} className="w-6 h-6 flex items-center justify-center text-[#767676] dark:text-[#a3a3a3] hover:text-[#1A1A1A] dark:hover:text-white rounded transition-colors bg-transparent border-none outline-none cursor-pointer">
                                 {block.hidden ? <EyeOff className="w-3.5 h-3.5 text-inherit"/> : <Eye className="w-3.5 h-3.5 text-inherit"/>}
                              </button>
-                             <button onClick={(e) => { e.stopPropagation(); deleteBlock(block.id) }} className="w-6 h-6 flex items-center justify-center text-[#767676] dark:text-[#a3a3a3] hover:text-[#1A1A1A] dark:hover:text-white hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10 dark:hover:text-red-400 rounded transition-colors bg-transparent border-none outline-none cursor-pointer">
+                             <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(block.id) }} className="w-6 h-6 flex items-center justify-center text-[#767676] dark:text-[#a3a3a3] hover:text-[#1A1A1A] dark:hover:text-white hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10 dark:hover:text-red-400 rounded transition-colors bg-transparent border-none outline-none cursor-pointer">
                                <Trash2 className="w-3.5 h-3.5 text-inherit" />
                              </button>
                            </div>
@@ -755,6 +753,31 @@ export default function PagesEditor() {
           </div>
         </SheetContent>
       </Sheet>
+
+      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir bloco?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. O bloco será removido permanentemente da página.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (deleteConfirmId) {
+                  deleteBlock(deleteConfirmId)
+                  setDeleteConfirmId(null)
+                }
+              }}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
