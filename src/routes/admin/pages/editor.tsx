@@ -477,7 +477,7 @@ export default function PagesEditor() {
                  </Button>
                </div>
              ) : (
-               <div className={cn("bg-white min-h-[500px] w-full transition-all duration-300 relative shadow-sm flex flex-col", viewport === 'desktop' ? 'max-w-4xl mx-auto border-x border-[#e6e6e6]' : 'max-w-[390px] mx-auto border border-[#e6e6e6] rounded-b-xl overflow-hidden mt-4')}>
+               <div className={cn("bg-white min-h-[500px] w-full transition-all duration-300 relative shadow-sm flex flex-col", viewport === 'desktop' ? 'max-w-4xl mx-auto border-x border-[#e6e6e6]' : 'max-w-[390px] mx-auto border border-[#e6e6e6] rounded-b-xl mt-4')}>
                   {blocks.map((block, index) => {
                      const def = getBlockByType(block.type)
                      if (!def) return null
