@@ -101,7 +101,7 @@ export default function EditarCliente() {
     <div className="space-y-10 max-w-[1000px] mx-auto pb-20">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-6">
-          <Button variant="ghost" size="icon" className="h-10 w-10 text-(--text-tertiary) hover:text-(--text-primary) hover:bg-white/5 rounded-lg border border-transparent hover:border-(--card-border)" onClick={() => navigate('/admin/clientes')}>
+          <Button variant="ghost" size="icon" className="h-10 w-10 text-(--text-tertiary) hover:text-(--text-primary) hover:bg-white dark:bg-\[#1c1c1e\]/5 rounded-lg border border-transparent hover:border-(--card-border)" onClick={() => navigate('/admin/clientes')}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
@@ -282,10 +282,10 @@ export default function EditarCliente() {
             )}
 
             <div className="pt-10 flex justify-end gap-4 border-t border-(--card-border)">
-              <Button type="button" variant="ghost" className="h-11 px-8 text-(--text-tertiary) hover:text-(--text-primary) hover:bg-white/5" onClick={() => navigate('/admin/clientes')} disabled={atualizarMut.isPending}>
+              <Button type="button" variant="ghost" className="h-11 px-8 text-(--text-tertiary) hover:text-(--text-primary) hover:bg-white dark:bg-\[#1c1c1e\]/5" onClick={() => navigate('/admin/clientes')} disabled={atualizarMut.isPending}>
                 Descartar
               </Button>
-              <Button type="submit" disabled={atualizarMut.isPending || !nome || !slug || (fonteDados === 'sheets' && !spreadsheetId)} className="h-11 px-10 bg-white text-black hover:bg-zinc-200 text-[13px] font-semibold shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+              <Button type="submit" disabled={atualizarMut.isPending || !nome || !slug || (fonteDados === 'sheets' && !spreadsheetId)} className="h-11 px-10 bg-white dark:bg-\[#1c1c1e\] text-black hover:bg-zinc-200 text-[13px] font-semibold shadow-[0_0_15px_rgba(255,255,255,0.1)]">
                 {atualizarMut.isPending ? 'Sincronizando...' : 'Salvar Fonte & Perfil'}
               </Button>
             </div>

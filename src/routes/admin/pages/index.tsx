@@ -75,12 +75,12 @@ export default function PagesIndex() {
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <FileText className="w-6 h-6 text-[#1A1A1A]" />
+          <FileText className="w-6 h-6 text-\[#1A1A1A\] dark:text-white" />
           <div>
-            <h1 className="text-xl font-semibold text-[#1A1A1A] tracking-[-0.01em]">
+            <h1 className="text-xl font-semibold text-\[#1A1A1A\] dark:text-white tracking-[-0.01em]">
               Páginas
             </h1>
-            <p className="text-sm text-[#767676] mt-0.5">
+            <p className="text-sm text-\[#767676\] dark:text-\[#a3a3a3\] mt-0.5">
               Crie e gerencie landing pages dos seus clientes
             </p>
           </div>
@@ -96,7 +96,7 @@ export default function PagesIndex() {
       </div>
 
       <Select value={selectedClienteId || ""} onValueChange={(val) => setSelectedClienteId(val || null)}>
-        <SelectTrigger className="w-[280px] bg-white border-[#e5e5e5]">
+        <SelectTrigger className="w-[280px] bg-white dark:bg-\[#1c1c1e\] border-\[#e5e5e5\] dark:border-\[#2a2a2a\]">
           <SelectValue placeholder="Selecionar cliente..." />
         </SelectTrigger>
         <SelectContent>
@@ -109,7 +109,7 @@ export default function PagesIndex() {
       {!selectedClienteId ? (
         <div className="flex flex-col items-center justify-center py-32">
           <FileText className="w-10 h-10 text-[#d0d0d0] mb-4" />
-          <p className="text-sm text-[#a3a3a3]">
+          <p className="text-sm text-\[#a3a3a3\] dark:text-\[#767676\]">
             Selecione um cliente para ver e gerenciar suas landing pages
           </p>
         </div>
@@ -122,7 +122,7 @@ export default function PagesIndex() {
       ) : pages.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-32">
           <Globe className="w-10 h-10 text-[#d0d0d0] mb-4" />
-          <p className="text-sm text-[#a3a3a3] mb-3">Nenhuma página ainda. Crie sua primeira landing page</p>
+          <p className="text-sm text-\[#a3a3a3\] dark:text-\[#767676\] mb-3">Nenhuma página ainda. Crie sua primeira landing page</p>
           <button
             onClick={() => setShowCreateModal(true)}
             style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #e5e5e5', fontSize: '13px', fontWeight: 500, color: '#1A1A1A', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
@@ -134,15 +134,15 @@ export default function PagesIndex() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {pages.map((page) => (
             <div key={page.id} 
-              className="bg-[#FFFFFF] border border-[#e5e5e5] rounded-[12px] p-[20px] transition-colors hover:border-[#d0d0d0] flex flex-col"
+              className="bg-\[#FFFFFF\] dark:bg-\[#1c1c1e\] border border-\[#e5e5e5\] dark:border-\[#2a2a2a\] rounded-[12px] p-[20px] transition-colors hover:border-[#d0d0d0] flex flex-col"
             >
               {/* Header card */}
               <div className="flex justify-between items-start mb-4">
                 <div className="flex-1 min-w-0 pr-4">
-                  <h3 className="font-semibold text-[15px] text-[#1A1A1A] truncate">
+                  <h3 className="font-semibold text-[15px] text-\[#1A1A1A\] dark:text-white truncate">
                     {page.nome}
                   </h3>
-                  <p className="text-xs text-[#a3a3a3] truncate mt-1">
+                  <p className="text-xs text-\[#a3a3a3\] dark:text-\[#767676\] truncate mt-1">
                     /{page.slug}
                   </p>
                 </div>
@@ -161,7 +161,7 @@ export default function PagesIndex() {
 
               {/* Status footer */}
               <div className="mt-auto pt-4 border-t border-[#f0f0f0] flex items-center justify-between">
-                <p className="text-xs text-[#a3a3a3]">
+                <p className="text-xs text-\[#a3a3a3\] dark:text-\[#767676\]">
                   Atualizada {formatDistanceToNow(new Date(page.atualizado_em), 
                     { locale: ptBR, addSuffix: true })}
                 </p>
@@ -201,11 +201,11 @@ export default function PagesIndex() {
       <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
         <DialogContent className="max-w-md sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-[17px] font-semibold text-[#1A1A1A] tracking-[-0.01em]">Nova página</DialogTitle>
+            <DialogTitle className="text-[17px] font-semibold text-\[#1A1A1A\] dark:text-white tracking-[-0.01em]">Nova página</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
-              <label className="text-[12px] text-[#767676] font-medium">Nome da página</label>
+              <label className="text-[12px] text-\[#767676\] dark:text-\[#a3a3a3\] font-medium">Nome da página</label>
               <Input
                 placeholder="Ex: Página de captura SEMSA"
                 value={newPageNome}
@@ -215,9 +215,9 @@ export default function PagesIndex() {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[12px] text-[#767676] font-medium">Slug (URL)</label>
+              <label className="text-[12px] text-\[#767676\] dark:text-\[#a3a3a3\] font-medium">Slug (URL)</label>
               <div className="flex items-center gap-2">
-                <span className="text-[13px] text-[#a3a3a3] shrink-0">kvpages.com.br/</span>
+                <span className="text-[13px] text-\[#a3a3a3\] dark:text-\[#767676\] shrink-0">kvpages.com.br/</span>
                 <Input
                   value={newPageSlug}
                   onChange={(e) => { setSlugManual(true); setNewPageSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-")); }}
@@ -230,7 +230,7 @@ export default function PagesIndex() {
           <DialogFooter>
             <button 
               onClick={() => setShowCreateModal(false)}
-              className="h-9 px-4 rounded-lg border border-[#e6e6e6] text-[#767676] text-[13px] font-medium hover:bg-[#f2f2f2] transition-colors bg-white outline-none cursor-pointer"
+              className="h-9 px-4 rounded-lg border border-[#e6e6e6] text-\[#767676\] dark:text-\[#a3a3a3\] text-[13px] font-medium hover:bg-[#f2f2f2] transition-colors bg-white dark:bg-\[#1c1c1e\] outline-none cursor-pointer"
             >
               Cancelar
             </button>

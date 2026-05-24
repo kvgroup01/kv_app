@@ -49,7 +49,7 @@ function StatusToggle({ status, onClick, loading }: { status: string; onClick: (
     >
       <span
         className={cn(
-          "pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out",
+          "pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white dark:bg-\[#1c1c1e\] shadow-lg ring-0 transition duration-200 ease-in-out",
           isActive ? "translate-x-4" : "translate-x-0",
           loading && "animate-pulse"
         )}

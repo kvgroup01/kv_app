@@ -271,22 +271,22 @@ export default function PagesEditor() {
     window.open(url, '_blank')
   }
 
-  if (isLoading) return <div className="p-8 text-center text-slate-500">Buscando editor...</div>
+  if (isLoading) return <div className="p-8 text-center text-slate-500 dark:text-slate-400">Buscando editor...</div>
   if (!page) return <div className="p-8 text-center text-red-500">Página não encontrada</div>
 
   const renderField = (field: FieldSchema, value: any, onChange: (val: any) => void, blockId: string) => {
     switch (field.type) {
       case 'textarea':
-        return <Textarea value={value || ''} onChange={(e) => onChange(e.target.value)} rows={4} className="text-[13px] bg-white dark:bg-[#1f1f1f] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white" />
+        return <Textarea value={value || ''} onChange={(e) => onChange(e.target.value)} rows={4} className="text-[13px] bg-white dark:bg-[#1c1c1e] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white" />
       case 'boolean':
         return <Switch checked={!!value} onCheckedChange={onChange} />
       case 'select':
         return (
           <Select value={value || ''} onValueChange={onChange}>
-            <SelectTrigger className="h-8 text-[13px] bg-white dark:bg-[#1f1f1f] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white">
+            <SelectTrigger className="h-8 text-[13px] bg-white dark:bg-[#1c1c1e] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white">
               <SelectValue placeholder="Selecione..." />
             </SelectTrigger>
-            <SelectContent className="bg-white dark:bg-[#1f1f1f] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white">
+            <SelectContent className="bg-white dark:bg-[#1c1c1e] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white">
               {field.options?.map((opt) => (
                 <SelectItem key={opt.value} value={opt.value} className="text-[13px] focus:bg-[#f2f2f2] dark:focus:bg-[#2a2a2a]">
                   {opt.label}
@@ -298,13 +298,13 @@ export default function PagesEditor() {
       case 'color':
         return (
           <div className="flex gap-2">
-            <input type="color" className="w-8 h-8 p-1 border border-[#e5e5e5] dark:border-[#2a2a2a] rounded cursor-pointer shrink-0 bg-white dark:bg-[#1f1f1f]" value={value || '#000000'} onChange={(e) => onChange(e.target.value)} />
-            <Input value={value || ''} onChange={(e) => onChange(e.target.value)} className="h-8 font-mono text-[13px] uppercase bg-white dark:bg-[#1f1f1f] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white" />
+            <input type="color" className="w-8 h-8 p-1 border border-[#e5e5e5] dark:border-[#2a2a2a] rounded cursor-pointer shrink-0 bg-white dark:bg-[#1c1c1e]" value={value || '#000000'} onChange={(e) => onChange(e.target.value)} />
+            <Input value={value || ''} onChange={(e) => onChange(e.target.value)} className="h-8 font-mono text-[13px] uppercase bg-white dark:bg-[#1c1c1e] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white" />
           </div>
         )
       case 'array':
         return (
-          <div className="space-y-2 rounded-lg border border-[#e5e5e5] dark:border-[#2a2a2a] p-3 bg-[#f2f2f2] dark:bg-[#1f1f1f]">
+          <div className="space-y-2 rounded-lg border border-[#e5e5e5] dark:border-[#2a2a2a] p-3 bg-[#f2f2f2] dark:bg-[#1c1c1e]">
             {((value as any[]) || []).map((item, i) => (
               <div key={i} className="bg-white dark:bg-[#2a2a2a] rounded-lg border border-[#e5e5e5] dark:border-[#3a3a3a] p-3 space-y-3 relative group/item">
                 <button title="Remover item" onClick={() => handleRemoveArrayItem(blockId, field.key, i)} className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center text-[#a3a3a3] hover:text-red-500 rounded transition-colors opacity-0 group-hover/item:opacity-100">
@@ -318,7 +318,7 @@ export default function PagesEditor() {
                 ))}
               </div>
             ))}
-            <button className="w-full h-8 border border-dashed border-[#d1d1d1] dark:border-[#484848] rounded-lg text-[12px] text-[#a3a3a3] hover:border-[#FBB03B] hover:text-[#FBB03B] transition-colors flex items-center justify-center gap-1.5 bg-white dark:bg-[#1f1f1f]" onClick={() => handleAddArrayItem(blockId, field.key, field.subFields || [])}>
+            <button className="w-full h-8 border border-dashed border-[#d1d1d1] dark:border-[#484848] rounded-lg text-[12px] text-[#a3a3a3] hover:border-[#FBB03B] hover:text-[#FBB03B] transition-colors flex items-center justify-center gap-1.5 bg-white dark:bg-[#1c1c1e]" onClick={() => handleAddArrayItem(blockId, field.key, field.subFields || [])}>
               <Plus className="w-3.5 h-3.5 text-inherit" /> Adicionar item
             </button>
           </div>
@@ -327,7 +327,7 @@ export default function PagesEditor() {
       case 'url':
       case 'image':
       default:
-        return <Input value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={field.type === 'image' ? 'URL da Imagem' : ''} className="h-8 text-[13px] bg-white dark:bg-[#1f1f1f] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white" />
+        return <Input value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={field.type === 'image' ? 'URL da Imagem' : ''} className="h-8 text-[13px] bg-white dark:bg-[#1c1c1e] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white" />
     }
   }
 
@@ -342,7 +342,7 @@ export default function PagesEditor() {
       )
 
   return (
-    <div className="flex flex-col h-screen w-full overflow-hidden bg-background font-sans">
+    <div className="flex flex-col h-screen w-full overflow-hidden bg-[#f0f0f2] font-sans">
       {/* 1. TOPBAR - Atualizado visual*/}
       <div 
         className="h-[44px] border-b flex items-center justify-between px-4 shrink-0 z-30"
@@ -441,7 +441,7 @@ export default function PagesEditor() {
 
       <div className="flex flex-1 overflow-hidden relative">
         {/* 3. CANVAS - Principal ao centro */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden relative flex flex-col bg-[#f2f2f2] dark:bg-[#1a1a1a] pr-[300px]">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden relative flex flex-col bg-[#f0f0f2] pr-[300px]">
           
           {/* UNDO / REDO Pill - Canto inferior esquerdo flotante */}
           <div className="fixed bottom-6 left-6 z-50 flex items-center bg-[#1A1A1A] border border-[#2a2a2a] rounded-lg overflow-hidden h-8">
@@ -542,11 +542,11 @@ export default function PagesEditor() {
         </div>
 
         {/* 2. SIDEBAR DIREITA - Painel de Config ou Layers */}
-        <div className="w-[300px] bg-white dark:bg-[#1f1f1f] border-l border-[#e5e5e5] dark:border-[#2a2a2a] shrink-0 z-20 flex flex-col h-full absolute right-0 top-0 overflow-hidden">
+        <div className="w-[300px] bg-white dark:bg-[#1c1c1e] border-l border-[#e5e5e5] dark:border-[#2a2a2a] shrink-0 z-20 flex flex-col h-full absolute right-0 top-0 overflow-hidden">
            {editingBlockId && editingBlock && editingBlockDef ? (
               // FORMULÁRIO DE EDIÇÃO
               <div className="flex flex-col h-full w-full">
-                 <div className="h-11 border-b border-[#e5e5e5] dark:border-[#2a2a2a] flex items-center justify-between px-4 bg-white dark:bg-[#1f1f1f] shrink-0">
+                 <div className="h-11 border-b border-[#e5e5e5] dark:border-[#2a2a2a] flex items-center justify-between px-4 bg-white dark:bg-[#1c1c1e] shrink-0">
                     <div className="flex gap-2 items-baseline">
                        <p className="text-[11px] text-[#767676] dark:text-[#a3a3a3] font-medium">{editingBlockDef.type}</p>
                        <h3 className="text-[13px] font-semibold text-[#1A1A1A] dark:text-white tracking-[-0.01em] leading-tight">{editingBlockDef.name}</h3>
@@ -555,12 +555,12 @@ export default function PagesEditor() {
                  </div>
                  
                  <Tabs defaultValue="conteudo" className="flex-1 flex flex-col w-full overflow-hidden">
-                    <TabsList className="flex w-full border-b border-[#e5e5e5] dark:border-[#2a2a2a] bg-white dark:bg-[#1f1f1f] rounded-none h-9 p-0 px-4 gap-4 shrink-0">
+                    <TabsList className="flex w-full border-b border-[#e5e5e5] dark:border-[#2a2a2a] bg-white dark:bg-[#1c1c1e] rounded-none h-9 p-0 px-4 gap-4 shrink-0">
                        <TabsTrigger value="conteudo" className="h-full rounded-none border-b-2 border-transparent text-[12px] font-medium text-[#767676] dark:text-[#a3a3a3] px-0 pb-0 data-[state=active]:border-[#FBB03B] data-[state=active]:text-[#1A1A1A] dark:data-[state=active]:text-white data-[state=active]:shadow-none data-[state=active]:bg-transparent transition-all">Conteúdo</TabsTrigger>
                        <TabsTrigger value="secao" className="h-full rounded-none border-b-2 border-transparent text-[12px] font-medium text-[#767676] dark:text-[#a3a3a3] px-0 pb-0 data-[state=active]:border-[#FBB03B] data-[state=active]:text-[#1A1A1A] dark:data-[state=active]:text-white data-[state=active]:shadow-none data-[state=active]:bg-transparent transition-all">Seção</TabsTrigger>
                     </TabsList>
                     
-                    <div className="flex-1 overflow-y-auto bg-white dark:bg-[#1f1f1f]">
+                    <div className="flex-1 overflow-y-auto bg-white dark:bg-[#1c1c1e]">
                        <TabsContent value="conteudo" className="p-4 m-0 space-y-4">
                            {editingBlockDef.fields.map(field => (
                               <div key={field.key} className="space-y-1.5">
@@ -573,22 +573,22 @@ export default function PagesEditor() {
                        <TabsContent value="secao" className="p-4 m-0 space-y-4">
                           <div className="space-y-1.5">
                              <label className="text-[12px] text-[#767676] dark:text-[#a3a3a3] font-medium tracking-normal">Imagem de Fundo (URL)</label>
-                             <Input value={editingBlock.sectionStyles.backgroundImage || ''} onChange={(e) => updateBlockStyles(editingBlock.id, { backgroundImage: e.target.value })} placeholder="Ex: https://..." className="bg-white dark:bg-[#1f1f1f] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white h-8 text-[13px]" />
+                             <Input value={editingBlock.sectionStyles.backgroundImage || ''} onChange={(e) => updateBlockStyles(editingBlock.id, { backgroundImage: e.target.value })} placeholder="Ex: https://..." className="bg-white dark:bg-[#1c1c1e] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white h-8 text-[13px]" />
                           </div>
                           
                           <div className="space-y-1.5">
                              <label className="text-[12px] text-[#767676] dark:text-[#a3a3a3] font-medium tracking-normal">Cor de Fundo</label>
                              <div className="flex gap-2">
-                                <input type="color" className="w-8 h-8 p-1 border border-[#e5e5e5] dark:border-[#2a2a2a] rounded cursor-pointer shrink-0 bg-white dark:bg-[#1f1f1f]" value={editingBlock.sectionStyles.backgroundColor || '#ffffff'} onChange={e => updateBlockStyles(editingBlock.id, { backgroundColor: e.target.value })} />
-                                <Input className="h-8 font-mono text-[13px] bg-white dark:bg-[#1f1f1f] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white uppercase" value={editingBlock.sectionStyles.backgroundColor || ''} onChange={e => updateBlockStyles(editingBlock.id, { backgroundColor: e.target.value })} />
+                                <input type="color" className="w-8 h-8 p-1 border border-[#e5e5e5] dark:border-[#2a2a2a] rounded cursor-pointer shrink-0 bg-white dark:bg-[#1c1c1e]" value={editingBlock.sectionStyles.backgroundColor || '#ffffff'} onChange={e => updateBlockStyles(editingBlock.id, { backgroundColor: e.target.value })} />
+                                <Input className="h-8 font-mono text-[13px] bg-white dark:bg-[#1c1c1e] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white uppercase" value={editingBlock.sectionStyles.backgroundColor || ''} onChange={e => updateBlockStyles(editingBlock.id, { backgroundColor: e.target.value })} />
                              </div>
                           </div>
 
                           <div className="space-y-1.5">
                              <label className="text-[12px] text-[#767676] dark:text-[#a3a3a3] font-medium tracking-normal">Cor de Sobreposição (Overlay)</label>
                              <div className="flex gap-2">
-                                <input type="color" className="w-8 h-8 p-1 border border-[#e5e5e5] dark:border-[#2a2a2a] rounded cursor-pointer shrink-0 bg-white dark:bg-[#1f1f1f]" value={editingBlock.sectionStyles.overlayColor || '#000000'} onChange={e => updateBlockStyles(editingBlock.id, { overlayColor: e.target.value })} />
-                                <Input className="h-8 font-mono text-[13px] bg-white dark:bg-[#1f1f1f] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white uppercase" value={editingBlock.sectionStyles.overlayColor || ''} onChange={e => updateBlockStyles(editingBlock.id, { overlayColor: e.target.value })} />
+                                <input type="color" className="w-8 h-8 p-1 border border-[#e5e5e5] dark:border-[#2a2a2a] rounded cursor-pointer shrink-0 bg-white dark:bg-[#1c1c1e]" value={editingBlock.sectionStyles.overlayColor || '#000000'} onChange={e => updateBlockStyles(editingBlock.id, { overlayColor: e.target.value })} />
+                                <Input className="h-8 font-mono text-[13px] bg-white dark:bg-[#1c1c1e] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white uppercase" value={editingBlock.sectionStyles.overlayColor || ''} onChange={e => updateBlockStyles(editingBlock.id, { overlayColor: e.target.value })} />
                              </div>
                           </div>
 
@@ -603,11 +603,11 @@ export default function PagesEditor() {
                           <div className="grid grid-cols-2 gap-4 pt-3">
                              <div className="space-y-1.5">
                                 <label className="text-[12px] text-[#767676] dark:text-[#a3a3a3] font-medium tracking-normal">Espaço Topo (px)</label>
-                                <Input type="number" className="h-8 text-[13px] bg-white dark:bg-[#1f1f1f] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white" value={editingBlock.sectionStyles.paddingTop ?? 80} onChange={e => updateBlockStyles(editingBlock.id, { paddingTop: parseInt(e.target.value) || 0 })} />
+                                <Input type="number" className="h-8 text-[13px] bg-white dark:bg-[#1c1c1e] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white" value={editingBlock.sectionStyles.paddingTop ?? 80} onChange={e => updateBlockStyles(editingBlock.id, { paddingTop: parseInt(e.target.value) || 0 })} />
                              </div>
                              <div className="space-y-1.5">
                                 <label className="text-[12px] text-[#767676] dark:text-[#a3a3a3] font-medium tracking-normal">Espaço Base (px)</label>
-                                <Input type="number" className="h-8 text-[13px] bg-white dark:bg-[#1f1f1f] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white" value={editingBlock.sectionStyles.paddingBottom ?? 80} onChange={e => updateBlockStyles(editingBlock.id, { paddingBottom: parseInt(e.target.value) || 0 })} />
+                                <Input type="number" className="h-8 text-[13px] bg-white dark:bg-[#1c1c1e] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white" value={editingBlock.sectionStyles.paddingBottom ?? 80} onChange={e => updateBlockStyles(editingBlock.id, { paddingBottom: parseInt(e.target.value) || 0 })} />
                              </div>
                           </div>
                        </TabsContent>
@@ -616,14 +616,14 @@ export default function PagesEditor() {
               </div>
            ) : (
               // PAINE L DE CAMADAS (LAYERS)
-              <div className="flex flex-col h-full w-full bg-white dark:bg-[#1f1f1f]">
+              <div className="flex flex-col h-full w-full bg-white dark:bg-[#1c1c1e]">
                  <div className="h-11 border-b border-[#e5e5e5] dark:border-[#2a2a2a] px-4 flex items-center justify-between shrink-0">
                     <h3 className="text-[13px] font-semibold text-[#1A1A1A] dark:text-white tracking-[-0.01em]">Camadas</h3>
                     <button className="flex items-center gap-1 text-[13px] font-semibold bg-[#FBB03B] text-[#1A1A1A] px-2.5 py-1 rounded-md hover:bg-[#f0a824] transition-colors border-none outline-none cursor-pointer" onClick={() => { setInsertAfterIndex(blocks.length - 1); setShowBlockModal(true) }}>
                        <Plus className="w-3.5 h-3.5 text-inherit" strokeWidth={3} /> Bloco
                     </button>
                  </div>
-                 <div className="flex-1 overflow-y-auto bg-white dark:bg-[#1f1f1f] flex flex-col">
+                 <div className="flex-1 overflow-y-auto bg-white dark:bg-[#1c1c1e] flex flex-col">
                     {blocks.map((block, i) => {
                        const def = getBlockByType(block.type)
                        return (
@@ -663,22 +663,22 @@ export default function PagesEditor() {
 
       {/* 5. MODAL DE BLOCOS - Sheet vindo da direita */}
       <Sheet open={showBlockModal} onOpenChange={setShowBlockModal}>
-        <SheetContent side="right" className="w-[640px] sm:max-w-[640px] p-0 flex flex-col border-l border-[#e6e6e6] bg-white gap-0">
-          <div className="px-6 py-5 border-b border-[#e6e6e6]">
+        <SheetContent side="right" className="w-[640px] sm:max-w-[640px] p-0 flex flex-col border-l border-[#e6e6e6] dark:border-[#2a2a2a] bg-white dark:bg-[#1c1c1e] gap-0">
+          <div className="px-6 py-5 border-b border-[#e6e6e6] dark:border-[#2a2a2a]">
              <SheetHeader className="text-left space-y-0">
-                <SheetTitle className="text-[17px] font-semibold text-[#1A1A1A] tracking-[-0.01em] mb-3">Adicionar Bloco</SheetTitle>
+                <SheetTitle className="text-[17px] font-semibold text-[#1A1A1A] dark:text-white tracking-[-0.01em] mb-3">Adicionar Bloco</SheetTitle>
              </SheetHeader>
              <div className="relative">
                 <Search className="w-4 h-4 absolute left-3 top-2.5 text-[#a3a3a3]" />
-                <Input placeholder="Buscar por nome do bloco..." className="pl-9 h-9 text-[13px] rounded-lg bg-[#f2f2f2] border-transparent focus-visible:ring-[#FBB03B]" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+                <Input placeholder="Buscar por nome do bloco..." className="pl-9 h-9 text-[13px] rounded-lg bg-[#f2f2f2] dark:bg-[#2a2a2a] border-transparent focus-visible:ring-[#FBB03B] text-[#1A1A1A] dark:text-white" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
              </div>
           </div>
           
           <div className="flex-1 flex flex-col overflow-hidden">
-             <div className="flex items-center border-b border-[#e6e6e6] px-4 py-2 gap-1">
+             <div className="flex items-center border-b border-[#e6e6e6] dark:border-[#2a2a2a] px-4 py-2 gap-1">
                <button
                  onClick={() => scrollCategories('left')}
-                 className="shrink-0 w-6 h-6 flex items-center justify-center rounded-md text-[#767676] hover:text-[#1A1A1A] hover:bg-[#f2f2f2] transition-colors"
+                 className="shrink-0 w-6 h-6 flex items-center justify-center rounded-md text-[#767676] hover:text-[#1A1A1A] dark:hover:text-white hover:bg-[#f2f2f2] dark:hover:bg-[#2a2a2a] transition-colors"
                >
                  <ChevronLeft className="w-4 h-4" />
                </button>
@@ -694,7 +694,7 @@ export default function PagesEditor() {
                      "px-3 py-1 rounded-md text-[12px] font-medium whitespace-nowrap h-7 transition-colors shrink-0",
                      activeCategory === 'vazio'
                        ? "bg-[#FBB03B] text-[#1A1A1A]"
-                       : "bg-[#f2f2f2] text-[#767676] hover:bg-[#e6e6e6]"
+                       : "bg-[#f2f2f2] dark:bg-[#2a2a2a] text-[#767676] hover:bg-[#e6e6e6] dark:hover:bg-[#333]"
                    )}
                  >
                    Bloco Vazio
@@ -707,7 +707,7 @@ export default function PagesEditor() {
                        "px-3 py-1 rounded-md text-[12px] font-medium whitespace-nowrap h-7 transition-colors shrink-0",
                        activeCategory === cat
                          ? "bg-[#FBB03B] text-[#1A1A1A]"
-                         : "bg-[#f2f2f2] text-[#767676] hover:bg-[#e6e6e6]"
+                         : "bg-[#f2f2f2] dark:bg-[#2a2a2a] text-[#767676] hover:bg-[#e6e6e6] dark:hover:bg-[#333]"
                      )}
                    >
                      {cat}
@@ -717,35 +717,35 @@ export default function PagesEditor() {
 
                <button
                  onClick={() => scrollCategories('right')}
-                 className="shrink-0 w-6 h-6 flex items-center justify-center rounded-md text-[#767676] hover:text-[#1A1A1A] hover:bg-[#f2f2f2] transition-colors"
+                 className="shrink-0 w-6 h-6 flex items-center justify-center rounded-md text-[#767676] hover:text-[#1A1A1A] dark:hover:text-white hover:bg-[#f2f2f2] dark:hover:bg-[#2a2a2a] transition-colors"
                >
                  <ChevronRight className="w-4 h-4" />
                </button>
              </div>
 
-             <div className="flex-1 overflow-y-auto p-6 bg-[#f2f2f2]/30">
+             <div className="flex-1 overflow-y-auto p-6 bg-[#f2f2f2]/30 dark:bg-[#141414]/50">
                 {activeCategory === 'vazio' && searchQuery === '' ? (
                    <div className="flex flex-col items-center justify-center pt-24 text-center">
                        <div className="w-16 h-16 bg-[#FBB03B]/10 rounded-full flex items-center justify-center mb-4">
                            <Plus className="w-8 h-8 text-[#FBB03B]" />
                        </div>
-                       <h3 className="text-[17px] font-semibold text-[#1A1A1A] tracking-[-0.01em] mb-2">Bloco Vazio</h3>
+                       <h3 className="text-[17px] font-semibold text-[#1A1A1A] dark:text-white tracking-[-0.01em] mb-2">Bloco Vazio</h3>
                        <p className="text-[#767676] max-w-sm mb-6 text-[14px]">Use o espaço vazio para codificar layouts do zero. Requer habilidades avançadas.</p>
                    </div>
                 ) : (
                    <div className="grid grid-cols-2 gap-4">
                        {filteredCategories.map(def => (
-                          <div key={def.type} className="group flex flex-col bg-white border border-[#e6e6e6] rounded-xl overflow-hidden hover:border-[#FBB03B] cursor-pointer transition-all" onClick={() => addBlock(def.type, insertAfterIndex)}>
-                             <div className="w-full aspect-video bg-[#f2f2f2] flex items-center justify-center border-b border-[#e6e6e6]" dangerouslySetInnerHTML={{ __html: def.thumbnail }} />
+                          <div key={def.type} className="group flex flex-col bg-white dark:bg-[#1c1c1e] border border-[#e6e6e6] dark:border-[#2a2a2a] rounded-xl overflow-hidden hover:border-[#FBB03B] dark:hover:border-[#FBB03B] cursor-pointer transition-all" onClick={() => addBlock(def.type, insertAfterIndex)}>
+                             <div className="w-full aspect-video bg-[#f2f2f2] dark:bg-[#2a2a2a] flex items-center justify-center border-b border-[#e6e6e6] dark:border-[#2a2a2a]" dangerouslySetInnerHTML={{ __html: def.thumbnail }} />
                              <div className="flex items-center justify-between px-3 py-2.5">
-                                <span className="text-[13px] font-medium text-[#1A1A1A]">{def.name}</span>
+                                <span className="text-[13px] font-medium text-[#1A1A1A] dark:text-white">{def.name}</span>
                                 <button className="text-[12px] font-semibold bg-[#FBB03B] text-[#1A1A1A] px-2.5 py-1 rounded-md opacity-0 group-hover:opacity-100 hover:bg-[#f0a824] transition-all">Usar</button>
                              </div>
                           </div>
                        ))}
                        {filteredCategories.length === 0 && (
                           <div className="col-span-2 py-20 text-center flex flex-col items-center">
-                             <Search className="w-10 h-10 text-[#d1d1d1] mb-3" />
+                             <Search className="w-10 h-10 text-[#d1d1d1] dark:text-[#484848] mb-3" />
                              <p className="text-[#a3a3a3] font-medium text-[13px]">Nenhum bloco encontrado na categoria.</p>
                           </div>
                        )}

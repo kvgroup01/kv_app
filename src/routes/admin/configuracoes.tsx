@@ -205,19 +205,19 @@ export default function Configuracoes() {
                  <CardDescription>Acesso imediato às principais funcionalidades.</CardDescription>
                </CardHeader>
                <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Button variant="outline" className="h-20 flex flex-col gap-2 border-(--card-border) hover:bg-white/5 active:scale-95 transition-all">
+                  <Button variant="outline" className="h-20 flex flex-col gap-2 border-(--card-border) hover:bg-white dark:bg-\[#1c1c1e\]/5 active:scale-95 transition-all">
                     <LayoutDashboard className="h-5 w-5 text-blue-500" />
                     <span className="text-xs font-bold uppercase tracking-widest">Dashboard Geral</span>
                   </Button>
-                  <Button variant="outline" className="h-20 flex flex-col gap-2 border-(--card-border) hover:bg-white/5 active:scale-95 transition-all">
+                  <Button variant="outline" className="h-20 flex flex-col gap-2 border-(--card-border) hover:bg-white dark:bg-\[#1c1c1e\]/5 active:scale-95 transition-all">
                     <Users2 className="h-5 w-5 text-emerald-500" />
                     <span className="text-xs font-bold uppercase tracking-widest">Lista de Clientes</span>
                   </Button>
-                  <Button variant="outline" className="h-20 flex flex-col gap-2 border-(--card-border) hover:bg-white/5 active:scale-95 transition-all">
+                  <Button variant="outline" className="h-20 flex flex-col gap-2 border-(--card-border) hover:bg-white dark:bg-\[#1c1c1e\]/5 active:scale-95 transition-all">
                     <FileText className="h-5 w-5 text-violet-500" />
                     <span className="text-xs font-bold uppercase tracking-widest">Novo Orçamento</span>
                   </Button>
-                  <Button variant="outline" className="h-20 flex flex-col gap-2 border-(--card-border) hover:bg-white/5 active:scale-95 transition-all">
+                  <Button variant="outline" className="h-20 flex flex-col gap-2 border-(--card-border) hover:bg-white dark:bg-\[#1c1c1e\]/5 active:scale-95 transition-all">
                     <Shield className="h-5 w-5 text-rose-500" />
                     <span className="text-xs font-bold uppercase tracking-widest">Segurança</span>
                   </Button>
@@ -225,7 +225,7 @@ export default function Configuracoes() {
              </Card>
 
              <Card className="bg-(--card-bg) border-(--card-border) shadow-premium flex flex-col justify-center items-center text-center p-10">
-                <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10">
+                <div className="w-16 h-16 bg-white dark:bg-\[#1c1c1e\]/5 rounded-full flex items-center justify-center mb-6 border border-white/10">
                   <Globe className="h-8 w-8 text-white/40" />
                 </div>
                 <h3 className="text-xl font-bold mb-2">KV Group v1.5.0</h3>
@@ -247,7 +247,7 @@ export default function Configuracoes() {
                       {usuario?.user_metadata?.nome?.substring(0, 2) || 'AD'}
                     </AvatarFallback>
                   </Avatar>
-                  <label htmlFor="photo-upload" className="absolute -bottom-2 -right-2 bg-white text-black p-2 rounded-xl shadow-lg cursor-pointer hover:bg-zinc-200 transition-colors border border-zinc-300">
+                  <label htmlFor="photo-upload" className="absolute -bottom-2 -right-2 bg-white dark:bg-\[#1c1c1e\] text-black p-2 rounded-xl shadow-lg cursor-pointer hover:bg-zinc-200 transition-colors border border-zinc-300">
                     <Camera className="h-4 w-4" />
                     <input id="photo-upload" type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={isUpdatingPhoto} />
                   </label>
@@ -297,7 +297,7 @@ export default function Configuracoes() {
                   <Button 
                     onClick={handleUpdateProfile} 
                     disabled={isUpdatingProfile}
-                    className="bg-white text-black hover:bg-zinc-200 h-11 px-8 font-bold"
+                    className="bg-white dark:bg-\[#1c1c1e\] text-black hover:bg-zinc-200 h-11 px-8 font-bold"
                   >
                     {isUpdatingProfile ? 'Salvando...' : 'Salvar Alterações'}
                   </Button>
@@ -341,7 +341,7 @@ export default function Configuracoes() {
                 </div>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button className="bg-white text-black hover:bg-zinc-200">
+                    <Button className="bg-white dark:bg-\[#1c1c1e\] text-black hover:bg-zinc-200">
                       <UserPlus className="mr-2 h-4 w-4" /> Convidar
                     </Button>
                   </DialogTrigger>
@@ -355,7 +355,7 @@ export default function Configuracoes() {
                       <Input value={conviteEmail} onChange={e => setConviteEmail(e.target.value)} placeholder="exemplo@gmail.com" className="bg-background border-(--card-border) h-11" />
                     </div>
                     <DialogFooter>
-                      <Button onClick={handleConvidar} className="bg-white text-black">Enviar convite</Button>
+                      <Button onClick={handleConvidar} className="bg-white dark:bg-\[#1c1c1e\] text-black">Enviar convite</Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
@@ -389,7 +389,7 @@ export default function Configuracoes() {
               </div>
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button className="bg-white text-black hover:bg-zinc-200">
+                  <Button className="bg-white dark:bg-\[#1c1c1e\] text-black hover:bg-zinc-200">
                     <FolderPlus className="mr-2 h-4 w-4" /> Nova Pasta
                   </Button>
                 </DialogTrigger>
@@ -417,7 +417,7 @@ export default function Configuracoes() {
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button onClick={handleCriarPasta} className="bg-white text-black">Criar</Button>
+                    <Button onClick={handleCriarPasta} className="bg-white dark:bg-\[#1c1c1e\] text-black">Criar</Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
@@ -478,7 +478,7 @@ export default function Configuracoes() {
                    <Button 
                      onClick={handleAlterarSenha} 
                      disabled={isChangingPassword || !senhaAtual || !novaSenha}
-                     className="bg-white text-black hover:bg-zinc-200 h-11 px-8 font-bold"
+                     className="bg-white dark:bg-\[#1c1c1e\] text-black hover:bg-zinc-200 h-11 px-8 font-bold"
                    >
                      {isChangingPassword ? 'Atualizando...' : 'Atualizar Senha'}
                    </Button>

@@ -78,7 +78,7 @@ export default function OrcamentosIndex() {
       case 'pendente':
         return <span className="text-[11px] px-2 py-0.5 rounded-[4px] font-medium uppercase tracking-tight bg-amber-500/10 text-amber-500">Pendente</span>;
       case 'cancelado':
-        return <span className="text-[11px] px-2 py-0.5 rounded-[4px] font-medium uppercase tracking-tight bg-white/5 text-(--text-tertiary)">Cancelado</span>;
+        return <span className="text-[11px] px-2 py-0.5 rounded-[4px] font-medium uppercase tracking-tight bg-white dark:bg-\[#1c1c1e\]/5 text-(--text-tertiary)">Cancelado</span>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -100,7 +100,7 @@ export default function OrcamentosIndex() {
           <h2 className="text-[22px] font-semibold text-(--text-primary)">Orçamentos</h2>
           <p className="text-[13px] text-(--text-secondary) mt-1">Gere propostas comerciais e envie links de pagamento.</p>
         </div>
-        <Button onClick={() => navigate('/admin/orcamentos/novo')} className="w-full sm:w-auto bg-white text-black hover:bg-zinc-200 h-10 px-6 rounded-lg text-[13px] font-medium">
+        <Button onClick={() => navigate('/admin/orcamentos/novo')} className="w-full sm:w-auto bg-white dark:bg-\[#1c1c1e\] text-black hover:bg-zinc-200 h-10 px-6 rounded-lg text-[13px] font-medium">
           <Plus className="mr-2 h-4 w-4" /> Novo orçamento
         </Button>
       </div>
@@ -199,7 +199,7 @@ export default function OrcamentosIndex() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-transparent border-(--card-border) hover:bg-white/5">Cancelar</AlertDialogCancel>
+            <AlertDialogCancel className="bg-transparent border-(--card-border) hover:bg-white dark:bg-\[#1c1c1e\]/5">Cancelar</AlertDialogCancel>
             <AlertDialogAction 
               onClick={() => orcamentoToDelete && handleDeletar(orcamentoToDelete)}
               className="bg-red-500 text-white hover:bg-red-600 border-none"
