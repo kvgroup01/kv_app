@@ -16,10 +16,10 @@ export type BlockCategory =
 export interface FieldSchema {
   key: string
   label: string
-  type: 'text' | 'textarea' | 'image' | 'color' | 'url' | 'boolean' | 'select' | 'array' | 'richtext'
+  type: 'text' | 'textarea' | 'image' | 'color' | 'url' | 'boolean' | 'select' | 'array'
   placeholder?: string
   options?: { label: string; value: string }[]
-  subFields?: FieldSchema[] // para type: 'array'
+  subFields?: FieldSchema[]
   defaultValue?: any
 }
 
@@ -27,7 +27,7 @@ export interface SectionStyles {
   backgroundImage?: string
   backgroundColor?: string
   overlayColor?: string
-  overlayOpacity?: number // 0-100
+  overlayOpacity?: number
   parallax?: boolean
   paddingTop?: number
   paddingBottom?: number
@@ -45,7 +45,7 @@ export interface BlockDefinition {
   type: string
   category: BlockCategory
   name: string
-  thumbnail: string // SVG inline string
+  thumbnail: string
   fields: FieldSchema[]
   defaultData: Record<string, any>
   defaultSectionStyles: SectionStyles
