@@ -503,20 +503,20 @@ export default function PagesEditor() {
                               onClick={() => setEditingBlockId(block.id)}
                            >
                               {/* FLOTING TOOLBAR - Acima do bloco */}
-                              <div className={cn("absolute -top-9 left-0 right-0 flex justify-center z-40 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto", (selectedBlockId === block.id || editingBlockId === block.id) && "")}>
+                              <div className={cn("absolute -top-9 left-0 right-0 justify-center z-40 transition-opacity pointer-events-auto", editingBlockId === block.id ? "flex" : "hidden")}>
                                   <div className="flex items-center bg-[#1A1A1A] border border-[#2a2a2a] rounded-lg px-1 py-1 gap-0.5">
-                                      <button title="Subir" onClick={(e) => { e.stopPropagation(); moveUp(index) }} disabled={index === 0} className="w-7 h-7 flex items-center justify-center text-[#767676] hover:text-white hover:bg-[#2a2a2a] rounded-md transition-colors disabled:opacity-50"><ChevronUp className="w-3.5 h-3.5 text-inherit"/></button>
-                                      <button title="Descer" onClick={(e) => { e.stopPropagation(); moveDown(index) }} disabled={index === blocks.length - 1} className="w-7 h-7 flex items-center justify-center text-[#767676] hover:text-white hover:bg-[#2a2a2a] rounded-md transition-colors disabled:opacity-50"><ChevronDown className="w-3.5 h-3.5 text-inherit"/></button>
+                                      <button title="Subir" onClick={(e) => { e.stopPropagation(); moveUp(index) }} disabled={index === 0} className="w-7 h-7 flex items-center justify-center text-white hover:text-white hover:bg-[#2a2a2a] rounded-md transition-colors disabled:opacity-50"><ChevronUp className="w-3.5 h-3.5 text-inherit"/></button>
+                                      <button title="Descer" onClick={(e) => { e.stopPropagation(); moveDown(index) }} disabled={index === blocks.length - 1} className="w-7 h-7 flex items-center justify-center text-white hover:text-white hover:bg-[#2a2a2a] rounded-md transition-colors disabled:opacity-50"><ChevronDown className="w-3.5 h-3.5 text-inherit"/></button>
                                       <div className="w-px h-4 bg-[#2a2a2a] mx-0.5" />
-                                      <button title="Ocultar" onClick={(e) => { e.stopPropagation(); toggleHidden(block.id) }} className="w-7 h-7 flex items-center justify-center text-[#767676] hover:text-white hover:bg-[#2a2a2a] rounded-md transition-colors">{block.hidden ? <EyeOff className="w-3.5 h-3.5 text-inherit"/> : <Eye className="w-3.5 h-3.5 text-inherit"/>}</button>
+                                      <button title="Ocultar" onClick={(e) => { e.stopPropagation(); toggleHidden(block.id) }} className="w-7 h-7 flex items-center justify-center text-white hover:text-white hover:bg-[#2a2a2a] rounded-md transition-colors">{block.hidden ? <EyeOff className="w-3.5 h-3.5 text-inherit"/> : <Eye className="w-3.5 h-3.5 text-inherit"/>}</button>
                                       <button title="Duplicar" onClick={(e) => { 
                                          e.stopPropagation()
                                          const newBlocks = [...blocks]
                                          newBlocks.splice(index + 1, 0, { ...block, id: uuidv4() })
                                          setBlocks(newBlocks); setIsDirty(true); pushHistoryDebounced(newBlocks)
-                                      }} className="w-7 h-7 flex items-center justify-center text-[#767676] hover:text-white hover:bg-[#2a2a2a] rounded-md transition-colors"><Copy className="w-3.5 h-3.5 text-inherit"/></button>
+                                      }} className="w-7 h-7 flex items-center justify-center text-white hover:text-white hover:bg-[#2a2a2a] rounded-md transition-colors"><Copy className="w-3.5 h-3.5 text-inherit"/></button>
                                       <div className="w-px h-4 bg-[#2a2a2a] mx-0.5" />
-                                      <button title="Excluir" onClick={(e) => { e.stopPropagation(); deleteBlock(block.id) }} className="w-7 h-7 flex items-center justify-center text-[#767676] hover:text-white hover:bg-[#2a2a2a] rounded-md transition-colors hover:text-red-400"><Trash2 className="w-3.5 h-3.5 text-inherit"/></button>
+                                      <button title="Excluir" onClick={(e) => { e.stopPropagation(); deleteBlock(block.id) }} className="w-7 h-7 flex items-center justify-center text-white hover:text-white hover:bg-[#2a2a2a] rounded-md transition-colors hover:text-red-400"><Trash2 className="w-3.5 h-3.5 text-inherit"/></button>
                                   </div>
                               </div>
 
