@@ -188,14 +188,14 @@ export default function ClientesIndex() {
             variant="outline" 
             size="sm"
             onClick={() => setIsNovaPastaOpen(true)} 
-            className="border-(--card-border) text-(--text-secondary) hover:text-(--text-primary) hover:bg-white dark:bg-\[#1c1c1e\]/5 h-9 sm:h-10 px-3 sm:px-4 rounded-lg text-xs sm:text-[13px]"
+            className="border-(--card-border) text-(--text-secondary) hover:text-(--text-primary) hover:bg-white dark:bg-[#1c1c1e]/5 h-9 sm:h-10 px-3 sm:px-4 rounded-lg text-xs sm:text-[13px]"
           >
             <FolderPlus className="mr-1 sm:mr-2 h-4 w-4" /> Nova Pasta
           </Button>
           <Button 
             size="sm"
             onClick={() => navigate('/admin/clientes/novo')} 
-            className="bg-white dark:bg-\[#1c1c1e\] text-black hover:bg-zinc-200 h-9 sm:h-10 px-3 sm:px-6 rounded-lg text-xs sm:text-[13px] font-medium"
+            className="bg-white dark:bg-[#1c1c1e] text-black hover:bg-zinc-200 h-9 sm:h-10 px-3 sm:px-6 rounded-lg text-xs sm:text-[13px] font-medium"
           >
             <Plus className="mr-1 sm:mr-2 h-4 w-4" /> Novo cliente
           </Button>
@@ -251,7 +251,7 @@ export default function ClientesIndex() {
             <span 
               className={cn(
                 "px-3 py-1 text-[11px] font-medium rounded-full cursor-pointer transition-all border uppercase tracking-tight",
-                pastaFilter === 'todas' ? "bg-white dark:bg-\[#1c1c1e\] text-black border-white" : "text-(--text-secondary) border-(--card-border) hover:border-(--text-tertiary)"
+                pastaFilter === 'todas' ? "bg-white dark:bg-[#1c1c1e] text-black border-white" : "text-(--text-secondary) border-(--card-border) hover:border-(--text-tertiary)"
               )}
               onClick={() => setPastaFilter('todas')}
             >
@@ -262,7 +262,7 @@ export default function ClientesIndex() {
                 key={p.$id}
                 className={cn(
                   "px-3 py-1 text-[11px] font-medium rounded-full cursor-pointer transition-all border uppercase tracking-tight",
-                  pastaFilter === p.$id ? "bg-white dark:bg-\[#1c1c1e\] text-black border-white" : "text-(--text-secondary) border-(--card-border) hover:border-(--text-tertiary)"
+                  pastaFilter === p.$id ? "bg-white dark:bg-[#1c1c1e] text-black border-white" : "text-(--text-secondary) border-(--card-border) hover:border-(--text-tertiary)"
                 )}
                 onClick={() => setPastaFilter(p.$id)}
               >
@@ -331,7 +331,7 @@ export default function ClientesIndex() {
                     
                     <div className="flex items-center gap-4">
                       <div className={cn(
-                        "p-2.5 rounded-xl bg-white dark:bg-\[#1c1c1e\]/5 border border-white/10 shadow-inner",
+                        "p-2.5 rounded-xl bg-white dark:bg-[#1c1c1e]/5 border border-white/10 shadow-inner",
                         id === 'sem-pasta' ? "text-zinc-500" : "text-blue-500"
                       )}>
                         {isCollapsed ? <Folder className="h-6 w-6" /> : <FolderOpen className="h-6 w-6" />}
@@ -360,7 +360,7 @@ export default function ClientesIndex() {
                     <div className="flex items-center gap-4">
                        <div className="h-8 w-px bg-(--card-border) mx-2 hidden sm:block" />
                        {isCollapsed ? (
-                         <div className="h-10 w-10 rounded-full flex items-center justify-center bg-white dark:bg-\[#1c1c1e\]/5 border border-white/5">
+                         <div className="h-10 w-10 rounded-full flex items-center justify-center bg-white dark:bg-[#1c1c1e]/5 border border-white/5">
                             <ChevronRight className="h-5 w-5 text-(--text-tertiary)" />
                          </div>
                        ) : (

@@ -73,7 +73,7 @@ export default function FinanceiroIndex() {
       case 'pendente':
         return <span className="text-[11px] px-2 py-0.5 rounded-[4px] font-medium uppercase tracking-tight bg-amber-500/10 text-amber-500">Pendente</span>;
       case 'cancelado':
-        return <span className="text-[11px] px-2 py-0.5 rounded-[4px] font-medium uppercase tracking-tight bg-white dark:bg-\[#1c1c1e\]/5 text-(--text-tertiary)">Cancelado</span>;
+        return <span className="text-[11px] px-2 py-0.5 rounded-[4px] font-medium uppercase tracking-tight bg-white dark:bg-[#1c1c1e]/5 text-(--text-tertiary)">Cancelado</span>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
