@@ -5,7 +5,9 @@ const { WebSocket } = require('ws');
 global.WebSocket = WebSocket;
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: ['https://kvision.kvgroupbr.com.br', 'https://kvpages.com.br', '*']
+}));
 app.use(express.json());
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -17,6 +19,50 @@ function getDb() {
 }
 
 app.get('/health', (req, res) => res.json({ ok: true }));
+
+// POST /api/leads — recebe submissão de formulário das páginas KVision
+app.post('/api/leads', async (req, res) => {
+  try {
+    const b = req.body;
+
+    const lead = {
+      page_id: b.page_id,
+      cliente_id: b.cliente_id || null,
+      nome: b.nome || b.Nome || null,
+      email: b.email || b.E_mail || null,
+      telefone: b.telefone || b.DDD_Telefone || null,
+      utm_source: b.utm_source || b.UTM_Source || null,
+      utm_medium: b.utm_medium || b.UTM_Medium || null,
+      utm_campaign: b.utm_campaign || b.UTM_Campaign || null,
+      utm_term: b.utm_term || b.UTM_Term || null,
+      utm_content: b.utm_content || b.UTM_Content || null,
+      utm_audience: b.utm_audience || b.UTM_Audience || null,
+      referral_source: b.referral_source || b.Referral_Source || null,
+      event_id: b.event_id || null,
+      pais: b.pais || b.Pais_do_usuario || null,
+      cidade: b.cidade || b.Cidade_do_usuario || null,
+      estado: b.estado || b.Regiao_do_usuario || null,
+      ip: req.headers['x-forwarded-for'] || req.ip || b.IP_do_usuario || null,
+      user_agent: req.headers['user-agent'] || null,
+      referrer: b.referrer || b.URL || null,
+      campos_extras: b.campos_extras || {},
+    };
+
+    const db = getDb();
+    const { data, error } = await db
+      .from('leads')
+      .insert(lead)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({ success: true, id: data.id });
+  } catch (err) {
+    console.error('[leads]', err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 app.post('/sync', async (req, res) => {
   const { jobId, syncToken } = req.body;

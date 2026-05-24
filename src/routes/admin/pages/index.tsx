@@ -159,7 +159,7 @@ export default function PagesIndex() {
               <div className="flex gap-2 mt-auto pt-2 border-t border-border">
                 <button
                   className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-sm font-medium text-foreground bg-transparent hover:bg-accent transition-colors cursor-pointer"
-                  onClick={() => navigate(`/admin/pages/${page.id}/editor`)}
+                  onClick={() => navigate(`/admin/pages/${page.id}`)}
                 >
                   <Pencil className="w-3.5 h-3.5" /> Editar
                 </button>

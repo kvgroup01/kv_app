@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import * as React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "./components/ui/sonner";
@@ -39,6 +40,7 @@ import AdsManagerPage from "./routes/admin/ads-manager/index";
 
 // Páginas (Módulo de Landing Pages)
 import PagesIndex from "./routes/admin/pages/index";
+import PagesDetail from "./routes/admin/pages/detail";
 import PagesEditor from "./routes/admin/pages/editor";
 
 // Módulos Públicos Externos
@@ -93,6 +95,7 @@ export default function App() {
 
             {/* Sub-rotas de Páginas */}
             <Route path="pages" element={<PagesIndex />} />
+            <Route path="pages/:id" element={<PagesDetail />} />
             <Route path="pages/:id/editor" element={<PagesEditor />} />
 
             {/* Sub-rotas Auxiliares */}
