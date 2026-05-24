@@ -344,7 +344,10 @@ export default function PagesEditor() {
   return (
     <div className="flex flex-col h-screen w-full overflow-hidden bg-background font-sans">
       {/* 1. TOPBAR - Atualizado visual*/}
-      <div className="h-[44px] bg-[#1A1A1A] border-b border-[#2a2a2a] flex items-center justify-between px-4 shrink-0 z-30">
+      <div 
+        className="h-[44px] border-b flex items-center justify-between px-4 shrink-0 z-30"
+        style={{ backgroundColor: '#1A1A1A', borderBottomColor: '#2a2a2a' }}
+      >
         {/* ESQUERDA */}
         <div className="flex items-center gap-0">
           <button
