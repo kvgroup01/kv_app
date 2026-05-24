@@ -52,7 +52,6 @@ export default function PagesIndex() {
         cliente_id: selectedClienteId,
         nome: newPageNome.trim(),
         slug: newPageSlug || generateSlug(newPageNome),
-        status: "draft",
       });
       toast.success("Página criada!");
       setShowCreateModal(false);

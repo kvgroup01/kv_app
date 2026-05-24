@@ -11,6 +11,9 @@ export default function AdminLayout() {
   const location = useLocation();
   const isFunilCanvas = location.pathname.includes('/funis/') && 
     location.pathname.includes('/canvas');
+  const isPageEditor = location.pathname.includes('/pages/') && 
+    location.pathname.includes('/editor');
+  const isFullscreen = isFunilCanvas || isPageEditor;
   const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(() => {
     const saved = localStorage.getItem('sidebar-collapsed');
     return saved === 'true';
@@ -52,7 +55,7 @@ export default function AdminLayout() {
       />
       
       {/* Contêiner Principal ao lado da Sidebar */}
-      {isFunilCanvas ? (
+      {isFullscreen ? (
         <div className={cn(
           "flex-1 w-full overflow-hidden transition-all duration-300",
           "h-screen md:h-screen",
