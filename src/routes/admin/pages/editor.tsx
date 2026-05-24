@@ -486,7 +486,7 @@ export default function PagesEditor() {
                      return (
                         <div key={block.id} className="w-full relative flex flex-col">
                            {/* Add block above */}
-                           <div className="w-full h-8 opacity-0 hover:opacity-100 flex items-center justify-center -my-4 relative z-30 cursor-pointer pointer-events-auto transition-opacity duration-200" onClick={() => { setInsertAfterIndex(index - 1); setShowBlockModal(true) }}>
+                           <div className={cn("w-full h-8 flex items-center justify-center -my-4 relative z-30 cursor-pointer pointer-events-auto transition-opacity duration-200", editingBlockId === block.id ? "opacity-0 pointer-events-none" : "opacity-0 hover:opacity-100")} onClick={() => { setInsertAfterIndex(index - 1); setShowBlockModal(true) }}>
                               <div className="bg-[#FBB03B] text-[#1A1A1A] text-[11px] font-semibold px-3 py-1 rounded-md flex items-center gap-1 hover:bg-[#f0a824] transition-colors shadow-none">
                                 <Plus className="w-3 h-3" strokeWidth={3} /> Inserir Acima
                               </div>
@@ -527,7 +527,7 @@ export default function PagesEditor() {
 
                            {/* Add block below (special case for last block) */}
                            {index === blocks.length - 1 && (
-                              <div className="w-full h-8 opacity-0 hover:opacity-100 flex items-center justify-center -my-4 relative z-30 cursor-pointer pointer-events-auto transition-opacity duration-200 mt-2" onClick={() => { setInsertAfterIndex(index); setShowBlockModal(true) }}>
+                              <div className={cn("w-full h-8 flex items-center justify-center -my-4 relative z-30 cursor-pointer pointer-events-auto transition-opacity duration-200 mt-2", editingBlockId === block.id ? "opacity-0 pointer-events-none" : "opacity-0 hover:opacity-100")} onClick={() => { setInsertAfterIndex(index); setShowBlockModal(true) }}>
                                  <div className="bg-[#FBB03B] text-[#1A1A1A] text-[11px] font-semibold px-3 py-1 rounded-md flex items-center gap-1 hover:bg-[#f0a824] transition-colors shadow-none">
                                    <Plus className="w-3 h-3" strokeWidth={3} /> Inserir Abaixo
                                  </div>
