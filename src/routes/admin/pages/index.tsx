@@ -75,7 +75,7 @@ export default function PagesIndex() {
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <FileText className="w-6 h-6 text-[#1A1A1A] dark:text-white" />
+          <FileText className="w-6 h-6 text-[#1A1A1A] dark:text-[#FBB03B]" />
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2 text-[#1A1A1A] dark:text-white tracking-[-0.01em]">
               Páginas
@@ -108,7 +108,7 @@ export default function PagesIndex() {
 
       {!selectedClienteId ? (
         <div className="flex flex-col items-center justify-center py-32">
-          <FileText className="w-10 h-10 text-[#d0d0d0] mb-4" />
+          <FileText className="w-10 h-10 text-[#d0d0d0] dark:text-[#3a3a3a] mb-4" />
           <p className="text-sm text-[#a3a3a3] dark:text-[#767676]">
             Selecione um cliente para ver e gerenciar suas landing pages
           </p>
@@ -121,7 +121,7 @@ export default function PagesIndex() {
         </div>
       ) : pages.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-32">
-          <Globe className="w-10 h-10 text-[#d0d0d0] mb-4" />
+          <Globe className="w-10 h-10 text-[#d0d0d0] dark:text-[#3a3a3a] mb-4" />
           <p className="text-sm text-[#a3a3a3] dark:text-[#767676] mb-3">Nenhuma página ainda. Crie sua primeira landing page</p>
           <button
             onClick={() => setShowCreateModal(true)}
@@ -134,7 +134,7 @@ export default function PagesIndex() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {pages.map((page) => (
             <div key={page.id} 
-              className="bg-[#FFFFFF] dark:bg-[#1c1c1e] border border-[#e5e5e5] dark:border-[#2a2a2a] rounded-[12px] p-[20px] transition-colors hover:border-[#d0d0d0] flex flex-col"
+              className="border border-[#e5e5e5] dark:border-[#2a2a2a] rounded-xl p-5 bg-white dark:bg-[#1f1f1f] hover:border-[#d0d0d0] dark:hover:border-[#3a3a3a] transition-colors flex flex-col gap-3"
             >
               {/* Header card */}
               <div className="flex justify-between items-start mb-4">
@@ -142,17 +142,17 @@ export default function PagesIndex() {
                   <h3 className="font-semibold text-[15px] text-[#1A1A1A] dark:text-white truncate">
                     {page.nome}
                   </h3>
-                  <p className="text-xs text-[#a3a3a3] dark:text-[#767676] truncate mt-1">
+                  <p className="text-xs text-[#a3a3a3] truncate mt-0.5">
                     /{page.slug}
                   </p>
                 </div>
                 <div className="shrink-0">
                   {page.status === 'published' ? (
-                    <span style={{ background: '#FBB03B20', color: '#b07800', fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px' }}>
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#FBB03B20] text-[#b07800] dark:bg-[#FBB03B15] dark:text-[#FBB03B]">
                       Publicada
                     </span>
                   ) : (
-                    <span style={{ background: '#f0f0f0', color: '#767676', fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px' }}>
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#f0f0f0] text-[#767676] dark:bg-[#2a2a2a] dark:text-[#a3a3a3]">
                       Rascunho
                     </span>
                   )}
@@ -160,7 +160,7 @@ export default function PagesIndex() {
               </div>
 
               {/* Status footer */}
-              <div className="mt-auto pt-4 border-t border-[#f0f0f0] flex items-center justify-between">
+              <div className="mt-auto pt-4 border-t border-[#f0f0f0] dark:border-[#2a2a2a] flex items-center justify-between">
                 <p className="text-xs text-[#a3a3a3] dark:text-[#767676]">
                   Atualizada {formatDistanceToNow(new Date(page.atualizado_em), 
                     { locale: ptBR, addSuffix: true })}
@@ -171,24 +171,21 @@ export default function PagesIndex() {
               <div className="mt-4 flex items-center gap-2">
                 <button
                   onClick={() => navigate(`/admin/pages/${page.id}/editor`)}
-                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', padding: '7px 12px', borderRadius: '8px', border: '1px solid #e5e5e5', fontSize: '13px', fontWeight: 500, color: '#1A1A1A', background: '#fff', cursor: 'pointer' }}
-                  className="hover:bg-[#f2f2f2] transition-colors"
+                  className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg border border-[#e5e5e5] dark:border-[#2a2a2a] text-sm font-medium text-[#1A1A1A] dark:text-white bg-transparent hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2a] transition-colors cursor-pointer"
                 >
                   <Pencil className="w-3.5 h-3.5" /> Editar
                 </button>
                 {page.status === 'published' && (
                   <button
                     onClick={() => window.open(`/${page.slug}`, '_blank', 'noopener,noreferrer')}
-                    style={{ padding: '7px 10px', borderRadius: '8px', border: '1px solid #e5e5e5', background: '#fff', cursor: 'pointer', color: '#484848' }}
-                    className="hover:bg-[#f2f2f2] transition-colors"
+                    className="p-1.5 rounded-lg border border-[#e5e5e5] dark:border-[#2a2a2a] text-[#484848] dark:text-[#a3a3a3] bg-transparent hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2a] transition-colors cursor-pointer"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                   </button>
                 )}
                 <button
                   onClick={() => handleDelete(page)}
-                  className="p-2 rounded-lg hover:bg-red-50 text-[#c4c4c4] hover:text-red-500 transition-colors"
-                  style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
+                  className="p-1.5 rounded-lg text-[#c4c4c4] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
