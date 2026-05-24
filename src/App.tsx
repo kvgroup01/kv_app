@@ -39,7 +39,6 @@ import AdsManagerPage from "./routes/admin/ads-manager/index";
 
 // Páginas (Módulo de Landing Pages)
 import PagesIndex from "./routes/admin/pages/index";
-import PagesEditor from "./routes/admin/pages/editor";
 
 // Módulos Públicos Externos
 import OrcamentoPublico from "./routes/orcamento/$token";
@@ -93,7 +92,6 @@ export default function App() {
 
             {/* Sub-rotas de Páginas */}
             <Route path="pages" element={<PagesIndex />} />
-            <Route path="pages/:id/editor" element={<PagesEditor />} />
 
             {/* Sub-rotas Auxiliares */}
             <Route path="financeiro" element={<FinanceiroIndex />} />
