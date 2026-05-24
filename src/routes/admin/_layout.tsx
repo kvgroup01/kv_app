@@ -44,23 +44,21 @@ export default function AdminLayout() {
 
   return (
     <div className="h-screen bg-(--content-bg) w-full flex flex-col md:flex-row overflow-hidden">
-      <Sidebar 
-         usuario={{ 
-           nome: user.user_metadata?.nome || user.email, 
-           email: user.email 
-         }} 
-         onLogout={handleLogout} 
-         isCollapsed={isSidebarCollapsed}
-         onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-      />
+      {!isFullscreen && (
+        <Sidebar 
+           usuario={{ 
+             nome: user.user_metadata?.nome || user.email, 
+             email: user.email 
+           }} 
+           onLogout={handleLogout} 
+           isCollapsed={isSidebarCollapsed}
+           onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        />
+      )}
       
       {/* Contêiner Principal ao lado da Sidebar */}
       {isFullscreen ? (
-        <div className={cn(
-          "flex-1 w-full overflow-hidden transition-all duration-300",
-          "h-screen md:h-screen",
-          isSidebarCollapsed ? "md:ml-20" : "md:ml-64"
-        )} style={{ height: '100dvh' }}>
+        <div className="flex-1 w-full overflow-hidden" style={{ height: '100dvh' }}>
           <Outlet />
         </div>
       ) : (
