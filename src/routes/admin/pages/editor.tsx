@@ -305,7 +305,7 @@ export default function PagesEditor() {
                 </div>
                 {field.subFields?.map((subF) => (
                   <div key={subF.key} className="space-y-1.5">
-                    <label className="text-[10px] uppercase font-bold text-slate-600">{subF.label}</label>
+                    <label className="text-xs font-medium text-slate-600">{subF.label}</label>
                     {renderField(subF, item[subF.key], (val) => handleUpdateArrayItem(blockId, field.key, i, subF.key, val), blockId)}
                   </div>
                 ))}
@@ -336,61 +336,63 @@ export default function PagesEditor() {
 
   return (
     <div className="flex flex-col h-screen w-full overflow-hidden bg-background font-sans">
-      {/* 1. TOPBAR - Totalmente Original KVision */}
-      <div className="h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4 shrink-0 text-white z-30 shadow-md">
+      {/* 1. TOPBAR - Atualizado visual*/}
+      <div className="h-14 bg-slate-950 border-b border-slate-800 flex items-center justify-between px-4 shrink-0 z-30">
+        {/* ESQUERDA */}
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="text-slate-400 font-semibold hover:text-white hover:bg-slate-800 h-9 px-3 transition-colors">
+          <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="text-slate-300 font-semibold hover:text-white hover:bg-slate-800 h-9 px-3 transition-colors">
             <ArrowLeft className="w-4 h-4 mr-2" /> Páginas
           </Button>
-          <div className="w-px h-6 bg-slate-700" />
+          <div className="w-px h-5 bg-slate-700 mx-2" />
           {isEditingName ? (
             <Input 
               autoFocus
               value={pageName} 
               onChange={(e) => setPageName(e.target.value)} 
-              className="h-8 w-64 bg-slate-800 border-slate-700 text-white text-sm font-medium focus-visible:ring-orange-500" 
+              className="h-8 w-64 bg-slate-800 border-slate-700 text-white text-sm font-semibold focus-visible:ring-slate-500" 
               onBlur={handleNameSave}
               onKeyDown={(e) => e.key === 'Enter' && handleNameSave()}
             />
           ) : (
             <div 
-              className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 px-3 py-1.5 rounded-md transition-colors text-sm font-medium"
+              className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 px-3 py-1.5 rounded-md transition-colors text-sm font-semibold text-white"
               onClick={() => setIsEditingName(true)}
             >
               {pageName}
-              <Pencil className="w-3 h-3 text-slate-500" />
+              <Pencil className="w-3 h-3 text-slate-300" />
             </div>
           )}
         </div>
 
-        {/* Viewport Select centralizado via flex-1 ou pos absolut */}
-        <div className="absolute left-1/2 -translate-x-1/2 flex items-center bg-slate-800 rounded-full p-1 border border-slate-700 shadow-inner hidden md:flex">
+        {/* CENTRO */}
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center bg-slate-800 rounded-lg p-1 border border-slate-700 hidden md:flex">
           <button 
             onClick={() => setViewport('desktop')}
-            className={cn("p-1.5 px-4 rounded-full transition-all text-xs font-semibold flex items-center", viewport === 'desktop' ? 'bg-orange-500 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200')}
+            className={cn("p-1.5 px-4 transition-all text-xs flex items-center", viewport === 'desktop' ? 'bg-[#FBB03B] text-black font-bold rounded-md' : 'text-slate-400 hover:text-white')}
           >
             <Monitor className="w-4 h-4 mr-2" /> Desktop
           </button>
           <button 
             onClick={() => setViewport('mobile')}
-            className={cn("p-1.5 px-4 rounded-full transition-all text-xs font-semibold flex items-center", viewport === 'mobile' ? 'bg-orange-500 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200')}
+            className={cn("p-1.5 px-4 transition-all text-xs flex items-center", viewport === 'mobile' ? 'bg-[#FBB03B] text-black font-bold rounded-md' : 'text-slate-400 hover:text-white')}
           >
             <Smartphone className="w-4 h-4 mr-2" /> Mobile
           </button>
         </div>
 
-        <div className="flex items-center gap-3">
-           <Badge variant="outline" className={cn("text-xs font-semibold border-slate-700 shadow-inner px-3 py-1 cursor-default", page?.status === 'published' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-slate-800 text-slate-400')}>
+        {/* DIREITA */}
+        <div className="flex items-center gap-2">
+           <Badge variant="outline" className={cn("px-2 py-1 text-xs font-semibold cursor-default", page?.status === 'published' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 rounded-md' : 'bg-slate-800 text-slate-400 border border-slate-700 rounded-md')}>
             {page?.status === 'published' ? 'Publicado' : 'Rascunho'}
           </Badge>
-          <Button variant="ghost" size="icon" title="Pré-visualizar em nova aba" className="text-slate-400 hover:text-white hover:bg-slate-800 h-9 w-9 rounded-full" onClick={handlePreview}>
+          <Button variant="ghost" size="icon" title="Pré-visualizar em nova aba" className="text-slate-300 hover:text-white hover:bg-slate-800 h-8 w-8" onClick={handlePreview}>
             <Eye className="w-5 h-5" />
           </Button>
           <div className="w-px h-5 bg-slate-700 mx-1" />
-          <Button variant="outline" className={cn("h-9 bg-transparent border-slate-600 text-white hover:bg-slate-800 hover:text-white font-semibold transition-all", isDirty && "border-orange-500/40 text-orange-100 bg-orange-500/10")} onClick={handleSave}>
-            {isDirty ? '* Salvar' : 'Salvo'}
+          <Button variant="outline" className={cn("h-8 px-4 bg-slate-800 border border-slate-600 text-white hover:bg-slate-700 text-sm font-semibold rounded-md transition-all", isDirty && "border-slate-500")} onClick={handleSave}>
+            {isDirty ? <span className="flex items-center gap-1.5"><span className="text-[#FBB03B] text-[10px]">●</span> Salvar</span> : 'Salvo'}
           </Button>
-          <Button className="h-9 bg-orange-500 hover:bg-orange-600 text-white font-bold shadow-lg shadow-orange-500/20" onClick={handlePublish}>
+          <Button className="h-8 px-4 bg-[#FBB03B] hover:bg-[#f0a824] text-black font-bold rounded-md text-sm transition-colors" onClick={handlePublish}>
             <Globe className="w-4 h-4 mr-2" /> Publicar
           </Button>
         </div>
@@ -401,40 +403,40 @@ export default function PagesEditor() {
         <div className="flex-1 overflow-y-auto overflow-x-hidden relative flex flex-col bg-slate-100 custom-scrollbar pr-[340px]">
           
           {/* UNDO / REDO Pill - Canto inferior esquerdo flotante */}
-          <div className="fixed bottom-8 left-8 z-50 bg-slate-800 rounded-full shadow-2xl px-1.5 text-white flex items-center h-12 gap-1 border border-slate-700">
-             <button title="Desfazer" disabled={historyIndex <= 0} onClick={undo} className="p-2.5 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-700 rounded-full transition-colors"><Undo2 className="w-4 h-4" /></button>
-             <div className="w-px h-6 bg-slate-600" />
-             <button title="Refazer" disabled={historyIndex >= history.length - 1} onClick={redo} className="p-2.5 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-700 rounded-full transition-colors"><Redo2 className="w-4 h-4" /></button>
+          <div className="fixed bottom-8 left-8 z-50 bg-slate-950 border border-slate-700 rounded-lg shadow-lg px-0.5 text-white flex items-center h-10 gap-0.5">
+             <button title="Desfazer" disabled={historyIndex <= 0} onClick={undo} className="p-2 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-800 rounded-md text-slate-300 hover:text-white transition-colors"><Undo2 className="w-4 h-4" /></button>
+             <div className="w-px h-5 bg-slate-700 mx-0.5" />
+             <button title="Refazer" disabled={historyIndex >= history.length - 1} onClick={redo} className="p-2 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-800 rounded-md text-slate-300 hover:text-white transition-colors"><Redo2 className="w-4 h-4" /></button>
           </div>
 
-          <div className="w-full flex justify-center sticky top-0 py-2.5 z-20 pointer-events-none">
-             <div className="bg-slate-900/40 backdrop-blur border border-white/10 shadow-sm px-4 py-1.5 rounded-full text-xs font-bold text-white tracking-widest pointer-events-auto">
-                {viewport === 'desktop' ? 'Largura Máxima: 1024px' : 'Largura Máxima: 384px'}
-             </div>
+          <div className="w-full flex justify-center sticky top-0 py-0 z-20 pointer-events-none bg-slate-100/80 backdrop-blur-sm">
+             <p className="text-center text-xs text-slate-400 py-3 font-medium pointer-events-auto">
+               {viewport === 'desktop' ? 'Desktop — 1024px' : 'Mobile — 390px'}
+             </p>
           </div>
           
-          <div className="py-8 pb-40 px-4 flex flex-col items-center min-h-[calc(100vh-100px)]">
+          <div className="py-4 pb-40 px-4 flex flex-col items-center min-h-[calc(100vh-100px)]">
              {blocks.length === 0 ? (
-               // ESTADO VAZIO Original
+               // ESTADO VAZIO
                <div className="flex flex-col items-center justify-center pt-20 w-full max-w-2xl mx-auto text-center px-4">
-                 <svg width="240" height="160" viewBox="0 0 240 160" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-8 opacity-40">
+                 <svg width="240" height="160" viewBox="0 0 240 160" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-8 opacity-30">
                      <rect x="2" y="2" width="236" height="156" rx="14" stroke="#64748B" strokeWidth="4" strokeDasharray="8 8"/>
                      <line x1="40" y1="40" x2="200" y2="40" stroke="#64748B" strokeWidth="4" strokeLinecap="round"/>
                      <line x1="40" y1="60" x2="160" y2="60" stroke="#64748B" strokeWidth="4" strokeLinecap="round"/>
                      <line x1="40" y1="80" x2="180" y2="80" stroke="#64748B" strokeWidth="4" strokeLinecap="round"/>
                      <rect x="40" y="100" width="80" height="24" rx="6" fill="#64748B"/>
                  </svg>
-                 <h3 className="text-2xl font-bold tracking-tight text-slate-800 mb-3">Sua página está em branco</h3>
-                 <p className="text-slate-500 mb-10 max-w-sm text-sm">Crie seu layout adicionando blocos pré-construídos para compor sua Landing Page perfeita.</p>
+                 <h3 className="text-xl font-semibold text-slate-700 mb-3">Sua página está em branco</h3>
+                 <p className="text-sm text-slate-400 mb-10 max-w-sm">Crie seu layout adicionando blocos pré-construídos para compor sua Landing Page perfeita.</p>
                  <Button 
-                    className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-7 h-auto text-lg rounded-xl font-bold shadow-xl shadow-orange-500/30 transition-all hover:-translate-y-1"
+                    className="bg-[#FBB03B] hover:bg-[#f0a824] text-black px-8 py-3 h-auto text-base rounded-xl font-bold transition-colors"
                     onClick={() => { setInsertAfterIndex(-1); setShowBlockModal(true) }}
                  >
                     <Plus className="w-5 h-5 mr-3" strokeWidth={3} /> Adicionar primeiro bloco
                  </Button>
                </div>
              ) : (
-               <div className={cn("bg-white min-h-[500px] w-full transition-all duration-300 relative shadow-2xl rounded-t-lg flex flex-col", viewport === 'desktop' ? 'max-w-5xl' : 'max-w-sm rounded-[2rem] mx-auto mt-4 overflow-hidden border-[10px] border-slate-800')}>
+               <div className={cn("bg-white min-h-[500px] w-full transition-all duration-300 relative shadow-lg flex flex-col", viewport === 'desktop' ? 'max-w-5xl' : 'max-w-[390px] mx-auto mt-4 overflow-hidden border border-slate-200')}>
                   {blocks.map((block, index) => {
                      const def = getBlockByType(block.type)
                      if (!def) return null
@@ -444,7 +446,7 @@ export default function PagesEditor() {
                         <div key={block.id} className="w-full relative flex flex-col">
                            {/* Add block above */}
                            <div className="w-full h-8 opacity-0 hover:opacity-100 flex items-center justify-center -my-4 relative z-30 cursor-pointer pointer-events-auto transition-opacity duration-200" onClick={() => { setInsertAfterIndex(index - 1); setShowBlockModal(true) }}>
-                              <div className="bg-orange-500 text-white text-[10px] uppercase font-bold tracking-widest px-4 py-1.5 rounded-full shadow-lg hover:bg-orange-600 transition-colors flex items-center gap-1.5 focus:outline-none ring-4 ring-white">
+                              <div className="bg-[#FBB03B] text-black text-[10px] uppercase font-bold tracking-widest px-4 py-1.5 rounded-full shadow-lg hover:bg-[#f0a824] transition-colors flex items-center gap-1.5 focus:outline-none ring-4 ring-white">
                                 <Plus className="w-3 h-3" strokeWidth={3} /> Inserir Acima
                               </div>
                            </div>
@@ -453,14 +455,14 @@ export default function PagesEditor() {
                               className={cn("relative group transition-all", block.hidden && "opacity-40 grayscale")}
                               style={{
                                 outlineOffset: '-2px',
-                                outline: selectedBlockId === block.id || editingBlockId === block.id ? '3px solid #f97316' : 'none'
+                                outline: selectedBlockId === block.id || editingBlockId === block.id ? '3px solid #FBB03B' : 'none'
                               }}
                               onMouseEnter={() => setSelectedBlockId(block.id)}
                               onMouseLeave={() => setSelectedBlockId(null)}
                               onClick={() => setEditingBlockId(block.id)}
                            >
                               {/* FLOTING TOOLBAR - Acima do bloco */}
-                              <div className={cn("absolute -top-12 right-2 bg-slate-900 border border-slate-700 text-white rounded-lg hidden items-center gap-1 p-1 px-1.5 shadow-2xl z-40 transition-all", (selectedBlockId === block.id || editingBlockId === block.id) && "group-hover:flex")}>
+                              <div className={cn("absolute -top-12 right-2 bg-slate-900 border border-slate-700 text-white rounded-lg hidden items-center gap-1 p-1 px-1.5 shadow-xl z-40 transition-all", (selectedBlockId === block.id || editingBlockId === block.id) && "group-hover:flex")}>
                                   <button title="Subir" onClick={(e) => { e.stopPropagation(); moveUp(index) }} disabled={index === 0} className="w-8 h-8 flex items-center justify-center hover:bg-slate-700 disabled:opacity-30 rounded-md text-slate-300 hover:text-white transition-colors"><ChevronUp className="w-4 h-4"/></button>
                                   <button title="Descer" onClick={(e) => { e.stopPropagation(); moveDown(index) }} disabled={index === blocks.length - 1} className="w-8 h-8 flex items-center justify-center hover:bg-slate-700 disabled:opacity-30 rounded-md text-slate-300 hover:text-white transition-colors"><ChevronDown className="w-4 h-4"/></button>
                                   <div className="w-px h-5 bg-slate-700 mx-1" />
@@ -483,7 +485,7 @@ export default function PagesEditor() {
                            {/* Add block below (special case for last block) */}
                            {index === blocks.length - 1 && (
                               <div className="w-full h-8 opacity-0 hover:opacity-100 flex items-center justify-center -my-4 relative z-30 cursor-pointer pointer-events-auto transition-opacity duration-200 mt-2" onClick={() => { setInsertAfterIndex(index); setShowBlockModal(true) }}>
-                                 <div className="bg-orange-500 text-white text-[10px] uppercase font-bold tracking-widest px-4 py-1.5 rounded-full shadow-lg hover:bg-orange-600 transition-colors flex items-center gap-1.5 ring-4 ring-white">
+                                 <div className="bg-[#FBB03B] text-black text-[10px] uppercase font-bold tracking-widest px-4 py-1.5 rounded-full shadow-lg hover:bg-[#f0a824] transition-colors flex items-center gap-1.5 ring-4 ring-white">
                                    <Plus className="w-3 h-3" strokeWidth={3} /> Inserir Abaixo
                                  </div>
                               </div>
@@ -501,25 +503,25 @@ export default function PagesEditor() {
            {editingBlockId && editingBlock && editingBlockDef ? (
               // FORMULÁRIO DE EDIÇÃO
               <div className="flex flex-col h-full w-full">
-                 <div className="h-16 border-b flex items-center justify-between px-5 bg-slate-50 shrink-0">
+                 <div className="h-14 border-b border-slate-100 flex items-center justify-between px-4 bg-white shrink-0">
                     <div>
-                       <h3 className="font-bold text-slate-800 text-sm">Editar Bloco</h3>
-                       <p className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold mt-0.5">{editingBlockDef.name}</p>
+                       <p className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Editar:</p>
+                       <h3 className="font-semibold text-slate-800 text-sm leading-tight">{editingBlockDef.name}</h3>
                     </div>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:bg-slate-200 rounded-full" onClick={() => setEditingBlockId(null)}><X className="w-4 h-4"/></Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md" onClick={() => setEditingBlockId(null)}><X className="w-4 h-4"/></Button>
                  </div>
                  
                  <Tabs defaultValue="conteudo" className="flex-1 flex flex-col w-full overflow-hidden">
-                    <TabsList className="w-full rounded-none justify-start h-12 bg-white border-b border-slate-200 shrink-0 px-4 space-x-4">
-                       <TabsTrigger value="conteudo" className="data-[state=active]:text-orange-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-none px-0 h-full text-xs font-bold uppercase tracking-wider text-slate-500 transition-colors">Conteúdo</TabsTrigger>
-                       <TabsTrigger value="secao" className="data-[state=active]:text-orange-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-none px-0 h-full text-xs font-bold uppercase tracking-wider text-slate-500 transition-colors">Seção</TabsTrigger>
+                    <TabsList className="w-full justify-start h-10 bg-transparent border-b border-slate-100 rounded-none px-4 space-x-4 shrink-0">
+                       <TabsTrigger value="conteudo" className="data-[state=active]:border-b-2 data-[state=active]:border-[#FBB03B] data-[state=active]:text-[#FBB03B] data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none px-0 h-full text-xs font-bold uppercase tracking-wider text-slate-500 transition-colors">Conteúdo</TabsTrigger>
+                       <TabsTrigger value="secao" className="data-[state=active]:border-b-2 data-[state=active]:border-[#FBB03B] data-[state=active]:text-[#FBB03B] data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none px-0 h-full text-xs font-bold uppercase tracking-wider text-slate-500 transition-colors">Seção</TabsTrigger>
                     </TabsList>
                     
                     <div className="flex-1 overflow-y-auto custom-scrollbar bg-slate-50/50">
                        <TabsContent value="conteudo" className="p-5 m-0 space-y-6">
                            {editingBlockDef.fields.map(field => (
                               <div key={field.key} className="space-y-2.5">
-                                 <label className="text-[11px] uppercase tracking-wider font-bold text-slate-700">{field.label}</label>
+                                 <label className="text-xs font-medium text-slate-600">{field.label}</label>
                                  {renderField(field, editingBlock.data[field.key], (val) => updateBlockData(editingBlock.id, field.key, val), editingBlock.id)}
                               </div>
                            ))}
@@ -527,12 +529,12 @@ export default function PagesEditor() {
                        
                        <TabsContent value="secao" className="p-5 m-0 space-y-6">
                           <div className="space-y-2.5">
-                             <label className="text-[11px] uppercase tracking-wider font-bold text-slate-700">Imagem de Fundo (URL)</label>
+                             <label className="text-xs font-medium text-slate-600">Imagem de Fundo (URL)</label>
                              <Input value={editingBlock.sectionStyles.backgroundImage || ''} onChange={(e) => updateBlockStyles(editingBlock.id, { backgroundImage: e.target.value })} placeholder="Ex: https://..." className="bg-white" />
                           </div>
                           
                           <div className="space-y-2.5">
-                             <label className="text-[11px] uppercase tracking-wider font-bold text-slate-700">Cor de Fundo</label>
+                             <label className="text-xs font-medium text-slate-600">Cor de Fundo</label>
                              <div className="flex gap-2">
                                 <input type="color" className="w-10 h-10 p-1 border rounded cursor-pointer shrink-0 bg-white" value={editingBlock.sectionStyles.backgroundColor || '#ffffff'} onChange={e => updateBlockStyles(editingBlock.id, { backgroundColor: e.target.value })} />
                                 <Input className="font-mono text-xs uppercase bg-white" value={editingBlock.sectionStyles.backgroundColor || ''} onChange={e => updateBlockStyles(editingBlock.id, { backgroundColor: e.target.value })} />
@@ -540,7 +542,7 @@ export default function PagesEditor() {
                           </div>
 
                           <div className="space-y-2.5">
-                             <label className="text-[11px] uppercase tracking-wider font-bold text-slate-700">Cor de Sobreposição (Overlay)</label>
+                             <label className="text-xs font-medium text-slate-600">Cor de Sobreposição (Overlay)</label>
                              <div className="flex gap-2">
                                 <input type="color" className="w-10 h-10 p-1 border rounded cursor-pointer shrink-0 bg-white" value={editingBlock.sectionStyles.overlayColor || '#000000'} onChange={e => updateBlockStyles(editingBlock.id, { overlayColor: e.target.value })} />
                                 <Input className="font-mono text-xs uppercase bg-white" value={editingBlock.sectionStyles.overlayColor || ''} onChange={e => updateBlockStyles(editingBlock.id, { overlayColor: e.target.value })} />
@@ -549,7 +551,7 @@ export default function PagesEditor() {
 
                           <div className="space-y-3 pt-3">
                              <div className="flex justify-between items-center">
-                                <label className="text-[11px] uppercase tracking-wider font-bold text-slate-700">Opacidade do Overlay</label>
+                                <label className="text-xs font-medium text-slate-600">Opacidade do Overlay</label>
                                 <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-mono font-bold text-slate-700">{editingBlock.sectionStyles.overlayOpacity || 0}%</span>
                              </div>
                              <Slider min={0} max={100} step={1} value={[editingBlock.sectionStyles.overlayOpacity || 0]} onValueChange={vals => updateBlockStyles(editingBlock.id, { overlayOpacity: vals[0] })} className="py-2" />
@@ -557,11 +559,11 @@ export default function PagesEditor() {
 
                           <div className="grid grid-cols-2 gap-4 pt-3">
                              <div className="space-y-2.5">
-                                <label className="text-[11px] uppercase tracking-wider font-bold text-slate-700">Espaço Topo (px)</label>
+                                <label className="text-xs font-medium text-slate-600">Espaço Topo (px)</label>
                                 <Input type="number" className="bg-white" value={editingBlock.sectionStyles.paddingTop ?? 80} onChange={e => updateBlockStyles(editingBlock.id, { paddingTop: parseInt(e.target.value) || 0 })} />
                              </div>
                              <div className="space-y-2.5">
-                                <label className="text-[11px] uppercase tracking-wider font-bold text-slate-700">Espaço Base (px)</label>
+                                <label className="text-xs font-medium text-slate-600">Espaço Base (px)</label>
                                 <Input type="number" className="bg-white" value={editingBlock.sectionStyles.paddingBottom ?? 80} onChange={e => updateBlockStyles(editingBlock.id, { paddingBottom: parseInt(e.target.value) || 0 })} />
                              </div>
                           </div>
@@ -571,36 +573,36 @@ export default function PagesEditor() {
               </div>
            ) : (
               // PAINE L DE CAMADAS (LAYERS)
-              <div className="flex flex-col h-full w-full bg-slate-50/30">
-                 <div className="h-16 border-b flex items-center justify-between px-5 bg-white shrink-0">
-                    <h3 className="font-bold text-slate-800 text-sm">Camadas</h3>
-                    <Button size="sm" className="h-8 bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 font-bold shadow-sm" onClick={() => { setInsertAfterIndex(blocks.length - 1); setShowBlockModal(true) }}>
+              <div className="flex flex-col h-full w-full bg-white">
+                 <div className="h-14 border-b border-slate-100 flex items-center justify-between px-4 shrink-0">
+                    <h3 className="font-semibold text-slate-800 text-sm">Camadas</h3>
+                    <Button size="sm" className="h-8 bg-[#FBB03B] hover:bg-[#f0a824] text-black text-xs px-3 font-bold rounded-md transition-colors" onClick={() => { setInsertAfterIndex(blocks.length - 1); setShowBlockModal(true) }}>
                        <Plus className="w-3.5 h-3.5 mr-1" strokeWidth={3} /> Bloco
                     </Button>
                  </div>
-                 <div className="flex-1 overflow-y-auto p-3 space-y-1.5 custom-scrollbar">
+                 <div className="flex-1 overflow-y-auto p-3 space-y-1.5 custom-scrollbar bg-white">
                     {blocks.map((block, i) => {
                        const def = getBlockByType(block.type)
                        return (
                          <div 
                            key={block.id} 
-                           className={cn("flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer group bg-white", selectedBlockId === block.id ? "border-orange-500 shadow-sm ring-1 ring-orange-500/20" : "border-slate-200 hover:border-slate-300 hover:shadow-sm")}
+                           className={cn("flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer group", selectedBlockId === block.id || editingBlockId === block.id ? "border-[#FBB03B] bg-amber-50" : "border-slate-100 hover:border-slate-200 hover:bg-slate-50 relative")}
                            onClick={() => setEditingBlockId(block.id)}
                            onMouseEnter={() => setSelectedBlockId(block.id)}
                            onMouseLeave={() => setSelectedBlockId(null)}
                          >
                            <div className="flex items-center gap-3 overflow-hidden">
-                             <GripVertical className="w-4 h-4 text-slate-300 group-hover:text-slate-500 cursor-grab shrink-0" />
+                             <GripVertical className="w-4 h-4 text-slate-300 group-hover:text-slate-400 cursor-grab shrink-0" />
                              <div className="flex flex-col">
-                                <span className={cn("text-xs font-bold truncate", block.hidden ? "text-slate-400" : "text-slate-700")}>{def?.name || 'Bloco'}</span>
+                                <span className={cn("text-sm font-medium truncate", block.hidden ? "text-slate-400" : "text-slate-700")}>{def?.name || 'Bloco'}</span>
                                 {block.hidden && <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400 mt-0.5">Oculto</span>}
                              </div>
                            </div>
                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                             <button onClick={(e) => { e.stopPropagation(); toggleHidden(block.id) }} className="p-1.5 hover:bg-slate-100 rounded-md text-slate-400 hover:text-slate-600">
+                             <button onClick={(e) => { e.stopPropagation(); toggleHidden(block.id) }} className="p-1 hover:bg-slate-200 rounded-md text-slate-400 hover:text-slate-600">
                                 {block.hidden ? <EyeOff className="w-3.5 h-3.5"/> : <Eye className="w-3.5 h-3.5"/>}
                              </button>
-                             <button onClick={(e) => { e.stopPropagation(); deleteBlock(block.id) }} className="p-1.5 hover:bg-red-50 rounded-md text-slate-400 hover:text-red-500">
+                             <button onClick={(e) => { e.stopPropagation(); deleteBlock(block.id) }} className="p-1 hover:bg-slate-200 rounded-md text-slate-400 hover:text-red-500">
                                <Trash2 className="w-3.5 h-3.5" />
                              </button>
                            </div>
@@ -608,9 +610,9 @@ export default function PagesEditor() {
                        )
                     })}
                     {blocks.length === 0 && (
-                      <div className="flex flex-col items-center justify-center p-8 pt-16 text-center opacity-60">
-                         <GripVertical className="w-8 h-8 text-slate-300 mb-3" />
-                         <p className="text-sm font-medium text-slate-500">Nenhuma camada adicionada</p>
+                      <div className="flex flex-col items-center justify-center py-16 text-center">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-slate-300 mb-2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 12 12 17 22 12"/><polyline points="2 17 12 22 22 17"/></svg>
+                         <p className="text-sm font-medium text-slate-400">Nenhum bloco ainda</p>
                       </div>
                     )}
                  </div>
@@ -622,9 +624,9 @@ export default function PagesEditor() {
       {/* 5. MODAL DE BLOCOS - Sheet vindo da direita */}
       <Sheet open={showBlockModal} onOpenChange={setShowBlockModal}>
         <SheetContent side="right" className="w-[700px] sm:max-w-[700px] p-0 flex flex-col border-l-0 bg-slate-50 gap-0 shadow-2xl">
-          <div className="px-8 py-6 border-b bg-white shrink-0">
+          <div className="px-8 py-6 border-b border-slate-100 bg-white shrink-0">
              <SheetHeader className="text-left space-y-0 pb-4">
-                <SheetTitle className="text-2xl font-bold text-slate-900">Adicionar Bloco</SheetTitle>
+                <SheetTitle className="text-xl font-semibold text-slate-900">Adicionar Bloco</SheetTitle>
              </SheetHeader>
              <div className="relative">
                 <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
@@ -633,14 +635,14 @@ export default function PagesEditor() {
           </div>
           
           <Tabs defaultValue="vazio" value={activeCategory} onValueChange={setActiveCategory} className="flex-1 flex flex-col overflow-hidden">
-             <div className="px-6 py-2 border-b bg-white shrink-0 relative">
+             <div className="px-6 py-2 border-b border-slate-100 bg-white shrink-0 relative">
                 <ScrollArea className="w-full">
                    <TabsList className="h-10 bg-transparent p-0 gap-2 flex w-max">
-                      <TabsTrigger value="vazio" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white rounded-full px-5 py-1.5 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 data-[state=active]:shadow-md transition-all">
+                      <TabsTrigger value="vazio" className="data-[state=active]:bg-[#FBB03B] data-[state=active]:text-black rounded-lg px-5 py-1.5 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all">
                          Bloco Vazio
                       </TabsTrigger>
                       {BLOCK_CATEGORIES.map(cat => (
-                         <TabsTrigger key={cat} value={cat} className="data-[state=active]:bg-orange-500 data-[state=active]:text-white rounded-full px-5 py-1.5 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 data-[state=active]:shadow-md transition-all">
+                         <TabsTrigger key={cat} value={cat} className="data-[state=active]:bg-[#FBB03B] data-[state=active]:text-black rounded-lg px-5 py-1.5 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all">
                             {cat}
                          </TabsTrigger>
                       ))}
@@ -652,7 +654,7 @@ export default function PagesEditor() {
                 {activeCategory === 'vazio' && searchQuery === '' ? (
                    <div className="flex flex-col items-center justify-center pt-24 text-center">
                        <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mb-6">
-                           <Plus className="w-8 h-8 text-orange-500" />
+                           <Plus className="w-8 h-8 text-[#FBB03B]" />
                        </div>
                        <h3 className="text-xl font-bold text-slate-800 mb-2">Bloco Vazio</h3>
                        <p className="text-slate-500 max-w-sm mb-6 text-sm">Use o espaço vazio para codificar layouts do zero. Requer habilidades avançadas.</p>
@@ -661,11 +663,11 @@ export default function PagesEditor() {
                 ) : (
                    <div className="grid grid-cols-2 gap-6">
                        {filteredCategories.map(def => (
-                          <div key={def.type} className="group flex flex-col bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-orange-500 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                          <div key={def.type} className="group flex flex-col bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-[#FBB03B] hover:shadow-lg transition-all duration-300">
                              <div className="w-full aspect-[280/160] bg-slate-50 border-b border-slate-100 flex items-center justify-center p-4 relative overflow-hidden" dangerouslySetInnerHTML={{ __html: def.thumbnail }} />
                              <div className="p-4 flex items-center justify-between bg-white z-10 relative">
-                                <span className="font-bold text-sm text-slate-800">{def.name}</span>
-                                <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white font-bold opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0 h-8 px-4" onClick={() => addBlock(def.type, insertAfterIndex)}>Usar</Button>
+                                <span className="font-semibold text-sm text-slate-800">{def.name}</span>
+                                <Button size="sm" className="bg-[#FBB03B] hover:bg-[#f0a824] text-black font-bold opacity-0 group-hover:opacity-100 transition-opacity h-8 px-4" onClick={() => addBlock(def.type, insertAfterIndex)}>Usar</Button>
                              </div>
                           </div>
                        ))}
