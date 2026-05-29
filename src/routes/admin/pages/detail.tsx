@@ -140,7 +140,7 @@ export default function PageDetail() {
         <button
           onClick={() => navigate(`/admin/pages/${page.id}/editor`)}
           style={{ backgroundColor: "#FBB03B", color: "#1A1A1A" }}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
+          className="flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
         >
           <Pencil className="w-4 h-4" /> Abrir Editor
         </button>
