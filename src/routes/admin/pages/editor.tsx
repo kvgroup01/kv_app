@@ -492,7 +492,7 @@ export default function PagesEditor() {
 
           <div className="w-full flex justify-center sticky top-0 py-0 z-20 pointer-events-none">
              <p className="text-center text-[11px] text-[#a3a3a3] pt-3 pb-1 font-medium tracking-wide select-none pointer-events-auto">
-               {viewport === 'desktop' ? 'Desktop · 1024px' : 'Mobile · 390px'}
+               {viewport === 'desktop' ? 'Desktop · 1920px' : 'Mobile · 390px'}
              </p>
           </div>
           
@@ -517,7 +517,7 @@ export default function PagesEditor() {
                  </Button>
                </div>
              ) : (
-               <div className={cn("bg-white min-h-[500px] w-full transition-all duration-300 relative shadow-sm flex flex-col", viewport === 'desktop' ? 'max-w-4xl mx-auto border-x border-[#e6e6e6]' : 'max-w-[390px] mx-auto border border-[#e6e6e6] rounded-b-xl mt-4')}>
+               <div className={cn("bg-white min-h-[500px] w-full transition-all duration-300 relative shadow-sm flex flex-col", viewport === 'desktop' ? 'max-w-[1920px] mx-auto border-x border-[#e6e6e6]' : 'max-w-[390px] mx-auto border border-[#e6e6e6] rounded-b-xl mt-4')}>
                   {blocks.map((block, index) => {
                      const def = getBlockByType(block.type)
                      if (!def) return null

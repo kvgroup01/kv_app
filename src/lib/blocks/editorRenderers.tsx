@@ -388,14 +388,12 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
       if (e.data?.type === 'kv-iframe-h' && e.data.h) {
         setIframeHeight(Math.max(400, Number(e.data.h)))
       }
-      /*
       if (e.data?.type === 'kv-save-html' && e.data.html) {
         const newHtml: string = e.data.html
         lastSaved.current = newHtml
         setLocalHtml(newHtml)
         onChange('html', newHtml)
       }
-      */
     }
     window.addEventListener('message', handler)
     return () => window.removeEventListener('message', handler)
@@ -404,22 +402,60 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
   const isFullPage = /^\s*<!doctype/i.test(localHtml) || /^\s*<html/i.test(localHtml)
 
   const getSrcDoc = (): string => {
-    if (isFullPage) {
-      // HTML puro, zero modificações
-      return localHtml
-    }
-    // Snippet: wrapper mínimo + height reporter
-    const heightReporter = '<' + 'script>' +
-      'function reportH(){var h=document.documentElement.scrollHeight||document.body.scrollHeight;window.parent.postMessage({type:"kv-iframe-h",h:h},"*");}' +
-      'window.addEventListener("load",reportH);' +
-      'new ResizeObserver(reportH).observe(document.body);' +
+    const editScript = '<' + 'script>' +
+      'try{' +
+      'window.addEventListener("load",function(){' +
+        // Height reporter
+        'function reportH(){var h=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight);window.parent.postMessage({type:"kv-iframe-h",h:h},"*");}' +
+        'reportH();' +
+        'new ResizeObserver(reportH).observe(document.body);' +
+        // Click-to-edit: ao clicar em qualquer elemento de texto, torna-o contentEditable
+        'document.body.addEventListener("click",function(e){' +
+          'var el=e.target;' +
+          'if(el===document.body||el===document.documentElement)return;' +
+          // Só ativa em elementos de texto
+          'var tags=["P","H1","H2","H3","H4","H5","H6","SPAN","A","LI","TD","TH","BUTTON","LABEL"];' +
+          'if(tags.indexOf(el.tagName)===-1)return;' +
+          'e.preventDefault();e.stopPropagation();' +
+          // Remove toolbar anterior
+          'var old=document.getElementById("kv-toolbar");if(old)old.remove();' +
+          // Marca como editável
+          'el.contentEditable="true";el.focus();' +
+          // Cria toolbar flutuante
+          'var rect=el.getBoundingClientRect();' +
+          'var tb=document.createElement("div");' +
+          'tb.id="kv-toolbar";' +
+          'tb.style.cssText="position:fixed;top:"+(rect.top-40)+"px;left:"+rect.left+"px;background:#1a1a1a;border:1px solid #444;border-radius:6px;padding:4px 8px;display:flex;gap:8px;align-items:center;z-index:999999;font-family:sans-serif;font-size:13px;color:#fff;";' +
+          'var applyBtn=document.createElement("button");' +
+          'applyBtn.textContent="✓ Aplicar";' +
+          'applyBtn.style.cssText="background:#eab308;color:#000;border:none;border-radius:4px;padding:3px 10px;cursor:pointer;font-weight:600;font-size:12px;";' +
+          'applyBtn.onclick=function(){' +
+            'el.contentEditable="false";' +
+            'tb.remove();' +
+            'window.parent.postMessage({type:"kv-save-html",html:document.documentElement.outerHTML},"*");' +
+          '};' +
+          'var cancelBtn=document.createElement("button");' +
+          'cancelBtn.textContent="✕";' +
+          'cancelBtn.style.cssText="background:transparent;color:#aaa;border:none;cursor:pointer;font-size:14px;";' +
+          'cancelBtn.onclick=function(){el.contentEditable="false";tb.remove();};' +
+          'tb.appendChild(applyBtn);tb.appendChild(cancelBtn);' +
+          'document.body.appendChild(tb);' +
+        '});' +
+      '});' +
+      '}catch(err){console.warn("KV edit script error:",err);}' +
       '<' + '/script>'
+
+    if (isFullPage) {
+      // Concatena DEPOIS do HTML completo (não dentro) — browser processa normalmente
+      return localHtml + editScript
+    }
+    // Snippet: wrapper com Tailwind + editScript
     const css = localHtml.includes('<style') ? '' : (data.css ? `<style>${data.css}</style>` : '')
     return '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
       '<script src="https://cdn.tailwindcss.com"><' + '/script>' + css + 
       '</head><body style="margin:0;padding:0;">' +
       localHtml +
-      heightReporter +
+      editScript +
       '</body></html>'
   }
 
