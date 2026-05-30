@@ -617,82 +617,146 @@ export default function PagesEditor() {
                        {selectedElement && selectedElement.blockId === editingBlockId && (
                          <div className="p-4 border-b border-gray-200 bg-gray-50">
                            <div className="flex items-center justify-between mb-3">
-                             <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Estilo do texto</span>
+                             <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                               {selectedElement.type === 'shape' ? 'Estilo do elemento' : 'Estilo do texto'}
+                             </span>
                              <button onClick={() => setSelectedElement(null)} className="text-gray-400 hover:text-gray-600 p-0.5 rounded">
                                <X className="w-3.5 h-3.5" />
                              </button>
                            </div>
-                           <div className="space-y-3">
-                             <div>
-                               <label className="text-xs font-medium text-gray-600 mb-1 block">Fonte</label>
-                               <select
-                                 value={getCurrentElementStyle('fontFamily') || 'Inter'}
-                                 onChange={e => updateElementStyle('fontFamily', e.target.value)}
-                                 className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-900"
-                               >
-                                 {GOOGLE_FONTS.map(f => <option key={f} value={f}>{f}</option>)}
-                               </select>
+
+                           {selectedElement.type === 'text' ? (
+                             /* ── CONTROLES DE TEXTO (existentes, sem alteração) ── */
+                             <div className="space-y-3">
+                               <div>
+                                 <label className="text-xs font-medium text-gray-600 mb-1 block">Fonte</label>
+                                 <select
+                                   value={getCurrentElementStyle('fontFamily') || 'Inter'}
+                                   onChange={e => updateElementStyle('fontFamily', e.target.value)}
+                                   className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-900"
+                                 >
+                                   {GOOGLE_FONTS.map(f => <option key={f} value={f}>{f}</option>)}
+                                 </select>
+                               </div>
+                               <div>
+                                 <label className="text-xs font-medium text-gray-600 mb-1 block">Tamanho</label>
+                                 <div className="flex items-center gap-2">
+                                   <input type="number" min="8" max="200"
+                                     value={getCurrentElementStyle('fontSize') || 16}
+                                     onChange={e => updateElementStyle('fontSize', Number(e.target.value))}
+                                     className="w-20 text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-900"
+                                   />
+                                   <span className="text-xs text-gray-400">px</span>
+                                   <input type="range" min="8" max="120"
+                                     value={getCurrentElementStyle('fontSize') || 16}
+                                     onChange={e => updateElementStyle('fontSize', Number(e.target.value))}
+                                     className="flex-1 accent-[#FBB03B]"
+                                   />
+                                 </div>
+                               </div>
+                               <div>
+                                 <label className="text-xs font-medium text-gray-600 mb-1 block">Cor</label>
+                                 <div className="flex items-center gap-2">
+                                   <input type="color"
+                                     value={getCurrentElementStyle('color') || '#000000'}
+                                     onChange={e => updateElementStyle('color', e.target.value)}
+                                     className="w-9 h-9 rounded-lg border border-gray-200 cursor-pointer p-0.5"
+                                   />
+                                   <span className="text-xs text-gray-500 font-mono">{getCurrentElementStyle('color') || '#000000'}</span>
+                                 </div>
+                               </div>
+                               <div>
+                                 <label className="text-xs font-medium text-gray-600 mb-1 block">Estilo</label>
+                                 <div className="flex gap-2">
+                                   {[
+                                     { label: 'B', sk: 'fontWeight', on: '700', off: '400', cls: 'font-bold' },
+                                     { label: 'I', sk: 'fontStyle', on: 'italic', off: 'normal', cls: 'italic' },
+                                     { label: 'U', sk: 'textDecoration', on: 'underline', off: 'none', cls: 'underline' },
+                                   ].map(({ label, sk, on, off, cls }) => {
+                                     const active = getCurrentElementStyle(sk) === on
+                                     return (
+                                       <button key={sk} onClick={() => updateElementStyle(sk, active ? off : on)}
+                                         className={`w-9 h-9 rounded-lg text-sm border ${cls} ${active ? 'bg-[#FBB03B] border-[#FBB03B] text-[#1A1A1A]' : 'border-gray-200 text-gray-700 bg-white'}`}>
+                                         {label}
+                                       </button>
+                                     )
+                                   })}
+                                 </div>
+                               </div>
+                               <div>
+                                 <label className="text-xs font-medium text-gray-600 mb-1 block">Alinhamento</label>
+                                 <div className="flex gap-1">
+                                   {[{ v: 'left', l: 'Esq' }, { v: 'center', l: 'Centro' }, { v: 'right', l: 'Dir' }].map(({ v, l }) => {
+                                     const active = (getCurrentElementStyle('textAlign') || 'left') === v
+                                     return (
+                                       <button key={v} onClick={() => updateElementStyle('textAlign', v)}
+                                         className={`flex-1 py-1.5 rounded-lg text-xs border ${active ? 'bg-[#FBB03B] border-[#FBB03B] text-[#1A1A1A]' : 'border-gray-200 text-gray-700 bg-white'}`}>
+                                         {l}
+                                       </button>
+                                     )
+                                   })}
+                                 </div>
+                               </div>
                              </div>
-                             <div>
-                               <label className="text-xs font-medium text-gray-600 mb-1 block">Tamanho</label>
-                               <div className="flex items-center gap-2">
-                                 <input type="number" min="8" max="200"
-                                   value={getCurrentElementStyle('fontSize') || 16}
-                                   onChange={e => updateElementStyle('fontSize', Number(e.target.value))}
-                                   className="w-20 text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-900"
+                           ) : (
+                             /* ── CONTROLES DE SHAPE (novo) ── */
+                             <div className="space-y-3">
+                               <div>
+                                 <label className="text-xs font-medium text-gray-600 mb-1 block">Cor de fundo</label>
+                                 <div className="flex items-center gap-2">
+                                   <input type="color"
+                                     value={getCurrentElementStyle('backgroundColor') || '#FBB03B'}
+                                     onChange={e => updateElementStyle('backgroundColor', e.target.value)}
+                                     className="w-9 h-9 rounded-lg border border-gray-200 cursor-pointer p-0.5"
+                                   />
+                                   <span className="text-xs text-gray-500 font-mono">{getCurrentElementStyle('backgroundColor') || '#FBB03B'}</span>
+                                 </div>
+                               </div>
+                               <div>
+                                 <label className="text-xs font-medium text-gray-600 mb-1 block">Cor do texto</label>
+                                 <div className="flex items-center gap-2">
+                                   <input type="color"
+                                     value={getCurrentElementStyle('color') || '#1A1A1A'}
+                                     onChange={e => updateElementStyle('color', e.target.value)}
+                                     className="w-9 h-9 rounded-lg border border-gray-200 cursor-pointer p-0.5"
+                                   />
+                                   <span className="text-xs text-gray-500 font-mono">{getCurrentElementStyle('color') || '#1A1A1A'}</span>
+                                 </div>
+                               </div>
+                               <div>
+                                 <label className="text-xs font-medium text-gray-600 mb-1 block">
+                                   Arredondamento — {getCurrentElementStyle('borderRadius') ?? 8}px
+                                 </label>
+                                 <input type="range" min="0" max="100"
+                                   value={getCurrentElementStyle('borderRadius') ?? 8}
+                                   onChange={e => updateElementStyle('borderRadius', Number(e.target.value))}
+                                   className="w-full accent-[#FBB03B]"
                                  />
-                                 <span className="text-xs text-gray-400">px</span>
-                                 <input type="range" min="8" max="120"
-                                   value={getCurrentElementStyle('fontSize') || 16}
-                                   onChange={e => updateElementStyle('fontSize', Number(e.target.value))}
-                                   className="flex-1 accent-[#FBB03B]"
+                                 <div className="flex justify-between text-[10px] text-gray-400 mt-0.5">
+                                   <span>Quadrado</span><span>Redondo</span>
+                                 </div>
+                               </div>
+                               <div>
+                                 <label className="text-xs font-medium text-gray-600 mb-1 block">Largura (px ou %)</label>
+                                 <Input
+                                   value={getCurrentElementStyle('width') || ''}
+                                   onChange={e => updateElementStyle('width', e.target.value)}
+                                   placeholder="ex: 200px ou 100%"
+                                   className="h-8 text-[13px] bg-white border-gray-200 text-gray-900"
                                  />
                                </div>
-                             </div>
-                             <div>
-                               <label className="text-xs font-medium text-gray-600 mb-1 block">Cor</label>
-                               <div className="flex items-center gap-2">
-                                 <input type="color"
-                                   value={getCurrentElementStyle('color') || '#000000'}
-                                   onChange={e => updateElementStyle('color', e.target.value)}
-                                   className="w-9 h-9 rounded-lg border border-gray-200 cursor-pointer p-0.5"
+                               <div>
+                                 <label className="text-xs font-medium text-gray-600 mb-1 block">Link (URL)</label>
+                                 <Input
+                                   value={getCurrentElementStyle('href') || ''}
+                                   onChange={e => updateElementStyle('href', e.target.value)}
+                                   placeholder="https://..."
+                                   className="h-8 text-[13px] bg-white border-gray-200 text-gray-900"
                                  />
-                                 <span className="text-xs text-gray-500 font-mono">{getCurrentElementStyle('color') || '#000000'}</span>
+                                 <p className="text-[10px] text-gray-400 mt-1">Aplicado ao salvar/publicar a página</p>
                                </div>
                              </div>
-                             <div>
-                               <label className="text-xs font-medium text-gray-600 mb-1 block">Estilo</label>
-                               <div className="flex gap-2">
-                                 {[
-                                   { label: 'B', sk: 'fontWeight', on: '700', off: '400', cls: 'font-bold' },
-                                   { label: 'I', sk: 'fontStyle', on: 'italic', off: 'normal', cls: 'italic' },
-                                   { label: 'U', sk: 'textDecoration', on: 'underline', off: 'none', cls: 'underline' },
-                                 ].map(({ label, sk, on, off, cls }) => {
-                                   const active = getCurrentElementStyle(sk) === on
-                                   return (
-                                     <button key={sk} onClick={() => updateElementStyle(sk, active ? off : on)}
-                                       className={`w-9 h-9 rounded-lg text-sm border ${cls} ${active ? 'bg-[#FBB03B] border-[#FBB03B] text-[#1A1A1A]' : 'border-gray-200 text-gray-700 bg-white'}`}>
-                                       {label}
-                                     </button>
-                                   )
-                                 })}
-                               </div>
-                             </div>
-                             <div>
-                               <label className="text-xs font-medium text-gray-600 mb-1 block">Alinhamento</label>
-                               <div className="flex gap-1">
-                                 {[{ v: 'left', l: 'Esq' }, { v: 'center', l: 'Centro' }, { v: 'right', l: 'Dir' }].map(({ v, l }) => {
-                                   const active = (getCurrentElementStyle('textAlign') || 'left') === v
-                                   return (
-                                     <button key={v} onClick={() => updateElementStyle('textAlign', v)}
-                                       className={`flex-1 py-1.5 rounded-lg text-xs border ${active ? 'bg-[#FBB03B] border-[#FBB03B] text-[#1A1A1A]' : 'border-gray-200 text-gray-700 bg-white'}`}>
-                                       {l}
-                                     </button>
-                                   )
-                                 })}
-                               </div>
-                             </div>
-                           </div>
+                           )}
                          </div>
                        )}
                        <TabsContent value="conteudo" className="p-4 m-0 space-y-4">

@@ -5,7 +5,8 @@ type OnChange = (key: string, value: any) => void
 type OnSelect = (elementKey: string, elementType: 'text' | 'shape') => void
 
 function EditableText({
-  tag: Tag = 'div',
+  tag = 'div',
+  elementType,
   value,
   onChange,
   style,
@@ -14,7 +15,8 @@ function EditableText({
   isSelected,
   styleOverrides,
 }: {
-  tag?: keyof JSX.IntrinsicElements
+  tag?: string | React.ElementType
+  elementType?: 'text' | 'shape'
   value: string
   onChange: (val: string) => void
   style?: React.CSSProperties
@@ -23,11 +25,12 @@ function EditableText({
   isSelected: boolean
   styleOverrides?: Record<string, any>
 }) {
+  const Tag = tag as any
   return (
     <Tag
       contentEditable
       suppressContentEditableWarning
-      onClick={() => onSelectElement(elementKey, 'text')}
+      onClick={() => onSelectElement(elementKey, elementType || 'text')}
       onBlur={(e: React.FocusEvent<HTMLElement>) => onChange(e.currentTarget.innerText || '')}
       title="Clique para editar"
       style={{
@@ -53,6 +56,7 @@ function updateArrayItem(items: any[], i: number, key: string, val: string) {
 // ── header_1 ──────────────────────────────────────────────
 function Header1Editor({ data, styles, onChange, onSelectElement, selectedElementKey, elementStyles }: { data: any; styles: SectionStyles; onChange: OnChange; onSelectElement: OnSelect; selectedElementKey: string | null; elementStyles: Record<string, any> }) {
   const et = (key: string) => ({ elementKey: key, onSelectElement, isSelected: selectedElementKey === key, styleOverrides: elementStyles[key] })
+  const es = (key: string) => ({ ...et(key), elementType: 'shape' as const })
   return (
     <section style={{ backgroundColor: styles.backgroundColor || '#fff', backgroundImage: data.background_image ? `url('${data.background_image}')` : styles.backgroundImage ? `url('${styles.backgroundImage}')` : undefined, backgroundSize: 'cover', backgroundPosition: 'center', padding: `${styles.paddingTop || 80}px 24px ${styles.paddingBottom || 80}px`, position: 'relative' }}>
       {styles.overlayColor && <div style={{ position: 'absolute', inset: 0, backgroundColor: styles.overlayColor, opacity: (styles.overlayOpacity || 0) / 100 }} />}
@@ -61,8 +65,8 @@ function Header1Editor({ data, styles, onChange, onSelectElement, selectedElemen
         <EditableText tag="h1" value={data.headline || ''} onChange={v => onChange('headline', v)} style={{ fontSize: 48, fontWeight: 800, color: '#1e293b', marginBottom: 24, lineHeight: 1.1 }} {...et('headline')} />
         <EditableText tag="p" value={data.subheadline || ''} onChange={v => onChange('subheadline', v)} style={{ fontSize: 20, color: '#475569', marginBottom: 40, lineHeight: 1.5 }} {...et('subheadline')} />
         <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-          {data.cta1_texto && <EditableText tag="span" value={data.cta1_texto} onChange={v => onChange('cta1_texto', v)} style={{ display: 'inline-block', backgroundColor: '#3b82f6', color: 'white', padding: '16px 32px', borderRadius: 8, fontWeight: 600, fontSize: 16 }} {...et('cta1_texto')} />}
-          {data.cta2_texto && <EditableText tag="span" value={data.cta2_texto} onChange={v => onChange('cta2_texto', v)} style={{ display: 'inline-block', color: '#3b82f6', border: '2px solid #3b82f6', padding: '14px 32px', borderRadius: 8, fontWeight: 600, fontSize: 16 }} {...et('cta2_texto')} />}
+          {data.cta1_texto && <EditableText tag="span" value={data.cta1_texto} onChange={v => onChange('cta1_texto', v)} style={{ display: 'inline-block', backgroundColor: '#3b82f6', color: 'white', padding: '16px 32px', borderRadius: 8, fontWeight: 600, fontSize: 16 }} {...es('cta1_texto')} />}
+          {data.cta2_texto && <EditableText tag="span" value={data.cta2_texto} onChange={v => onChange('cta2_texto', v)} style={{ display: 'inline-block', color: '#3b82f6', border: '2px solid #3b82f6', padding: '14px 32px', borderRadius: 8, fontWeight: 600, fontSize: 16 }} {...es('cta2_texto')} />}
         </div>
       </div>
     </section>
@@ -72,6 +76,7 @@ function Header1Editor({ data, styles, onChange, onSelectElement, selectedElemen
 // ── header_2 ──────────────────────────────────────────────
 function Header2Editor({ data, styles, onChange, onSelectElement, selectedElementKey, elementStyles }: { data: any; styles: SectionStyles; onChange: OnChange; onSelectElement: OnSelect; selectedElementKey: string | null; elementStyles: Record<string, any> }) {
   const et = (key: string) => ({ elementKey: key, onSelectElement, isSelected: selectedElementKey === key, styleOverrides: elementStyles[key] })
+  const es = (key: string) => ({ ...et(key), elementType: 'shape' as const })
   return (
     <section style={{ backgroundColor: styles.backgroundColor || '#f8fafc', backgroundImage: data.background_image ? `url('${data.background_image}')` : styles.backgroundImage ? `url('${styles.backgroundImage}')` : undefined, backgroundSize: 'cover', backgroundPosition: 'center', padding: `${styles.paddingTop || 100}px 24px ${styles.paddingBottom || 100}px`, position: 'relative' }}>
       {styles.overlayColor && <div style={{ position: 'absolute', inset: 0, backgroundColor: styles.overlayColor, opacity: (styles.overlayOpacity || 0) / 100 }} />}
@@ -81,8 +86,8 @@ function Header2Editor({ data, styles, onChange, onSelectElement, selectedElemen
           <EditableText tag="h1" value={data.headline || ''} onChange={v => onChange('headline', v)} style={{ fontSize: 56, fontWeight: 800, color: '#0f172a', marginBottom: 24, lineHeight: 1.1 }} {...et('headline')} />
           <EditableText tag="p" value={data.subheadline || ''} onChange={v => onChange('subheadline', v)} style={{ fontSize: 20, color: '#475569', marginBottom: 40, lineHeight: 1.5 }} {...et('subheadline')} />
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-            {data.cta1_texto && <EditableText tag="span" value={data.cta1_texto} onChange={v => onChange('cta1_texto', v)} style={{ display: 'inline-block', backgroundColor: '#0f172a', color: 'white', padding: '18px 40px', borderRadius: 8, fontWeight: 600, fontSize: 18 }} {...et('cta1_texto')} />}
-            {data.cta2_texto && <EditableText tag="span" value={data.cta2_texto} onChange={v => onChange('cta2_texto', v)} style={{ display: 'inline-block', color: '#0f172a', border: '2px solid #0f172a', padding: '16px 40px', borderRadius: 8, fontWeight: 600, fontSize: 18 }} {...et('cta2_texto')} />}
+            {data.cta1_texto && <EditableText tag="span" value={data.cta1_texto} onChange={v => onChange('cta1_texto', v)} style={{ display: 'inline-block', backgroundColor: '#0f172a', color: 'white', padding: '18px 40px', borderRadius: 8, fontWeight: 600, fontSize: 18 }} {...es('cta1_texto')} />}
+            {data.cta2_texto && <EditableText tag="span" value={data.cta2_texto} onChange={v => onChange('cta2_texto', v)} style={{ display: 'inline-block', color: '#0f172a', border: '2px solid #0f172a', padding: '16px 40px', borderRadius: 8, fontWeight: 600, fontSize: 18 }} {...es('cta2_texto')} />}
           </div>
         </div>
         <div style={{ flex: 1, minWidth: 300 }}>
@@ -99,6 +104,7 @@ function Header2Editor({ data, styles, onChange, onSelectElement, selectedElemen
 function Benefits1Editor({ data, styles, onChange, onSelectElement, selectedElementKey, elementStyles }: { data: any; styles: SectionStyles; onChange: OnChange; onSelectElement: OnSelect; selectedElementKey: string | null; elementStyles: Record<string, any> }) {
   const items: any[] = data.items || []
   const et = (key: string) => ({ elementKey: key, onSelectElement, isSelected: selectedElementKey === key, styleOverrides: elementStyles[key] })
+  const es = (key: string) => ({ ...et(key), elementType: 'shape' as const })
   return (
     <section style={{ backgroundColor: styles.backgroundColor || '#fff', backgroundImage: styles.backgroundImage ? `url('${styles.backgroundImage}')` : undefined, backgroundSize: 'cover', backgroundPosition: 'center', padding: `${styles.paddingTop || 80}px 24px ${styles.paddingBottom || 80}px`, position: 'relative' }}>
       {styles.overlayColor && <div style={{ position: 'absolute', inset: 0, backgroundColor: styles.overlayColor, opacity: (styles.overlayOpacity || 0) / 100 }} />}
@@ -108,7 +114,7 @@ function Benefits1Editor({ data, styles, onChange, onSelectElement, selectedElem
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 32, justifyContent: 'center' }}>
           {items.map((item, i) => (
             <div key={i} style={{ flex: 1, minWidth: 250, padding: 24 }}>
-              <EditableText tag="div" value={item.icone_emoji || '✅'} onChange={v => onChange('items', updateArrayItem(items, i, 'icone_emoji', v))} style={{ fontSize: 40, marginBottom: 24, display: 'inline-flex', width: 80, height: 80, background: '#f1f5f9', borderRadius: '50%', alignItems: 'center', justifyContent: 'center' }} {...et(`items.${i}.icone_emoji`)} />
+              <EditableText tag="div" value={item.icone_emoji || '✅'} onChange={v => onChange('items', updateArrayItem(items, i, 'icone_emoji', v))} style={{ fontSize: 40, marginBottom: 24, display: 'inline-flex', width: 80, height: 80, background: '#f1f5f9', borderRadius: '50%', alignItems: 'center', justifyContent: 'center' }} {...es(`items.${i}.icone_emoji`)} />
               <EditableText tag="h3" value={item.titulo || ''} onChange={v => onChange('items', updateArrayItem(items, i, 'titulo', v))} style={{ fontSize: 20, fontWeight: 700, color: '#1e293b', marginBottom: 12 }} {...et(`items.${i}.titulo`)} />
               <EditableText tag="p" value={item.descricao || ''} onChange={v => onChange('items', updateArrayItem(items, i, 'descricao', v))} style={{ fontSize: 16, color: '#475569', lineHeight: 1.5 }} {...et(`items.${i}.descricao`)} />
             </div>
@@ -123,6 +129,7 @@ function Benefits1Editor({ data, styles, onChange, onSelectElement, selectedElem
 function Benefits2Editor({ data, styles, onChange, onSelectElement, selectedElementKey, elementStyles }: { data: any; styles: SectionStyles; onChange: OnChange; onSelectElement: OnSelect; selectedElementKey: string | null; elementStyles: Record<string, any> }) {
   const items: any[] = data.items || []
   const et = (key: string) => ({ elementKey: key, onSelectElement, isSelected: selectedElementKey === key, styleOverrides: elementStyles[key] })
+  const es = (key: string) => ({ ...et(key), elementType: 'shape' as const })
   return (
     <section style={{ backgroundColor: styles.backgroundColor || '#f8fafc', backgroundImage: styles.backgroundImage ? `url('${styles.backgroundImage}')` : undefined, backgroundSize: 'cover', backgroundPosition: 'center', padding: `${styles.paddingTop || 80}px 24px ${styles.paddingBottom || 80}px`, position: 'relative' }}>
       {styles.overlayColor && <div style={{ position: 'absolute', inset: 0, backgroundColor: styles.overlayColor, opacity: (styles.overlayOpacity || 0) / 100 }} />}
@@ -138,7 +145,7 @@ function Benefits2Editor({ data, styles, onChange, onSelectElement, selectedElem
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             {items.map((item, i) => (
               <div key={i} style={{ display: 'flex', gap: 16 }}>
-                <EditableText tag="div" value={item.icone_emoji || '•'} onChange={v => onChange('items', updateArrayItem(items, i, 'icone_emoji', v))} style={{ fontSize: 24, paddingTop: 2, minWidth: 32 }} {...et(`items.${i}.icone_emoji`)} />
+                <EditableText tag="div" value={item.icone_emoji || '•'} onChange={v => onChange('items', updateArrayItem(items, i, 'icone_emoji', v))} style={{ fontSize: 24, paddingTop: 2, minWidth: 32 }} {...es(`items.${i}.icone_emoji`)} />
                 <div>
                   <EditableText tag="h3" value={item.titulo || ''} onChange={v => onChange('items', updateArrayItem(items, i, 'titulo', v))} style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', marginBottom: 8 }} {...et(`items.${i}.titulo`)} />
                   <EditableText tag="p" value={item.descricao || ''} onChange={v => onChange('items', updateArrayItem(items, i, 'descricao', v))} style={{ fontSize: 16, color: '#475569', lineHeight: 1.5, margin: 0 }} {...et(`items.${i}.descricao`)} />
@@ -156,6 +163,7 @@ function Benefits2Editor({ data, styles, onChange, onSelectElement, selectedElem
 function Testimonials1Editor({ data, styles, onChange, onSelectElement, selectedElementKey, elementStyles }: { data: any; styles: SectionStyles; onChange: OnChange; onSelectElement: OnSelect; selectedElementKey: string | null; elementStyles: Record<string, any> }) {
   const items: any[] = data.items || []
   const et = (key: string) => ({ elementKey: key, onSelectElement, isSelected: selectedElementKey === key, styleOverrides: elementStyles[key] })
+  const es = (key: string) => ({ ...et(key), elementType: 'shape' as const })
   return (
     <section style={{ backgroundColor: styles.backgroundColor || '#f1f5f9', backgroundImage: styles.backgroundImage ? `url('${styles.backgroundImage}')` : undefined, backgroundSize: 'cover', backgroundPosition: 'center', padding: `${styles.paddingTop || 80}px 24px ${styles.paddingBottom || 80}px`, position: 'relative' }}>
       {styles.overlayColor && <div style={{ position: 'absolute', inset: 0, backgroundColor: styles.overlayColor, opacity: (styles.overlayOpacity || 0) / 100 }} />}
@@ -186,6 +194,7 @@ function Testimonials2Editor({ data, styles, onChange, onSelectElement, selected
   const item = data.items?.[0] || {}
   const u0 = (key: string, val: string) => onChange('items', updateArrayItem(data.items || [item], 0, key, val))
   const et = (key: string) => ({ elementKey: key, onSelectElement, isSelected: selectedElementKey === key, styleOverrides: elementStyles[key] })
+  const es = (key: string) => ({ ...et(key), elementType: 'shape' as const })
   return (
     <section style={{ backgroundColor: styles.backgroundColor || '#fff', backgroundImage: styles.backgroundImage ? `url('${styles.backgroundImage}')` : undefined, backgroundSize: 'cover', backgroundPosition: 'center', padding: `${styles.paddingTop || 100}px 24px ${styles.paddingBottom || 100}px`, position: 'relative' }}>
       {styles.overlayColor && <div style={{ position: 'absolute', inset: 0, backgroundColor: styles.overlayColor, opacity: (styles.overlayOpacity || 0) / 100 }} />}
@@ -207,6 +216,7 @@ function Testimonials2Editor({ data, styles, onChange, onSelectElement, selected
 function Forms1Editor({ data, styles, onChange, onSelectElement, selectedElementKey, elementStyles }: { data: any; styles: SectionStyles; onChange: OnChange; onSelectElement: OnSelect; selectedElementKey: string | null; elementStyles: Record<string, any> }) {
   const campos: any[] = data.campos || []
   const et = (key: string) => ({ elementKey: key, onSelectElement, isSelected: selectedElementKey === key, styleOverrides: elementStyles[key] })
+  const es = (key: string) => ({ ...et(key), elementType: 'shape' as const })
   return (
     <section style={{ backgroundColor: styles.backgroundColor || '#f8fafc', backgroundImage: styles.backgroundImage ? `url('${styles.backgroundImage}')` : undefined, backgroundSize: 'cover', backgroundPosition: 'center', padding: `${styles.paddingTop || 80}px 24px ${styles.paddingBottom || 80}px`, position: 'relative' }}>
       {styles.overlayColor && <div style={{ position: 'absolute', inset: 0, backgroundColor: styles.overlayColor, opacity: (styles.overlayOpacity || 0) / 100 }} />}
@@ -224,7 +234,7 @@ function Forms1Editor({ data, styles, onChange, onSelectElement, selectedElement
                   <input type={c.tipo || 'text'} disabled placeholder={c.label} style={{ width: '100%', padding: '14px 16px', border: '1px solid #cbd5e1', borderRadius: 8, fontSize: 16, boxSizing: 'border-box', background: '#f8fafc' }} />
                 </div>
               ))}
-              <EditableText tag="span" value={data.botao_texto || ''} onChange={v => onChange('botao_texto', v)} style={{ display: 'block', backgroundColor: data.botao_cor || '#0f172a', color: 'white', padding: 16, borderRadius: 8, fontSize: 16, fontWeight: 700, textAlign: 'center', marginTop: 8 }} {...et('botao_texto')} />
+              <EditableText tag="span" value={data.botao_texto || ''} onChange={v => onChange('botao_texto', v)} style={{ display: 'block', backgroundColor: data.botao_cor || '#0f172a', color: 'white', padding: 16, borderRadius: 8, fontSize: 16, fontWeight: 700, textAlign: 'center', marginTop: 8 }} {...es('botao_texto')} />
             </div>
           </div>
         </div>
@@ -237,6 +247,7 @@ function Forms1Editor({ data, styles, onChange, onSelectElement, selectedElement
 function Forms2Editor({ data, styles, onChange, onSelectElement, selectedElementKey, elementStyles }: { data: any; styles: SectionStyles; onChange: OnChange; onSelectElement: OnSelect; selectedElementKey: string | null; elementStyles: Record<string, any> }) {
   const campos: any[] = data.campos || []
   const et = (key: string) => ({ elementKey: key, onSelectElement, isSelected: selectedElementKey === key, styleOverrides: elementStyles[key] })
+  const es = (key: string) => ({ ...et(key), elementType: 'shape' as const })
   return (
     <section style={{ backgroundColor: styles.backgroundColor || '#fff', backgroundImage: styles.backgroundImage ? `url('${styles.backgroundImage}')` : undefined, backgroundSize: 'cover', backgroundPosition: 'center', padding: `${styles.paddingTop || 80}px 24px ${styles.paddingBottom || 80}px`, position: 'relative' }}>
       {styles.overlayColor && <div style={{ position: 'absolute', inset: 0, backgroundColor: styles.overlayColor, opacity: (styles.overlayOpacity || 0) / 100 }} />}
@@ -245,7 +256,7 @@ function Forms2Editor({ data, styles, onChange, onSelectElement, selectedElement
         <EditableText tag="p" value={data.subtitulo || ''} onChange={v => onChange('subtitulo', v)} style={{ fontSize: 18, color: '#475569', marginBottom: 32 }} {...et('subtitulo')} />
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
           {campos.map((c, i) => <input key={i} type={c.tipo || 'text'} disabled placeholder={c.label} style={{ flex: 1, minWidth: 250, padding: '16px 20px', border: '1px solid #cbd5e1', borderRadius: 8, fontSize: 16, background: 'white' }} />)}
-          <EditableText tag="span" value={data.botao_texto || ''} onChange={v => onChange('botao_texto', v)} style={{ display: 'inline-block', backgroundColor: data.botao_cor || '#0f172a', color: 'white', padding: '16px 36px', borderRadius: 8, fontSize: 16, fontWeight: 700 }} {...et('botao_texto')} />
+          <EditableText tag="span" value={data.botao_texto || ''} onChange={v => onChange('botao_texto', v)} style={{ display: 'inline-block', backgroundColor: data.botao_cor || '#0f172a', color: 'white', padding: '16px 36px', borderRadius: 8, fontSize: 16, fontWeight: 700 }} {...es('botao_texto')} />
         </div>
       </div>
     </section>
@@ -255,6 +266,7 @@ function Forms2Editor({ data, styles, onChange, onSelectElement, selectedElement
 // ── cta_1 ─────────────────────────────────────────────────
 function Cta1Editor({ data, styles, onChange, onSelectElement, selectedElementKey, elementStyles }: { data: any; styles: SectionStyles; onChange: OnChange; onSelectElement: OnSelect; selectedElementKey: string | null; elementStyles: Record<string, any> }) {
   const et = (key: string) => ({ elementKey: key, onSelectElement, isSelected: selectedElementKey === key, styleOverrides: elementStyles[key] })
+  const es = (key: string) => ({ ...et(key), elementType: 'shape' as const })
   return (
     <section style={{ backgroundColor: styles.backgroundColor || '#fff', backgroundImage: styles.backgroundImage ? `url('${styles.backgroundImage}')` : undefined, backgroundSize: 'cover', backgroundPosition: 'center', padding: `${styles.paddingTop || 80}px 24px ${styles.paddingBottom || 80}px`, position: 'relative' }}>
       {styles.overlayColor && <div style={{ position: 'absolute', inset: 0, backgroundColor: styles.overlayColor, opacity: (styles.overlayOpacity || 0) / 100 }} />}
@@ -262,7 +274,7 @@ function Cta1Editor({ data, styles, onChange, onSelectElement, selectedElementKe
         <div style={{ backgroundColor: data.background_color || '#3b82f6', borderRadius: 24, padding: '64px 32px', textAlign: 'center' }}>
           <EditableText tag="h2" value={data.titulo || ''} onChange={v => onChange('titulo', v)} style={{ fontSize: 40, fontWeight: 800, color: 'white', marginBottom: 16 }} {...et('titulo')} />
           <EditableText tag="p" value={data.subtitulo || ''} onChange={v => onChange('subtitulo', v)} style={{ fontSize: 20, color: 'rgba(255,255,255,0.9)', marginBottom: 40 }} {...et('subtitulo')} />
-          <EditableText tag="span" value={data.cta_texto || ''} onChange={v => onChange('cta_texto', v)} style={{ display: 'inline-block', backgroundColor: 'white', color: data.background_color || '#3b82f6', padding: '18px 40px', borderRadius: 8, fontWeight: 700, fontSize: 18 }} {...et('cta_texto')} />
+          <EditableText tag="span" value={data.cta_texto || ''} onChange={v => onChange('cta_texto', v)} style={{ display: 'inline-block', backgroundColor: 'white', color: data.background_color || '#3b82f6', padding: '18px 40px', borderRadius: 8, fontWeight: 700, fontSize: 18 }} {...es('cta_texto')} />
         </div>
       </div>
     </section>
@@ -272,6 +284,7 @@ function Cta1Editor({ data, styles, onChange, onSelectElement, selectedElementKe
 // ── cta_2 ─────────────────────────────────────────────────
 function Cta2Editor({ data, styles, onChange, onSelectElement, selectedElementKey, elementStyles }: { data: any; styles: SectionStyles; onChange: OnChange; onSelectElement: OnSelect; selectedElementKey: string | null; elementStyles: Record<string, any> }) {
   const et = (key: string) => ({ elementKey: key, onSelectElement, isSelected: selectedElementKey === key, styleOverrides: elementStyles[key] })
+  const es = (key: string) => ({ ...et(key), elementType: 'shape' as const })
   return (
     <section style={{ backgroundColor: data.background_color || styles.backgroundColor || '#f8fafc', backgroundImage: styles.backgroundImage ? `url('${styles.backgroundImage}')` : undefined, backgroundSize: 'cover', backgroundPosition: 'center', padding: `${styles.paddingTop || 60}px 24px ${styles.paddingBottom || 60}px`, borderTop: '1px solid #e2e8f0', position: 'relative' }}>
       {styles.overlayColor && <div style={{ position: 'absolute', inset: 0, backgroundColor: styles.overlayColor, opacity: (styles.overlayOpacity || 0) / 100 }} />}
@@ -280,7 +293,7 @@ function Cta2Editor({ data, styles, onChange, onSelectElement, selectedElementKe
           <EditableText tag="h2" value={data.titulo || ''} onChange={v => onChange('titulo', v)} style={{ fontSize: 28, fontWeight: 800, color: '#0f172a', marginBottom: 8 }} {...et('titulo')} />
           <EditableText tag="p" value={data.subtitulo || ''} onChange={v => onChange('subtitulo', v)} style={{ fontSize: 16, color: '#64748b', margin: 0 }} {...et('subtitulo')} />
         </div>
-        <EditableText tag="span" value={data.cta_texto || ''} onChange={v => onChange('cta_texto', v)} style={{ display: 'inline-block', color: '#0f172a', border: '2px solid #0f172a', padding: '14px 32px', borderRadius: 8, fontWeight: 700, fontSize: 16 }} {...et('cta_texto')} />
+        <EditableText tag="span" value={data.cta_texto || ''} onChange={v => onChange('cta_texto', v)} style={{ display: 'inline-block', color: '#0f172a', border: '2px solid #0f172a', padding: '14px 32px', borderRadius: 8, fontWeight: 700, fontSize: 16 }} {...es('cta_texto')} />
       </div>
     </section>
   )
@@ -290,6 +303,7 @@ function Cta2Editor({ data, styles, onChange, onSelectElement, selectedElementKe
 function Footer1Editor({ data, styles, onChange, onSelectElement, selectedElementKey, elementStyles }: { data: any; styles: SectionStyles; onChange: OnChange; onSelectElement: OnSelect; selectedElementKey: string | null; elementStyles: Record<string, any> }) {
   const links: any[] = data.links || []
   const et = (key: string) => ({ elementKey: key, onSelectElement, isSelected: selectedElementKey === key, styleOverrides: elementStyles[key] })
+  const es = (key: string) => ({ ...et(key), elementType: 'shape' as const })
   return (
     <footer style={{ backgroundColor: styles.backgroundColor || '#0f172a', padding: `${styles.paddingTop || 64}px 24px ${styles.paddingBottom || 32}px`, position: 'relative' }}>
       {styles.overlayColor && <div style={{ position: 'absolute', inset: 0, backgroundColor: styles.overlayColor, opacity: (styles.overlayOpacity || 0) / 100 }} />}
@@ -320,6 +334,7 @@ function Footer1Editor({ data, styles, onChange, onSelectElement, selectedElemen
 function Footer2Editor({ data, styles, onChange, onSelectElement, selectedElementKey, elementStyles }: { data: any; styles: SectionStyles; onChange: OnChange; onSelectElement: OnSelect; selectedElementKey: string | null; elementStyles: Record<string, any> }) {
   const links: any[] = data.links || []
   const et = (key: string) => ({ elementKey: key, onSelectElement, isSelected: selectedElementKey === key, styleOverrides: elementStyles[key] })
+  const es = (key: string) => ({ ...et(key), elementType: 'shape' as const })
   return (
     <footer style={{ backgroundColor: styles.backgroundColor || '#f8fafc', padding: `${styles.paddingTop || 40}px 24px ${styles.paddingBottom || 40}px`, borderTop: '1px solid #e2e8f0', position: 'relative' }}>
       {styles.overlayColor && <div style={{ position: 'absolute', inset: 0, backgroundColor: styles.overlayColor, opacity: (styles.overlayOpacity || 0) / 100 }} />}
@@ -337,6 +352,7 @@ function Footer2Editor({ data, styles, onChange, onSelectElement, selectedElemen
 // ── form_lead_1 ───────────────────────────────────────────
 function FormLead1Editor({ data, styles, onChange, onSelectElement, selectedElementKey, elementStyles }: { data: any; styles: SectionStyles; onChange: OnChange; onSelectElement: OnSelect; selectedElementKey: string | null; elementStyles: Record<string, any> }) {
   const et = (key: string) => ({ elementKey: key, onSelectElement, isSelected: selectedElementKey === key, styleOverrides: elementStyles[key] })
+  const es = (key: string) => ({ ...et(key), elementType: 'shape' as const })
   return (
     <section style={{ backgroundColor: styles.backgroundColor || '#fff', padding: `${styles.paddingTop || 80}px 24px ${styles.paddingBottom || 80}px` }}>
       <div style={{ maxWidth: 480, margin: '0 auto', textAlign: 'center' }}>
@@ -346,7 +362,7 @@ function FormLead1Editor({ data, styles, onChange, onSelectElement, selectedElem
           {data.mostrar_nome !== false && <input type="text" placeholder="Seu nome completo" disabled style={{ width: '100%', padding: '14px 16px', border: '1.5px solid #e2e8f0', borderRadius: 8, fontSize: 15, boxSizing: 'border-box', background: 'white' }} />}
           {data.mostrar_email !== false && <input type="email" placeholder="Seu melhor e-mail" disabled style={{ width: '100%', padding: '14px 16px', border: '1.5px solid #e2e8f0', borderRadius: 8, fontSize: 15, boxSizing: 'border-box', background: 'white' }} />}
           {data.mostrar_telefone !== false && <input type="tel" placeholder="WhatsApp com DDD" disabled style={{ width: '100%', padding: '14px 16px', border: '1.5px solid #e2e8f0', borderRadius: 8, fontSize: 15, boxSizing: 'border-box', background: 'white' }} />}
-          <EditableText tag="span" value={data.botao_texto || 'Quero participar'} onChange={v => onChange('botao_texto', v)} style={{ display: 'block', width: '100%', padding: 16, backgroundColor: data.botao_cor || '#FBB03B', color: data.botao_texto_cor || '#1A1A1A', border: 'none', borderRadius: 8, fontSize: 16, fontWeight: 700, textAlign: 'center', marginTop: 4, boxSizing: 'border-box' }} {...et('botao_texto')} />
+          <EditableText tag="span" value={data.botao_texto || 'Quero participar'} onChange={v => onChange('botao_texto', v)} style={{ display: 'block', width: '100%', padding: 16, backgroundColor: data.botao_cor || '#FBB03B', color: data.botao_texto_cor || '#1A1A1A', border: 'none', borderRadius: 8, fontSize: 16, fontWeight: 700, textAlign: 'center', marginTop: 4, boxSizing: 'border-box' }} {...es('botao_texto')} />
         </div>
       </div>
     </section>
