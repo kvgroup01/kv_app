@@ -371,11 +371,10 @@ function FormLead1Editor({ data, styles, onChange, onSelectElement, selectedElem
 
 // ── custom_html ───────────────────────────────────────────
 function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles; onChange: OnChange; onSelectElement: OnSelect; selectedElementKey: string | null; elementStyles: Record<string, any> }) {
-  const [iframeHeight, setIframeHeight] = React.useState(900)
   const [localHtml, setLocalHtml] = React.useState<string>(data.html || '')
   const lastSaved = React.useRef<string>(data.html || '')
   const iframeRef = React.useRef<HTMLIFrameElement>(null)
-  
+
   const [selectedElement, setSelectedElement] = React.useState<{
     selector: string
     text: string
@@ -391,38 +390,40 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
     }
   }, [data.html])
 
-  // Após o iframe carregar: mede altura real + configura click listener
   const handleIframeLoad = React.useCallback(() => {
-    const doc = iframeRef.current?.contentDocument
-    if (!doc) return
+    const iframe = iframeRef.current
+    const doc = iframe?.contentDocument
+    if (!doc || !iframe) return
 
-    // Altura real do conteúdo
-    const h = Math.max(
-      doc.documentElement.scrollHeight,
-      doc.documentElement.offsetHeight,
-      doc.body?.scrollHeight || 0
-    )
-    if (h > 100) setIframeHeight(h)
+    // Atualiza altura DIRETAMENTE no DOM — sem setState, sem re-render, sem reload
+    const updateHeight = () => {
+      const h = Math.max(
+        doc.documentElement.scrollHeight || 0,
+        doc.documentElement.offsetHeight || 0,
+        doc.body?.scrollHeight || 0,
+        doc.body?.offsetHeight || 0
+      )
+      if (h > 100) iframe.style.height = h + 'px'
+    }
 
-    // Observer para ajustar se o conteúdo mudar (ex: JS popula seções)
-    const ro = new ResizeObserver(() => {
-      const newH = Math.max(doc.documentElement.scrollHeight, doc.body?.scrollHeight || 0)
-      if (newH > 100) setIframeHeight(newH)
-    })
+    // Altura inicial após load
+    updateHeight()
+
+    // Observa mudanças quando JS do usuário popula seções dinamicamente
+    const ro = new ResizeObserver(updateHeight)
     if (doc.body) ro.observe(doc.body)
 
-    // Click listener diretamente no documento do iframe
+    // Click listener para edição inline
     const handleClick = (e: MouseEvent) => {
       const el = e.target as HTMLElement
       if (!el || el === doc.body || el === doc.documentElement) return
-      
+
       const EDITABLE_TAGS = ['P','H1','H2','H3','H4','H5','H6','SPAN','A','LI','BUTTON','LABEL','TD','TH']
       if (!EDITABLE_TAGS.includes(el.tagName.toUpperCase())) return
-      
+
       e.preventDefault()
       e.stopPropagation()
 
-      // Gera seletor único
       const path: string[] = []
       let node: HTMLElement | null = el
       while (node && node !== doc.body) {
@@ -437,11 +438,13 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
     }
 
     doc.addEventListener('click', handleClick)
+
+    // Cleanup quando iframe recarregar
     return () => {
       doc.removeEventListener('click', handleClick)
       ro.disconnect()
     }
-  }, [])
+  }, []) // deps vazias — função estável, não causa re-render
 
   const applyEdit = React.useCallback(() => {
     if (!selectedElement || !iframeRef.current?.contentDocument) return
@@ -461,19 +464,16 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
     setSelectedElement(null)
   }, [selectedElement, editText, onChange])
 
-  // HTML puro, ZERO modificações — nunca injeta scripts
-  const getSrcDoc = (): string => localHtml
-
   return (
     <div style={{ width: '100%', position: 'relative' }}>
       <iframe
         ref={iframeRef}
-        srcDoc={getSrcDoc()}
+        srcDoc={localHtml}
         style={{
           width: '100%',
           border: 'none',
           display: 'block',
-          height: iframeHeight,
+          height: '900px', // altura inicial — sobrescrita diretamente via ref no onLoad
           minHeight: '400px',
         }}
         scrolling="yes"
