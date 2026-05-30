@@ -223,7 +223,7 @@ export default function PagesEditor() {
       .filter((b) => !b.hidden)
       .map((b) => {
         const def = getBlockByType(b.type)
-        return def ? def.render(b.data, b.sectionStyles) : ''
+        return def ? def.render(b.data, b.sectionStyles).replace(/\{\{PAGE_ID\}\}/g, id || '') : ''
       })
       .join('\n')
 
@@ -242,7 +242,7 @@ export default function PagesEditor() {
       .filter((b) => !b.hidden)
       .map((b) => {
         const def = getBlockByType(b.type)
-        return def ? def.render(b.data, b.sectionStyles) : ''
+        return def ? def.render(b.data, b.sectionStyles).replace(/\{\{PAGE_ID\}\}/g, id || '') : ''
       })
       .join('\n')
 
@@ -262,7 +262,7 @@ export default function PagesEditor() {
       .filter((b) => !b.hidden)
       .map((b) => {
         const def = getBlockByType(b.type)
-        return def ? def.render(b.data, b.sectionStyles) : ''
+        return def ? def.render(b.data, b.sectionStyles).replace(/\{\{PAGE_ID\}\}/g, id || '') : ''
       })
       .join('\n')
     const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><script src="https://cdn.tailwindcss.com"></script></head><body style="margin:0;padding:0;">${renderedHtml}</body></html>`
@@ -481,7 +481,7 @@ export default function PagesEditor() {
                   {blocks.map((block, index) => {
                      const def = getBlockByType(block.type)
                      if (!def) return null
-                     const html = def.render(block.data, block.sectionStyles)
+                     const html = def.render(block.data, block.sectionStyles).replace(/\{\{PAGE_ID\}\}/g, id || '')
 
                      return (
                         <div key={block.id} className="w-full relative flex flex-col">

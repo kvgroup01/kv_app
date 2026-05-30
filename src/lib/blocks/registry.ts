@@ -545,6 +545,96 @@ export const blockRegistry: BlockDefinition[] = [
         </div>
       </footer>
     `
+  },
+  {
+    type: 'form_lead_1',
+    category: 'Formulários',
+    name: 'Formulário de Captura',
+    thumbnail: `<svg viewBox="0 0 280 180" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="280" height="180" fill="white"/><rect x="60" y="20" width="160" height="14" rx="4" fill="#CBD5E1"/><rect x="80" y="42" width="120" height="8" rx="4" fill="#E2E8F0"/><rect x="40" y="66" width="200" height="22" rx="6" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="1"/><rect x="40" y="96" width="200" height="22" rx="6" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="1"/><rect x="40" y="126" width="200" height="22" rx="6" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="1"/><rect x="80" y="155" width="120" height="18" rx="9" fill="#94A3B8"/></svg>`,
+    fields: [
+      { key: 'titulo', label: 'Título', type: 'text', placeholder: 'Garanta sua vaga agora' },
+      { key: 'subtitulo', label: 'Subtítulo', type: 'textarea', placeholder: 'Preencha o formulário e entraremos em contato' },
+      { key: 'mostrar_nome', label: 'Campo Nome', type: 'boolean' },
+      { key: 'mostrar_email', label: 'Campo E-mail', type: 'boolean' },
+      { key: 'mostrar_telefone', label: 'Campo Telefone', type: 'boolean' },
+      { key: 'botao_texto', label: 'Texto do Botão', type: 'text', placeholder: 'Quero participar' },
+      { key: 'botao_cor', label: 'Cor do Botão', type: 'color' },
+      { key: 'botao_texto_cor', label: 'Cor do Texto do Botão', type: 'color' },
+      { key: 'mensagem_sucesso', label: 'Mensagem de Sucesso', type: 'text', placeholder: 'Obrigado! Entraremos em contato.' },
+      { key: 'redirect_url', label: 'Redirecionar após envio (opcional)', type: 'url' },
+    ],
+    defaultData: {
+      titulo: 'Garanta sua vaga agora',
+      subtitulo: 'Preencha o formulário abaixo e nossa equipe entrará em contato.',
+      mostrar_nome: true,
+      mostrar_email: true,
+      mostrar_telefone: true,
+      botao_texto: 'Quero participar',
+      botao_cor: '#FBB03B',
+      botao_texto_cor: '#1A1A1A',
+      mensagem_sucesso: 'Obrigado! Entraremos em contato em breve.',
+      redirect_url: '',
+    },
+    defaultSectionStyles: { backgroundColor: '#ffffff', paddingTop: 80, paddingBottom: 80 },
+    render: (data, styles) => `
+      <section style="background-color: ${styles.backgroundColor || '#fff'}; padding: ${styles.paddingTop || 80}px 24px ${styles.paddingBottom || 80}px;">
+        <div style="max-width: 480px; margin: 0 auto; text-align: center;">
+          ${data.titulo ? \`<h2 style="font-size: 32px; font-weight: 800; color: #1e293b; margin: 0 0 12px;">\${data.titulo}</h2>\` : ''}
+          ${data.subtitulo ? \`<p style="font-size: 17px; color: #64748b; margin: 0 0 32px; line-height: 1.5;">\${data.subtitulo}</p>\` : ''}
+          <form id="kv-lead-form" onsubmit="kvSubmitLead(event)" style="display: flex; flex-direction: column; gap: 14px; text-align: left;">
+            <input type="hidden" name="page_id" value="{{PAGE_ID}}" />
+            <input type="hidden" name="page_url" id="kv-page-url" value="" />
+            <input type="hidden" name="utm_source" id="kv-utm-source" value="" />
+            <input type="hidden" name="utm_medium" id="kv-utm-medium" value="" />
+            <input type="hidden" name="utm_campaign" id="kv-utm-campaign" value="" />
+            <input type="hidden" name="utm_term" id="kv-utm-term" value="" />
+            <input type="hidden" name="utm_content" id="kv-utm-content" value="" />
+            ${data.mostrar_nome !== false ? \`<input type="text" name="nome" placeholder="Seu nome completo" required style="width:100%;padding:14px 16px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:15px;color:#1e293b;outline:none;box-sizing:border-box;font-family:inherit;" />\` : ''}
+            ${data.mostrar_email !== false ? \`<input type="email" name="email" placeholder="Seu melhor e-mail" required style="width:100%;padding:14px 16px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:15px;color:#1e293b;outline:none;box-sizing:border-box;font-family:inherit;" />\` : ''}
+            ${data.mostrar_telefone !== false ? \`<input type="tel" name="telefone" placeholder="WhatsApp com DDD" style="width:100%;padding:14px 16px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:15px;color:#1e293b;outline:none;box-sizing:border-box;font-family:inherit;" />\` : ''}
+            <button type="submit" id="kv-submit-btn" style="width:100%;padding:16px;background-color:\${data.botao_cor || '#FBB03B'};color:\${data.botao_texto_cor || '#1A1A1A'};border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;margin-top:4px;font-family:inherit;">
+              \${data.botao_texto || 'Quero participar'}
+            </button>
+          </form>
+          <div id="kv-success-msg" style="display:none;margin-top:24px;padding:20px;background:#f0fdf4;border-radius:8px;color:#166534;font-weight:600;font-size:16px;">
+            \${data.mensagem_sucesso || 'Obrigado! Entraremos em contato em breve.'}
+          </div>
+        </div>
+        <script>
+          (function(){
+            var p = new URLSearchParams(window.location.search);
+            var s = function(id, v){ var el = document.getElementById(id); if(el) el.value = v; };
+            s('kv-page-url', window.location.href);
+            s('kv-utm-source', p.get('utm_source')||'');
+            s('kv-utm-medium', p.get('utm_medium')||'');
+            s('kv-utm-campaign', p.get('utm_campaign')||'');
+            s('kv-utm-term', p.get('utm_term')||'');
+            s('kv-utm-content', p.get('utm_content')||'');
+          })();
+          function kvSubmitLead(e){
+            e.preventDefault();
+            var btn=document.getElementById('kv-submit-btn');
+            btn.disabled=true; btn.textContent='Enviando...';
+            var body={};
+            new FormData(e.target).forEach(function(v,k){ body[k]=v; });
+            fetch('https://kvision.kvgroupbr.com.br/api/leads',{
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body:JSON.stringify(body)
+            }).then(function(r){
+              if(!r.ok) throw new Error();
+              document.getElementById('kv-lead-form').style.display='none';
+              document.getElementById('kv-success-msg').style.display='block';
+              \${data.redirect_url ? \`setTimeout(function(){ window.location.href='\${data.redirect_url}'; },2000);\` : ''}
+            }).catch(function(){
+              btn.disabled=false;
+              btn.textContent='\${(data.botao_texto||'Quero participar').replace(/'/g,"\\\\'")}\';
+              alert('Erro ao enviar. Tente novamente.');
+            });
+          }
+        </script>
+      </section>
+    \`
   }
 ];
 

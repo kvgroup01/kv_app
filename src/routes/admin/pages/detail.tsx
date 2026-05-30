@@ -51,7 +51,7 @@ export default function PageDetail() {
 
   const handleCopyLink = () => {
     if (!page) return;
-    navigator.clipboard.writeText(`${window.location.origin}/${page.slug}`);
+    navigator.clipboard.writeText(`${window.location.origin}/p/${page.slug}`);
     toast.success("Link copiado!");
   };
 
@@ -158,7 +158,7 @@ export default function PageDetail() {
             </DropdownMenuItem>
             {page.status === "published" && (
               <DropdownMenuItem asChild>
-                <a href={`/${page.slug}`} target="_blank" rel="noopener noreferrer">
+                <a href={`/p/${page.slug}`} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="w-4 h-4 mr-2" /> Ver página
                 </a>
               </DropdownMenuItem>
@@ -194,13 +194,13 @@ export default function PageDetail() {
               <p className="text-xs text-muted-foreground mb-1">URL da página</p>
               <div className="flex items-center gap-2">
                 <code className="flex-1 text-sm bg-muted px-3 py-2 rounded-lg truncate text-foreground">
-                  {window.location.origin}/{page.slug}
+                  {window.location.origin}/p/{page.slug}
                 </code>
                 <button onClick={handleCopyLink} className="p-2 hover:bg-accent rounded-lg transition-colors">
                   <Copy className="w-4 h-4 text-muted-foreground" />
                 </button>
                 {page.status === "published" && (
-                  <a href={`/${page.slug}`} target="_blank" rel="noopener noreferrer" className="p-2 hover:bg-accent rounded-lg transition-colors">
+                  <a href={`/p/${page.slug}`} target="_blank" rel="noopener noreferrer" className="p-2 hover:bg-accent rounded-lg transition-colors">
                     <ExternalLink className="w-4 h-4 text-muted-foreground" />
                   </a>
                 )}

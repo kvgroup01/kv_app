@@ -44,6 +44,7 @@ import PagesDetail from "./routes/admin/pages/detail";
 import PagesEditor from "./routes/admin/pages/editor";
 
 // Módulos Públicos Externos
+import PagePreview from './routes/public/PagePreview'
 import OrcamentoPublico from "./routes/orcamento/$token";
 import DashboardPublico from "./routes/dashboard/$slug";
 import DashboardLancamento from "./routes/dashboard/$slug/$lancamento";
@@ -68,6 +69,7 @@ export default function App() {
           <Route path="/termos" element={<Termos />} />
           <Route path="/deletar-dados" element={<DeletarDados />} />
           <Route path="/orcamento/:token" element={<OrcamentoPublico />} />
+          <Route path="/p/:slug" element={<PagePreview />} />
           <Route path="/dashboard/:slug" element={<DashboardPublico />} />
           <Route
             path="/dashboard/:slug/:lancamento"
