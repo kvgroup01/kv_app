@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import type { SectionStyles } from './types'
 
 type OnChange = (key: string, value: any) => void
@@ -492,25 +493,88 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
         title="Preview HTML"
         onLoad={handleIframeLoad}
       />
-      {selectedElement && (
-        <div style={{ padding: '12px', borderTop: '1px solid #333', background: '#1a1a1a' }}>
-          <div style={{ fontSize: '11px', color: '#888', marginBottom: '6px', textTransform: 'uppercase' as const }}>
-            Editando: &lt;{selectedElement.tag}&gt;
+      {selectedElement && createPortal(
+        <div style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '316px', // 300px sidebar + 16px margem
+          width: '300px',
+          background: '#1a1a1a',
+          border: '1px solid #3a3a3a',
+          borderRadius: '10px',
+          padding: '14px',
+          zIndex: 9999,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+        }}>
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+            <span style={{ fontSize: '11px', color: '#888', textTransform: 'uppercase' as const, fontWeight: 600, letterSpacing: '0.05em' }}>
+              Editando &lt;{selectedElement.tag}&gt;
+            </span>
+            <button
+              onClick={() => setSelectedElement(null)}
+              style={{ background: 'transparent', border: 'none', color: '#666', cursor: 'pointer', fontSize: '16px', lineHeight: 1, padding: '0 2px' }}
+            >
+              ✕
+            </button>
           </div>
+
+          {/* Textarea */}
           <textarea
             value={editText}
             onChange={e => setEditText(e.target.value)}
-            style={{ width: '100%', minHeight: '80px', background: '#0a0a0a', color: '#fff', border: '1px solid #444', borderRadius: '6px', padding: '8px', fontSize: '13px', resize: 'vertical' as const, boxSizing: 'border-box' as const }}
+            style={{
+              width: '100%',
+              minHeight: '90px',
+              background: '#0d0d0d',
+              color: '#fff',
+              border: '1px solid #444',
+              borderRadius: '6px',
+              padding: '8px 10px',
+              fontSize: '13px',
+              resize: 'vertical' as const,
+              boxSizing: 'border-box' as const,
+              fontFamily: 'inherit',
+              lineHeight: 1.5,
+            }}
+            autoFocus
           />
-          <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-            <button onClick={applyEdit} style={{ background: '#eab308', color: '#000', border: 'none', borderRadius: '6px', padding: '6px 16px', fontWeight: 600, cursor: 'pointer', fontSize: '13px' }}>
+
+          {/* Botões */}
+          <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+            <button
+              onClick={applyEdit}
+              style={{
+                flex: 1,
+                background: '#eab308',
+                color: '#000',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '8px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontSize: '13px',
+              }}
+            >
               ✓ Aplicar
             </button>
-            <button onClick={() => setSelectedElement(null)} style={{ background: '#333', color: '#fff', border: 'none', borderRadius: '6px', padding: '6px 12px', cursor: 'pointer', fontSize: '13px' }}>
+            <button
+              onClick={() => setSelectedElement(null)}
+              style={{
+                background: '#2a2a2a',
+                color: '#aaa',
+                border: '1px solid #3a3a3a',
+                borderRadius: '6px',
+                padding: '8px 14px',
+                cursor: 'pointer',
+                fontSize: '13px',
+              }}
+            >
               Cancelar
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
