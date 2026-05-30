@@ -91,17 +91,17 @@ export default function PageDetail() {
   const TYPE_META = {
     funcionamento: { 
       label: 'Funcionamento', 
-      color: '#8b5cf6',   // roxo
+      color: '#FBB03B',
       desc: 'Animações e estilos personalizados' 
     },
     estatisticas: { 
       label: 'Estatísticas',  
-      color: '#3b82f6',   // azul
+      color: '#FBB03B',
       desc: 'Hotjar, SmartLook, Analytics' 
     },
     marketing: { 
       label: 'Marketing',     
-      color: '#FBB03B',   // amarelo KV
+      color: '#FBB03B',
       desc: 'Pixel, eventos de conversão' 
     },
   }
@@ -730,11 +730,11 @@ export default function PageDetail() {
                       Código <span style={{ color: '#ef4444' }}>*</span>
                     </label>
                     <div style={{ borderRadius: 10, overflow: 'hidden', border: '1.5px solid #e2e8f0' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: '#1e1e2e', borderBottom: '1px solid #2d2d3d' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: '#f1f5f9', borderBottom: '1px solid #e2e8f0' }}>
                         <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ff5f57' }} />
                         <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ffbd2e' }} />
                         <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#28c840' }} />
-                        <span style={{ fontSize: 11, color: '#6272a4', fontFamily: 'monospace', marginLeft: 8 }}>script.html</span>
+                        <span style={{ fontSize: 11, color: '#94a3b8', fontFamily: 'monospace', marginLeft: 8 }}>script.html</span>
                       </div>
                       <textarea
                         value={codeForm.code}
@@ -742,7 +742,20 @@ export default function PageDetail() {
                         placeholder={'<script>\n  // Seu código aqui\n</script>'}
                         rows={9}
                         spellCheck={false}
-                        style={{ width: '100%', background: '#282a36', color: '#f8f8f2', fontFamily: 'monospace', fontSize: 12, lineHeight: 1.6, padding: 16, resize: 'none', outline: 'none', border: 'none', boxSizing: 'border-box', display: 'block' }}
+                        style={{ 
+                          width: '100%', 
+                          background: '#1e293b', 
+                          color: '#e2e8f0', 
+                          fontFamily: 'monospace', 
+                          fontSize: 12, 
+                          lineHeight: 1.6, 
+                          padding: 16, 
+                          resize: 'none', 
+                          outline: 'none', 
+                          border: 'none', 
+                          boxSizing: 'border-box', 
+                          display: 'block' 
+                        }}
                       />
                     </div>
                     <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>Inclua as tags &lt;script&gt; ou &lt;style&gt; conforme necessário.</p>
