@@ -277,18 +277,18 @@ export default function PagesEditor() {
   const renderField = (field: FieldSchema, value: any, onChange: (val: any) => void, blockId: string) => {
     switch (field.type) {
       case 'textarea':
-        return <Textarea value={value || ''} onChange={(e) => onChange(e.target.value)} rows={4} className="text-[13px] bg-white dark:bg-[#1c1c1e] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white" />
+        return <Textarea value={value || ''} onChange={(e) => onChange(e.target.value)} rows={4} className="text-[13px] bg-white border-gray-200 text-gray-900" />
       case 'boolean':
         return <Switch checked={!!value} onCheckedChange={onChange} />
       case 'select':
         return (
           <Select value={value || ''} onValueChange={onChange}>
-            <SelectTrigger className="h-8 text-[13px] bg-white dark:bg-[#1c1c1e] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white">
+            <SelectTrigger className="h-8 text-[13px] bg-white border-gray-200 text-gray-900">
               <SelectValue placeholder="Selecione..." />
             </SelectTrigger>
-            <SelectContent className="bg-white dark:bg-[#1c1c1e] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white">
+            <SelectContent className="bg-white border-gray-200 text-gray-900">
               {field.options?.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value} className="text-[13px] focus:bg-[#f2f2f2] dark:focus:bg-[#2a2a2a]">
+                <SelectItem key={opt.value} value={opt.value} className="text-[13px] focus:bg-gray-100">
                   {opt.label}
                 </SelectItem>
               ))}
@@ -298,27 +298,27 @@ export default function PagesEditor() {
       case 'color':
         return (
           <div className="flex gap-2">
-            <input type="color" className="w-8 h-8 p-1 border border-[#e5e5e5] dark:border-[#2a2a2a] rounded cursor-pointer shrink-0 bg-white dark:bg-[#1c1c1e]" value={value || '#000000'} onChange={(e) => onChange(e.target.value)} />
-            <Input value={value || ''} onChange={(e) => onChange(e.target.value)} className="h-8 font-mono text-[13px] uppercase bg-white dark:bg-[#1c1c1e] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white" />
+            <input type="color" className="w-8 h-8 p-1 border border-gray-200 rounded cursor-pointer shrink-0 bg-white" value={value || '#000000'} onChange={(e) => onChange(e.target.value)} />
+            <Input value={value || ''} onChange={(e) => onChange(e.target.value)} className="h-8 font-mono text-[13px] uppercase bg-white border-gray-200 text-gray-900" />
           </div>
         )
       case 'array':
         return (
-          <div className="space-y-2 rounded-lg border border-[#e5e5e5] dark:border-[#2a2a2a] p-3 bg-[#f2f2f2] dark:bg-[#1c1c1e]">
+          <div className="space-y-2 rounded-lg border border-gray-200 p-3 bg-gray-50">
             {((value as any[]) || []).map((item, i) => (
-              <div key={i} className="bg-white dark:bg-[#2a2a2a] rounded-lg border border-[#e5e5e5] dark:border-[#3a3a3a] p-3 space-y-3 relative group/item">
-                <button title="Remover item" onClick={() => handleRemoveArrayItem(blockId, field.key, i)} className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center text-[#a3a3a3] hover:text-red-500 rounded transition-colors opacity-0 group-hover/item:opacity-100">
+              <div key={i} className="bg-white rounded-lg border border-gray-200 p-3 space-y-3 relative group/item">
+                <button title="Remover item" onClick={() => handleRemoveArrayItem(blockId, field.key, i)} className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center text-gray-400 hover:text-red-500 rounded transition-colors opacity-0 group-hover/item:opacity-100">
                   <Trash2 className="w-3.5 h-3.5 text-inherit" />
                 </button>
                 {field.subFields?.map((subF) => (
                   <div key={subF.key} className="space-y-1.5 mt-2">
-                    <label className="text-[12px] text-[#767676] dark:text-[#a3a3a3] font-medium tracking-normal">{subF.label}</label>
+                    <label className="text-[12px] text-gray-500 font-medium tracking-normal">{subF.label}</label>
                     {renderField(subF, item[subF.key], (val) => handleUpdateArrayItem(blockId, field.key, i, subF.key, val), blockId)}
                   </div>
                 ))}
               </div>
             ))}
-            <button className="w-full h-8 border border-dashed border-[#d1d1d1] dark:border-[#484848] rounded-lg text-[12px] text-[#a3a3a3] hover:border-[#FBB03B] hover:text-[#FBB03B] transition-colors flex items-center justify-center gap-1.5 bg-white dark:bg-[#1c1c1e]" onClick={() => handleAddArrayItem(blockId, field.key, field.subFields || [])}>
+            <button className="w-full h-8 border border-dashed border-gray-300 rounded-lg text-[12px] text-gray-400 hover:border-[#FBB03B] hover:text-[#FBB03B] transition-colors flex items-center justify-center gap-1.5 bg-white" onClick={() => handleAddArrayItem(blockId, field.key, field.subFields || [])}>
               <Plus className="w-3.5 h-3.5 text-inherit" /> Adicionar item
             </button>
           </div>
@@ -327,7 +327,7 @@ export default function PagesEditor() {
       case 'url':
       case 'image':
       default:
-        return <Input value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={field.type === 'image' ? 'URL da Imagem' : ''} className="h-8 text-[13px] bg-white dark:bg-[#1c1c1e] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white" />
+        return <Input value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={field.type === 'image' ? 'URL da Imagem' : ''} className="h-8 text-[13px] bg-white border-gray-200 text-gray-900" />
     }
   }
 
@@ -544,29 +544,29 @@ export default function PagesEditor() {
         </div>
 
         {/* 2. SIDEBAR DIREITA - Painel de Config ou Layers */}
-        <div className="w-[300px] bg-white dark:bg-[#1c1c1e] border-l border-[#e5e5e5] dark:border-[#2a2a2a] shrink-0 z-20 flex flex-col h-full absolute right-0 top-0 overflow-hidden">
+        <div className="w-[300px] bg-white text-gray-900 border-l border-gray-200 shrink-0 z-20 flex flex-col h-full absolute right-0 top-0 overflow-hidden">
            {editingBlockId && editingBlock && editingBlockDef ? (
               // FORMULÁRIO DE EDIÇÃO
               <div className="flex flex-col h-full w-full">
-                 <div className="h-11 border-b border-[#e5e5e5] dark:border-[#2a2a2a] flex items-center justify-between px-4 bg-white dark:bg-[#1c1c1e] shrink-0">
+                 <div className="h-11 border-b border-gray-200 flex items-center justify-between px-4 bg-white shrink-0">
                     <div className="flex gap-2 items-baseline">
-                       <p className="text-[11px] text-[#767676] dark:text-[#a3a3a3] font-medium">{editingBlockDef.type}</p>
-                       <h3 className="text-[13px] font-semibold text-[#1A1A1A] dark:text-white tracking-[-0.01em] leading-tight">{editingBlockDef.name}</h3>
+                       <p className="text-[11px] text-gray-500 font-medium">{editingBlockDef.type}</p>
+                       <h3 className="text-[13px] font-semibold text-gray-900 tracking-[-0.01em] leading-tight">{editingBlockDef.name}</h3>
                     </div>
-                    <button className="w-6 h-6 flex items-center justify-center text-[#767676] dark:text-[#a3a3a3] hover:text-[#1A1A1A] dark:hover:text-white rounded transition-colors bg-transparent border-none cursor-pointer outline-none" onClick={() => setEditingBlockId(null)}><X className="w-4 h-4 text-inherit"/></button>
+                    <button className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-900 rounded transition-colors bg-transparent border-none cursor-pointer outline-none" onClick={() => setEditingBlockId(null)}><X className="w-4 h-4 text-inherit"/></button>
                  </div>
                  
                  <Tabs defaultValue="conteudo" className="flex-1 flex flex-col w-full overflow-hidden">
-                    <TabsList className="flex w-full border-b border-[#e5e5e5] dark:border-[#2a2a2a] bg-white dark:bg-[#1c1c1e] rounded-none h-9 p-0 px-4 gap-4 shrink-0">
-                       <TabsTrigger value="conteudo" className="h-full rounded-none border-b-2 border-transparent text-[12px] font-medium text-[#767676] dark:text-[#a3a3a3] px-0 pb-0 data-[state=active]:border-[#FBB03B] data-[state=active]:text-[#1A1A1A] dark:data-[state=active]:text-white data-[state=active]:shadow-none data-[state=active]:bg-transparent transition-all">Conteúdo</TabsTrigger>
-                       <TabsTrigger value="secao" className="h-full rounded-none border-b-2 border-transparent text-[12px] font-medium text-[#767676] dark:text-[#a3a3a3] px-0 pb-0 data-[state=active]:border-[#FBB03B] data-[state=active]:text-[#1A1A1A] dark:data-[state=active]:text-white data-[state=active]:shadow-none data-[state=active]:bg-transparent transition-all">Seção</TabsTrigger>
+                    <TabsList className="flex w-full border-b border-gray-200 bg-white rounded-none h-9 p-0 px-4 gap-4 shrink-0">
+                       <TabsTrigger value="conteudo" className="h-full rounded-none border-b-2 border-transparent text-[12px] font-medium text-gray-500 px-0 pb-0 data-[state=active]:border-[#FBB03B] data-[state=active]:text-gray-900 data-[state=active]:shadow-none data-[state=active]:bg-transparent transition-all">Conteúdo</TabsTrigger>
+                       <TabsTrigger value="secao" className="h-full rounded-none border-b-2 border-transparent text-[12px] font-medium text-gray-500 px-0 pb-0 data-[state=active]:border-[#FBB03B] data-[state=active]:text-gray-900 data-[state=active]:shadow-none data-[state=active]:bg-transparent transition-all">Seção</TabsTrigger>
                     </TabsList>
                     
-                    <div className="flex-1 overflow-y-auto bg-white dark:bg-[#1c1c1e]">
+                    <div className="flex-1 overflow-y-auto bg-white">
                        <TabsContent value="conteudo" className="p-4 m-0 space-y-4">
                            {editingBlockDef.fields.map(field => (
                               <div key={field.key} className="space-y-1.5">
-                                 <label className="text-[12px] text-[#767676] dark:text-[#a3a3a3] font-medium tracking-normal">{field.label}</label>
+                                 <label className="text-[12px] text-gray-600 font-medium tracking-normal">{field.label}</label>
                                  {renderField(field, editingBlock.data[field.key], (val) => updateBlockData(editingBlock.id, field.key, val), editingBlock.id)}
                               </div>
                            ))}
@@ -574,42 +574,42 @@ export default function PagesEditor() {
                        
                        <TabsContent value="secao" className="p-4 m-0 space-y-4">
                           <div className="space-y-1.5">
-                             <label className="text-[12px] text-[#767676] dark:text-[#a3a3a3] font-medium tracking-normal">Imagem de Fundo (URL)</label>
-                             <Input value={editingBlock.sectionStyles.backgroundImage || ''} onChange={(e) => updateBlockStyles(editingBlock.id, { backgroundImage: e.target.value })} placeholder="Ex: https://..." className="bg-white dark:bg-[#1c1c1e] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white h-8 text-[13px]" />
+                             <label className="text-[12px] text-gray-600 font-medium tracking-normal">Imagem de Fundo (URL)</label>
+                             <Input value={editingBlock.sectionStyles.backgroundImage || ''} onChange={(e) => updateBlockStyles(editingBlock.id, { backgroundImage: e.target.value })} placeholder="Ex: https://..." className="bg-white border-gray-200 text-gray-900 h-8 text-[13px]" />
                           </div>
                           
                           <div className="space-y-1.5">
-                             <label className="text-[12px] text-[#767676] dark:text-[#a3a3a3] font-medium tracking-normal">Cor de Fundo</label>
+                             <label className="text-[12px] text-gray-600 font-medium tracking-normal">Cor de Fundo</label>
                              <div className="flex gap-2">
-                                <input type="color" className="w-8 h-8 p-1 border border-[#e5e5e5] dark:border-[#2a2a2a] rounded cursor-pointer shrink-0 bg-white dark:bg-[#1c1c1e]" value={editingBlock.sectionStyles.backgroundColor || '#ffffff'} onChange={e => updateBlockStyles(editingBlock.id, { backgroundColor: e.target.value })} />
-                                <Input className="h-8 font-mono text-[13px] bg-white dark:bg-[#1c1c1e] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white uppercase" value={editingBlock.sectionStyles.backgroundColor || ''} onChange={e => updateBlockStyles(editingBlock.id, { backgroundColor: e.target.value })} />
+                                <input type="color" className="w-8 h-8 p-1 border border-gray-200 rounded cursor-pointer shrink-0 bg-white" value={editingBlock.sectionStyles.backgroundColor || '#ffffff'} onChange={e => updateBlockStyles(editingBlock.id, { backgroundColor: e.target.value })} />
+                                <Input className="h-8 font-mono text-[13px] bg-white border-gray-200 text-gray-900 uppercase" value={editingBlock.sectionStyles.backgroundColor || ''} onChange={e => updateBlockStyles(editingBlock.id, { backgroundColor: e.target.value })} />
                              </div>
                           </div>
 
                           <div className="space-y-1.5">
-                             <label className="text-[12px] text-[#767676] dark:text-[#a3a3a3] font-medium tracking-normal">Cor de Sobreposição (Overlay)</label>
+                             <label className="text-[12px] text-gray-600 font-medium tracking-normal">Cor de Sobreposição (Overlay)</label>
                              <div className="flex gap-2">
-                                <input type="color" className="w-8 h-8 p-1 border border-[#e5e5e5] dark:border-[#2a2a2a] rounded cursor-pointer shrink-0 bg-white dark:bg-[#1c1c1e]" value={editingBlock.sectionStyles.overlayColor || '#000000'} onChange={e => updateBlockStyles(editingBlock.id, { overlayColor: e.target.value })} />
-                                <Input className="h-8 font-mono text-[13px] bg-white dark:bg-[#1c1c1e] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white uppercase" value={editingBlock.sectionStyles.overlayColor || ''} onChange={e => updateBlockStyles(editingBlock.id, { overlayColor: e.target.value })} />
+                                <input type="color" className="w-8 h-8 p-1 border border-gray-200 rounded cursor-pointer shrink-0 bg-white" value={editingBlock.sectionStyles.overlayColor || '#000000'} onChange={e => updateBlockStyles(editingBlock.id, { overlayColor: e.target.value })} />
+                                <Input className="h-8 font-mono text-[13px] bg-white border-gray-200 text-gray-900 uppercase" value={editingBlock.sectionStyles.overlayColor || ''} onChange={e => updateBlockStyles(editingBlock.id, { overlayColor: e.target.value })} />
                              </div>
                           </div>
 
                           <div className="space-y-3 pt-3">
                              <div className="flex justify-between items-center">
-                                <label className="text-[12px] text-[#767676] dark:text-[#a3a3a3] font-medium tracking-normal">Opacidade do Overlay</label>
-                                <span className="text-[12px] font-mono text-[#767676] dark:text-[#a3a3a3] bg-[#f2f2f2] dark:bg-[#2a2a2a] px-2 py-0.5 rounded-md">{editingBlock.sectionStyles.overlayOpacity || 0}%</span>
+                                <label className="text-[12px] text-gray-600 font-medium tracking-normal">Opacidade do Overlay</label>
+                                <span className="text-[12px] font-mono text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">{editingBlock.sectionStyles.overlayOpacity || 0}%</span>
                              </div>
                              <Slider min={0} max={100} step={1} value={[editingBlock.sectionStyles.overlayOpacity || 0]} onValueChange={vals => updateBlockStyles(editingBlock.id, { overlayOpacity: vals[0] })} className="py-2 [&_[role=slider]]:bg-[#FBB03B]" />
                           </div>
 
                           <div className="grid grid-cols-2 gap-4 pt-3">
                              <div className="space-y-1.5">
-                                <label className="text-[12px] text-[#767676] dark:text-[#a3a3a3] font-medium tracking-normal">Espaço Topo (px)</label>
-                                <Input type="number" className="h-8 text-[13px] bg-white dark:bg-[#1c1c1e] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white" value={editingBlock.sectionStyles.paddingTop ?? 80} onChange={e => updateBlockStyles(editingBlock.id, { paddingTop: parseInt(e.target.value) || 0 })} />
+                                <label className="text-[12px] text-gray-600 font-medium tracking-normal">Espaço Topo (px)</label>
+                                <Input type="number" className="h-8 text-[13px] bg-white border-gray-200 text-gray-900" value={editingBlock.sectionStyles.paddingTop ?? 80} onChange={e => updateBlockStyles(editingBlock.id, { paddingTop: parseInt(e.target.value) || 0 })} />
                              </div>
                              <div className="space-y-1.5">
-                                <label className="text-[12px] text-[#767676] dark:text-[#a3a3a3] font-medium tracking-normal">Espaço Base (px)</label>
-                                <Input type="number" className="h-8 text-[13px] bg-white dark:bg-[#1c1c1e] border-[#e5e5e5] dark:border-[#2a2a2a] text-[#1A1A1A] dark:text-white" value={editingBlock.sectionStyles.paddingBottom ?? 80} onChange={e => updateBlockStyles(editingBlock.id, { paddingBottom: parseInt(e.target.value) || 0 })} />
+                                <label className="text-[12px] text-gray-600 font-medium tracking-normal">Espaço Base (px)</label>
+                                <Input type="number" className="h-8 text-[13px] bg-white border-gray-200 text-gray-900" value={editingBlock.sectionStyles.paddingBottom ?? 80} onChange={e => updateBlockStyles(editingBlock.id, { paddingBottom: parseInt(e.target.value) || 0 })} />
                              </div>
                           </div>
                        </TabsContent>
@@ -618,33 +618,33 @@ export default function PagesEditor() {
               </div>
            ) : (
               // PAINE L DE CAMADAS (LAYERS)
-              <div className="flex flex-col h-full w-full bg-white dark:bg-[#1c1c1e]">
-                 <div className="h-11 border-b border-[#e5e5e5] dark:border-[#2a2a2a] px-4 flex items-center justify-between shrink-0">
-                    <h3 className="text-[13px] font-semibold text-[#1A1A1A] dark:text-white tracking-[-0.01em]">Camadas</h3>
+              <div className="flex flex-col h-full w-full bg-white">
+                 <div className="h-11 border-b border-gray-200 px-4 flex items-center justify-between shrink-0">
+                    <h3 className="text-[13px] font-semibold text-gray-900 tracking-[-0.01em]">Camadas</h3>
                     <button className="flex items-center gap-1 text-[13px] font-semibold bg-[#FBB03B] text-[#1A1A1A] px-2.5 py-1 rounded-md hover:bg-[#f0a824] transition-colors border-none outline-none cursor-pointer" onClick={() => { setInsertAfterIndex(blocks.length - 1); setShowBlockModal(true) }}>
                        <Plus className="w-3.5 h-3.5 text-inherit" strokeWidth={3} /> Bloco
                     </button>
                  </div>
-                 <div className="flex-1 overflow-y-auto bg-white dark:bg-[#1c1c1e] flex flex-col">
+                 <div className="flex-1 overflow-y-auto bg-white flex flex-col">
                     {blocks.map((block, i) => {
                        const def = getBlockByType(block.type)
                        return (
                          <div 
                            key={block.id} 
-                           className={cn("flex items-center gap-2.5 px-3 py-2.5 cursor-pointer hover:bg-[#f2f2f2] dark:hover:bg-[#2a2a2a] border-b border-[#f2f2f2] dark:border-[#2a2a2a] transition-colors group/layer", selectedBlockId === block.id || editingBlockId === block.id ? "bg-[#FBB03B]/8 dark:bg-[#FBB03B]/10 border-b-[#FBB03B]/20" : "")}
+                           className={cn("flex items-center gap-2.5 px-3 py-2.5 cursor-pointer hover:bg-gray-50 border-b border-gray-100 transition-colors group/layer", selectedBlockId === block.id || editingBlockId === block.id ? "bg-[#FBB03B]/10 border-b-[#FBB03B]/20" : "")}
                            onClick={() => setEditingBlockId(block.id)}
                            onMouseEnter={() => setSelectedBlockId(block.id)}
                            onMouseLeave={() => setSelectedBlockId(null)}
                          >
-                           <GripVertical className="w-3.5 h-3.5 text-[#d1d1d1] dark:text-[#484848] group-hover/layer:text-[#a3a3a3] shrink-0" />
-                           <span className={cn("text-[13px] text-[#1A1A1A] dark:text-white font-medium flex-1 truncate", block.hidden && "text-[#a3a3a3] dark:text-[#767676]")}>{def?.name || 'Bloco'}</span>
-                           {block.hidden && <span className="text-[9px] uppercase font-bold text-[#a3a3a3] dark:text-[#767676] mt-0.5">Oculto</span>}
+                           <GripVertical className="w-3.5 h-3.5 text-gray-300 group-hover/layer:text-gray-400 shrink-0" />
+                           <span className={cn("text-[13px] text-gray-900 font-medium flex-1 truncate", block.hidden && "text-gray-400")}>{def?.name || 'Bloco'}</span>
+                           {block.hidden && <span className="text-[9px] uppercase font-bold text-gray-400 mt-0.5">Oculto</span>}
                            
                            <div className="flex items-center gap-0.5 opacity-0 group-hover/layer:opacity-100 transition-opacity">
-                             <button onClick={(e) => { e.stopPropagation(); toggleHidden(block.id) }} className="w-6 h-6 flex items-center justify-center text-[#767676] dark:text-[#a3a3a3] hover:text-[#1A1A1A] dark:hover:text-white rounded transition-colors bg-transparent border-none outline-none cursor-pointer">
+                             <button onClick={(e) => { e.stopPropagation(); toggleHidden(block.id) }} className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-900 rounded transition-colors bg-transparent border-none outline-none cursor-pointer">
                                 {block.hidden ? <EyeOff className="w-3.5 h-3.5 text-inherit"/> : <Eye className="w-3.5 h-3.5 text-inherit"/>}
                              </button>
-                             <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(block.id) }} className="w-6 h-6 flex items-center justify-center text-[#767676] dark:text-[#a3a3a3] hover:text-[#1A1A1A] dark:hover:text-white hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10 dark:hover:text-red-400 rounded transition-colors bg-transparent border-none outline-none cursor-pointer">
+                             <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(block.id) }} className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors bg-transparent border-none outline-none cursor-pointer">
                                <Trash2 className="w-3.5 h-3.5 text-inherit" />
                              </button>
                            </div>
@@ -653,8 +653,8 @@ export default function PagesEditor() {
                     })}
                     {blocks.length === 0 && (
                       <div className="flex flex-col items-center justify-center py-16 gap-2 opacity-60">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-[#d1d1d1]"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 12 12 17 22 12"/><polyline points="2 17 12 22 22 17"/></svg>
-                         <p className="text-[13px] text-[#a3a3a3]">Nenhum bloco ainda</p>
+                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-gray-300"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 12 12 17 22 12"/><polyline points="2 17 12 22 22 17"/></svg>
+                         <p className="text-[13px] text-gray-400">Nenhum bloco ainda</p>
                        </div>
                     )}
                  </div>
