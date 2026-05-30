@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router";
 import {
   ArrowLeft, Globe, Pencil, Copy, ExternalLink, Download,
   MoreHorizontal, Trash2, BarChart2, FileText, Users,
-  MapPin, Link2, Tag, ChevronDown, Eye, EyeOff
+  MapPin, Link2, Tag, ChevronDown, Eye, EyeOff, Puzzle
 } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { Skeleton } from "../../../components/ui/skeleton";
@@ -18,13 +18,16 @@ import {
   AlertDialogContent, AlertDialogDescription,
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
 } from "../../../components/ui/alert-dialog";
+import { Switch } from "../../../components/ui/switch";
+import { Input } from "../../../components/ui/input";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../../../components/ui/select";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { usePage, useUpdatePage } from "../../../hooks/usePages";
+import { usePage, useUpdatePage, type PageIntegrations } from "../../../hooks/usePages";
 import { useLeads, useDeleteLead, type Lead } from "../../../hooks/useLeads";
 
-type TabType = "resumo" | "relatorio" | "leads";
+type TabType = "resumo" | "relatorio" | "leads" | "integracoes";
 
 export default function PageDetail() {
   const { id } = useParams();
@@ -37,6 +40,29 @@ export default function PageDetail() {
   const deleteLead = useDeleteLead();
   const [selectedLead, setSelectedLead] = React.useState<Lead | null>(null);
   const [deleteLeadId, setDeleteLeadId] = React.useState<string | null>(null);
+
+  const [integrations, setIntegrations] = React.useState<PageIntegrations>(page?.integrations || {})
+  const [savingIntegrations, setSavingIntegrations] = React.useState(false)
+
+  // Sincronizar quando página carregar
+  React.useEffect(() => {
+    if (page?.integrations) setIntegrations(page.integrations)
+  }, [page?.integrations])
+
+  const handleSaveIntegrations = async () => {
+    setSavingIntegrations(true)
+    await updatePage.mutateAsync({ id: id!, integrations })
+    setSavingIntegrations(false)
+    toast.success('Integrações salvas!')
+  }
+
+  // Helper para atualizar campos aninhados
+  const updateIntegration = (platform: keyof PageIntegrations, field: string, value: any) => {
+    setIntegrations(prev => ({
+      ...prev,
+      [platform]: { ...(prev[platform] || {}), [field]: value }
+    }))
+  }
 
   const handleTogglePublish = async () => {
     if (!page) return;
@@ -99,6 +125,7 @@ export default function PageDetail() {
     { key: "resumo", label: "Resumo", icon: <FileText className="w-4 h-4" /> },
     { key: "relatorio", label: "Relatório", icon: <BarChart2 className="w-4 h-4" /> },
     { key: "leads", label: "Leads", icon: <Users className="w-4 h-4" /> },
+    { key: "integracoes", label: "Integrações", icon: <Puzzle className="w-4 h-4" /> },
   ];
 
   return (
@@ -344,6 +371,169 @@ export default function PageDetail() {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Tab: Integrações */}
+      {activeTab === 'integracoes' && (
+        <div className="max-w-2xl space-y-4">
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold text-gray-900">Análise de campanha</h2>
+            <p className="text-sm text-gray-500 mt-1">Monitore o desempenho dessa página com suas ferramentas de análise e acompanhamento</p>
+          </div>
+
+          {/* ── FACEBOOK API ── */}
+          <div className="border border-gray-200 rounded-xl p-5 bg-white">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="font-semibold text-gray-900 text-[15px]">Integração com Facebook API</h3>
+                <p className="text-sm text-gray-500 mt-0.5">Integrar a página com o Facebook API para análise de campanha</p>
+              </div>
+              <Switch
+                checked={integrations.facebook?.enabled || false}
+                onCheckedChange={v => updateIntegration('facebook', 'enabled', v)}
+              />
+            </div>
+
+            {integrations.facebook?.enabled && (
+              <div className="mt-5 space-y-4 border-t border-gray-100 pt-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1.5">
+                    ID do Pixel do Facebook <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    value={integrations.facebook?.pixelId || ''}
+                    onChange={e => updateIntegration('facebook', 'pixelId', e.target.value)}
+                    placeholder="Ex: 676230996775512"
+                    className="bg-white border-gray-200"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">ID do pixel usado para rastrear eventos do site no Facebook Ads.</p>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1.5">Token de acesso da API do Facebook</label>
+                  <Input
+                    value={integrations.facebook?.accessToken || ''}
+                    onChange={e => updateIntegration('facebook', 'accessToken', e.target.value)}
+                    placeholder="EAADv7..."
+                    type="password"
+                    className="bg-white border-gray-200"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1.5">Evento de rastreamento</label>
+                  <Select
+                    value={integrations.facebook?.trackingEvent || 'PageView'}
+                    onValueChange={v => updateIntegration('facebook', 'trackingEvent', v)}
+                  >
+                    <SelectTrigger className="bg-white border-gray-200">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {['PageView','ViewContent','Lead','CompleteRegistration','Purchase','InitiateCheckout','AddToCart','Search'].map(ev => (
+                        <SelectItem key={ev} value={ev}>{ev}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1.5">
+                    Código de evento de teste <span className="text-gray-400 font-normal">(Opcional)</span>
+                  </label>
+                  <Input
+                    value={integrations.facebook?.testEventCode || ''}
+                    onChange={e => updateIntegration('facebook', 'testEventCode', e.target.value)}
+                    placeholder="Ex: TEST12345"
+                    className="bg-white border-gray-200"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1.5">Evento de conversão de formulário</label>
+                  <Select
+                    value={integrations.facebook?.formConversionEvent || 'CompleteRegistration'}
+                    onValueChange={v => updateIntegration('facebook', 'formConversionEvent', v)}
+                  >
+                    <SelectTrigger className="bg-white border-gray-200">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {['CompleteRegistration','Lead','Purchase','Subscribe','Contact'].map(ev => (
+                        <SelectItem key={ev} value={ev}>{ev}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ── GOOGLE ANALYTICS ── */}
+          <div className="border border-gray-200 rounded-xl p-5 bg-white">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="font-semibold text-gray-900 text-[15px]">Integração com Google Analytics</h3>
+                <p className="text-sm text-gray-500 mt-0.5">Integrar a página com o Google Analytics para análise de campanha</p>
+              </div>
+              <Switch
+                checked={integrations.googleAnalytics?.enabled || false}
+                onCheckedChange={v => updateIntegration('googleAnalytics', 'enabled', v)}
+              />
+            </div>
+            {integrations.googleAnalytics?.enabled && (
+              <div className="mt-5 border-t border-gray-100 pt-4">
+                <label className="text-sm font-medium text-gray-700 block mb-1.5">
+                  ID de medição <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  value={integrations.googleAnalytics?.measurementId || ''}
+                  onChange={e => updateIntegration('googleAnalytics', 'measurementId', e.target.value)}
+                  placeholder="G-XXXXXXXXXX"
+                  className="bg-white border-gray-200"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* ── GOOGLE TAG MANAGER ── */}
+          <div className="border border-gray-200 rounded-xl p-5 bg-white">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="font-semibold text-gray-900 text-[15px]">Integração com Google Tag Manager</h3>
+                <p className="text-sm text-gray-500 mt-0.5">Integrar a página com o Google Tag Manager para análise de campanha</p>
+              </div>
+              <Switch
+                checked={integrations.googleTagManager?.enabled || false}
+                onCheckedChange={v => updateIntegration('googleTagManager', 'enabled', v)}
+              />
+            </div>
+            {integrations.googleTagManager?.enabled && (
+              <div className="mt-5 border-t border-gray-100 pt-4">
+                <label className="text-sm font-medium text-gray-700 block mb-1.5">
+                  ID do container do Google Tag Manager <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  value={integrations.googleTagManager?.containerId || ''}
+                  onChange={e => updateIntegration('googleTagManager', 'containerId', e.target.value)}
+                  placeholder="GTM-XXXXXXX"
+                  className="bg-white border-gray-200"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Botão salvar */}
+          <div className="flex justify-end pt-2">
+            <Button
+              onClick={handleSaveIntegrations}
+              disabled={savingIntegrations}
+              className="bg-[#FBB03B] hover:bg-[#f0a824] text-[#1A1A1A] font-semibold px-6"
+            >
+              {savingIntegrations ? 'Salvando...' : 'Salvar integrações'}
+            </Button>
+          </div>
         </div>
       )}
 

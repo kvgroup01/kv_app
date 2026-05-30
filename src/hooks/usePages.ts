@@ -2,6 +2,25 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import { PageData } from '../lib/blocks/types'
 
+export interface PageIntegrations {
+  facebook?: {
+    enabled: boolean
+    pixelId: string
+    accessToken: string
+    trackingEvent: string       // 'PageView' | 'ViewContent' | 'Lead' | etc
+    testEventCode: string
+    formConversionEvent: string // 'CompleteRegistration' | 'Lead' | 'Purchase'
+  }
+  googleAnalytics?: {
+    enabled: boolean
+    measurementId: string       // G-XXXXXXXXXX
+  }
+  googleTagManager?: {
+    enabled: boolean
+    containerId: string         // GTM-XXXXXXX
+  }
+}
+
 export interface Page {
   id: string
   cliente_id: string
@@ -17,6 +36,7 @@ export interface Page {
   publicado_em: string | null
   criado_em: string
   atualizado_em: string
+  integrations?: PageIntegrations
 }
 
 export function usePages(clienteId: string | null) {
