@@ -47,6 +47,39 @@ export default function PagesEditor() {
   const [pageName, setPageName] = useState('')
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
+  type SelectedElement = { blockId: string; key: string; type: 'text' | 'shape' } | null
+  const [selectedElement, setSelectedElement] = useState<SelectedElement>(null)
+  const GOOGLE_FONTS = ['Inter', 'Roboto', 'Poppins', 'Montserrat', 'Playfair Display', 'Lato', 'Open Sans', 'Oswald', 'Raleway', 'Merriweather']
+
+  const loadGoogleFont = (fontFamily: string) => {
+    const id = `gf-${fontFamily.replace(/\s/g, '-')}`
+    if (document.getElementById(id)) return
+    const link = document.createElement('link')
+    link.id = id
+    link.href = `https://fonts.googleapis.com/css2?family=${fontFamily.replace(/\s/g, '+')}:ital,wght@0,400;0,700;1,400;1,700&display=swap`
+    link.rel = 'stylesheet'
+    document.head.appendChild(link)
+  }
+
+  const getCurrentElementStyle = (styleKey: string): any => {
+    if (!selectedElement) return undefined
+    const block = blocks.find(b => b.id === selectedElement.blockId)
+    return block?.data._elementStyles?.[selectedElement.key]?.[styleKey]
+  }
+
+  const updateElementStyle = (styleKey: string, value: any) => {
+    if (!selectedElement) return
+    const block = blocks.find(b => b.id === selectedElement.blockId)
+    if (!block) return
+    if (styleKey === 'fontFamily') loadGoogleFont(value)
+    const currentStyles = block.data._elementStyles || {}
+    const elementStyles = currentStyles[selectedElement.key] || {}
+    updateBlockData(selectedElement.blockId, '_elementStyles', {
+      ...currentStyles,
+      [selectedElement.key]: { ...elementStyles, [styleKey]: value }
+    })
+  }
+
   const historyIndexRef = useRef(historyIndex)
   const categoryScrollRef = useRef<HTMLDivElement>(null)
 
@@ -66,6 +99,12 @@ export default function PagesEditor() {
       setPageName(page.nome)
     }
   }, [page?.nome])
+
+  useEffect(() => {
+    if (selectedElement && editingBlockId !== selectedElement.blockId) {
+      setSelectedElement(null)
+    }
+  }, [editingBlockId, selectedElement])
 
   useEffect(() => {
     if (page?.page_data?.blocks && history.length === 0) {
@@ -527,7 +566,10 @@ export default function PagesEditor() {
                                 ? editorRenderers[block.type](
                                     block.data,
                                     block.sectionStyles,
-                                    (key: string, val: any) => updateBlockData(block.id, key, val)
+                                    (key: string, val: any) => updateBlockData(block.id, key, val),
+                                    (elementKey: string, elementType: 'text' | 'shape') => setSelectedElement({ blockId: block.id, key: elementKey, type: elementType }),
+                                    selectedElement?.blockId === block.id ? selectedElement.key : null,
+                                    block.data._elementStyles || {}
                                   )
                                 : <div dangerouslySetInnerHTML={{ __html: html }} className="min-h-[40px]" />
                               }
@@ -571,6 +613,88 @@ export default function PagesEditor() {
                     </TabsList>
                     
                     <div className="flex-1 overflow-y-auto bg-white">
+                       {/* Painel de estilo de elemento */}
+                       {selectedElement && selectedElement.blockId === editingBlockId && (
+                         <div className="p-4 border-b border-gray-200 bg-gray-50">
+                           <div className="flex items-center justify-between mb-3">
+                             <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Estilo do texto</span>
+                             <button onClick={() => setSelectedElement(null)} className="text-gray-400 hover:text-gray-600 p-0.5 rounded">
+                               <X className="w-3.5 h-3.5" />
+                             </button>
+                           </div>
+                           <div className="space-y-3">
+                             <div>
+                               <label className="text-xs font-medium text-gray-600 mb-1 block">Fonte</label>
+                               <select
+                                 value={getCurrentElementStyle('fontFamily') || 'Inter'}
+                                 onChange={e => updateElementStyle('fontFamily', e.target.value)}
+                                 className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-900"
+                               >
+                                 {GOOGLE_FONTS.map(f => <option key={f} value={f}>{f}</option>)}
+                               </select>
+                             </div>
+                             <div>
+                               <label className="text-xs font-medium text-gray-600 mb-1 block">Tamanho</label>
+                               <div className="flex items-center gap-2">
+                                 <input type="number" min="8" max="200"
+                                   value={getCurrentElementStyle('fontSize') || 16}
+                                   onChange={e => updateElementStyle('fontSize', Number(e.target.value))}
+                                   className="w-20 text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-900"
+                                 />
+                                 <span className="text-xs text-gray-400">px</span>
+                                 <input type="range" min="8" max="120"
+                                   value={getCurrentElementStyle('fontSize') || 16}
+                                   onChange={e => updateElementStyle('fontSize', Number(e.target.value))}
+                                   className="flex-1 accent-[#FBB03B]"
+                                 />
+                               </div>
+                             </div>
+                             <div>
+                               <label className="text-xs font-medium text-gray-600 mb-1 block">Cor</label>
+                               <div className="flex items-center gap-2">
+                                 <input type="color"
+                                   value={getCurrentElementStyle('color') || '#000000'}
+                                   onChange={e => updateElementStyle('color', e.target.value)}
+                                   className="w-9 h-9 rounded-lg border border-gray-200 cursor-pointer p-0.5"
+                                 />
+                                 <span className="text-xs text-gray-500 font-mono">{getCurrentElementStyle('color') || '#000000'}</span>
+                               </div>
+                             </div>
+                             <div>
+                               <label className="text-xs font-medium text-gray-600 mb-1 block">Estilo</label>
+                               <div className="flex gap-2">
+                                 {[
+                                   { label: 'B', sk: 'fontWeight', on: '700', off: '400', cls: 'font-bold' },
+                                   { label: 'I', sk: 'fontStyle', on: 'italic', off: 'normal', cls: 'italic' },
+                                   { label: 'U', sk: 'textDecoration', on: 'underline', off: 'none', cls: 'underline' },
+                                 ].map(({ label, sk, on, off, cls }) => {
+                                   const active = getCurrentElementStyle(sk) === on
+                                   return (
+                                     <button key={sk} onClick={() => updateElementStyle(sk, active ? off : on)}
+                                       className={`w-9 h-9 rounded-lg text-sm border ${cls} ${active ? 'bg-[#FBB03B] border-[#FBB03B] text-[#1A1A1A]' : 'border-gray-200 text-gray-700 bg-white'}`}>
+                                       {label}
+                                     </button>
+                                   )
+                                 })}
+                               </div>
+                             </div>
+                             <div>
+                               <label className="text-xs font-medium text-gray-600 mb-1 block">Alinhamento</label>
+                               <div className="flex gap-1">
+                                 {[{ v: 'left', l: 'Esq' }, { v: 'center', l: 'Centro' }, { v: 'right', l: 'Dir' }].map(({ v, l }) => {
+                                   const active = (getCurrentElementStyle('textAlign') || 'left') === v
+                                   return (
+                                     <button key={v} onClick={() => updateElementStyle('textAlign', v)}
+                                       className={`flex-1 py-1.5 rounded-lg text-xs border ${active ? 'bg-[#FBB03B] border-[#FBB03B] text-[#1A1A1A]' : 'border-gray-200 text-gray-700 bg-white'}`}>
+                                       {l}
+                                     </button>
+                                   )
+                                 })}
+                               </div>
+                             </div>
+                           </div>
+                         </div>
+                       )}
                        <TabsContent value="conteudo" className="p-4 m-0 space-y-4">
                            {editingBlockDef.fields.map(field => (
                               <div key={field.key} className="space-y-1.5">

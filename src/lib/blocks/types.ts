@@ -55,7 +55,10 @@ export interface BlockDefinition {
   renderEditor?: (
     data: Record<string, any>,
     styles: SectionStyles,
-    onChange: (key: string, value: any) => void
+    onChange: (key: string, value: any) => void,
+    onSelectElement: (elementKey: string, elementType: 'text' | 'shape') => void,
+    selectedElementKey: string | null,
+    elementStyles: Record<string, Record<string, any>>
   ) => ReactNode
 }
 
