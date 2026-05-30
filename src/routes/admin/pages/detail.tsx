@@ -859,7 +859,7 @@ export default function PageDetail() {
 
       {/* Tab: Domínio */}
       {activeTab === 'dominio' && (
-        <div className="max-w-2xl mx-auto py-6 space-y-6">
+        <div className="py-6 space-y-6">
 
           {/* ── DOMÍNIO ── */}
           <div>
