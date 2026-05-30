@@ -395,6 +395,34 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
     const doc = iframe?.contentDocument
     if (!doc || !iframe) return
 
+    // ── NOVO: Desativa animações de entrada para o preview do editor ──
+    // O Tailwind CDN aplica classes opacity-0, translate-y-*, invisible etc.
+    // que são ativadas por IntersectionObserver (scroll). No iframe do editor
+    // o scroll trigger não funciona, então o conteúdo fica invisível.
+    // Forçamos duração 0 para que todos os elementos saltem ao estado final (visível).
+    const disableAnimationsStyle = doc.createElement('style')
+    disableAnimationsStyle.id = 'kv-editor-style'
+    disableAnimationsStyle.textContent = [
+      '*, *::before, *::after {',
+      '  animation-duration: 0.001ms !important;',
+      '  animation-delay: 0.001ms !important;',
+      '  transition-duration: 0.001ms !important;',
+      '  transition-delay: 0ms !important;',
+      '}',
+      // Garante visibilidade mesmo com classes Tailwind de animação
+      '.opacity-0 { opacity: 1 !important; }',
+      '.invisible { visibility: visible !important; }',
+      '[class*="translate-y"] { transform: none !important; }',
+      '[class*="translate-x"] { transform: none !important; }',
+    ].join('\n')
+    
+    // Injeta no head (ou no documentElement se head não existir ainda)
+    const target = doc.head || doc.documentElement
+    if (target && !doc.getElementById('kv-editor-style')) {
+      target.appendChild(disableAnimationsStyle)
+    }
+    // ── FIM do bloco novo ──
+
     // Atualiza altura DIRETAMENTE no DOM — sem setState, sem re-render, sem reload
     const updateHeight = () => {
       const h = Math.max(
