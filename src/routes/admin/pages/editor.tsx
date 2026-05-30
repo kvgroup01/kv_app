@@ -403,7 +403,7 @@ export default function PagesEditor() {
               autoFocus
               value={pageName} 
               onChange={(e) => setPageName(e.target.value)} 
-              className="h-7 w-52 bg-[#2a2a2a] border border-[#3a3a3a] text-white text-[13px] rounded-md px-2 focus-visible:ring-1 focus-visible:ring-[#FBB03B] focus-visible:ring-offset-0" 
+              className="h-7 w-52 bg-[#2a2a2a] border border-[#3a3a3a] text-white text-[13px] rounded-md px-2 placeholder:text-[#767676] focus-visible:ring-1 focus-visible:ring-[#FBB03B] focus-visible:ring-offset-0" 
               onBlur={handleNameSave}
               onKeyDown={(e) => e.key === 'Enter' && handleNameSave()}
             />
