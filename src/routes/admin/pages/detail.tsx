@@ -3,7 +3,8 @@ import { useParams, useNavigate } from "react-router";
 import {
   ArrowLeft, Globe, Pencil, Copy, ExternalLink, Download,
   MoreHorizontal, Trash2, BarChart2, FileText, Users,
-  MapPin, Link2, Tag, ChevronDown, Eye, EyeOff, Puzzle, Code, Plus, X
+  MapPin, Link2, Tag, ChevronDown, Eye, EyeOff, Puzzle, Code, Plus, X,
+  ShieldCheck, Search, Sparkles, AlertCircle, CheckCircle2, Info
 } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { Skeleton } from "../../../components/ui/skeleton";
@@ -21,13 +22,17 @@ import {
 import { Switch } from "../../../components/ui/switch";
 import { Input } from "../../../components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../../../components/ui/select";
+import { Textarea } from "../../../components/ui/textarea";
+import { Separator } from "../../../components/ui/separator";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { usePage, useUpdatePage, type PageIntegrations } from "../../../hooks/usePages";
 import { useLeads, useDeleteLead, type Lead } from "../../../hooks/useLeads";
+import { useDomains, useCreateDomain, useDeleteDomain, type Domain } from "../../../hooks/useDomains";
+import { cn } from "../../../lib/utils";
 
-type TabType = "resumo" | "relatorio" | "leads" | "integracoes";
+type TabType = "resumo" | "relatorio" | "leads" | "integracoes" | "dominio";
 
 export default function PageDetail() {
   const { id } = useParams();
@@ -40,6 +45,71 @@ export default function PageDetail() {
   const deleteLead = useDeleteLead();
   const [selectedLead, setSelectedLead] = React.useState<Lead | null>(null);
   const [deleteLeadId, setDeleteLeadId] = React.useState<string | null>(null);
+
+  const { data: domains = [] } = useDomains()
+  const createDomain = useCreateDomain()
+  const deleteDomain = useDeleteDomain()
+
+  // Domínio
+  const [selectedDomainId, setSelectedDomainId] = React.useState<string>(page?.domain_id || '')
+  const [pageSlug, setPageSlug] = React.useState<string>(page?.page_slug || '')
+  const [domainSearch, setDomainSearch] = React.useState('')
+  const [showDomainDropdown, setShowDomainDropdown] = React.useState(false)
+  const [showAddDomain, setShowAddDomain] = React.useState(false)
+  const [newDomain, setNewDomain] = React.useState('')
+  const [savingDomain, setSavingDomain] = React.useState(false)
+
+  // SEO
+  const [seo, setSeo] = React.useState({
+    enable_indexing: page?.seo?.enable_indexing ?? true,
+    title: page?.seo?.title || '',
+    description: page?.seo?.description || '',
+    keywords: page?.seo?.keywords || '',
+    favicon_url: page?.seo?.favicon_url || '',
+  })
+  const [showSeoModal, setShowSeoModal] = React.useState(false)
+  const [generatingSeo, setGeneratingSeo] = React.useState(false)
+  const [savingSeo, setSavingSeo] = React.useState(false)
+
+  React.useEffect(() => {
+    if (page?.domain_id) setSelectedDomainId(page.domain_id)
+    if (page?.page_slug) setPageSlug(page.page_slug)
+    if (page?.seo) setSeo({ enable_indexing: true, title: '', description: '', keywords: '', favicon_url: '', ...page.seo })
+  }, [page?.domain_id, page?.page_slug, page?.seo])
+
+  const selectedDomain = domains.find(d => d.id === selectedDomainId)
+
+  const handleSaveDomain = async () => {
+    setSavingDomain(true)
+    await updatePage.mutateAsync({ id: id!, domain_id: selectedDomainId || null, page_slug: pageSlug })
+    setSavingDomain(false)
+    toast.success('Domínio salvo!')
+  }
+
+  const handleAddDomain = async () => {
+    if (!newDomain.trim()) return
+    await createDomain.mutateAsync(newDomain.trim())
+    setNewDomain('')
+    setShowAddDomain(false)
+    toast.success('Domínio adicionado!')
+  }
+
+  const handleSaveSeo = async () => {
+    setSavingSeo(true)
+    await updatePage.mutateAsync({ id: id!, seo })
+    setSavingSeo(false)
+    toast.success('SEO salvo!')
+    setShowSeoModal(false)
+  }
+
+  const getPublicUrl = () => {
+    if (!selectedDomain) return null
+    const slug = pageSlug.replace(/^\//, '')
+    return `https://${selectedDomain.domain}${slug ? '/' + slug : ''}`
+  }
+
+  const hasSeo = !!(seo.title && seo.description)
+  const hasResponsive = true // páginas KVision são sempre responsivas
 
   const [integrations, setIntegrations] = React.useState<PageIntegrations>(page?.integrations || {})
   const [savingIntegrations, setSavingIntegrations] = React.useState(false)
@@ -188,6 +258,7 @@ export default function PageDetail() {
     { key: "relatorio", label: "Relatório", icon: <BarChart2 className="w-4 h-4" /> },
     { key: "leads", label: "Leads", icon: <Users className="w-4 h-4" /> },
     { key: "integracoes", label: "Integrações", icon: <Puzzle className="w-4 h-4" /> },
+    { key: "dominio", label: "Domínio", icon: <Globe className="w-4 h-4" /> },
   ];
 
   return (
@@ -258,7 +329,7 @@ export default function PageDetail() {
 
       {/* Tabs */}
       <div className="border-b border-border mb-6">
-        <div className="flex gap-0">
+        <div className="flex gap-0 overflow-x-auto pb-[-2px]">
           {tabs.map(tab => (
             <button
               key={tab.key}
@@ -787,6 +858,396 @@ export default function PageDetail() {
             >
               {savingIntegrations ? 'Salvando...' : 'Salvar integrações'}
             </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Tab: Domínio */}
+      {activeTab === 'dominio' && (
+        <div className="max-w-2xl mx-auto py-6 space-y-6">
+
+          {/* ── DOMÍNIO ── */}
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-1">Domínio personalizado</h2>
+            <p className="text-sm text-gray-500 mb-5">Aponte esta página para um domínio conectado à sua conta</p>
+
+            {/* Seletor de domínio */}
+            <div className="space-y-4">
+              <div>
+                <label className="text-[12px] font-semibold text-gray-600 block mb-2">Domínio</label>
+                <div className="relative">
+                  <button
+                    onClick={() => setShowDomainDropdown(!showDomainDropdown)}
+                    className="w-full flex items-center justify-between px-4 py-3 border border-gray-200 rounded-xl bg-white text-[13px] text-gray-700 hover:border-gray-300 transition-colors"
+                  >
+                    {selectedDomain ? (
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                        <span className="font-medium">{selectedDomain.domain}</span>
+                        <span className="text-[11px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-semibold">SSL Ativo</span>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400">Selecione o domínio</span>
+                    )}
+                    <ChevronDown className="w-4 h-4 text-gray-400" />
+                  </button>
+
+                  {showDomainDropdown && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-20 overflow-hidden">
+                      <div className="p-2 border-b border-gray-100">
+                        <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg">
+                          <Search className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                          <input
+                            autoFocus
+                            value={domainSearch}
+                            onChange={e => setDomainSearch(e.target.value)}
+                            placeholder="Buscar domínio..."
+                            className="flex-1 text-[13px] bg-transparent outline-none text-gray-700 placeholder-gray-400"
+                          />
+                        </div>
+                      </div>
+                      <div className="max-h-48 overflow-y-auto">
+                        {/* Opção: sem domínio */}
+                        <button
+                          onClick={() => { setSelectedDomainId(''); setShowDomainDropdown(false) }}
+                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 text-left text-[13px] text-gray-500"
+                        >
+                          Nenhum domínio
+                        </button>
+                        {domains
+                          .filter(d => d.domain.toLowerCase().includes(domainSearch.toLowerCase()))
+                          .map(d => (
+                            <button key={d.id}
+                              onClick={() => { setSelectedDomainId(d.id); setShowDomainDropdown(false); setDomainSearch('') }}
+                              className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 text-left"
+                            >
+                              <div className="flex items-center gap-2">
+                                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                                <span className="text-[13px] font-medium text-gray-900">{d.domain}</span>
+                              </div>
+                              <span className="text-[11px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-semibold">SSL Ativo</span>
+                            </button>
+                          ))}
+                        {domains.length === 0 && (
+                          <div className="px-4 py-6 text-center text-[13px] text-gray-400">
+                            Nenhum domínio conectado ainda
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Slug */}
+              <div>
+                <label className="text-[12px] font-semibold text-gray-600 block mb-2">
+                  Link da página <span className="text-gray-400 font-normal">(Opcional)</span>
+                </label>
+                <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden bg-white focus-within:border-[#FBB03B] transition-colors">
+                  <span className="px-3 text-[13px] text-gray-400 border-r border-gray-200 py-3 bg-gray-50">/</span>
+                  <input
+                    value={pageSlug}
+                    onChange={e => setPageSlug(e.target.value.replace(/[^a-z0-9-]/g, '-').toLowerCase())}
+                    placeholder="nome-da-pagina"
+                    className="flex-1 px-3 py-3 text-[13px] outline-none text-gray-700 placeholder-gray-400"
+                  />
+                </div>
+                <p className="text-[11px] text-gray-400 mt-1">Ex: home, contato, obrigado</p>
+              </div>
+
+              {/* URL gerada */}
+              {selectedDomain && (
+                <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl">
+                  <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span className="text-[13px] font-mono text-gray-700 truncate flex-1">{getPublicUrl()}</span>
+                  <a href={getPublicUrl()!} target="_blank" rel="noopener noreferrer"
+                    className="shrink-0 text-gray-400 hover:text-gray-700 transition-colors">
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              )}
+
+              {/* Adicionar domínio */}
+              {!showAddDomain ? (
+                <div className="flex items-center gap-3 p-4 border border-dashed border-gray-200 rounded-xl bg-gray-50">
+                  <div className="w-8 h-8 bg-white border border-gray-200 rounded-lg flex items-center justify-center shrink-0">
+                    <Globe className="w-4 h-4 text-gray-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[13px] font-semibold text-gray-700">Conecte um domínio personalizado</p>
+                    <p className="text-[12px] text-gray-400 mt-0.5">Aponte seu domínio para exibir suas páginas</p>
+                  </div>
+                  <button onClick={() => setShowAddDomain(true)}
+                    className="shrink-0 text-[13px] font-semibold text-[#1A1A1A] bg-white border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors">
+                    Conectar
+                  </button>
+                </div>
+              ) : (
+                <div className="p-4 border border-[#FBB03B]/30 rounded-xl bg-[#FBB03B]/5">
+                  <label className="text-[12px] font-semibold text-gray-600 block mb-2">Novo domínio</label>
+                  <div className="flex gap-2">
+                    <Input
+                      autoFocus
+                      value={newDomain}
+                      onChange={e => setNewDomain(e.target.value)}
+                      placeholder="Ex: www.meusite.com.br"
+                      className="flex-1 bg-white border-gray-200 focus-visible:ring-[#FBB03B]"
+                    />
+                    <Button onClick={handleAddDomain} disabled={createDomain.isPending || !newDomain.trim()}
+                      className="bg-[#FBB03B] hover:bg-[#f0a824] text-[#1A1A1A] font-semibold shrink-0">
+                      {createDomain.isPending ? '...' : 'Adicionar'}
+                    </Button>
+                    <button onClick={() => setShowAddDomain(false)}
+                      className="px-3 py-2 text-gray-400 hover:text-gray-700 border border-gray-200 rounded-lg bg-white text-[13px] transition-colors">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Domínios conectados (lista gerenciável) */}
+              {domains.length > 0 && (
+                <div>
+                  <label className="text-[12px] font-semibold text-gray-600 block mb-2">Domínios conectados</label>
+                  <div className="space-y-2">
+                    {domains.map(d => (
+                      <div key={d.id} className="flex items-center gap-3 px-4 py-3 border border-gray-200 rounded-xl bg-white">
+                        <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+                        <span className="text-[13px] font-medium text-gray-900 flex-1">{d.domain}</span>
+                        <span className="text-[11px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-semibold">SSL Ativo</span>
+                        <button onClick={() => deleteDomain.mutate(d.id)}
+                          className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* ── O QUE ESTÁ INCLUÍDO ── */}
+          <div>
+            <h3 className="text-[14px] font-semibold text-gray-900 mb-3">Sua página inclui</h3>
+            <div className="space-y-2">
+              {[
+                { label: 'Versão para Desktop', ok: true },
+                { label: 'Versão Mobile (Responsiva)', ok: hasResponsive },
+                { label: 'SSL Encryption (Segurança)', ok: !!selectedDomain },
+                { label: 'Otimização de HTML, CSS e JS', ok: true },
+              ].map(({ label, ok }) => (
+                <div key={label} className="flex items-center gap-2.5">
+                  {ok
+                    ? <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    : <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />}
+                  <span className={`text-[13px] font-medium ${ok ? 'text-gray-700' : 'text-red-500'}`}>{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-[14px] font-semibold text-gray-900 mb-3">Sua página não inclui</h3>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between p-3 border border-red-100 bg-red-50 rounded-xl">
+                <div className="flex items-center gap-2.5">
+                  <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                  <div>
+                    <span className="text-[13px] font-semibold text-red-600">Otimização de SEO</span>
+                    {hasSeo && <span className="ml-2 text-[11px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Configurado</span>}
+                  </div>
+                </div>
+                <button onClick={() => setShowSeoModal(true)}
+                  className="text-[12px] font-semibold text-[#1A1A1A] bg-white border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap">
+                  {hasSeo ? 'Editar' : 'Corrigir agora'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Botão salvar */}
+          <div className="flex justify-end pt-2">
+            <Button onClick={handleSaveDomain} disabled={savingDomain}
+              className="bg-[#FBB03B] hover:bg-[#f0a824] text-[#1A1A1A] font-semibold px-6">
+              {savingDomain ? 'Salvando...' : 'Salvar domínio'}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL SEO ── */}
+      {showSeoModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden border border-gray-200">
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h3 className="text-[16px] font-bold text-gray-900">Informações e SEO</h3>
+              <button onClick={() => setShowSeoModal(false)}
+                className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+
+              {/* Gerar com IA */}
+              <div className="flex items-center gap-3 p-4 bg-[#FBB03B]/10 border border-[#FBB03B]/30 rounded-xl">
+                <Sparkles className="w-5 h-5 text-[#FBB03B] shrink-0" />
+                <div className="flex-1">
+                  <p className="text-[13px] font-semibold text-gray-900">Gerar SEO automaticamente com IA</p>
+                  <p className="text-[11px] text-gray-500 mt-0.5">Preenche título, descrição e palavras-chave com IA</p>
+                </div>
+                <button
+                  onClick={async () => {
+                    setGeneratingSeo(true)
+                    // TODO: chamar endpoint de geração com IA
+                    await new Promise(r => setTimeout(r, 1500))
+                    setGeneratingSeo(false)
+                    toast.info('Em breve disponível!')
+                  }}
+                  disabled={generatingSeo}
+                  className="shrink-0 bg-[#1A1A1A] hover:bg-[#2a2a2a] text-white text-[13px] font-semibold px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {generatingSeo ? '...' : 'Gerar'}
+                </button>
+              </div>
+
+              {/* Habilitar buscadores */}
+              <div className="flex items-start justify-between gap-4 p-4 border border-gray-200 rounded-xl">
+                <div>
+                  <p className="text-[13px] font-semibold text-gray-900">Habilitar buscadores</p>
+                  <p className="text-[12px] text-gray-500 mt-0.5 leading-relaxed">
+                    Habilitar que a página apareça nos resultados de buscas no Google, Bing, Yahoo! e etc?
+                  </p>
+                </div>
+                <Switch
+                  checked={seo.enable_indexing}
+                  onCheckedChange={v => setSeo(p => ({ ...p, enable_indexing: v }))}
+                  className="data-[state=checked]:bg-[#FBB03B] shrink-0 mt-0.5"
+                />
+              </div>
+
+              {/* Favicon */}
+              <div>
+                <h4 className="text-[14px] font-semibold text-gray-900 mb-3">Favicon</h4>
+                <div className="flex items-center gap-4 p-4 border border-gray-200 rounded-xl">
+                  <div className="w-16 h-16 bg-gray-100 border border-gray-200 rounded-xl flex items-center justify-center overflow-hidden shrink-0">
+                    {seo.favicon_url
+                      ? <img src={seo.favicon_url} alt="Favicon" className="w-12 h-12 object-contain" />
+                      : <Globe className="w-8 h-8 text-gray-300" />}
+                  </div>
+                  <div>
+                    <p className="text-[12px] text-gray-500 mb-2">Tamanho recomendado (64 × 64 pixels) .PNG .JPEG</p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          const url = window.prompt('URL do favicon:')
+                          if (url) setSeo(p => ({ ...p, favicon_url: url }))
+                        }}
+                        className="flex items-center gap-1.5 text-[12px] font-semibold text-gray-700 border border-gray-200 bg-white px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        <Plus className="w-3.5 h-3.5" /> Alterar favicon
+                      </button>
+                      {seo.favicon_url && (
+                        <button onClick={() => setSeo(p => ({ ...p, favicon_url: '' }))}
+                          className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg border border-gray-200 transition-colors">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Informações gerais */}
+              <div>
+                <h4 className="text-[14px] font-semibold text-gray-900 mb-4">Informações gerais</h4>
+                <div className="space-y-4">
+
+                  {/* Título */}
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <label className="text-[12px] font-semibold text-gray-600">Título da página</label>
+                      <span className="text-red-500 text-[12px]">*</span>
+                      <Info className="w-3.5 h-3.5 text-gray-400" />
+                    </div>
+                    <Input
+                      value={seo.title}
+                      onChange={e => setSeo(p => ({ ...p, title: e.target.value }))}
+                      placeholder="Ex: Inscrição quase confirmada!"
+                      maxLength={60}
+                      className="bg-white border-gray-200 focus-visible:ring-[#FBB03B]"
+                    />
+                    <p className="text-[11px] text-gray-400 mt-1">{seo.title.length}/60</p>
+                  </div>
+
+                  {/* Descrição */}
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <label className="text-[12px] font-semibold text-gray-600">Descrição da página</label>
+                      <Info className="w-3.5 h-3.5 text-gray-400" />
+                    </div>
+                    <Textarea
+                      value={seo.description}
+                      onChange={e => setSeo(p => ({ ...p, description: e.target.value }))}
+                      placeholder="Descreva brevemente o conteúdo da página..."
+                      maxLength={320}
+                      rows={3}
+                      className="bg-white border-gray-200 focus-visible:ring-[#FBB03B] resize-none"
+                    />
+                    <p className="text-[11px] text-gray-400 mt-1">{seo.description.length}/320</p>
+                  </div>
+
+                  {/* Palavras-chave */}
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <label className="text-[12px] font-semibold text-gray-600">Palavras-chave da página</label>
+                      <Info className="w-3.5 h-3.5 text-gray-400" />
+                    </div>
+                    <Input
+                      value={seo.keywords}
+                      onChange={e => setSeo(p => ({ ...p, keywords: e.target.value }))}
+                      placeholder="Ex: marketing digital, tráfego pago, resultados"
+                      className="bg-white border-gray-200 focus-visible:ring-[#FBB03B]"
+                    />
+                    <p className="text-[11px] text-gray-400 mt-1">Separe as palavras por vírgula</p>
+                  </div>
+
+                  {/* Preview Google */}
+                  {(seo.title || seo.description) && (
+                    <div>
+                      <label className="text-[12px] font-semibold text-gray-600 block mb-2">Pré-visualização do Google</label>
+                      <div className="p-4 border border-gray-200 rounded-xl bg-white">
+                        <p className="text-[12px] text-gray-400 mb-1">{selectedDomain?.domain || 'seudominio.com.br'}</p>
+                        <p className="text-[15px] text-blue-600 font-medium mb-1 hover:underline cursor-pointer truncate">
+                          {seo.title || 'Título da página'}
+                        </p>
+                        <p className="text-[13px] text-gray-600 leading-relaxed line-clamp-2">
+                          {seo.description || 'Descrição da página aparecerá aqui...'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex gap-3 px-6 py-4 border-t border-gray-100">
+              <button onClick={() => setShowSeoModal(false)}
+                className="flex-1 h-10 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl text-[13px] font-medium transition-colors">
+                Cancelar
+              </button>
+              <button onClick={handleSaveSeo} disabled={savingSeo}
+                className="flex-1 h-10 bg-[#FBB03B] hover:bg-[#f0a824] disabled:opacity-50 text-[#1A1A1A] rounded-xl text-[13px] font-bold transition-colors">
+                {savingSeo ? 'Salvando...' : 'Salvar'}
+              </button>
+            </div>
           </div>
         </div>
       )}
