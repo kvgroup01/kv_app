@@ -430,6 +430,14 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
         el.style.borderRadius = value + 'px'
       } else if (styleKey === 'width') {
         el.style.width = value
+      } else if (styleKey === 'href') {
+        if (el.tagName === 'A') {
+          (el as HTMLAnchorElement).href = value
+          (el as HTMLAnchorElement).setAttribute('href', value)
+        } else if (el.tagName === 'BUTTON') {
+          // Para button: armazena em data-href para aplicar no HTML salvo
+          el.setAttribute('data-href', value)
+        }
       }
       setLiveStyles((prev: Record<string, any>) => ({ ...prev, [styleKey]: value }))
     } catch (err) {}
@@ -510,6 +518,10 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
         width: el.style.width || '',
       })
 
+      // Lê href se for link
+      const href = el.tagName === 'A' ? (el as HTMLAnchorElement).getAttribute('href') || '' : ''
+      setLiveStyles((prev: any) => ({ ...prev, href }))
+
       setSelectedElement({ selector, tag: el.tagName.toLowerCase(), isShape })
     }
 
@@ -520,6 +532,18 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
   const applyAndSave = React.useCallback(() => {
     const doc = iframeRef.current?.contentDocument
     if (!doc) return
+
+    // Garante target="_blank" em todos os <a> com href definido
+    try {
+      doc.querySelectorAll('a[href]').forEach((a: Element) => {
+        const href = (a as HTMLAnchorElement).getAttribute('href')
+        if (href && !href.startsWith('#') && !href.startsWith('javascript')) {
+          a.setAttribute('target', '_blank')
+          a.setAttribute('rel', 'noopener noreferrer')
+        }
+      })
+    } catch {}
+
     const newHtml = doc.documentElement.outerHTML
     lastSaved.current = newHtml
     setLocalHtml(newHtml)
@@ -660,6 +684,34 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
                   onChange={e => applyStyle('width', e.target.value)}
                   style={{ width: '100%', fontSize: '12px', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '6px 8px', color: '#1e293b', background: '#fff', boxSizing: 'border-box' as const }} />
               </div>
+
+              {/* Link — só aparece para <a> e <button> */}
+              {(selectedElement.tag === 'a' || selectedElement.tag === 'button') && (
+                <div style={{ marginBottom: '10px' }}>
+                  <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: '4px' }}>
+                    Link (URL)
+                  </label>
+                  <input
+                    type="text"
+                    value={s.href || ''}
+                    placeholder="https://..."
+                    onChange={e => applyStyle('href', e.target.value)}
+                    style={{
+                      width: '100%',
+                      fontSize: '12px',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '6px',
+                      padding: '6px 8px',
+                      color: '#1e293b',
+                      background: '#fff',
+                      boxSizing: 'border-box' as const,
+                    }}
+                  />
+                  <p style={{ fontSize: '10px', color: '#94a3b8', margin: '4px 0 0' }}>
+                    Abre numa nova aba ao salvar
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Botão salvar */}
