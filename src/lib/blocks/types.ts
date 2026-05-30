@@ -14,6 +14,7 @@ export type BlockCategory =
   | 'Planos'
   | 'Garantias'
   | 'Timelines'
+  | 'Personalizado'
 
 export interface FieldSchema {
   key: string

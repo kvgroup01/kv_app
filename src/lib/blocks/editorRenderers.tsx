@@ -369,6 +369,28 @@ function FormLead1Editor({ data, styles, onChange, onSelectElement, selectedElem
   )
 }
 
+// ── custom_html ───────────────────────────────────────────
+function CustomHtmlEditor({ data, styles, onChange, onSelectElement, selectedElementKey, elementStyles }: { data: any; styles: SectionStyles; onChange: OnChange; onSelectElement: OnSelect; selectedElementKey: string | null; elementStyles: Record<string, any> }) {
+  const styleTag = data.css ? `<style>${data.css}</style>` : ''
+  const htmlContent = `${styleTag}${data.html || ''}`
+  return (
+    <div style={{ position: 'relative', width: '100%' }}>
+      <iframe 
+        style={{ width: '100%', border: 'none', minHeight: 200, display: 'block', backgroundColor: styles.backgroundColor || 'transparent' }}
+        srcDoc={htmlContent}
+        title="Custom HTML Preview"
+      />
+      <div 
+        onClick={() => onSelectElement('container', 'shape')} 
+        style={{ 
+          position: 'absolute', inset: 0, zIndex: 10, 
+          ...(selectedElementKey === 'container' ? { boxShadow: 'inset 0 0 0 2px #FBB03B' } : {}) 
+        }} 
+      />
+    </div>
+  )
+}
+
 // ── Mapa exportado ────────────────────────────────────────
 export const editorRenderers: Record<string, (data: any, styles: SectionStyles, onChange: OnChange, onSelectElement: OnSelect, selectedElementKey: string | null, elementStyles: Record<string, any>) => React.ReactNode> = {
   header_1: (d, s, o, se, sk, es) => <Header1Editor data={d} styles={s} onChange={o} onSelectElement={se} selectedElementKey={sk} elementStyles={es} />,
@@ -384,4 +406,5 @@ export const editorRenderers: Record<string, (data: any, styles: SectionStyles, 
   footer_1: (d, s, o, se, sk, es) => <Footer1Editor data={d} styles={s} onChange={o} onSelectElement={se} selectedElementKey={sk} elementStyles={es} />,
   footer_2: (d, s, o, se, sk, es) => <Footer2Editor data={d} styles={s} onChange={o} onSelectElement={se} selectedElementKey={sk} elementStyles={es} />,
   form_lead_1: (d, s, o, se, sk, es) => <FormLead1Editor data={d} styles={s} onChange={o} onSelectElement={se} selectedElementKey={sk} elementStyles={es} />,
+  custom_html: (d, s, o, se, sk, es) => <CustomHtmlEditor data={d} styles={s} onChange={o} onSelectElement={se} selectedElementKey={sk} elementStyles={es} />,
 }

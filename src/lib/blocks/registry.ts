@@ -635,12 +635,47 @@ export const blockRegistry: BlockDefinition[] = [
         </script>
       </section>
     `
-  }
+  },
+  {
+    type: 'custom_html',
+    name: 'HTML Personalizado',
+    category: 'Personalizado',
+    thumbnail: `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:6px;padding:12px;">
+    <div style="font-family:monospace;font-size:11px;color:#64748b;background:#f1f5f9;padding:6px 10px;border-radius:6px;width:100%;text-align:left;">&lt;div&gt;</div>
+    <div style="font-family:monospace;font-size:11px;color:#94a3b8;padding:0 10px;width:100%;text-align:left;">&nbsp;&nbsp;Seu HTML aqui</div>
+    <div style="font-family:monospace;font-size:11px;color:#64748b;background:#f1f5f9;padding:6px 10px;border-radius:6px;width:100%;text-align:left;">&lt;/div&gt;</div>
+  </div>`,
+    fields: [
+      {
+        key: 'html',
+        label: 'HTML',
+        type: 'textarea',
+      },
+      {
+        key: 'css',
+        label: 'CSS (estilos)',
+        type: 'textarea',
+      },
+    ],
+    defaultData: {
+      html: '<div style="padding: 48px 24px; text-align: center;">\n  <h2 style="font-size: 32px; font-weight: 800; color: #1e293b; margin-bottom: 16px;">Meu bloco</h2>\n  <p style="font-size: 18px; color: #64748b;">Edite o HTML e CSS no painel lateral.</p>\n</div>',
+      css: '',
+    },
+    defaultSectionStyles: {
+      paddingTop: 0,
+      paddingBottom: 0,
+      backgroundColor: '#ffffff',
+    },
+    render(data: Record<string, any>, styles: SectionStyles): string {
+      const styleTag = data.css ? `<style>${data.css}</style>` : ''
+      return `${styleTag}${data.html || ''}`
+    },
+  },
 ];
 
 export const BLOCK_CATEGORIES: BlockCategory[] = [
   'Headers','Benefícios','Depoimentos','Formulários','CTA','Rodapés',
-  'Dúvidas','Galeria','Vídeos','Equipes','Planos','Garantias','Timelines'
+  'Dúvidas','Galeria','Vídeos','Equipes','Planos','Garantias','Timelines','Personalizado'
 ];
 
 export const getBlocksByCategory = (cat: BlockCategory) =>
