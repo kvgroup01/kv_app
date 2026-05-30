@@ -371,39 +371,49 @@ function FormLead1Editor({ data, styles, onChange, onSelectElement, selectedElem
 
 // ── custom_html ───────────────────────────────────────────
 function CustomHtmlEditor({ data }: { data: any; styles: SectionStyles; onChange: OnChange; onSelectElement: OnSelect; selectedElementKey: string | null; elementStyles: Record<string, any> }) {
-  const [iframeHeight, setIframeHeight] = React.useState(500)
+  const [iframeHeight, setIframeHeight] = React.useState(600)
+  const [blobUrl, setBlobUrl] = React.useState('')
 
   const isFullPage = /^\s*<!doctype/i.test(data.html || '') || /^\s*<html/i.test(data.html || '')
 
-  // Script injetado para reportar a altura real do conteúdo ao React pai
-  const resizeScript = `<script>(function(){function s(){var h=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight,document.body.offsetHeight,document.documentElement.offsetHeight);window.parent.postMessage({type:'kv-iframe-h',h:h},'*');}window.addEventListener('load',function(){setTimeout(s,400);setTimeout(s,1200);});new MutationObserver(s).observe(document.documentElement,{childList:true,subtree:true});})();<\/script>`
+  const resizeScript = '<script>(function(){function s(){var h=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight,document.body.offsetHeight,document.documentElement.offsetHeight);window.parent.postMessage({type:"kv-iframe-h",h:h},"*");}window.addEventListener("load",function(){setTimeout(s,600);setTimeout(s,1500);setTimeout(s,3000);});var mo=new MutationObserver(function(){setTimeout(s,300);});mo.observe(document.body||document.documentElement,{childList:true,subtree:true});})();<' + '/script>'
 
-  const buildSrcDoc = () => {
+  const buildHtml = React.useCallback(() => {
     if (isFullPage) {
       const html = data.html || ''
-      // Injeta o script de resize antes do </body>
       return html.includes('</body>')
         ? html.replace('</body>', resizeScript + '</body>')
         : html + resizeScript
     }
-    // HTML parcial: envolve na template mínima
-    return `<!DOCTYPE html><html><head><meta charset="utf-8"/><style>*{box-sizing:border-box;}body{margin:0;padding:0;}${data.css || ''}</style></head><body>${data.html || ''}${resizeScript}</body></html>`
-  }
+    return '<!DOCTYPE html><html><head><meta charset="utf-8"/><style>*{box-sizing:border-box;}body{margin:0;padding:0;}' + (data.css || '') + '</style></head><body>' + (data.html || '') + resizeScript + '</body></html>'
+  }, [data.html, data.css, isFullPage])
+
+  React.useEffect(() => {
+    const html = buildHtml()
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    setBlobUrl(url)
+    return () => {
+      setTimeout(() => URL.revokeObjectURL(url), 1000)
+    }
+  }, [buildHtml])
 
   React.useEffect(() => {
     const handler = (e: MessageEvent) => {
       if (e.data?.type === 'kv-iframe-h' && e.data.h) {
-        setIframeHeight(Math.max(200, e.data.h))
+        setIframeHeight(Math.max(200, Number(e.data.h)))
       }
     }
     window.addEventListener('message', handler)
     return () => window.removeEventListener('message', handler)
   }, [])
 
+  if (!blobUrl) return <div style={{ height: 200, background: '#f0f0f2' }} />
+
   return (
     <div style={{ width: '100%', position: 'relative' }}>
       <iframe
-        srcDoc={buildSrcDoc()}
+        src={blobUrl}
         style={{ width: '100%', border: 'none', display: 'block', height: iframeHeight }}
         scrolling="no"
         title="Preview HTML"
