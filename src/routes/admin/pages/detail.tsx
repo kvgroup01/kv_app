@@ -30,6 +30,7 @@ import { ptBR } from "date-fns/locale";
 import { usePage, useUpdatePage, type PageIntegrations } from "../../../hooks/usePages";
 import { useLeads, useDeleteLead, type Lead } from "../../../hooks/useLeads";
 import { useDomains, useCreateDomain, useDeleteDomain, type Domain } from "../../../hooks/useDomains";
+import { supabase } from "../../../lib/supabase";
 import { cn } from "../../../lib/utils";
 
 type TabType = "resumo" | "relatorio" | "leads" | "integracoes" | "dominio";
@@ -58,6 +59,12 @@ export default function PageDetail() {
   const [showAddDomain, setShowAddDomain] = React.useState(false)
   const [newDomain, setNewDomain] = React.useState('')
   const [savingDomain, setSavingDomain] = React.useState(false)
+
+  // Favicon states
+  const [showFaviconModal, setShowFaviconModal] = React.useState(false)
+  const [faviconUrl, setFaviconUrl] = React.useState('')
+  const [faviconTab, setFaviconTab] = React.useState<'url' | 'upload'>('url')
+  const [uploadingFavicon, setUploadingFavicon] = React.useState(false)
 
   // SEO
   const [seo, setSeo] = React.useState({
@@ -1053,7 +1060,7 @@ export default function PageDetail() {
                     <p className="text-[12px] text-gray-500 mb-2">Tamanho recomendado: 64×64px — .PNG ou .JPEG</p>
                     <div className="flex gap-2">
                       <button
-                        onClick={() => { const url = window.prompt('URL do favicon:'); if (url) setSeo(p => ({ ...p, favicon_url: url })) }}
+                        onClick={() => { setFaviconUrl(seo.favicon_url || ''); setShowFaviconModal(true) }}
                         className="flex items-center gap-1.5 text-[12px] font-semibold text-gray-700 border border-gray-200 bg-white px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
                       >
                         <Plus className="w-3.5 h-3.5" /> Alterar favicon
@@ -1255,6 +1262,143 @@ export default function PageDetail() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Favicon Modal */}
+      {showFaviconModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md border border-gray-200 overflow-hidden">
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h3 className="text-[15px] font-bold text-gray-900">Alterar Favicon</h3>
+              <button onClick={() => setShowFaviconModal(false)}
+                className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Tabs */}
+            <div className="flex border-b border-gray-100 px-6">
+              <button
+                onClick={() => setFaviconTab('url')}
+                className={`pb-3 pt-3 mr-6 text-[13px] font-semibold border-b-2 transition-all ${faviconTab === 'url' ? 'border-[#FBB03B] text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+              >
+                Inserir URL
+              </button>
+              <button
+                onClick={() => setFaviconTab('upload')}
+                className={`pb-3 pt-3 text-[13px] font-semibold border-b-2 transition-all ${faviconTab === 'upload' ? 'border-[#FBB03B] text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
+              >
+                Fazer upload
+              </button>
+            </div>
+
+            <div className="p-6">
+              {faviconTab === 'url' ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-[12px] font-semibold text-gray-600 block mb-2">URL da imagem</label>
+                    <Input
+                      autoFocus
+                      value={faviconUrl}
+                      onChange={e => setFaviconUrl(e.target.value)}
+                      placeholder="https://seusite.com/favicon.png"
+                      className="bg-white border-gray-200 focus-visible:ring-[#FBB03B]"
+                    />
+                    <p className="text-[11px] text-gray-400 mt-1.5">Cole o link direto para uma imagem PNG ou JPEG (64×64px recomendado)</p>
+                  </div>
+
+                  {/* Preview */}
+                  {faviconUrl && (
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-xl">
+                      <img
+                        src={faviconUrl}
+                        alt="Preview"
+                        className="w-10 h-10 rounded-lg object-contain border border-gray-200 bg-white"
+                        onError={e => { (e.target as HTMLImageElement).style.display = 'none' }}
+                      />
+                      <div>
+                        <p className="text-[12px] font-semibold text-gray-700">Preview do favicon</p>
+                        <p className="text-[11px] text-gray-400 truncate max-w-[220px]">{faviconUrl}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div
+                  className="border-2 border-dashed border-gray-200 rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#FBB03B] hover:bg-[#FBB03B]/5 transition-all"
+                  onClick={() => document.getElementById('favicon-upload-input')?.click()}
+                >
+                  <input
+                    id="favicon-upload-input"
+                    type="file"
+                    accept="image/png,image/jpeg,image/ico,image/svg+xml"
+                    className="hidden"
+                    onChange={async e => {
+                      const file = e.target.files?.[0]
+                      if (!file) return
+                      setUploadingFavicon(true)
+                      try {
+                        // Upload para o Supabase Storage
+                        const ext = file.name.split('.').pop()
+                        const fileName = `favicon-${Date.now()}.${ext}`
+                        const { data, error } = await supabase.storage
+                          .from('page-assets')
+                          .upload(fileName, file, { upsert: true })
+                        if (error) throw error
+                        const { data: { publicUrl } } = supabase.storage
+                          .from('page-assets')
+                          .getPublicUrl(fileName)
+                        setFaviconUrl(publicUrl)
+                        setFaviconTab('url') // Mostra preview na aba URL
+                      } catch (err) {
+                        toast.error('Erro ao fazer upload. Tente usar uma URL.')
+                      } finally {
+                        setUploadingFavicon(false)
+                      }
+                    }}
+                  />
+                  {uploadingFavicon ? (
+                    <>
+                      <div className="w-10 h-10 border-2 border-[#FBB03B] border-t-transparent rounded-full animate-spin mb-3" />
+                      <p className="text-[13px] font-semibold text-gray-600">Enviando...</p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mb-3">
+                        <Plus className="w-6 h-6 text-gray-400" />
+                      </div>
+                      <p className="text-[13px] font-semibold text-gray-700">Clique para selecionar</p>
+                      <p className="text-[12px] text-gray-400 mt-1">PNG, JPEG ou ICO — máx. 1MB</p>
+                      <p className="text-[11px] text-gray-300 mt-1">64×64px recomendado</p>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="flex gap-3 px-6 py-4 border-t border-gray-100">
+              <button onClick={() => setShowFaviconModal(false)}
+                className="flex-1 h-10 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl text-[13px] font-medium transition-colors">
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  if (faviconUrl.trim()) {
+                    setSeo(p => ({ ...p, favicon_url: faviconUrl.trim() }))
+                    setShowFaviconModal(false)
+                  }
+                }}
+                disabled={!faviconUrl.trim() || uploadingFavicon}
+                className="flex-1 h-10 bg-[#FBB03B] hover:bg-[#f0a824] disabled:opacity-40 disabled:cursor-not-allowed text-[#1A1A1A] rounded-xl text-[13px] font-bold transition-colors"
+              >
+                Aplicar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
