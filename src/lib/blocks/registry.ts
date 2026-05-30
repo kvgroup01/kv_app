@@ -667,6 +667,15 @@ export const blockRegistry: BlockDefinition[] = [
       backgroundColor: '#ffffff',
     },
     render(data: Record<string, any>, styles: SectionStyles): string {
+      const isFullPage = /^\s*<!doctype/i.test(data.html || '') || /^\s*<html/i.test(data.html || '')
+
+      if (isFullPage) {
+        // HTML completo: renderiza via iframe com srcdoc para evitar nesting inválido
+        const escaped = (data.html || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+        return `<iframe srcdoc="${escaped}" style="width:100%;height:100vh;border:none;display:block;" scrolling="yes" title="Página customizada"></iframe>`
+      }
+
+      // HTML parcial: injeta CSS e retorna direto
       const styleTag = data.css ? `<style>${data.css}</style>` : ''
       return `${styleTag}${data.html || ''}`
     },
