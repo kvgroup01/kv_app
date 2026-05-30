@@ -579,9 +579,9 @@ export const blockRegistry: BlockDefinition[] = [
     render: (data, styles) => `
       <section style="background-color: ${styles.backgroundColor || '#fff'}; padding: ${styles.paddingTop || 80}px 24px ${styles.paddingBottom || 80}px;">
         <div style="max-width: 480px; margin: 0 auto; text-align: center;">
-          ${data.titulo ? \`<h2 style="font-size: 32px; font-weight: 800; color: #1e293b; margin: 0 0 12px;">\${data.titulo}</h2>\` : ''}
-          ${data.subtitulo ? \`<p style="font-size: 17px; color: #64748b; margin: 0 0 32px; line-height: 1.5;">\${data.subtitulo}</p>\` : ''}
-          <form id="kv-lead-form" onsubmit="kvSubmitLead(event)" style="display: flex; flex-direction: column; gap: 14px; text-align: left;">
+          ${data.titulo ? '<h2 style="font-size:32px;font-weight:800;color:#1e293b;margin:0 0 12px;">' + data.titulo + '</h2>' : ''}
+          ${data.subtitulo ? '<p style="font-size:17px;color:#64748b;margin:0 0 32px;line-height:1.5;">' + data.subtitulo + '</p>' : ''}
+          <form id="kv-lead-form" onsubmit="kvSubmitLead(event)" style="display:flex;flex-direction:column;gap:14px;text-align:left;">
             <input type="hidden" name="page_id" value="{{PAGE_ID}}" />
             <input type="hidden" name="page_url" id="kv-page-url" value="" />
             <input type="hidden" name="utm_source" id="kv-utm-source" value="" />
@@ -589,52 +589,52 @@ export const blockRegistry: BlockDefinition[] = [
             <input type="hidden" name="utm_campaign" id="kv-utm-campaign" value="" />
             <input type="hidden" name="utm_term" id="kv-utm-term" value="" />
             <input type="hidden" name="utm_content" id="kv-utm-content" value="" />
-            ${data.mostrar_nome !== false ? \`<input type="text" name="nome" placeholder="Seu nome completo" required style="width:100%;padding:14px 16px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:15px;color:#1e293b;outline:none;box-sizing:border-box;font-family:inherit;" />\` : ''}
-            ${data.mostrar_email !== false ? \`<input type="email" name="email" placeholder="Seu melhor e-mail" required style="width:100%;padding:14px 16px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:15px;color:#1e293b;outline:none;box-sizing:border-box;font-family:inherit;" />\` : ''}
-            ${data.mostrar_telefone !== false ? \`<input type="tel" name="telefone" placeholder="WhatsApp com DDD" style="width:100%;padding:14px 16px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:15px;color:#1e293b;outline:none;box-sizing:border-box;font-family:inherit;" />\` : ''}
-            <button type="submit" id="kv-submit-btn" style="width:100%;padding:16px;background-color:\${data.botao_cor || '#FBB03B'};color:\${data.botao_texto_cor || '#1A1A1A'};border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;margin-top:4px;font-family:inherit;">
-              \${data.botao_texto || 'Quero participar'}
+            ${data.mostrar_nome !== false ? '<input type="text" name="nome" placeholder="Seu nome completo" required style="width:100%;padding:14px 16px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:15px;color:#1e293b;outline:none;box-sizing:border-box;font-family:inherit;" />' : ''}
+            ${data.mostrar_email !== false ? '<input type="email" name="email" placeholder="Seu melhor e-mail" required style="width:100%;padding:14px 16px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:15px;color:#1e293b;outline:none;box-sizing:border-box;font-family:inherit;" />' : ''}
+            ${data.mostrar_telefone !== false ? '<input type="tel" name="telefone" placeholder="WhatsApp com DDD" style="width:100%;padding:14px 16px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:15px;color:#1e293b;outline:none;box-sizing:border-box;font-family:inherit;" />' : ''}
+            <button type="submit" id="kv-submit-btn" style="width:100%;padding:16px;background-color:${data.botao_cor || '#FBB03B'};color:${data.botao_texto_cor || '#1A1A1A'};border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;margin-top:4px;font-family:inherit;">
+              ${data.botao_texto || 'Quero participar'}
             </button>
           </form>
           <div id="kv-success-msg" style="display:none;margin-top:24px;padding:20px;background:#f0fdf4;border-radius:8px;color:#166534;font-weight:600;font-size:16px;">
-            \${data.mensagem_sucesso || 'Obrigado! Entraremos em contato em breve.'}
+            ${data.mensagem_sucesso || 'Obrigado! Entraremos em contato em breve.'}
           </div>
         </div>
         <script>
           (function(){
-            var p = new URLSearchParams(window.location.search);
-            var s = function(id, v){ var el = document.getElementById(id); if(el) el.value = v; };
-            s('kv-page-url', window.location.href);
-            s('kv-utm-source', p.get('utm_source')||'');
-            s('kv-utm-medium', p.get('utm_medium')||'');
-            s('kv-utm-campaign', p.get('utm_campaign')||'');
-            s('kv-utm-term', p.get('utm_term')||'');
-            s('kv-utm-content', p.get('utm_content')||'');
+            var p=new URLSearchParams(window.location.search);
+            var s=function(id,v){var el=document.getElementById(id);if(el)el.value=v;};
+            s('kv-page-url',window.location.href);
+            s('kv-utm-source',p.get('utm_source')||'');
+            s('kv-utm-medium',p.get('utm_medium')||'');
+            s('kv-utm-campaign',p.get('utm_campaign')||'');
+            s('kv-utm-term',p.get('utm_term')||'');
+            s('kv-utm-content',p.get('utm_content')||'');
           })();
           function kvSubmitLead(e){
             e.preventDefault();
             var btn=document.getElementById('kv-submit-btn');
-            btn.disabled=true; btn.textContent='Enviando...';
+            btn.disabled=true;btn.textContent='Enviando...';
             var body={};
-            new FormData(e.target).forEach(function(v,k){ body[k]=v; });
-            fetch('https://kvision.kvgroupbr.com.br/api/leads',{
+            new FormData(e.target).forEach(function(v,k){body[k]=v;});
+            fetch('https://kvision.kv-group.com.br/api/leads',{
               method:'POST',
               headers:{'Content-Type':'application/json'},
               body:JSON.stringify(body)
             }).then(function(r){
-              if(!r.ok) throw new Error();
+              if(!r.ok)throw new Error();
               document.getElementById('kv-lead-form').style.display='none';
               document.getElementById('kv-success-msg').style.display='block';
-              \${data.redirect_url ? \`setTimeout(function(){ window.location.href='\${data.redirect_url}'; },2000);\` : ''}
+              ${data.redirect_url ? "setTimeout(function(){window.location.href='" + data.redirect_url + "';},2000);" : ''}
             }).catch(function(){
               btn.disabled=false;
-              btn.textContent='\${(data.botao_texto||'Quero participar').replace(/'/g,"\\\\'")}\';
+              btn.textContent='${data.botao_texto || 'Quero participar'}';
               alert('Erro ao enviar. Tente novamente.');
             });
           }
         </script>
       </section>
-    \`
+    `
   }
 ];
 
