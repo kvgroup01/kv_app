@@ -600,7 +600,7 @@ export default function PageDetail() {
               </div>
               <button
                 onClick={openAddCode}
-                className="flex items-center gap-1.5 bg-[#1A1A1A] hover:bg-[#2a2a2a] text-white text-[13px] font-medium px-3 py-2 rounded-lg transition-colors border border-[#2a2a2a]"
+                className="flex items-center gap-1.5 bg-[#FBB03B] hover:bg-[#f0a824] text-[#1A1A1A] text-[13px] font-semibold px-4 py-2 rounded-lg transition-colors"
               >
                 <Plus className="w-3.5 h-3.5" strokeWidth={3} /> Adicionar código
               </button>
@@ -660,103 +660,117 @@ export default function PageDetail() {
 
           {/* ── MODAL DE CÓDIGO ── */}
           {showCodeModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}>
-              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
-                
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)' }}>
+              <div className="bg-[#0f0f0f] border border-[#2a2a2a] rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
+
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                  <h3 className="text-[16px] font-semibold text-gray-900">
-                    {editingCode ? 'Editar código' : 'Adicionar código'}
-                  </h3>
-                  <button onClick={() => setShowCodeModal(false)} className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
+                <div className="flex items-center justify-between px-6 py-5 border-b border-[#1f1f1f]">
+                  <div>
+                    <h3 className="text-[16px] font-bold text-white">
+                      {editingCode ? 'Editar código' : 'Novo código'}
+                    </h3>
+                    <p className="text-[12px] text-[#767676] mt-0.5">Insira scripts ou estilos personalizados nesta página</p>
+                  </div>
+                  <button onClick={() => setShowCodeModal(false)}
+                    className="w-8 h-8 flex items-center justify-center text-[#767676] hover:text-white hover:bg-[#1f1f1f] rounded-lg transition-colors">
                     <X className="w-4 h-4" />
                   </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-6 space-y-5">
-                  
+                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+
                   {/* Nome */}
                   <div>
-                    <label className="text-[12px] font-semibold text-gray-600 uppercase tracking-wider block mb-2">
-                      Nome do código <span className="text-red-500">*</span>
+                    <label className="text-[11px] font-bold text-[#FBB03B] uppercase tracking-widest block mb-2">
+                      Nome do código <span className="text-red-400">*</span>
                     </label>
-                    <Input
+                    <input
                       autoFocus
                       value={codeForm.name}
                       onChange={e => setCodeForm(p => ({ ...p, name: e.target.value }))}
                       placeholder="Ex: Google Tag Manager, Hotjar..."
-                      className="bg-gray-50 border-gray-200 focus-visible:ring-[#FBB03B]"
+                      className="w-full bg-[#1a1a1a] border border-[#2a2a2a] text-white placeholder-[#484848] rounded-xl px-4 py-3 text-[13px] outline-none focus:border-[#FBB03B] transition-colors"
                     />
                   </div>
 
                   {/* Tipo */}
                   <div>
-                    <label className="text-[12px] font-semibold text-gray-600 uppercase tracking-wider block mb-2">Tipo do código</label>
-                    <div className="space-y-2">
+                    <label className="text-[11px] font-bold text-[#FBB03B] uppercase tracking-widest block mb-3">
+                      Categoria
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
                       {(Object.entries(TYPE_META) as [string, typeof TYPE_META.funcionamento][]).map(([value, meta]) => {
                         const active = codeForm.type === value
                         return (
                           <button
                             key={value}
                             onClick={() => setCodeForm(p => ({ ...p, type: value as any }))}
-                            className="w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left"
+                            className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all text-center"
                             style={{
-                              borderColor: active ? meta.color : '#e2e8f0',
-                              background: active ? `${meta.color}10` : '#f8fafc',
+                              borderColor: active ? meta.color : '#2a2a2a',
+                              background: active ? `${meta.color}15` : '#1a1a1a',
                             }}
                           >
-                            <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-all"
-                              style={{ borderColor: active ? meta.color : '#cbd5e1' }}>
-                              {active && <div className="w-2 h-2 rounded-full" style={{ background: meta.color }} />}
-                            </div>
-                            <div>
-                              <p className="text-[13px] font-semibold text-gray-900">{meta.label}</p>
-                              <p className="text-[11px] text-gray-500 mt-0.5">{meta.desc}</p>
-                            </div>
+                            <div className="w-3 h-3 rounded-full border-2 transition-all"
+                              style={{
+                                borderColor: active ? meta.color : '#484848',
+                                background: active ? meta.color : 'transparent'
+                              }} />
+                            <span className="text-[12px] font-semibold" style={{ color: active ? meta.color : '#767676' }}>
+                              {meta.label}
+                            </span>
+                            <span className="text-[10px] leading-tight" style={{ color: active ? `${meta.color}99` : '#484848' }}>
+                              {meta.desc}
+                            </span>
                           </button>
                         )
                       })}
                     </div>
                   </div>
 
-                  {/* Editor de código */}
+                  {/* Editor */}
                   <div>
-                    <label className="text-[12px] font-semibold text-gray-600 uppercase tracking-wider block mb-2">
-                      Código <span className="text-red-500">*</span>
+                    <label className="text-[11px] font-bold text-[#FBB03B] uppercase tracking-widest block mb-2">
+                      Código <span className="text-red-400">*</span>
                     </label>
                     <div className="rounded-xl overflow-hidden border border-[#2a2a2a]">
-                      <div className="flex items-center gap-2 px-4 py-2 bg-[#1A1A1A] border-b border-[#2a2a2a]">
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
-                        <span className="text-[11px] text-[#767676] ml-2 font-mono">código.html</span>
+                      {/* Barra do editor */}
+                      <div className="flex items-center justify-between px-4 py-2.5 bg-[#161616] border-b border-[#2a2a2a]">
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
+                          <div className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />
+                          <div className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
+                        </div>
+                        <span className="text-[11px] text-[#484848] font-mono">script.html</span>
+                        <div className="w-16" />
                       </div>
                       <textarea
                         value={codeForm.code}
                         onChange={e => setCodeForm(p => ({ ...p, code: e.target.value }))}
                         placeholder={'<script>\n  // Seu código aqui\n</script>'}
-                        rows={12}
+                        rows={10}
                         spellCheck={false}
-                        className="w-full bg-[#0d0d0d] text-[#e2e8f0] font-mono text-[12px] leading-relaxed p-4 resize-none outline-none"
+                        className="w-full bg-[#0a0a0a] text-[#a8b4c8] font-mono text-[12px] leading-relaxed p-4 resize-none outline-none"
                         style={{ tabSize: 2 }}
                       />
                     </div>
-                    <p className="text-[11px] text-gray-400 mt-1.5">Inclua as tags &lt;script&gt; ou &lt;style&gt; conforme necessário.</p>
+                    <p className="text-[11px] text-[#484848] mt-1.5">Inclua as tags &lt;script&gt; ou &lt;style&gt; conforme necessário.</p>
                   </div>
                 </div>
 
                 {/* Footer */}
-                <div className="flex gap-3 px-6 py-4 border-t border-gray-100">
+                <div className="flex gap-3 px-6 py-4 border-t border-[#1f1f1f]">
                   <button onClick={() => setShowCodeModal(false)}
-                    className="flex-1 h-10 border border-gray-200 text-gray-600 rounded-xl text-[13px] font-medium hover:bg-gray-50 transition-colors">
+                    className="flex-1 h-11 border border-[#2a2a2a] text-[#767676] hover:text-white hover:border-[#3a3a3a] rounded-xl text-[13px] font-medium transition-colors bg-transparent">
                     Cancelar
                   </button>
                   <button
                     onClick={saveCode}
                     disabled={!codeForm.name.trim() || !codeForm.code.trim()}
-                    className="flex-1 h-10 bg-[#FBB03B] hover:bg-[#f0a824] disabled:opacity-40 disabled:cursor-not-allowed text-[#1A1A1A] rounded-xl text-[13px] font-semibold transition-colors"
+                    className="flex-1 h-11 bg-[#FBB03B] hover:bg-[#f0a824] disabled:opacity-30 disabled:cursor-not-allowed text-[#1A1A1A] rounded-xl text-[13px] font-bold transition-colors"
                   >
-                    {editingCode ? 'Salvar alterações' : 'Adicionar'}
+                    {editingCode ? 'Salvar alterações' : 'Adicionar código'}
                   </button>
                 </div>
               </div>
