@@ -371,9 +371,17 @@ function FormLead1Editor({ data, styles, onChange, onSelectElement, selectedElem
 
 // ── custom_html ───────────────────────────────────────────
 function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles; onChange: OnChange; onSelectElement: OnSelect; selectedElementKey: string | null; elementStyles: Record<string, any> }) {
-  const [iframeHeight, setIframeHeight] = React.useState(2500)
+  const [iframeHeight, setIframeHeight] = React.useState(900)
   const [localHtml, setLocalHtml] = React.useState<string>(data.html || '')
   const lastSaved = React.useRef<string>(data.html || '')
+  
+  const [selectedElement, setSelectedElement] = React.useState<{
+    selector: string;
+    text: string;
+    tag: string;
+  } | null>(null)
+  const [editText, setEditText] = React.useState('')
+  const iframeRef = React.useRef<HTMLIFrameElement>(null)
 
   // Sincroniza do pai apenas quando muda externamente (usuário edita o textarea)
   React.useEffect(() => {
@@ -394,10 +402,24 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
         setLocalHtml(newHtml)
         onChange('html', newHtml)
       }
+      if (e.data?.type === 'kv-element-clicked') {
+        setSelectedElement({ selector: e.data.selector, text: e.data.text, tag: e.data.tag })
+        setEditText(e.data.text)
+      }
     }
     window.addEventListener('message', handler)
     return () => window.removeEventListener('message', handler)
   }, [onChange])
+
+  const applyEdit = () => {
+    if (!selectedElement || !iframeRef.current?.contentWindow) return
+    iframeRef.current.contentWindow.postMessage({
+      type: 'kv-update-element',
+      selector: selectedElement.selector,
+      text: editText
+    }, '*')
+    setSelectedElement(null)
+  }
 
   const isFullPage = /^\s*<!doctype/i.test(localHtml) || /^\s*<html/i.test(localHtml)
 
@@ -406,7 +428,7 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
       'try{' +
       'window.addEventListener("load",function(){' +
         // Height reporter
-        'function reportH(){var h=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight);window.parent.postMessage({type:"kv-iframe-h",h:h},"*");}' +
+        'function reportH(){var h=Math.max(document.body.scrollHeight,document.body.offsetHeight,document.documentElement.scrollHeight,document.documentElement.offsetHeight);window.parent.postMessage({type:"kv-iframe-h",h:h},"*");}' +
         'reportH();' +
         'new ResizeObserver(reportH).observe(document.body);' +
         // Click-to-edit: ao clicar em qualquer elemento de texto, torna-o contentEditable
@@ -415,31 +437,36 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
           'if(el===document.body||el===document.documentElement)return;' +
           // Só ativa em elementos de texto
           'var tags=["P","H1","H2","H3","H4","H5","H6","SPAN","A","LI","TD","TH","BUTTON","LABEL"];' +
-          'if(tags.indexOf(el.tagName)===-1)return;' +
+          'if(tags.indexOf(el.tagName.toUpperCase())===-1)return;' +
           'e.preventDefault();e.stopPropagation();' +
-          // Remove toolbar anterior
-          'var old=document.getElementById("kv-toolbar");if(old)old.remove();' +
-          // Marca como editável
-          'el.contentEditable="true";el.focus();' +
-          // Cria toolbar flutuante
-          'var rect=el.getBoundingClientRect();' +
-          'var tb=document.createElement("div");' +
-          'tb.id="kv-toolbar";' +
-          'tb.style.cssText="position:fixed;top:"+(rect.top-40)+"px;left:"+rect.left+"px;background:#1a1a1a;border:1px solid #444;border-radius:6px;padding:4px 8px;display:flex;gap:8px;align-items:center;z-index:999999;font-family:sans-serif;font-size:13px;color:#fff;";' +
-          'var applyBtn=document.createElement("button");' +
-          'applyBtn.textContent="✓ Aplicar";' +
-          'applyBtn.style.cssText="background:#eab308;color:#000;border:none;border-radius:4px;padding:3px 10px;cursor:pointer;font-weight:600;font-size:12px;";' +
-          'applyBtn.onclick=function(){' +
-            'el.contentEditable="false";' +
-            'tb.remove();' +
-            'window.parent.postMessage({type:"kv-save-html",html:document.documentElement.outerHTML},"*");' +
-          '};' +
-          'var cancelBtn=document.createElement("button");' +
-          'cancelBtn.textContent="✕";' +
-          'cancelBtn.style.cssText="background:transparent;color:#aaa;border:none;cursor:pointer;font-size:14px;";' +
-          'cancelBtn.onclick=function(){el.contentEditable="false";tb.remove();};' +
-          'tb.appendChild(applyBtn);tb.appendChild(cancelBtn);' +
-          'document.body.appendChild(tb);' +
+          // Gera um seletor único para encontrar o elemento depois
+          'var path=[];' +
+          'var node=el;' +
+          'while(node&&node!==document.body){' +
+            'var idx=Array.prototype.indexOf.call(node.parentNode.children,node);' +
+            'path.unshift(node.tagName.toLowerCase()+":nth-child("+(idx+1)+")");' +
+            'node=node.parentNode;' +
+          '}' +
+          'var selector=path.join(" > ");' +
+          'window.parent.postMessage({' +
+            'type:"kv-element-clicked",' +
+            'selector:selector,' +
+            'text:el.innerText,' +
+            'tag:el.tagName.toLowerCase()' +
+          '},"*");' +
+        '});' +
+        // Escuta atualização vinda do pai e aplica no elemento
+        'window.addEventListener("message",function(e){' +
+          'if(e.data&&e.data.type==="kv-update-element"){' +
+            'try{' +
+              'var el=document.querySelector(e.data.selector);' +
+              'if(el){' +
+                'el.innerText=e.data.text;' +
+                // Após atualizar, serializa e manda de volta para salvar
+                'window.parent.postMessage({type:"kv-save-html",html:document.documentElement.outerHTML},"*");' +
+              '}' +
+            '}catch(err){}' +
+          '}' +
         '});' +
       '});' +
       '}catch(err){console.warn("KV edit script error:",err);}' +
@@ -462,16 +489,38 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
   return (
     <div style={{ width: '100%', position: 'relative' }}>
       <iframe
+        ref={iframeRef}
         srcDoc={getSrcDoc()}
         style={{
           width: '100%',
           border: 'none',
           display: 'block',
-          height: isFullPage ? 3000 : iframeHeight,
+          height: iframeHeight,
+          minHeight: '400px',
         }}
-        scrolling="auto"
+        scrolling="yes"
         title="Preview HTML"
       />
+      {selectedElement && (
+        <div style={{ padding: '12px', borderTop: '1px solid #333', background: '#1a1a1a' }}>
+          <div style={{ fontSize: '11px', color: '#888', marginBottom: '6px', textTransform: 'uppercase' }}>
+            Editando: &lt;{selectedElement.tag}&gt;
+          </div>
+          <textarea
+            value={editText}
+            onChange={e => setEditText(e.target.value)}
+            style={{ width: '100%', minHeight: '80px', background: '#0a0a0a', color: '#fff', border: '1px solid #444', borderRadius: '6px', padding: '8px', fontSize: '13px', resize: 'vertical' }}
+          />
+          <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+            <button onClick={applyEdit} style={{ background: '#eab308', color: '#000', border: 'none', borderRadius: '6px', padding: '6px 16px', fontWeight: 600, cursor: 'pointer', fontSize: '13px' }}>
+              ✓ Aplicar
+            </button>
+            <button onClick={() => setSelectedElement(null)} style={{ background: '#333', color: '#fff', border: 'none', borderRadius: '6px', padding: '6px 12px', cursor: 'pointer', fontSize: '13px' }}>
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
