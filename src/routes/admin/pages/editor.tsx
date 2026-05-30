@@ -293,7 +293,9 @@ export default function PagesEditor() {
       // Facebook Pixel
       if (integrations.facebook?.enabled && integrations.facebook.pixelId) {
         const pixelId = integrations.facebook.pixelId
-        const fbEvent = integrations.facebook.trackingEvent || 'PageView'
+        const fbEvent = integrations.facebook.trackingEvent === 'Personalizado'
+          ? (integrations.facebook.customTrackingEvent || 'PageView')
+          : (integrations.facebook.trackingEvent || 'PageView')
         const testCode = integrations.facebook.testEventCode
           ? `fbq('set', 'agent', 'tmgoogletagmanager', '${integrations.facebook.pixelId}'); fbq('set', 'testEvent', '${integrations.facebook.testEventCode}');`
           : ''

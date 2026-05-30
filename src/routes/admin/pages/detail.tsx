@@ -431,12 +431,29 @@ export default function PageDetail() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {['PageView','ViewContent','Lead','CompleteRegistration','Purchase','InitiateCheckout','AddToCart','Search'].map(ev => (
+                      {['PageView','ViewContent','Lead','CompleteRegistration','Purchase','InitiateCheckout','AddToCart','Search','Personalizado'].map(ev => (
                         <SelectItem key={ev} value={ev}>{ev}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
+
+                {integrations.facebook?.trackingEvent === 'Personalizado' && (
+                  <div className="mt-3">
+                    <label className="text-sm font-medium text-gray-700 block mb-1.5">
+                      Nome do evento personalizado <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      value={integrations.facebook?.customTrackingEvent || ''}
+                      onChange={e => updateIntegration('facebook', 'customTrackingEvent', e.target.value)}
+                      placeholder="Ex: MeuEventoPersonalizado"
+                      className="bg-white border-gray-200"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">
+                      Use exatamente o mesmo nome configurado no Gerenciador de Eventos do Facebook.
+                    </p>
+                  </div>
+                )}
 
                 <div>
                   <label className="text-sm font-medium text-gray-700 block mb-1.5">

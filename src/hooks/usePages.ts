@@ -8,6 +8,7 @@ export interface PageIntegrations {
     pixelId: string
     accessToken: string
     trackingEvent: string       // 'PageView' | 'ViewContent' | 'Lead' | etc
+    customTrackingEvent?: string
     testEventCode: string
     formConversionEvent: string // 'CompleteRegistration' | 'Lead' | 'Purchase'
   }
