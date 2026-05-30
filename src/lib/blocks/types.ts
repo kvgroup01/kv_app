@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+
 export type BlockCategory =
   | 'Headers'
   | 'Benefícios'
@@ -50,6 +52,11 @@ export interface BlockDefinition {
   defaultData: Record<string, any>
   defaultSectionStyles: SectionStyles
   render: (data: Record<string, any>, styles: SectionStyles) => string
+  renderEditor?: (
+    data: Record<string, any>,
+    styles: SectionStyles,
+    onChange: (key: string, value: any) => void
+  ) => ReactNode
 }
 
 export interface PageData {

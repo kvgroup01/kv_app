@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router'
 import { usePage, useUpdatePage, type Page } from '../../../hooks/usePages'
 import { blockRegistry, BLOCK_CATEGORIES, getBlocksByCategory, getBlockByType } from '../../../lib/blocks/registry'
 import { type PageBlock, type PageData, type BlockDefinition, type FieldSchema, type SectionStyles } from '../../../lib/blocks/types'
+import { editorRenderers } from '../../../lib/blocks/editorRenderers'
 import { Button } from '../../../components/ui/button'
 import { Input } from '../../../components/ui/input'
 import { Textarea } from '../../../components/ui/textarea'
@@ -522,7 +523,14 @@ export default function PagesEditor() {
                                       <button title="Excluir" onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(block.id) }} className="w-8 h-8 flex items-center justify-center hover:bg-slate-700 disabled:opacity-30 rounded-md transition-colors"><Trash2 className="w-3.5 h-3.5 text-inherit"/></button>
                               </div>
 
-                              <div dangerouslySetInnerHTML={{ __html: html }} className="min-h-[40px]" />
+                              {editorRenderers[block.type]
+                                ? editorRenderers[block.type](
+                                    block.data,
+                                    block.sectionStyles,
+                                    (key: string, val: any) => updateBlockData(block.id, key, val)
+                                  )
+                                : <div dangerouslySetInnerHTML={{ __html: html }} className="min-h-[40px]" />
+                              }
                               
                               {block.hidden && <div className="absolute top-4 left-4 bg-slate-900 border border-slate-700 text-white tracking-widest text-[10px] uppercase font-bold px-3 py-1.5 rounded shadow-lg">Oculto</div>}
                            </div>
