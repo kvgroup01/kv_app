@@ -89,9 +89,21 @@ export default function PageDetail() {
   }
   
   const TYPE_META = {
-    funcionamento: { label: 'Funcionamento', color: '#64748b', desc: 'Animações e estilos personalizados' },
-    estatisticas:  { label: 'Estatísticas',  color: '#3b82f6', desc: 'Hotjar, SmartLook, Analytics' },
-    marketing:     { label: 'Marketing',     color: '#FBB03B', desc: 'Pixel, eventos de conversão' },
+    funcionamento: { 
+      label: 'Funcionamento', 
+      color: '#8b5cf6',   // roxo
+      desc: 'Animações e estilos personalizados' 
+    },
+    estatisticas: { 
+      label: 'Estatísticas',  
+      color: '#3b82f6',   // azul
+      desc: 'Hotjar, SmartLook, Analytics' 
+    },
+    marketing: { 
+      label: 'Marketing',     
+      color: '#FBB03B',   // amarelo KV
+      desc: 'Pixel, eventos de conversão' 
+    },
   }
 
   // Sincronizar quando página carregar
@@ -600,7 +612,13 @@ export default function PageDetail() {
               </div>
               <button
                 onClick={openAddCode}
-                className="flex items-center gap-1.5 bg-[#1A1A1A] hover:bg-[#2a2a2a] text-white text-[13px] font-semibold px-4 py-2 rounded-lg transition-colors"
+                style={{ 
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  background: '#FBB03B', color: '#1A1A1A',
+                  fontSize: 13, fontWeight: 700,
+                  padding: '8px 16px', borderRadius: 8,
+                  border: 'none', cursor: 'pointer'
+                }}
               >
                 <Plus className="w-3.5 h-3.5" strokeWidth={3} /> Adicionar código
               </button>
@@ -668,14 +686,12 @@ export default function PageDetail() {
                     <label style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 8 }}>
                       Nome do código <span style={{ color: '#ef4444' }}>*</span>
                     </label>
-                    <input
+                    <Input
                       autoFocus
                       value={codeForm.name}
                       onChange={e => setCodeForm(p => ({ ...p, name: e.target.value }))}
                       placeholder="Ex: Google Tag Manager, Hotjar..."
-                      style={{ width: '100%', padding: '10px 14px', fontSize: 13, border: '1.5px solid #e2e8f0', borderRadius: 10, outline: 'none', color: '#0f172a', background: '#ffffff', boxSizing: 'border-box' }}
-                      onFocus={e => e.target.style.borderColor = '#FBB03B'}
-                      onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+                      className="bg-white border-gray-200 focus-visible:ring-[#FBB03B] focus-visible:ring-offset-0 text-gray-900"
                     />
                   </div>
 
