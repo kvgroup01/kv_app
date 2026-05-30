@@ -371,6 +371,8 @@ function FormLead1Editor({ data, styles, onChange, onSelectElement, selectedElem
 }
 
 // ── custom_html ───────────────────────────────────────────
+const GOOGLE_FONTS_HTML = ['Inter','Roboto','Poppins','Montserrat','Playfair Display','Lato','Open Sans','Oswald','Raleway','Merriweather']
+
 function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles; onChange: OnChange; onSelectElement: OnSelect; selectedElementKey: string | null; elementStyles: Record<string, any> }) {
   const [localHtml, setLocalHtml] = React.useState<string>(data.html || '')
   const lastSaved = React.useRef<string>(data.html || '')
@@ -378,18 +380,60 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
 
   const [selectedElement, setSelectedElement] = React.useState<{
     selector: string
-    text: string
     tag: string
+    isShape: boolean
   } | null>(null)
-  const [editText, setEditText] = React.useState('')
 
-  // Sincroniza do pai apenas quando muda externamente
+  // Estilos vivos do elemento selecionado
+  const [liveStyles, setLiveStyles] = React.useState<Record<string, any>>({})
+
   React.useEffect(() => {
     if (data.html !== lastSaved.current) {
       lastSaved.current = data.html || ''
       setLocalHtml(data.html || '')
     }
   }, [data.html])
+
+  // Aplica estilo ao elemento no iframe em tempo real
+  const applyStyle = React.useCallback((styleKey: string, value: any) => {
+    const doc = iframeRef.current?.contentDocument
+    if (!doc || !selectedElement) return
+    try {
+      const el = doc.querySelector(selectedElement.selector) as HTMLElement | null
+      if (!el) return
+      // Carrega fonte se necessário
+      if (styleKey === 'fontFamily') {
+        const id = 'gf-' + value.replace(/\s/g, '-')
+        if (!doc.getElementById(id)) {
+          const link = doc.createElement('link')
+          link.id = id
+          link.rel = 'stylesheet'
+          link.href = `https://fonts.googleapis.com/css2?family=${value.replace(/\s/g, '+')}:ital,wght@0,400;0,700;1,400;1,700&display=swap`
+          doc.head?.appendChild(link)
+        }
+        el.style.fontFamily = value
+      } else if (styleKey === 'fontSize') {
+        el.style.fontSize = value + 'px'
+      } else if (styleKey === 'fontWeight') {
+        el.style.fontWeight = value
+      } else if (styleKey === 'fontStyle') {
+        el.style.fontStyle = value
+      } else if (styleKey === 'textDecoration') {
+        el.style.textDecoration = value
+      } else if (styleKey === 'textAlign') {
+        el.style.textAlign = value
+      } else if (styleKey === 'color') {
+        el.style.color = value
+      } else if (styleKey === 'backgroundColor') {
+        el.style.backgroundColor = value
+      } else if (styleKey === 'borderRadius') {
+        el.style.borderRadius = value + 'px'
+      } else if (styleKey === 'width') {
+        el.style.width = value
+      }
+      setLiveStyles((prev: Record<string, any>) => ({ ...prev, [styleKey]: value }))
+    } catch (err) {}
+  }, [selectedElement])
 
   const handleIframeLoad = React.useCallback(() => {
     const iframe = iframeRef.current
@@ -424,20 +468,18 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
     }
     // ── FIM do bloco novo ──
 
-    // SEM updateHeight — altura fixa simula viewport real do browser
-    // min-h-screen = 100vh = 900px (correto, como num browser real)
+    const SHAPE_TAGS = ['BUTTON', 'A']
+    const EDITABLE_TAGS = ['P','H1','H2','H3','H4','H5','H6','SPAN','A','LI','BUTTON','LABEL','TD','TH']
 
-    // Click listener para edição inline
     const handleClick = (e: MouseEvent) => {
       const el = e.target as HTMLElement
       if (!el || el === doc.body || el === doc.documentElement) return
-
-      const EDITABLE_TAGS = ['P','H1','H2','H3','H4','H5','H6','SPAN','A','LI','BUTTON','LABEL','TD','TH']
       if (!EDITABLE_TAGS.includes(el.tagName.toUpperCase())) return
 
       e.preventDefault()
       e.stopPropagation()
 
+      // Gera seletor único
       const path: string[] = []
       let node: HTMLElement | null = el
       while (node && node !== doc.body) {
@@ -446,131 +488,184 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
         node = node.parentElement
       }
       const selector = path.join(' > ')
+      const isShape = SHAPE_TAGS.includes(el.tagName.toUpperCase())
 
-      setSelectedElement({ selector, text: el.innerText, tag: el.tagName.toLowerCase() })
-      setEditText(el.innerText)
+      // Lê estilos atuais do elemento (computados + inline)
+      const cs = window.getComputedStyle
+        ? (iframeRef.current?.contentWindow as any)?.getComputedStyle(el) 
+        : null
+
+      const readPx = (v: string) => parseInt(v) || 0
+
+      setLiveStyles({
+        fontSize: cs ? readPx(cs.fontSize) : 16,
+        fontFamily: cs ? cs.fontFamily.split(',')[0].replace(/['"]/g, '').trim() : 'Inter',
+        color: el.style.color || (cs ? cs.color : '#ffffff'),
+        fontWeight: cs ? cs.fontWeight : '400',
+        fontStyle: cs ? cs.fontStyle : 'normal',
+        textDecoration: cs ? cs.textDecoration.split(' ')[0] : 'none',
+        textAlign: cs ? cs.textAlign : 'left',
+        backgroundColor: el.style.backgroundColor || (cs ? cs.backgroundColor : 'transparent'),
+        borderRadius: cs ? readPx(cs.borderRadius) : 0,
+        width: el.style.width || '',
+      })
+
+      setSelectedElement({ selector, tag: el.tagName.toLowerCase(), isShape })
     }
 
     doc.addEventListener('click', handleClick)
+    return () => { doc.removeEventListener('click', handleClick) }
+  }, [])
 
-    // Cleanup quando iframe recarregar
-    return () => {
-      doc.removeEventListener('click', handleClick)
-    }
-  }, []) // deps vazias — função estável, não causa re-render
-
-  const applyEdit = React.useCallback(() => {
-    if (!selectedElement || !iframeRef.current?.contentDocument) return
-    try {
-      const doc = iframeRef.current.contentDocument
-      const el = doc.querySelector(selectedElement.selector) as HTMLElement | null
-      if (el) {
-        el.innerText = editText
-        const newHtml = doc.documentElement.outerHTML
-        lastSaved.current = newHtml
-        setLocalHtml(newHtml)
-        onChange('html', newHtml)
-      }
-    } catch (err) {
-      console.warn('KV apply edit error:', err)
-    }
+  const applyAndSave = React.useCallback(() => {
+    const doc = iframeRef.current?.contentDocument
+    if (!doc) return
+    const newHtml = doc.documentElement.outerHTML
+    lastSaved.current = newHtml
+    setLocalHtml(newHtml)
+    onChange('html', newHtml)
     setSelectedElement(null)
-  }, [selectedElement, editText, onChange])
+  }, [onChange])
+
+  const s = liveStyles
 
   return (
     <div style={{ width: '100%', position: 'relative' }}>
       <iframe
         ref={iframeRef}
         srcDoc={localHtml}
-        style={{
-          width: '100%',
-          border: 'none',
-          display: 'block',
-          height: '900px', // altura inicial — sobrescrita diretamente via ref no onLoad
-          minHeight: '400px',
-        }}
+        style={{ width: '100%', border: 'none', display: 'block', height: '900px', minHeight: '400px' }}
         scrolling="yes"
         title="Preview HTML"
         onLoad={handleIframeLoad}
       />
+
       {selectedElement && createPortal(
         <div style={{
-          position: 'fixed',
-          bottom: '24px',
-          right: '316px', // 300px sidebar + 16px margem
-          width: '300px',
-          background: '#1a1a1a',
-          border: '1px solid #3a3a3a',
-          borderRadius: '10px',
-          padding: '14px',
-          zIndex: 9999,
-          boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+          position: 'fixed', bottom: '24px', right: '316px',
+          width: '280px', background: '#ffffff', border: '1px solid #e2e8f0',
+          borderRadius: '12px', padding: '16px', zIndex: 9999,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+          maxHeight: '80vh', overflowY: 'auto',
+          fontFamily: 'Inter, sans-serif',
         }}>
           {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-            <span style={{ fontSize: '11px', color: '#888', textTransform: 'uppercase' as const, fontWeight: 600, letterSpacing: '0.05em' }}>
-              Editando &lt;{selectedElement.tag}&gt;
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+            <span style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase' as const, fontWeight: 600, letterSpacing: '0.06em' }}>
+              &lt;{selectedElement.tag}&gt;
             </span>
-            <button
-              onClick={() => setSelectedElement(null)}
-              style={{ background: 'transparent', border: 'none', color: '#666', cursor: 'pointer', fontSize: '16px', lineHeight: 1, padding: '0 2px' }}
-            >
-              ✕
-            </button>
+            <button onClick={() => setSelectedElement(null)}
+              style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '16px', padding: 0, lineHeight: 1 }}>✕</button>
           </div>
 
-          {/* Textarea */}
-          <textarea
-            value={editText}
-            onChange={e => setEditText(e.target.value)}
-            style={{
-              width: '100%',
-              minHeight: '90px',
-              background: '#0d0d0d',
-              color: '#fff',
-              border: '1px solid #444',
-              borderRadius: '6px',
-              padding: '8px 10px',
-              fontSize: '13px',
-              resize: 'vertical' as const,
-              boxSizing: 'border-box' as const,
-              fontFamily: 'inherit',
-              lineHeight: 1.5,
-            }}
-            autoFocus
-          />
+          {/* ── CONTROLES DE TEXTO ── */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
-          {/* Botões */}
-          <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
-            <button
-              onClick={applyEdit}
-              style={{
-                flex: 1,
-                background: '#eab308',
-                color: '#000',
-                border: 'none',
-                borderRadius: '6px',
-                padding: '8px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                fontSize: '13px',
-              }}
-            >
-              ✓ Aplicar
-            </button>
-            <button
-              onClick={() => setSelectedElement(null)}
-              style={{
-                background: '#2a2a2a',
-                color: '#aaa',
-                border: '1px solid #3a3a3a',
-                borderRadius: '6px',
-                padding: '8px 14px',
-                cursor: 'pointer',
-                fontSize: '13px',
-              }}
-            >
-              Cancelar
+            {/* Fonte */}
+            <div>
+              <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: '4px' }}>Fonte</label>
+              <select value={s.fontFamily || 'Inter'} onChange={e => applyStyle('fontFamily', e.target.value)}
+                style={{ width: '100%', fontSize: '12px', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '6px 8px', background: '#fff', color: '#1e293b' }}>
+                {GOOGLE_FONTS_HTML.map(f => <option key={f} value={f}>{f}</option>)}
+              </select>
+            </div>
+
+            {/* Tamanho */}
+            <div>
+              <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: '4px' }}>Tamanho — {s.fontSize || 16}px</label>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <input type="number" min="8" max="200" value={s.fontSize || 16}
+                  onChange={e => applyStyle('fontSize', Number(e.target.value))}
+                  style={{ width: '60px', fontSize: '12px', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '5px 8px', color: '#1e293b', background: '#fff' }} />
+                <input type="range" min="8" max="120" value={s.fontSize || 16}
+                  onChange={e => applyStyle('fontSize', Number(e.target.value))}
+                  style={{ flex: 1, accentColor: '#FBB03B' }} />
+              </div>
+            </div>
+
+            {/* Cor do texto */}
+            <div>
+              <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: '4px' }}>Cor do texto</label>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <input type="color" value={s.color?.startsWith('rgb') ? '#ffffff' : (s.color || '#ffffff')}
+                  onChange={e => applyStyle('color', e.target.value)}
+                  style={{ width: '36px', height: '36px', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '2px', cursor: 'pointer', background: '#fff' }} />
+                <span style={{ fontSize: '11px', color: '#64748b', fontFamily: 'monospace' }}>{s.color || '#ffffff'}</span>
+              </div>
+            </div>
+
+            {/* Estilo */}
+            <div>
+              <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: '4px' }}>Estilo</label>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                {[
+                  { label: 'B', sk: 'fontWeight', on: '700', off: '400', style: { fontWeight: 'bold' } },
+                  { label: 'I', sk: 'fontStyle', on: 'italic', off: 'normal', style: { fontStyle: 'italic' } },
+                  { label: 'U', sk: 'textDecoration', on: 'underline', off: 'none', style: { textDecoration: 'underline' } },
+                ].map(({ label, sk, on, off, style: btnStyle }) => {
+                  const active = s[sk] === on
+                  return (
+                    <button key={sk} onClick={() => applyStyle(sk, active ? off : on)}
+                      style={{ width: '36px', height: '36px', borderRadius: '6px', border: `1px solid ${active ? '#FBB03B' : '#e2e8f0'}`, background: active ? '#FBB03B' : '#fff', cursor: 'pointer', fontSize: '13px', color: active ? '#1A1A1A' : '#475569', ...btnStyle }}>
+                      {label}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Alinhamento */}
+            <div>
+              <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: '4px' }}>Alinhamento</label>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                {[{ v: 'left', l: 'Esq' }, { v: 'center', l: 'Centro' }, { v: 'right', l: 'Dir' }].map(({ v, l }) => {
+                  const active = (s.textAlign || 'left') === v
+                  return (
+                    <button key={v} onClick={() => applyStyle('textAlign', v)}
+                      style={{ flex: 1, padding: '6px 4px', borderRadius: '6px', border: `1px solid ${active ? '#FBB03B' : '#e2e8f0'}`, background: active ? '#FBB03B' : '#fff', cursor: 'pointer', fontSize: '11px', fontWeight: 600, color: active ? '#1A1A1A' : '#475569' }}>
+                      {l}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* ── CONTROLES DE SHAPE ── */}
+            <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '12px', marginTop: '4px' }}>
+              <label style={{ fontSize: '10px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase' as const, letterSpacing: '0.06em', display: 'block', marginBottom: '10px' }}>Aparência do elemento</label>
+
+              {/* Cor de fundo */}
+              <div style={{ marginBottom: '10px' }}>
+                <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: '4px' }}>Cor de fundo</label>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <input type="color" value={s.backgroundColor?.startsWith('rgb') ? '#000000' : (s.backgroundColor || '#000000')}
+                    onChange={e => applyStyle('backgroundColor', e.target.value)}
+                    style={{ width: '36px', height: '36px', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '2px', cursor: 'pointer' }} />
+                  <span style={{ fontSize: '11px', color: '#64748b', fontFamily: 'monospace' }}>{s.backgroundColor || 'transparent'}</span>
+                </div>
+              </div>
+
+              {/* Border radius */}
+              <div style={{ marginBottom: '10px' }}>
+                <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: '4px' }}>Arredondamento — {s.borderRadius ?? 0}px</label>
+                <input type="range" min="0" max="100" value={s.borderRadius ?? 0}
+                  onChange={e => applyStyle('borderRadius', Number(e.target.value))}
+                  style={{ width: '100%', accentColor: '#FBB03B' }} />
+              </div>
+
+              {/* Largura */}
+              <div style={{ marginBottom: '10px' }}>
+                <label style={{ fontSize: '11px', fontWeight: 600, color: '#475569', display: 'block', marginBottom: '4px' }}>Largura</label>
+                <input type="text" value={s.width || ''} placeholder="ex: 200px ou 100%"
+                  onChange={e => applyStyle('width', e.target.value)}
+                  style={{ width: '100%', fontSize: '12px', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '6px 8px', color: '#1e293b', background: '#fff', boxSizing: 'border-box' as const }} />
+              </div>
+            </div>
+
+            {/* Botão salvar */}
+            <button onClick={applyAndSave}
+              style={{ width: '100%', background: '#eab308', color: '#000', border: 'none', borderRadius: '8px', padding: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '13px', marginTop: '4px' }}>
+              ✓ Salvar alterações
             </button>
           </div>
         </div>,
