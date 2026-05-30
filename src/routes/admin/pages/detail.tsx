@@ -67,9 +67,6 @@ export default function PageDetail() {
     keywords: page?.seo?.keywords || '',
     favicon_url: page?.seo?.favicon_url || '',
   })
-  const [showSeoModal, setShowSeoModal] = React.useState(false)
-  const [generatingSeo, setGeneratingSeo] = React.useState(false)
-  const [savingSeo, setSavingSeo] = React.useState(false)
 
   React.useEffect(() => {
     if (page?.domain_id) setSelectedDomainId(page.domain_id)
@@ -94,14 +91,6 @@ export default function PageDetail() {
     toast.success('Domínio adicionado!')
   }
 
-  const handleSaveSeo = async () => {
-    setSavingSeo(true)
-    await updatePage.mutateAsync({ id: id!, seo })
-    setSavingSeo(false)
-    toast.success('SEO salvo!')
-    setShowSeoModal(false)
-  }
-
   const getPublicUrl = () => {
     if (!selectedDomain) return null
     const slug = pageSlug.replace(/^\//, '')
@@ -109,7 +98,6 @@ export default function PageDetail() {
   }
 
   const hasSeo = !!(seo.title && seo.description)
-  const hasResponsive = true // páginas KVision são sempre responsivas
 
   const [integrations, setIntegrations] = React.useState<PageIntegrations>(page?.integrations || {})
   const [savingIntegrations, setSavingIntegrations] = React.useState(false)
@@ -1029,100 +1017,20 @@ export default function PageDetail() {
           </div>
 
           <Separator />
-
-          {/* ── O QUE ESTÁ INCLUÍDO ── */}
+          
+          {/* ── SEO ── */}
           <div>
-            <h3 className="text-[14px] font-semibold text-gray-900 mb-3">Sua página inclui</h3>
-            <div className="space-y-2">
-              {[
-                { label: 'Versão para Desktop', ok: true },
-                { label: 'Versão Mobile (Responsiva)', ok: hasResponsive },
-                { label: 'SSL Encryption (Segurança)', ok: !!selectedDomain },
-                { label: 'Otimização de HTML, CSS e JS', ok: true },
-              ].map(({ label, ok }) => (
-                <div key={label} className="flex items-center gap-2.5">
-                  {ok
-                    ? <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    : <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />}
-                  <span className={`text-[13px] font-medium ${ok ? 'text-gray-700' : 'text-red-500'}`}>{label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-1">Informações e SEO</h2>
+            <p className="text-sm text-gray-500 mb-5">Configure como sua página aparece nos mecanismos de busca</p>
 
-          <div>
-            <h3 className="text-[14px] font-semibold text-gray-900 mb-3">Sua página não inclui</h3>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between p-3 border border-red-100 bg-red-50 rounded-xl">
-                <div className="flex items-center gap-2.5">
-                  <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
-                  <div>
-                    <span className="text-[13px] font-semibold text-red-600">Otimização de SEO</span>
-                    {hasSeo && <span className="ml-2 text-[11px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Configurado</span>}
-                  </div>
-                </div>
-                <button onClick={() => setShowSeoModal(true)}
-                  className="text-[12px] font-semibold text-[#1A1A1A] bg-white border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap">
-                  {hasSeo ? 'Editar' : 'Corrigir agora'}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Botão salvar */}
-          <div className="flex justify-end pt-2">
-            <Button onClick={handleSaveDomain} disabled={savingDomain}
-              className="bg-[#FBB03B] hover:bg-[#f0a824] text-[#1A1A1A] font-semibold px-6">
-              {savingDomain ? 'Salvando...' : 'Salvar domínio'}
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* ── MODAL SEO ── */}
-      {showSeoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden border border-gray-200">
-
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-              <h3 className="text-[16px] font-bold text-gray-900">Informações e SEO</h3>
-              <button onClick={() => setShowSeoModal(false)}
-                className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
-
-              {/* Gerar com IA */}
-              <div className="flex items-center gap-3 p-4 bg-[#FBB03B]/10 border border-[#FBB03B]/30 rounded-xl">
-                <Sparkles className="w-5 h-5 text-[#FBB03B] shrink-0" />
-                <div className="flex-1">
-                  <p className="text-[13px] font-semibold text-gray-900">Gerar SEO automaticamente com IA</p>
-                  <p className="text-[11px] text-gray-500 mt-0.5">Preenche título, descrição e palavras-chave com IA</p>
-                </div>
-                <button
-                  onClick={async () => {
-                    setGeneratingSeo(true)
-                    // TODO: chamar endpoint de geração com IA
-                    await new Promise(r => setTimeout(r, 1500))
-                    setGeneratingSeo(false)
-                    toast.info('Em breve disponível!')
-                  }}
-                  disabled={generatingSeo}
-                  className="shrink-0 bg-[#1A1A1A] hover:bg-[#2a2a2a] text-white text-[13px] font-semibold px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
-                >
-                  {generatingSeo ? '...' : 'Gerar'}
-                </button>
-              </div>
+            <div className="space-y-4">
 
               {/* Habilitar buscadores */}
-              <div className="flex items-start justify-between gap-4 p-4 border border-gray-200 rounded-xl">
+              <div className="flex items-start justify-between gap-4 p-4 border border-gray-200 rounded-xl bg-white">
                 <div>
                   <p className="text-[13px] font-semibold text-gray-900">Habilitar buscadores</p>
                   <p className="text-[12px] text-gray-500 mt-0.5 leading-relaxed">
-                    Habilitar que a página apareça nos resultados de buscas no Google, Bing, Yahoo! e etc?
+                    Habilitar que a página apareça nos resultados do Google, Bing, Yahoo! e etc?
                   </p>
                 </div>
                 <Switch
@@ -1134,21 +1042,18 @@ export default function PageDetail() {
 
               {/* Favicon */}
               <div>
-                <h4 className="text-[14px] font-semibold text-gray-900 mb-3">Favicon</h4>
-                <div className="flex items-center gap-4 p-4 border border-gray-200 rounded-xl">
-                  <div className="w-16 h-16 bg-gray-100 border border-gray-200 rounded-xl flex items-center justify-center overflow-hidden shrink-0">
+                <label className="text-[12px] font-semibold text-gray-600 block mb-2">Favicon</label>
+                <div className="flex items-center gap-4 p-4 border border-gray-200 rounded-xl bg-white">
+                  <div className="w-14 h-14 bg-gray-100 border border-gray-200 rounded-xl flex items-center justify-center overflow-hidden shrink-0">
                     {seo.favicon_url
-                      ? <img src={seo.favicon_url} alt="Favicon" className="w-12 h-12 object-contain" />
-                      : <Globe className="w-8 h-8 text-gray-300" />}
+                      ? <img src={seo.favicon_url} alt="Favicon" className="w-10 h-10 object-contain" />
+                      : <Globe className="w-7 h-7 text-gray-300" />}
                   </div>
                   <div>
-                    <p className="text-[12px] text-gray-500 mb-2">Tamanho recomendado (64 × 64 pixels) .PNG .JPEG</p>
+                    <p className="text-[12px] text-gray-500 mb-2">Tamanho recomendado: 64×64px — .PNG ou .JPEG</p>
                     <div className="flex gap-2">
                       <button
-                        onClick={() => {
-                          const url = window.prompt('URL do favicon:')
-                          if (url) setSeo(p => ({ ...p, favicon_url: url }))
-                        }}
+                        onClick={() => { const url = window.prompt('URL do favicon:'); if (url) setSeo(p => ({ ...p, favicon_url: url })) }}
                         className="flex items-center gap-1.5 text-[12px] font-semibold text-gray-700 border border-gray-200 bg-white px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
                       >
                         <Plus className="w-3.5 h-3.5" /> Alterar favicon
@@ -1164,89 +1069,74 @@ export default function PageDetail() {
                 </div>
               </div>
 
-              {/* Informações gerais */}
+              {/* Título */}
               <div>
-                <h4 className="text-[14px] font-semibold text-gray-900 mb-4">Informações gerais</h4>
-                <div className="space-y-4">
-
-                  {/* Título */}
-                  <div>
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <label className="text-[12px] font-semibold text-gray-600">Título da página</label>
-                      <span className="text-red-500 text-[12px]">*</span>
-                      <Info className="w-3.5 h-3.5 text-gray-400" />
-                    </div>
-                    <Input
-                      value={seo.title}
-                      onChange={e => setSeo(p => ({ ...p, title: e.target.value }))}
-                      placeholder="Ex: Inscrição quase confirmada!"
-                      maxLength={60}
-                      className="bg-white border-gray-200 focus-visible:ring-[#FBB03B]"
-                    />
-                    <p className="text-[11px] text-gray-400 mt-1">{seo.title.length}/60</p>
-                  </div>
-
-                  {/* Descrição */}
-                  <div>
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <label className="text-[12px] font-semibold text-gray-600">Descrição da página</label>
-                      <Info className="w-3.5 h-3.5 text-gray-400" />
-                    </div>
-                    <Textarea
-                      value={seo.description}
-                      onChange={e => setSeo(p => ({ ...p, description: e.target.value }))}
-                      placeholder="Descreva brevemente o conteúdo da página..."
-                      maxLength={320}
-                      rows={3}
-                      className="bg-white border-gray-200 focus-visible:ring-[#FBB03B] resize-none"
-                    />
-                    <p className="text-[11px] text-gray-400 mt-1">{seo.description.length}/320</p>
-                  </div>
-
-                  {/* Palavras-chave */}
-                  <div>
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <label className="text-[12px] font-semibold text-gray-600">Palavras-chave da página</label>
-                      <Info className="w-3.5 h-3.5 text-gray-400" />
-                    </div>
-                    <Input
-                      value={seo.keywords}
-                      onChange={e => setSeo(p => ({ ...p, keywords: e.target.value }))}
-                      placeholder="Ex: marketing digital, tráfego pago, resultados"
-                      className="bg-white border-gray-200 focus-visible:ring-[#FBB03B]"
-                    />
-                    <p className="text-[11px] text-gray-400 mt-1">Separe as palavras por vírgula</p>
-                  </div>
-
-                  {/* Preview Google */}
-                  {(seo.title || seo.description) && (
-                    <div>
-                      <label className="text-[12px] font-semibold text-gray-600 block mb-2">Pré-visualização do Google</label>
-                      <div className="p-4 border border-gray-200 rounded-xl bg-white">
-                        <p className="text-[12px] text-gray-400 mb-1">{selectedDomain?.domain || 'seudominio.com.br'}</p>
-                        <p className="text-[15px] text-blue-600 font-medium mb-1 hover:underline cursor-pointer truncate">
-                          {seo.title || 'Título da página'}
-                        </p>
-                        <p className="text-[13px] text-gray-600 leading-relaxed line-clamp-2">
-                          {seo.description || 'Descrição da página aparecerá aqui...'}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <label className="text-[12px] font-semibold text-gray-600 block mb-1.5">
+                  Título da página <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  value={seo.title}
+                  onChange={e => setSeo(p => ({ ...p, title: e.target.value }))}
+                  placeholder="Ex: Transformamos ideias em soluções digitais"
+                  maxLength={60}
+                  className="bg-white border-gray-200 focus-visible:ring-[#FBB03B]"
+                />
+                <p className="text-[11px] text-gray-400 mt-1">{seo.title.length}/60</p>
               </div>
-            </div>
 
-            {/* Footer */}
-            <div className="flex gap-3 px-6 py-4 border-t border-gray-100">
-              <button onClick={() => setShowSeoModal(false)}
-                className="flex-1 h-10 border border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl text-[13px] font-medium transition-colors">
-                Cancelar
-              </button>
-              <button onClick={handleSaveSeo} disabled={savingSeo}
-                className="flex-1 h-10 bg-[#FBB03B] hover:bg-[#f0a824] disabled:opacity-50 text-[#1A1A1A] rounded-xl text-[13px] font-bold transition-colors">
-                {savingSeo ? 'Salvando...' : 'Salvar'}
-              </button>
+              {/* Descrição */}
+              <div>
+                <label className="text-[12px] font-semibold text-gray-600 block mb-1.5">Descrição da página</label>
+                <Textarea
+                  value={seo.description}
+                  onChange={e => setSeo(p => ({ ...p, description: e.target.value }))}
+                  placeholder="Descreva brevemente o conteúdo da página..."
+                  maxLength={320}
+                  rows={3}
+                  className="bg-white border-gray-200 focus-visible:ring-[#FBB03B] resize-none"
+                />
+                <p className="text-[11px] text-gray-400 mt-1">{seo.description.length}/320</p>
+              </div>
+
+              {/* Palavras-chave */}
+              <div>
+                <label className="text-[12px] font-semibold text-gray-600 block mb-1.5">Palavras-chave</label>
+                <Input
+                  value={seo.keywords}
+                  onChange={e => setSeo(p => ({ ...p, keywords: e.target.value }))}
+                  placeholder="Ex: marketing digital, tráfego pago, resultados"
+                  className="bg-white border-gray-200 focus-visible:ring-[#FBB03B]"
+                />
+                <p className="text-[11px] text-gray-400 mt-1">Separe as palavras por vírgula</p>
+              </div>
+
+              {/* Preview Google */}
+              {(seo.title || seo.description) && (
+                <div>
+                  <label className="text-[12px] font-semibold text-gray-600 block mb-2">Pré-visualização do Google</label>
+                  <div className="p-4 border border-gray-200 rounded-xl bg-white">
+                    <p className="text-[12px] text-gray-400 mb-1">{selectedDomain?.domain || 'seudominio.com.br'}</p>
+                    <p className="text-[15px] text-blue-600 font-medium mb-1 truncate">{seo.title || 'Título da página'}</p>
+                    <p className="text-[13px] text-gray-600 leading-relaxed line-clamp-2">{seo.description || ''}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Salvar SEO */}
+              <div className="flex justify-end pt-2">
+                <Button
+                  onClick={async () => {
+                    setSavingDomain(true)
+                    await updatePage.mutateAsync({ id: id!, seo, domain_id: selectedDomainId || null, page_slug: pageSlug })
+                    setSavingDomain(false)
+                    toast.success('Domínio e SEO salvos!')
+                  }}
+                  disabled={savingDomain}
+                  className="bg-[#FBB03B] hover:bg-[#f0a824] text-[#1A1A1A] font-semibold px-6"
+                >
+                  {savingDomain ? 'Salvando...' : 'Salvar domínio e SEO'}
+                </Button>
+              </div>
             </div>
           </div>
         </div>
