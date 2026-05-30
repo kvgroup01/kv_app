@@ -374,16 +374,16 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
   const [iframeHeight, setIframeHeight] = React.useState(900)
   const [localHtml, setLocalHtml] = React.useState<string>(data.html || '')
   const lastSaved = React.useRef<string>(data.html || '')
+  const iframeRef = React.useRef<HTMLIFrameElement>(null)
   
   const [selectedElement, setSelectedElement] = React.useState<{
-    selector: string;
-    text: string;
-    tag: string;
+    selector: string
+    text: string
+    tag: string
   } | null>(null)
   const [editText, setEditText] = React.useState('')
-  const iframeRef = React.useRef<HTMLIFrameElement>(null)
 
-  // Sincroniza do pai apenas quando muda externamente (usuário edita o textarea)
+  // Sincroniza do pai apenas quando muda externamente
   React.useEffect(() => {
     if (data.html !== lastSaved.current) {
       lastSaved.current = data.html || ''
@@ -391,100 +391,78 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
     }
   }, [data.html])
 
-  React.useEffect(() => {
-    const handler = (e: MessageEvent) => {
-      if (e.data?.type === 'kv-iframe-h' && e.data.h) {
-        setIframeHeight(Math.max(400, Number(e.data.h)))
+  // Após o iframe carregar: mede altura real + configura click listener
+  const handleIframeLoad = React.useCallback(() => {
+    const doc = iframeRef.current?.contentDocument
+    if (!doc) return
+
+    // Altura real do conteúdo
+    const h = Math.max(
+      doc.documentElement.scrollHeight,
+      doc.documentElement.offsetHeight,
+      doc.body?.scrollHeight || 0
+    )
+    if (h > 100) setIframeHeight(h)
+
+    // Observer para ajustar se o conteúdo mudar (ex: JS popula seções)
+    const ro = new ResizeObserver(() => {
+      const newH = Math.max(doc.documentElement.scrollHeight, doc.body?.scrollHeight || 0)
+      if (newH > 100) setIframeHeight(newH)
+    })
+    if (doc.body) ro.observe(doc.body)
+
+    // Click listener diretamente no documento do iframe
+    const handleClick = (e: MouseEvent) => {
+      const el = e.target as HTMLElement
+      if (!el || el === doc.body || el === doc.documentElement) return
+      
+      const EDITABLE_TAGS = ['P','H1','H2','H3','H4','H5','H6','SPAN','A','LI','BUTTON','LABEL','TD','TH']
+      if (!EDITABLE_TAGS.includes(el.tagName.toUpperCase())) return
+      
+      e.preventDefault()
+      e.stopPropagation()
+
+      // Gera seletor único
+      const path: string[] = []
+      let node: HTMLElement | null = el
+      while (node && node !== doc.body) {
+        const idx = Array.from(node.parentElement?.children || []).indexOf(node)
+        path.unshift(`${node.tagName.toLowerCase()}:nth-child(${idx + 1})`)
+        node = node.parentElement
       }
-      if (e.data?.type === 'kv-save-html' && e.data.html) {
-        const newHtml: string = e.data.html
+      const selector = path.join(' > ')
+
+      setSelectedElement({ selector, text: el.innerText, tag: el.tagName.toLowerCase() })
+      setEditText(el.innerText)
+    }
+
+    doc.addEventListener('click', handleClick)
+    return () => {
+      doc.removeEventListener('click', handleClick)
+      ro.disconnect()
+    }
+  }, [])
+
+  const applyEdit = React.useCallback(() => {
+    if (!selectedElement || !iframeRef.current?.contentDocument) return
+    try {
+      const doc = iframeRef.current.contentDocument
+      const el = doc.querySelector(selectedElement.selector) as HTMLElement | null
+      if (el) {
+        el.innerText = editText
+        const newHtml = doc.documentElement.outerHTML
         lastSaved.current = newHtml
         setLocalHtml(newHtml)
         onChange('html', newHtml)
       }
-      if (e.data?.type === 'kv-element-clicked') {
-        setSelectedElement({ selector: e.data.selector, text: e.data.text, tag: e.data.tag })
-        setEditText(e.data.text)
-      }
+    } catch (err) {
+      console.warn('KV apply edit error:', err)
     }
-    window.addEventListener('message', handler)
-    return () => window.removeEventListener('message', handler)
-  }, [onChange])
-
-  const applyEdit = () => {
-    if (!selectedElement || !iframeRef.current?.contentWindow) return
-    iframeRef.current.contentWindow.postMessage({
-      type: 'kv-update-element',
-      selector: selectedElement.selector,
-      text: editText
-    }, '*')
     setSelectedElement(null)
-  }
+  }, [selectedElement, editText, onChange])
 
-  const isFullPage = /^\s*<!doctype/i.test(localHtml) || /^\s*<html/i.test(localHtml)
-
-  const getSrcDoc = (): string => {
-    const editScript = '<' + 'script>' +
-      'try{' +
-      'window.addEventListener("load",function(){' +
-        // Height reporter
-        'function reportH(){var h=Math.max(document.body.scrollHeight,document.body.offsetHeight,document.documentElement.scrollHeight,document.documentElement.offsetHeight);window.parent.postMessage({type:"kv-iframe-h",h:h},"*");}' +
-        'reportH();' +
-        'new ResizeObserver(reportH).observe(document.body);' +
-        // Click-to-edit: ao clicar em qualquer elemento de texto, torna-o contentEditable
-        'document.body.addEventListener("click",function(e){' +
-          'var el=e.target;' +
-          'if(el===document.body||el===document.documentElement)return;' +
-          // Só ativa em elementos de texto
-          'var tags=["P","H1","H2","H3","H4","H5","H6","SPAN","A","LI","TD","TH","BUTTON","LABEL"];' +
-          'if(tags.indexOf(el.tagName.toUpperCase())===-1)return;' +
-          'e.preventDefault();e.stopPropagation();' +
-          // Gera um seletor único para encontrar o elemento depois
-          'var path=[];' +
-          'var node=el;' +
-          'while(node&&node!==document.body){' +
-            'var idx=Array.prototype.indexOf.call(node.parentNode.children,node);' +
-            'path.unshift(node.tagName.toLowerCase()+":nth-child("+(idx+1)+")");' +
-            'node=node.parentNode;' +
-          '}' +
-          'var selector=path.join(" > ");' +
-          'window.parent.postMessage({' +
-            'type:"kv-element-clicked",' +
-            'selector:selector,' +
-            'text:el.innerText,' +
-            'tag:el.tagName.toLowerCase()' +
-          '},"*");' +
-        '});' +
-        // Escuta atualização vinda do pai e aplica no elemento
-        'window.addEventListener("message",function(e){' +
-          'if(e.data&&e.data.type==="kv-update-element"){' +
-            'try{' +
-              'var el=document.querySelector(e.data.selector);' +
-              'if(el){' +
-                'el.innerText=e.data.text;' +
-                // Após atualizar, serializa e manda de volta para salvar
-                'window.parent.postMessage({type:"kv-save-html",html:document.documentElement.outerHTML},"*");' +
-              '}' +
-            '}catch(err){}' +
-          '}' +
-        '});' +
-      '});' +
-      '}catch(err){console.warn("KV edit script error:",err);}' +
-      '<' + '/script>'
-
-    if (isFullPage) {
-      // Concatena DEPOIS do HTML completo (não dentro) — browser processa normalmente
-      return localHtml + editScript
-    }
-    // Snippet: wrapper com Tailwind + editScript
-    const css = localHtml.includes('<style') ? '' : (data.css ? `<style>${data.css}</style>` : '')
-    return '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
-      '<script src="https://cdn.tailwindcss.com"><' + '/script>' + css + 
-      '</head><body style="margin:0;padding:0;">' +
-      localHtml +
-      editScript +
-      '</body></html>'
-  }
+  // HTML puro, ZERO modificações — nunca injeta scripts
+  const getSrcDoc = (): string => localHtml
 
   return (
     <div style={{ width: '100%', position: 'relative' }}>
@@ -500,16 +478,17 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
         }}
         scrolling="yes"
         title="Preview HTML"
+        onLoad={handleIframeLoad}
       />
       {selectedElement && (
         <div style={{ padding: '12px', borderTop: '1px solid #333', background: '#1a1a1a' }}>
-          <div style={{ fontSize: '11px', color: '#888', marginBottom: '6px', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: '11px', color: '#888', marginBottom: '6px', textTransform: 'uppercase' as const }}>
             Editando: &lt;{selectedElement.tag}&gt;
           </div>
           <textarea
             value={editText}
             onChange={e => setEditText(e.target.value)}
-            style={{ width: '100%', minHeight: '80px', background: '#0a0a0a', color: '#fff', border: '1px solid #444', borderRadius: '6px', padding: '8px', fontSize: '13px', resize: 'vertical' }}
+            style={{ width: '100%', minHeight: '80px', background: '#0a0a0a', color: '#fff', border: '1px solid #444', borderRadius: '6px', padding: '8px', fontSize: '13px', resize: 'vertical' as const, boxSizing: 'border-box' as const }}
           />
           <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
             <button onClick={applyEdit} style={{ background: '#eab308', color: '#000', border: 'none', borderRadius: '6px', padding: '6px 16px', fontWeight: 600, cursor: 'pointer', fontSize: '13px' }}>
