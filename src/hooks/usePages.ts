@@ -3,6 +3,13 @@ import { supabase } from '../lib/supabase'
 import { PageData } from '../lib/blocks/types'
 
 export interface PageIntegrations {
+  customCodes?: Array<{
+    id: string
+    name: string
+    type: 'funcionamento' | 'estatisticas' | 'marketing'
+    enabled: boolean
+    code: string
+  }>
   facebook?: {
     enabled: boolean
     pixelId: string

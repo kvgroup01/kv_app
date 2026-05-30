@@ -334,6 +334,13 @@ fbq('track', '${fbEvent}');
 `
       }
 
+      // Custom codes
+      if (integrations.customCodes) {
+        integrations.customCodes
+          .filter((c: any) => c.enabled)
+          .forEach((c: any) => { headScripts += '\n' + c.code })
+      }
+
       return JSON.stringify({ headScripts, bodyScripts })
     }
 

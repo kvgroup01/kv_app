@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router";
 import {
   ArrowLeft, Globe, Pencil, Copy, ExternalLink, Download,
   MoreHorizontal, Trash2, BarChart2, FileText, Users,
-  MapPin, Link2, Tag, ChevronDown, Eye, EyeOff, Puzzle
+  MapPin, Link2, Tag, ChevronDown, Eye, EyeOff, Puzzle, Code, Plus, X
 } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { Skeleton } from "../../../components/ui/skeleton";
@@ -43,6 +43,56 @@ export default function PageDetail() {
 
   const [integrations, setIntegrations] = React.useState<PageIntegrations>(page?.integrations || {})
   const [savingIntegrations, setSavingIntegrations] = React.useState(false)
+
+  const [showCodeModal, setShowCodeModal] = React.useState(false)
+  const [editingCode, setEditingCode] = React.useState<NonNullable<PageIntegrations['customCodes']>[0] | null>(null)
+  const [codeForm, setCodeForm] = React.useState({
+    name: '',
+    type: 'funcionamento' as 'funcionamento' | 'estatisticas' | 'marketing',
+    code: '',
+  })
+  
+  const openAddCode = () => {
+    setEditingCode(null)
+    setCodeForm({ name: '', type: 'funcionamento', code: '' })
+    setShowCodeModal(true)
+  }
+  
+  const openEditCode = (item: NonNullable<PageIntegrations['customCodes']>[0]) => {
+    setEditingCode(item)
+    setCodeForm({ name: item.name, type: item.type, code: item.code })
+    setShowCodeModal(true)
+  }
+  
+  const saveCode = () => {
+    if (!codeForm.name.trim() || !codeForm.code.trim()) return
+    const codes = integrations.customCodes || []
+    if (editingCode) {
+      const updated = codes.map(c => c.id === editingCode.id ? { ...c, ...codeForm } : c)
+      setIntegrations(prev => ({ ...prev, customCodes: updated }))
+    } else {
+      const newCode = { id: crypto.randomUUID(), enabled: true, ...codeForm }
+      setIntegrations(prev => ({ ...prev, customCodes: [...(prev.customCodes || []), newCode] }))
+    }
+    setShowCodeModal(false)
+  }
+  
+  const deleteCode = (id: string) => {
+    setIntegrations(prev => ({ ...prev, customCodes: (prev.customCodes || []).filter(c => c.id !== id) }))
+  }
+  
+  const toggleCode = (id: string) => {
+    setIntegrations(prev => ({
+      ...prev,
+      customCodes: (prev.customCodes || []).map(c => c.id === id ? { ...c, enabled: !c.enabled } : c)
+    }))
+  }
+  
+  const TYPE_META = {
+    funcionamento: { label: 'Funcionamento', color: '#64748b', desc: 'Animações e estilos personalizados' },
+    estatisticas:  { label: 'Estatísticas',  color: '#3b82f6', desc: 'Hotjar, SmartLook, Analytics' },
+    marketing:     { label: 'Marketing',     color: '#FBB03B', desc: 'Pixel, eventos de conversão' },
+  }
 
   // Sincronizar quando página carregar
   React.useEffect(() => {
@@ -540,6 +590,178 @@ export default function PageDetail() {
               </div>
             )}
           </div>
+
+          {/* ── JAVASCRIPT E CSS ── */}
+          <div className="mt-8">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-[15px] font-semibold text-gray-900">Javascript e CSS</h2>
+                <p className="text-sm text-gray-500 mt-0.5">Adicione scripts e estilos personalizados à sua página</p>
+              </div>
+              <button
+                onClick={openAddCode}
+                className="flex items-center gap-1.5 bg-[#1A1A1A] hover:bg-[#2a2a2a] text-white text-[13px] font-medium px-3 py-2 rounded-lg transition-colors border border-[#2a2a2a]"
+              >
+                <Plus className="w-3.5 h-3.5" strokeWidth={3} /> Adicionar código
+              </button>
+            </div>
+
+            {/* Lista de códigos */}
+            {(integrations.customCodes || []).length === 0 ? (
+              <div className="border-2 border-dashed border-gray-200 rounded-xl py-10 flex flex-col items-center justify-center text-center">
+                <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                  <Code className="w-5 h-5 text-gray-400" />
+                </div>
+                <p className="text-[13px] font-medium text-gray-500">Nenhum código adicionado</p>
+                <p className="text-[12px] text-gray-400 mt-0.5">Clique em "Adicionar código" para começar</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {(integrations.customCodes || []).map(item => {
+                  const meta = TYPE_META[item.type]
+                  return (
+                    <div key={item.id} className="flex items-center gap-3 bg-[#1A1A1A] border border-[#2a2a2a] rounded-xl px-4 py-3 group">
+                      {/* Indicador de tipo */}
+                      <div className="w-1.5 h-8 rounded-full shrink-0" style={{ backgroundColor: meta.color }} />
+                      
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-semibold text-white truncate">{item.name}</p>
+                        <p className="text-[11px] mt-0.5" style={{ color: meta.color }}>{meta.label}</p>
+                      </div>
+
+                      {/* Toggle */}
+                      <Switch
+                        checked={item.enabled}
+                        onCheckedChange={() => toggleCode(item.id)}
+                      />
+
+                      {/* Editar */}
+                      <button
+                        onClick={() => openEditCode(item)}
+                        className="w-8 h-8 flex items-center justify-center text-[#767676] hover:text-white hover:bg-[#2a2a2a] rounded-lg transition-colors"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+
+                      {/* Deletar */}
+                      <button
+                        onClick={() => deleteCode(item.id)}
+                        className="w-8 h-8 flex items-center justify-center text-[#767676] hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* ── MODAL DE CÓDIGO ── */}
+          {showCodeModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}>
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
+                
+                {/* Header */}
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                  <h3 className="text-[16px] font-semibold text-gray-900">
+                    {editingCode ? 'Editar código' : 'Adicionar código'}
+                  </h3>
+                  <button onClick={() => setShowCodeModal(false)} className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-6 space-y-5">
+                  
+                  {/* Nome */}
+                  <div>
+                    <label className="text-[12px] font-semibold text-gray-600 uppercase tracking-wider block mb-2">
+                      Nome do código <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      autoFocus
+                      value={codeForm.name}
+                      onChange={e => setCodeForm(p => ({ ...p, name: e.target.value }))}
+                      placeholder="Ex: Google Tag Manager, Hotjar..."
+                      className="bg-gray-50 border-gray-200 focus-visible:ring-[#FBB03B]"
+                    />
+                  </div>
+
+                  {/* Tipo */}
+                  <div>
+                    <label className="text-[12px] font-semibold text-gray-600 uppercase tracking-wider block mb-2">Tipo do código</label>
+                    <div className="space-y-2">
+                      {(Object.entries(TYPE_META) as [string, typeof TYPE_META.funcionamento][]).map(([value, meta]) => {
+                        const active = codeForm.type === value
+                        return (
+                          <button
+                            key={value}
+                            onClick={() => setCodeForm(p => ({ ...p, type: value as any }))}
+                            className="w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left"
+                            style={{
+                              borderColor: active ? meta.color : '#e2e8f0',
+                              background: active ? `${meta.color}10` : '#f8fafc',
+                            }}
+                          >
+                            <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-all"
+                              style={{ borderColor: active ? meta.color : '#cbd5e1' }}>
+                              {active && <div className="w-2 h-2 rounded-full" style={{ background: meta.color }} />}
+                            </div>
+                            <div>
+                              <p className="text-[13px] font-semibold text-gray-900">{meta.label}</p>
+                              <p className="text-[11px] text-gray-500 mt-0.5">{meta.desc}</p>
+                            </div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Editor de código */}
+                  <div>
+                    <label className="text-[12px] font-semibold text-gray-600 uppercase tracking-wider block mb-2">
+                      Código <span className="text-red-500">*</span>
+                    </label>
+                    <div className="rounded-xl overflow-hidden border border-[#2a2a2a]">
+                      <div className="flex items-center gap-2 px-4 py-2 bg-[#1A1A1A] border-b border-[#2a2a2a]">
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
+                        <span className="text-[11px] text-[#767676] ml-2 font-mono">código.html</span>
+                      </div>
+                      <textarea
+                        value={codeForm.code}
+                        onChange={e => setCodeForm(p => ({ ...p, code: e.target.value }))}
+                        placeholder={'<script>\n  // Seu código aqui\n</script>'}
+                        rows={12}
+                        spellCheck={false}
+                        className="w-full bg-[#0d0d0d] text-[#e2e8f0] font-mono text-[12px] leading-relaxed p-4 resize-none outline-none"
+                        style={{ tabSize: 2 }}
+                      />
+                    </div>
+                    <p className="text-[11px] text-gray-400 mt-1.5">Inclua as tags &lt;script&gt; ou &lt;style&gt; conforme necessário.</p>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="flex gap-3 px-6 py-4 border-t border-gray-100">
+                  <button onClick={() => setShowCodeModal(false)}
+                    className="flex-1 h-10 border border-gray-200 text-gray-600 rounded-xl text-[13px] font-medium hover:bg-gray-50 transition-colors">
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={saveCode}
+                    disabled={!codeForm.name.trim() || !codeForm.code.trim()}
+                    className="flex-1 h-10 bg-[#FBB03B] hover:bg-[#f0a824] disabled:opacity-40 disabled:cursor-not-allowed text-[#1A1A1A] rounded-xl text-[13px] font-semibold transition-colors"
+                  >
+                    {editingCode ? 'Salvar alterações' : 'Adicionar'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Botão salvar */}
           <div className="flex justify-end pt-2">
