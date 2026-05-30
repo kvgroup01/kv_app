@@ -11,7 +11,9 @@ import {
   Image as ImageIcon,
   Plus,
   ArrowLeft,
+  X,
 } from "lucide-react";
+import { supabase } from "../../../lib/supabase";
 import { format, parseISO, subDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "../../../lib/utils";
@@ -590,6 +592,21 @@ export default function InstagramAnalytics() {
     string | null
   >(null);
 
+  const handleDisconnect = async (profileId: string, profileName: string) => {
+    if (!confirm(`Desconectar @${profileName}?`)) return;
+    try {
+      const { error } = await supabase
+        .from("instagram_profiles")
+        .delete()
+        .eq("id", profileId);
+      if (error) throw error;
+      toast.success("Perfil desconectado");
+      queryClient.invalidateQueries({ queryKey: ["instagram-profiles"] });
+    } catch {
+      toast.error("Erro ao desconectar");
+    }
+  };
+
   React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("success") === "connected") {
@@ -652,34 +669,45 @@ export default function InstagramAnalytics() {
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {profiles?.map((profile) => (
-              <button
-                key={profile.id}
-                onClick={() => setPerfilSelecionado(profile.id)}
-                className="flex flex-col items-center gap-3 p-6 rounded-xl border bg-card hover:border-primary hover:shadow-md transition-all"
-              >
-                {profile.profile_picture_url ? (
-                  <img
-                    src={profile.profile_picture_url}
-                    alt={profile.name}
-                    className="w-16 h-16 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xl">
-                    {profile.username?.[0]?.toUpperCase()}
+              <div key={profile.id} className="relative group h-full">
+                <button
+                  onClick={() => setPerfilSelecionado(profile.id)}
+                  className="flex flex-col items-center gap-3 p-6 rounded-xl border bg-card hover:border-primary hover:shadow-md transition-all w-full h-full"
+                >
+                  {profile.profile_picture_url ? (
+                    <img
+                      src={profile.profile_picture_url}
+                      alt={profile.name}
+                      className="w-16 h-16 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xl">
+                      {profile.username?.[0]?.toUpperCase()}
+                    </div>
+                  )}
+                  <div className="text-center">
+                    <p className="font-semibold text-sm truncate max-w-[120px]">
+                      {profile.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      @{profile.username}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {profile.followers_count?.toLocaleString()} seguidores
+                    </p>
                   </div>
-                )}
-                <div className="text-center">
-                  <p className="font-semibold text-sm truncate max-w-[120px]">
-                    {profile.name}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    @{profile.username}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {profile.followers_count?.toLocaleString()} seguidores
-                  </p>
-                </div>
-              </button>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDisconnect(profile.id, profile.username);
+                  }}
+                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity w-7 h-7 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full shadow-md"
+                  title="Desconectar perfil"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
             ))}
 
             <button
