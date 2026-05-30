@@ -343,7 +343,7 @@ export default function PageDetail() {
 
       {/* Tab: Resumo */}
       {activeTab === "resumo" && (
-        <div className="space-y-4 max-w-2xl">
+        <div className="space-y-4">
           <div className="border border-border rounded-xl p-5 bg-card space-y-4">
             <div>
               <p className="text-xs text-muted-foreground mb-1">URL da página</p>
@@ -504,7 +504,7 @@ export default function PageDetail() {
 
       {/* Tab: Integrações */}
       {activeTab === 'integracoes' && (
-        <div className="max-w-2xl space-y-4">
+        <div className="space-y-4">
           <div className="mb-6">
             <h2 className="text-lg font-semibold text-gray-900">Análise de campanha</h2>
             <p className="text-sm text-gray-500 mt-1">Monitore o desempenho dessa página com suas ferramentas de análise e acompanhamento</p>
