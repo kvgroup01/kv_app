@@ -205,11 +205,11 @@ async function runUpdate() {
   async function criarIndice(
     collectionId: string,
     key: string,
-    type: string,
+    type: string | sdk.DatabasesIndexType,
     attributes: string[]
   ) {
     try {
-      await databases.createIndex(DB_ID, collectionId, key, type, attributes);
+      await databases.createIndex(DB_ID, collectionId, key, type as sdk.DatabasesIndexType, attributes);
       console.log(`✅ Índice '${key}' criado com sucesso na coleção '${collectionId}'.`);
     } catch (error: any) {
       if (error.code === 409) {
@@ -221,35 +221,35 @@ async function runUpdate() {
   }
 
   // COLEÇÃO lead_entries
-  await criarIndice('lead_entries', 'lancamento_id', 'key', ['lancamento_id']);
-  await criarIndice('lead_entries', 'data', 'key', ['data']);
-  await criarIndice('lead_entries', 'escolaridade', 'key', ['escolaridade']);
-  await criarIndice('lead_entries', 'lancamento_data', 'key', ['lancamento_id', 'data']);
+  await criarIndice('lead_entries', 'lancamento_id', sdk.DatabasesIndexType.Key, ['lancamento_id']);
+  await criarIndice('lead_entries', 'data', sdk.DatabasesIndexType.Key, ['data']);
+  await criarIndice('lead_entries', 'escolaridade', sdk.DatabasesIndexType.Key, ['escolaridade']);
+  await criarIndice('lead_entries', 'lancamento_data', sdk.DatabasesIndexType.Key, ['lancamento_id', 'data']);
 
   // COLEÇÃO daily_metrics
-  await criarIndice('daily_metrics', 'cliente_id', 'key', ['cliente_id']);
-  await criarIndice('daily_metrics', 'data', 'key', ['data']);
-  await criarIndice('daily_metrics', 'criativo_id', 'key', ['criativo_id']);
-  await criarIndice('daily_metrics', 'criativo_data', 'key', ['criativo_id', 'data']);
-  await criarIndice('daily_metrics', 'cliente_data', 'key', ['cliente_id', 'data']);
+  await criarIndice('daily_metrics', 'cliente_id', sdk.DatabasesIndexType.Key, ['cliente_id']);
+  await criarIndice('daily_metrics', 'data', sdk.DatabasesIndexType.Key, ['data']);
+  await criarIndice('daily_metrics', 'criativo_id', sdk.DatabasesIndexType.Key, ['criativo_id']);
+  await criarIndice('daily_metrics', 'criativo_data', sdk.DatabasesIndexType.Key, ['criativo_id', 'data']);
+  await criarIndice('daily_metrics', 'cliente_data', sdk.DatabasesIndexType.Key, ['cliente_id', 'data']);
 
   // COLEÇÃO campaigns
-  await criarIndice('campaigns', 'cliente_id', 'key', ['cliente_id']);
+  await criarIndice('campaigns', 'cliente_id', sdk.DatabasesIndexType.Key, ['cliente_id']);
 
   // COLEÇÃO adsets
-  await criarIndice('adsets', 'campanha_id', 'key', ['campanha_id']);
+  await criarIndice('adsets', 'campanha_id', sdk.DatabasesIndexType.Key, ['campanha_id']);
 
   // COLEÇÃO ads
-  await criarIndice('ads', 'conjunto_id', 'key', ['conjunto_id']);
-  await criarIndice('ads', 'meta_ad_id', 'key', ['meta_ad_id']);
+  await criarIndice('ads', 'conjunto_id', sdk.DatabasesIndexType.Key, ['conjunto_id']);
+  await criarIndice('ads', 'meta_ad_id', sdk.DatabasesIndexType.Key, ['meta_ad_id']);
 
   // COLEÇÃO lancamentos
-  await criarIndice('lancamentos', 'cliente_id', 'key', ['cliente_id']);
-  await criarIndice('lancamentos', 'slug', 'key', ['slug']);
+  await criarIndice('lancamentos', 'cliente_id', sdk.DatabasesIndexType.Key, ['cliente_id']);
+  await criarIndice('lancamentos', 'slug', sdk.DatabasesIndexType.Key, ['slug']);
 
   // COLEÇÃO sync_jobs
-  await criarIndice('sync_jobs', 'lancamento_id', 'key', ['lancamento_id']);
-  await criarIndice('sync_jobs', 'status', 'key', ['status']);
+  await criarIndice('sync_jobs', 'lancamento_id', sdk.DatabasesIndexType.Key, ['lancamento_id']);
+  await criarIndice('sync_jobs', 'status', sdk.DatabasesIndexType.Key, ['status']);
 
   // PASSO 18 — Coleção survey_entries
   try {
@@ -282,10 +282,10 @@ async function runUpdate() {
   }
 
   // COLEÇÃO survey_entries
-  await criarIndice('survey_entries', 'lancamento_id', 'key', ['lancamento_id']);
-  await criarIndice('survey_entries', 'data', 'key', ['data']);
-  await criarIndice('survey_entries', 'lancamento_data', 'key', ['lancamento_id', 'data']);
-  await criarIndice('survey_entries', 'typeform_response_id', 'unique', ['typeform_response_id']);
+  await criarIndice('survey_entries', 'lancamento_id', sdk.DatabasesIndexType.Key, ['lancamento_id']);
+  await criarIndice('survey_entries', 'data', sdk.DatabasesIndexType.Key, ['data']);
+  await criarIndice('survey_entries', 'lancamento_data', sdk.DatabasesIndexType.Key, ['lancamento_id', 'data']);
+  await criarIndice('survey_entries', 'typeform_response_id', sdk.DatabasesIndexType.Unique, ['typeform_response_id']);
 
   // Adicionar campo lancamento_id em daily_metrics
   console.log('\n⏳ Adicionando campo lancamento_id em daily_metrics...');
@@ -317,9 +317,9 @@ async function runUpdate() {
       'dashboard-kv',
       'daily_metrics',
       'lancamento_id',
-      'key',
+      sdk.DatabasesIndexType.Key,
       ['lancamento_id'],
-      ['ASC']
+      ['ASC'] as any[]
     );
     console.log('✅ Índice lancamento_id criado em daily_metrics');
   } catch (e: any) {
@@ -336,9 +336,9 @@ async function runUpdate() {
       'dashboard-kv',
       'daily_metrics',
       'lancamento_data',
-      'key',
+      sdk.DatabasesIndexType.Key,
       ['lancamento_id', 'data'],
-      ['ASC', 'ASC']
+      ['ASC', 'ASC'] as any[]
     );
     console.log('✅ Índice lancamento_data criado em daily_metrics');
   } catch (e: any) {

@@ -1,4 +1,4 @@
-import { Client, Databases } from 'node-appwrite';
+import { Client, Databases, DatabasesIndexType } from 'node-appwrite';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -13,7 +13,7 @@ const DB_ID = 'dashboard-kv';
 
 async function createIndex(collectionId: string, key: string, attributes: string[]) {
   try {
-    await databases.createIndex(DB_ID, collectionId, key, 'key', attributes);
+    await databases.createIndex(DB_ID, collectionId, key, DatabasesIndexType.Key, attributes);
     console.log(`✅ Índice ${key} criado na coleção ${collectionId}`);
   } catch (e: any) {
     if (e.code === 409) {
@@ -54,10 +54,10 @@ async function run() {
       DB_ID,
       'ads',
       'meta_ad_id',
-      'key',
+      DatabasesIndexType.Key,
       ['meta_ad_id'],
-      ['ASC'],
-      255  // tamanho máximo para o índice
+      ['ASC'] as any[],
+      [255]  // tamanho máximo para o índice
     )
     console.log('✅ Índice meta_ad_id criado')
   } catch (e: any) {

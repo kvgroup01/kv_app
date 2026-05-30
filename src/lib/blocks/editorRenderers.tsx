@@ -423,23 +423,8 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
     }
     // ── FIM do bloco novo ──
 
-    // Atualiza altura DIRETAMENTE no DOM — sem setState, sem re-render, sem reload
-    const updateHeight = () => {
-      const h = Math.max(
-        doc.documentElement.scrollHeight || 0,
-        doc.documentElement.offsetHeight || 0,
-        doc.body?.scrollHeight || 0,
-        doc.body?.offsetHeight || 0
-      )
-      if (h > 100) iframe.style.height = h + 'px'
-    }
-
-    // Altura inicial após load
-    updateHeight()
-
-    // Observa mudanças quando JS do usuário popula seções dinamicamente
-    const ro = new ResizeObserver(updateHeight)
-    if (doc.body) ro.observe(doc.body)
+    // SEM updateHeight — altura fixa simula viewport real do browser
+    // min-h-screen = 100vh = 900px (correto, como num browser real)
 
     // Click listener para edição inline
     const handleClick = (e: MouseEvent) => {
@@ -470,7 +455,6 @@ function CustomHtmlEditor({ data, onChange }: { data: any; styles: SectionStyles
     // Cleanup quando iframe recarregar
     return () => {
       doc.removeEventListener('click', handleClick)
-      ro.disconnect()
     }
   }, []) // deps vazias — função estável, não causa re-render
 

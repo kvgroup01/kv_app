@@ -1,4 +1,4 @@
-import { BlockDefinition, BlockCategory } from './types';
+import { BlockDefinition, BlockCategory, SectionStyles } from './types';
 
 export const blockRegistry: BlockDefinition[] = [
   // Headers
