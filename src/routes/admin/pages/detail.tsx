@@ -454,6 +454,7 @@ export default function PageDetail() {
               <Switch
                 checked={integrations.facebook?.enabled || false}
                 onCheckedChange={v => updateIntegration('facebook', 'enabled', v)}
+                className="data-[state=checked]:bg-[#FBB03B]"
               />
             </div>
 
@@ -559,6 +560,7 @@ export default function PageDetail() {
               <Switch
                 checked={integrations.googleAnalytics?.enabled || false}
                 onCheckedChange={v => updateIntegration('googleAnalytics', 'enabled', v)}
+                className="data-[state=checked]:bg-[#FBB03B]"
               />
             </div>
             {integrations.googleAnalytics?.enabled && (
@@ -586,6 +588,7 @@ export default function PageDetail() {
               <Switch
                 checked={integrations.googleTagManager?.enabled || false}
                 onCheckedChange={v => updateIntegration('googleTagManager', 'enabled', v)}
+                className="data-[state=checked]:bg-[#FBB03B]"
               />
             </div>
             {integrations.googleTagManager?.enabled && (
@@ -641,7 +644,7 @@ export default function PageDetail() {
                         <p className="text-[13px] font-semibold text-gray-900 truncate">{item.name}</p>
                         <p className="text-[11px] mt-0.5 font-medium" style={{ color: meta.color }}>{meta.label}</p>
                       </div>
-                      <Switch checked={item.enabled} onCheckedChange={() => toggleCode(item.id)} />
+                      <Switch checked={item.enabled} onCheckedChange={() => toggleCode(item.id)} className="data-[state=checked]:bg-[#FBB03B]" />
                       <button onClick={() => openEditCode(item)}
                         className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-200 rounded-lg transition-colors">
                         <Pencil className="w-3.5 h-3.5" />
