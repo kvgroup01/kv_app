@@ -57,7 +57,7 @@ export function UploadComprovante({ orcamentoId, onConfirmar, isLoading }: Uploa
           {...getRootProps()} 
           className={cn(
             "border-2 border-dashed rounded-xl p-10 flex flex-col items-center justify-center text-center cursor-pointer transition-colors duration-200",
-            isDragActive ? "border-primary bg-primary/5" : "border-slate-200 bg-slate-100/50 hover:bg-slate-100"
+            isDragActive ? "border-primary bg-primary/5" : "border-slate-200 bg-slate-50 hover:bg-slate-100"
           )}
         >
           <input {...getInputProps()} />
@@ -99,7 +99,7 @@ export function UploadComprovante({ orcamentoId, onConfirmar, isLoading }: Uploa
       </div>
 
       <Button 
-        className="w-full h-12 text-md font-bold bg-slate-900 hover:bg-slate-800 text-white transition-all shadow-lg" 
+        className="w-full h-12 text-md font-bold bg-[#FBB03B] hover:bg-[#f0a830] text-black transition-all shadow-lg" 
         onClick={handleSubmit} 
         disabled={!selectedFile || isLoading}
       >

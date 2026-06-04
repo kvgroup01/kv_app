@@ -13,6 +13,7 @@ import { Skeleton } from '../../components/ui/skeleton';
 import { UploadComprovante } from '../../components/admin/UploadComprovante';
 import { fmtBRL, fmtDataString } from '../../lib/utils';
 import { cn } from '../../lib/utils';
+import { KVMark } from '../../components/brand/KVMark';
 
 export default function OrcamentoPublico() {
   const { token } = useParams();
@@ -110,129 +111,134 @@ export default function OrcamentoPublico() {
   const isPago = orcamento.status === 'pago';
 
   return (
-    <div className="min-h-screen" style={{ colorScheme: 'light', background: '#f8fafc', color: '#0f172a' }}>
-      <div className="min-h-screen bg-[#f8fafc] p-4 md:p-8 flex justify-center items-start pt-8 pb-16">
-        <Card style={{ background: '#ffffff', color: '#0f172a' }} className="w-full max-w-2xl shadow-xl overflow-hidden border-t-8 border-t-slate-800">
-        
-        {/* Banner Status */}
-        {isPago && (
-          <div className="bg-emerald-500 text-white p-4 flex items-center justify-center gap-2">
-            <CircleCheck className="w-5 h-5" />
-            <span className="font-medium">Pagamento Confirmado. Muito obrigado!</span>
-          </div>
-        )}
-        {(orcamento.status === 'cancelado') && (
-          <div className="bg-slate-300 text-slate-700 p-4 flex items-center justify-center gap-2">
-            <AlertCircle className="w-5 h-5" />
-            <span className="font-medium">Este orçamento foi cancelado.</span>
-          </div>
-        )}
+  <div style={{ colorScheme: 'light', background: '#f5f5f5', minHeight: '100vh' }}>
+    <div className="min-h-screen bg-[#f5f5f5] p-4 md:p-8 flex justify-center items-start pt-8 pb-16">
+      <div className="w-full max-w-2xl space-y-0">
 
-        <CardContent className="p-6 md:p-10 space-y-8">
-          
-          <div className="flex flex-col md:flex-row justify-between md:items-end gap-6">
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Proposta Comercial</h1>
-              <p className="text-slate-600 font-medium mt-1">Acordo de prestação de serviços</p>
+        {/* Header com logo KV */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <div className="bg-black rounded-lg p-2 flex items-center justify-center">
+              <KVMark size={22} color="#FBB03B" />
             </div>
-            <div className="text-left md:text-right text-sm space-y-1 text-slate-600">
-              <p>Data de emissão: <span className="font-medium text-slate-900">{fmtDataString(orcamento.$createdAt)}</span></p>
-              <p>Válido até: <span className="font-medium text-slate-900">7 dias úteis</span></p>
-            </div>
+            <span className="font-bold text-lg text-black tracking-tight">
+              KV<span className="text-[#FBB03B]">ision</span>
+            </span>
           </div>
+          <span className="text-xs text-slate-400 font-medium">Proposta Comercial</span>
+        </div>
 
-          <div className="bg-slate-100 p-5 rounded-xl border border-slate-200">
-            <p className="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-1">Faturado para</p>
-            <p className="text-2xl font-bold text-slate-900">{orcamento.cliente_nome}</p>
-          </div>
+        {/* Card principal */}
+        <div style={{ background: '#ffffff', borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '1px solid #e5e7eb' }}>
 
-          <div>
-            <div className="flex justify-between text-xs uppercase font-bold text-slate-500 border-b-2 border-slate-100 pb-3 mb-4">
-               <span>Descrição do Serviço</span>
-               <div className="flex gap-4 md:gap-16">
-                 <span className="hidden md:inline-block">Qtd</span>
-                 <span className="hidden md:inline-block">Valor un.</span>
-                 <span>Subtotal</span>
-               </div>
+          {/* Faixa superior amarela */}
+          <div className="h-1.5 bg-[#FBB03B] w-full" />
+
+          {/* Banners de status */}
+          {isPago && (
+            <div className="bg-emerald-500 text-white px-8 py-3 flex items-center justify-center gap-2 text-sm font-medium">
+              <CircleCheck className="w-4 h-4" /> Pagamento Confirmado — Obrigado!
             </div>
-            
-            <div className="space-y-4">
-              {itensFormatados.map((item: any, idx: number) => (
-                <div key={idx} className="flex justify-between items-start text-sm">
-                   <div className="w-2/3">
-                     <p className="font-medium text-slate-900">{item.descricao}</p>
-                   </div>
-                   <div className="flex gap-4 md:gap-16 text-right">
-                     <span className="hidden md:block text-slate-600">{item.quantidade}x</span>
-                     <span className="hidden md:block text-slate-600">{fmtBRL(item.valor_unitario)}</span>
-                     <span className="font-medium text-slate-900">{fmtBRL(item.quantidade * item.valor_unitario)}</span>
-                   </div>
-                </div>
-              ))}
-            </div>
-
-            <Separator className="my-6" />
-
-            <div className="flex justify-between items-center text-xl md:text-2xl font-bold text-slate-900">
-               <span>Total a pagar</span>
-               <span className="text-primary">{fmtBRL(orcamento.valor_total)}</span>
-            </div>
-          </div>
-
-          {!isPago && orcamento.status !== 'cancelado' && (
-            <div className="pt-6">
-               <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-6 md:p-8 flex flex-col items-center text-center">
-                  <h3 className="font-bold text-xl text-blue-950 mb-2">Pague com PIX</h3>
-                  <p className="text-blue-900 font-medium text-sm mb-6 max-w-sm">Escaneie o código abaixo com o aplicativo do seu banco para processar a aprovação imediata.</p>
-                  
-                  {qrCodeData ? (
-                    <div className="bg-white p-2 rounded-xl shadow-sm border border-slate-200 mb-6">
-                      <img src={qrCodeData} alt="QR Code PIX" className="w-[200px] h-[200px]" />
-                    </div>
-                  ) : (
-                    <Skeleton className="w-[200px] h-[200px] rounded-xl mb-6" />
-                  )}
-
-                  <div className="w-full space-y-2">
-                    <p className="text-[10px] text-blue-900/60 uppercase font-bold text-left ml-1">PIX Copia e Cola</p>
-                    <div className="flex items-center gap-2 bg-blue-100/50 border border-blue-200 text-blue-900 px-4 py-3 rounded-lg break-all max-w-full group hover:bg-blue-100 transition-colors">
-                       <span className="font-mono text-sm max-w-[200px] md:max-w-xs truncate opacity-70" title="Clique para copiar o código PIX completo">
-                         {orcamento.pix_chave} (Código gerado)
-                       </span>
-                       <Button 
-                         size="sm" 
-                         variant="ghost" 
-                         className="ml-auto h-8 gap-2 hover:bg-blue-200 hover:text-blue-900 text-blue-700" 
-                         onClick={copyPix}
-                       >
-                         <Copy className="h-4 w-4" />
-                         <span className="text-xs font-bold">Copiar Código</span>
-                       </Button>
-                    </div>
-                  </div>
-               </div>
-
-               <Separator className="my-8" />
-               <UploadComprovante 
-                 orcamentoId={orcamento.$id} 
-                 isLoading={confirmarMutation.isPending}
-                 onConfirmar={(arquivo, observacao) => {
-                   confirmarMutation.mutate({ 
-                     orcamento_id: orcamento.$id, 
-                     arquivoFile: arquivo,
-                     observacao 
-                   });
-                 }}
-               />
+          )}
+          {orcamento.status === 'cancelado' && (
+            <div className="bg-slate-200 text-slate-600 px-8 py-3 flex items-center justify-center gap-2 text-sm font-medium">
+              <AlertCircle className="w-4 h-4" /> Este orçamento foi cancelado.
             </div>
           )}
 
-        </CardContent>
-        <div className="bg-slate-50 p-6 text-center text-xs text-slate-500 font-medium border-t border-slate-100">
-           <p className="flex justify-center items-center gap-1"><Receipt className="w-3 h-3" /> Gerado de forma automatizada por KVision</p>
+          <div className="p-8 md:p-10 space-y-8">
+
+            {/* Cabeçalho da proposta */}
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-6 border-b border-slate-100">
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900">Proposta Comercial</h1>
+                <p className="text-sm text-slate-500 mt-1">Acordo de prestação de serviços</p>
+              </div>
+              <div className="text-sm text-slate-500 space-y-1 sm:text-right">
+                <p>Emissão: <span className="font-semibold text-slate-800">{fmtDataString(orcamento.$createdAt)}</span></p>
+                <p>Válido por: <span className="font-semibold text-slate-800">7 dias úteis</span></p>
+              </div>
+            </div>
+
+            {/* Faturado para */}
+            <div className="bg-[#FBB03B]/8 border border-[#FBB03B]/20 rounded-xl p-5">
+              <p className="text-[10px] text-[#FBB03B] uppercase tracking-widest font-bold mb-1">Faturado para</p>
+              <p className="text-xl font-bold text-slate-900">{orcamento.cliente_nome}</p>
+            </div>
+
+            {/* Tabela de itens */}
+            <div>
+              <div className="grid grid-cols-12 text-[10px] uppercase tracking-widest font-bold text-slate-400 pb-3 border-b border-slate-100">
+                <span className="col-span-6">Serviço</span>
+                <span className="col-span-2 text-center">Qtd</span>
+                <span className="col-span-2 text-right">Valor Un.</span>
+                <span className="col-span-2 text-right">Subtotal</span>
+              </div>
+              <div className="space-y-3 mt-4">
+                {itensFormatados.map((item: any, idx: number) => (
+                  <div key={idx} className="grid grid-cols-12 text-sm items-center">
+                    <span className="col-span-6 font-medium text-slate-800">{item.descricao}</span>
+                    <span className="col-span-2 text-center text-slate-500">{item.quantidade}x</span>
+                    <span className="col-span-2 text-right text-slate-500">{fmtBRL(item.valor_unitario)}</span>
+                    <span className="col-span-2 text-right font-semibold text-slate-800">{fmtBRL(item.quantidade * item.valor_unitario)}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 pt-5 border-t-2 border-slate-100 flex justify-between items-center">
+                <span className="text-lg font-bold text-slate-900">Total a pagar</span>
+                <span className="text-2xl font-bold text-[#FBB03B]">{fmtBRL(orcamento.valor_total)}</span>
+              </div>
+            </div>
+
+            {/* Seção PIX + Upload */}
+            {!isPago && orcamento.status !== 'cancelado' && (
+              <>
+                <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 flex flex-col items-center text-center">
+                  <div className="inline-flex items-center gap-2 bg-[#FBB03B]/10 text-[#c17f00] text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-4">
+                    Pague com PIX
+                  </div>
+                  <p className="text-sm text-slate-500 mb-6 max-w-sm">Escaneie o código com o app do seu banco para pagamento imediato.</p>
+                  {qrCodeData ? (
+                    <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-200 mb-6">
+                      <img src={qrCodeData} alt="QR Code PIX" className="w-[180px] h-[180px]" />
+                    </div>
+                  ) : (
+                    <Skeleton className="w-[180px] h-[180px] rounded-xl mb-6" />
+                  )}
+                  <div className="w-full space-y-1.5">
+                    <p className="text-[9px] text-slate-400 uppercase tracking-widest font-bold text-left">PIX Copia e Cola</p>
+                    <div className="flex items-center gap-2 bg-white border border-slate-200 px-4 py-3 rounded-xl">
+                      <span className="font-mono text-xs text-slate-500 truncate flex-1">{orcamento.pix_chave} (Código gerado)</span>
+                      <Button size="sm" variant="ghost" className="h-8 gap-1.5 text-[#FBB03B] hover:text-[#c17f00] hover:bg-[#FBB03B]/10 shrink-0 font-bold text-xs" onClick={copyPix}>
+                        <Copy className="h-3.5 w-3.5" /> Copiar
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <UploadComprovante
+                    orcamentoId={orcamento.$id}
+                    isLoading={confirmarMutation.isPending}
+                    onConfirmar={(arquivo, observacao) => {
+                      confirmarMutation.mutate({ orcamento_id: orcamento.$id, arquivoFile: arquivo, observacao });
+                    }}
+                  />
+                </div>
+              </>
+            )}
+
+          </div>
+
+          {/* Footer */}
+          <div className="border-t border-slate-100 px-8 py-4 flex items-center justify-center gap-2 bg-slate-50/50">
+            <Receipt className="w-3.5 h-3.5 text-slate-300" />
+            <span className="text-xs text-slate-400 font-medium">Gerado automaticamente por KVision</span>
+          </div>
+
         </div>
-      </Card>
       </div>
     </div>
-  );
+  </div>
+);
 }
