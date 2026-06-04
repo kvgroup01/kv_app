@@ -194,7 +194,7 @@ export default function OrcamentoPublico() {
             {/* Total */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 20, marginTop: 8 }}>
               <span style={{ fontSize: 17, fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.374px' }}>Total a pagar</span>
-              <span style={{ fontSize: 24, fontWeight: 600, color: '#FBB03B', letterSpacing: '-0.374px' }}>{fmtBRL(orcamento.valor_total)}</span>
+              <span style={{ fontSize: 24, fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.374px' }}>{fmtBRL(orcamento.valor_total)}</span>
             </div>
           </div>
   
