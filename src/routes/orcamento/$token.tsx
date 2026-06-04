@@ -68,8 +68,10 @@ export default function OrcamentoPublico() {
 
   if (isLoading) {
     return (
-      <div data-theme="light" style={{ colorScheme: 'light' }} className="light min-h-screen bg-slate-50 p-4 md:p-8 flex justify-center items-start pt-12">
-        <Skeleton className="h-[600px] w-full max-w-2xl rounded-xl" />
+      <div className="min-h-screen" style={{ colorScheme: 'light', background: '#f8fafc', color: '#0f172a' }}>
+        <div className="min-h-screen bg-[#f8fafc] p-4 md:p-8 flex justify-center items-start pt-12">
+          <Skeleton className="h-[600px] w-full max-w-2xl rounded-xl" />
+        </div>
       </div>
     );
   }
@@ -78,8 +80,9 @@ export default function OrcamentoPublico() {
     const isPermissionError = error?.message?.includes('insufficient_permissions') || error?.message?.includes('unauthorized');
     
     return (
-      <div data-theme="light" style={{ colorScheme: 'light' }} className="light min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full text-center space-y-6">
+      <div className="min-h-screen" style={{ colorScheme: 'light', background: '#f8fafc', color: '#0f172a' }}>
+        <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-4">
+          <div className="max-w-md w-full text-center space-y-6">
           <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto">
             <AlertCircle className="w-10 h-10 text-red-500" />
           </div>
@@ -98,6 +101,7 @@ export default function OrcamentoPublico() {
           </div>
         </div>
       </div>
+      </div>
     );
   }
 
@@ -106,8 +110,9 @@ export default function OrcamentoPublico() {
   const isPago = orcamento.status === 'pago';
 
   return (
-    <div data-theme="light" style={{ colorScheme: 'light' }} className="light min-h-screen bg-slate-50 p-4 md:p-8 flex justify-center items-start pt-8 pb-16">
-      <Card className="w-full max-w-2xl shadow-xl overflow-hidden border-t-8 border-t-slate-800 bg-white text-slate-900">
+    <div className="min-h-screen" style={{ colorScheme: 'light', background: '#f8fafc', color: '#0f172a' }}>
+      <div className="min-h-screen bg-[#f8fafc] p-4 md:p-8 flex justify-center items-start pt-8 pb-16">
+        <Card style={{ background: '#ffffff', color: '#0f172a' }} className="w-full max-w-2xl shadow-xl overflow-hidden border-t-8 border-t-slate-800">
         
         {/* Banner Status */}
         {isPago && (
@@ -227,6 +232,7 @@ export default function OrcamentoPublico() {
            <p className="flex justify-center items-center gap-1"><Receipt className="w-3 h-3" /> Gerado de forma automatizada por KVision</p>
         </div>
       </Card>
+      </div>
     </div>
   );
 }

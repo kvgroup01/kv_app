@@ -57,7 +57,7 @@ export function UploadComprovante({ orcamentoId, onConfirmar, isLoading }: Uploa
           {...getRootProps()} 
           className={cn(
             "border-2 border-dashed rounded-xl p-10 flex flex-col items-center justify-center text-center cursor-pointer transition-colors duration-200",
-            isDragActive ? "border-primary bg-primary/5" : "border-border bg-muted/50 hover:bg-muted"
+            isDragActive ? "border-primary bg-primary/5" : "border-slate-200 bg-slate-100/50 hover:bg-slate-100"
           )}
         >
           <input {...getInputProps()} />
@@ -70,19 +70,19 @@ export function UploadComprovante({ orcamentoId, onConfirmar, isLoading }: Uploa
           <p className="text-xs text-slate-500 font-medium mt-2">Tamanho máximo: 5MB</p>
         </div>
       ) : (
-        <div className="border rounded-xl p-4 flex items-start justify-between bg-muted/30">
+        <div className="border border-slate-200 rounded-xl p-4 flex items-start justify-between bg-slate-100/30">
           <div className="flex items-center space-x-4 overflow-hidden">
             <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
                <FileIcon className="w-6 h-6" />
             </div>
             <div className="min-w-0">
-              <p className="font-medium text-sm truncate pr-4">{selectedFile.name}</p>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="font-medium text-sm truncate pr-4 text-slate-900">{selectedFile.name}</p>
+              <p className="text-xs text-slate-500 mt-1">
                 {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
               </p>
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={removeFile} className="shrink-0 text-muted-foreground hover:text-destructive">
+          <Button variant="ghost" size="icon" onClick={removeFile} className="shrink-0 text-slate-500 hover:text-red-500">
              <X className="h-5 w-5" />
           </Button>
         </div>
