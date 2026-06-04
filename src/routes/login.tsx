@@ -1,10 +1,9 @@
 import * as React from 'react';
 import { useNavigate, Navigate } from 'react-router';
 import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
 import { AlertCircle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { KVMark } from '../components/brand/KVMark';
+import { KVMark, KV_P1, KV_P2 } from '../components/brand/KVMark';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -28,36 +27,32 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-(--content-bg) p-4">
+    <div className="min-h-screen w-full flex">
 
-      {/* Card central */}
-      <div className="w-full max-w-[380px] bg-(--card-bg) border border-(--card-border) rounded-[20px] overflow-hidden">
+      {/* ══ PAINEL ESQUERDO — Formulário ══ */}
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-(--content-bg) min-h-screen">
+        <div className="w-full max-w-[360px]">
 
-        {/* Faixa de marca no topo */}
-        <div className="h-1 w-full bg-[#FBB03B]" />
-
-        <div className="px-8 pt-10 pb-10">
-
-          {/* Logo + título */}
-          <div className="flex flex-col items-center gap-4 mb-10">
-            <div className="flex items-center justify-center w-14 h-14 rounded-[14px] bg-(--sidebar-bg) border border-(--card-border)">
-              <KVMark size={28} color="#FBB03B" />
-            </div>
-            <div className="text-center">
-              <h1
-                className="text-[22px] font-semibold text-(--text-primary)"
-                style={{ letterSpacing: '-0.374px' }}
-              >
-                KV<span style={{ color: 'var(--kvmark-color)' }}>ision</span>
-              </h1>
-              <p className="text-[13px] text-(--text-tertiary) mt-1">
-                Acesse sua conta para continuar
-              </p>
-            </div>
+          {/* Logo mobile (só aparece em telas pequenas) */}
+          <div className="flex items-center gap-2.5 mb-10 lg:hidden">
+            <KVMark size={26} color="#FBB03B" />
+            <span className="font-semibold text-[17px] text-(--text-primary)" style={{ letterSpacing: '-0.3px' }}>
+              KV<span style={{ color: 'var(--kvmark-color)' }}>ision</span>
+            </span>
           </div>
 
-          {/* Formulário */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Título */}
+          <div className="mb-8">
+            <h1 className="text-[28px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.374px' }}>
+              Entrar
+            </h1>
+            <p className="text-[14px] text-(--text-tertiary) mt-1.5">
+              Acesse sua conta para continuar
+            </p>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
 
             {errorMsg && (
               <div className="flex items-start gap-2.5 bg-red-500/8 border border-red-500/20 rounded-[10px] px-3.5 py-3">
@@ -67,12 +62,12 @@ export default function Login() {
             )}
 
             <div className="space-y-1.5">
-              <Label
+              <label
                 htmlFor="email"
-                className="text-[12px] font-semibold text-(--text-secondary) uppercase tracking-wider"
+                className="block text-[11px] font-semibold text-(--text-secondary) uppercase tracking-wider"
               >
-                E-mail
-              </Label>
+                Endereço de e-mail
+              </label>
               <Input
                 id="email"
                 type="email"
@@ -81,17 +76,17 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
                 disabled={isLoggingIn}
-                className="h-10 text-[14px] rounded-[10px] border-(--card-border) bg-(--content-bg) focus-visible:ring-1 focus-visible:ring-[#FBB03B] focus-visible:border-[#FBB03B]"
+                className="h-11 text-[14px] rounded-[10px] border-(--card-border) bg-(--card-bg) focus-visible:ring-1 focus-visible:ring-[#FBB03B] focus-visible:border-[#FBB03B]"
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label
+              <label
                 htmlFor="password"
-                className="text-[12px] font-semibold text-(--text-secondary) uppercase tracking-wider"
+                className="block text-[11px] font-semibold text-(--text-secondary) uppercase tracking-wider"
               >
                 Senha
-              </Label>
+              </label>
               <Input
                 id="password"
                 type="password"
@@ -100,30 +95,110 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
                 disabled={isLoggingIn}
-                className="h-10 text-[14px] rounded-[10px] border-(--card-border) bg-(--content-bg) focus-visible:ring-1 focus-visible:ring-[#FBB03B] focus-visible:border-[#FBB03B]"
+                className="h-11 text-[14px] rounded-[10px] border-(--card-border) bg-(--card-bg) focus-visible:ring-1 focus-visible:ring-[#FBB03B] focus-visible:border-[#FBB03B]"
               />
             </div>
 
             <button
               type="submit"
               disabled={isLoggingIn}
-              className="btn-brand w-full h-10 mt-2 text-[14px]"
+              className="btn-brand w-full h-11 mt-1 text-[14px]"
             >
               {isLoggingIn ? 'Entrando...' : 'Entrar'}
             </button>
 
           </form>
 
-        </div>
-
-        {/* Footer */}
-        <div className="px-8 py-4 border-t border-(--card-border) text-center">
-          <p className="text-[11px] text-(--text-tertiary)">
+          {/* Footer */}
+          <p className="text-[11px] text-(--text-tertiary) text-center mt-10">
             KV Group © {new Date().getFullYear()} — Todos os direitos reservados
           </p>
+
+        </div>
+      </div>
+
+      {/* ══ PAINEL DIREITO — Marca ══ */}
+      <div className="hidden lg:flex lg:w-[52%] xl:w-[55%] relative flex-col items-start justify-end overflow-hidden bg-[#0a0a0a] p-14">
+
+        {/* KVMark gigante de fundo — decorativo */}
+        <div
+          aria-hidden
+          className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
+          style={{ opacity: 0.06 }}
+        >
+          <svg
+            viewBox="339 774 3873 2963"
+            className="w-[110%] h-[110%]"
+            style={{ fill: '#ffffff' }}
+          >
+            <path d={KV_P1} />
+            <path d={KV_P2} />
+          </svg>
+        </div>
+
+        {/* Gradiente sutil no canto */}
+        <div
+          aria-hidden
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse at 80% 20%, rgba(251,176,59,0.08) 0%, transparent 60%)',
+          }}
+        />
+
+        {/* Logo no topo */}
+        <div className="absolute top-10 left-12 flex items-center gap-2.5">
+          <KVMark size={22} color="#FBB03B" />
+          <span className="font-semibold text-[15px] text-white" style={{ letterSpacing: '-0.2px' }}>
+            KV<span style={{ color: '#FBB03B' }}>ision</span>
+          </span>
+        </div>
+
+        {/* Conteúdo de fundo — cartão de destaque */}
+        <div className="relative z-10 w-full">
+          <div
+            className="rounded-[20px] border p-8 mb-6"
+            style={{
+              background: 'rgba(255,255,255,0.04)',
+              borderColor: 'rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(12px)',
+            }}
+          >
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 bg-[#FBB03B]/10 border border-[#FBB03B]/20 rounded-full px-3 py-1 mb-5">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#FBB03B]" />
+              <span className="text-[11px] font-semibold text-[#FBB03B] uppercase tracking-wider">
+                Plataforma KV Group
+              </span>
+            </div>
+
+            <h2
+              className="text-[26px] font-semibold text-white mb-3 leading-tight"
+              style={{ letterSpacing: '-0.374px' }}
+            >
+              Gestão inteligente<br />de tráfego pago
+            </h2>
+            <p className="text-[14px] text-white/50 leading-relaxed max-w-sm">
+              Conecte contas Meta Ads, sincronize métricas automaticamente e visualize dashboards analíticos completos para seus clientes.
+            </p>
+
+            {/* Stats */}
+            <div className="flex gap-6 mt-7 pt-6 border-t border-white/8">
+              {[
+                { label: 'Dashboards', value: 'Ao vivo' },
+                { label: 'Meta Ads', value: 'Integrado' },
+                { label: 'Instagram', value: 'Analytics' },
+              ].map((s) => (
+                <div key={s.label}>
+                  <p className="text-[13px] font-semibold text-white">{s.value}</p>
+                  <p className="text-[11px] text-white/40 mt-0.5">{s.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
       </div>
+
     </div>
   );
 }
