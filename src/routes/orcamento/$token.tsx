@@ -18,6 +18,16 @@ import { KVMark } from '../../components/brand/KVMark';
 export default function OrcamentoPublico() {
   const { token } = useParams();
   const { data: orcamento, isLoading, error } = useOrcamentoPorToken(token);
+  const [paymentStatus, setPaymentStatus] = React.useState<'idle' | 'loading' | 'success'>('idle');
+  const [paymentTime, setPaymentTime] = React.useState<string>('');
+
+  function getSaudacao() {
+    const h = new Date().getHours();
+    if (h >= 5 && h < 12) return 'Bom dia';
+    if (h >= 12 && h < 18) return 'Boa tarde';
+    return 'Boa noite';
+  }
+
   const confirmarMutation = useConfirmarPagamento();
   
   const [qrCodeData, setQrCodeData] = React.useState<string>('');
@@ -100,6 +110,76 @@ export default function OrcamentoPublico() {
   const parsedItens = typeof orcamento.itens === 'string' ? JSON.parse(orcamento.itens) : orcamento.itens;
   const itensFormatados = Array.isArray(parsedItens) ? parsedItens : [];
   const isPago = orcamento.status === 'pago';
+
+  if (paymentStatus === 'loading') {
+    return (
+      <div className="min-h-screen bg-[#f5f5f7] flex flex-col items-center justify-center gap-6 px-6" style={{ colorScheme: 'light', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+        <div className="bg-white rounded-2xl border border-[#e5e5e7] p-10 flex flex-col items-center gap-5 w-full max-w-sm text-center">
+          <KVMark size={32} color="#FBB03B" />
+          <div className="w-10 h-10 border-4 border-[#FBB03B] border-t-transparent rounded-full animate-spin" />
+          <div>
+            <p className="text-[17px] font-semibold text-[#1d1d1f]">Processando pagamento</p>
+            <p className="text-[14px] text-[#6e6e73] mt-1">Aguarde um momento...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (paymentStatus === 'success') {
+    return (
+      <div className="min-h-screen bg-[#f5f5f7] flex flex-col items-center justify-center gap-6 px-6" style={{ colorScheme: 'light', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+        <div className="bg-white rounded-2xl border border-[#e5e5e7] p-10 flex flex-col items-center gap-5 w-full max-w-sm text-center">
+          {/* Logo */}
+          <div className="flex items-center gap-2 mb-2">
+            <div className="bg-[#1d1d1f] rounded-lg p-1.5 flex items-center justify-center">
+              <KVMark size={16} color="#FBB03B" />
+            </div>
+            <span className="font-semibold text-[15px] text-[#1d1d1f] tracking-tight">
+              KV<span className="text-[#FBB03B]">GROUP</span>
+            </span>
+          </div>
+
+          {/* Ícone de check animado */}
+          <div className="w-16 h-16 rounded-full bg-[#34c759]/10 flex items-center justify-center">
+            <CircleCheck className="w-8 h-8 text-[#34c759]" />
+          </div>
+
+          {/* Saudação */}
+          <div>
+            <p className="text-[22px] font-semibold text-[#1d1d1f] tracking-tight leading-tight">
+              {getSaudacao()}, obrigado! 🎉
+            </p>
+            <p className="text-[14px] text-[#6e6e73] mt-2 leading-relaxed">
+              Seu comprovante foi enviado com sucesso.<br />Em breve entraremos em contato.
+            </p>
+          </div>
+
+          {/* Resumo do pagamento */}
+          <div className="w-full bg-[#f5f5f7] rounded-xl p-4 space-y-2 text-left">
+            <div className="flex justify-between text-[13px]">
+              <span className="text-[#6e6e73]">Cliente</span>
+              <span className="font-medium text-[#1d1d1f]">{orcamento.cliente_nome}</span>
+            </div>
+            <div className="flex justify-between text-[13px]">
+              <span className="text-[#6e6e73]">Valor</span>
+              <span className="font-semibold text-[#1d1d1f]">{fmtBRL(orcamento.valor_total)}</span>
+            </div>
+            <div className="flex justify-between text-[13px]">
+              <span className="text-[#6e6e73]">Data e hora</span>
+              <span className="font-medium text-[#1d1d1f]">{paymentTime}</span>
+            </div>
+            <div className="flex justify-between text-[13px]">
+              <span className="text-[#6e6e73]">Status</span>
+              <span className="font-semibold text-[#34c759]">Confirmado</span>
+            </div>
+          </div>
+
+          <p className="text-[11px] text-[#8e8e93]">Gerado automaticamente por KVision</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f5f5f7]" style={{ colorScheme: 'light', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
@@ -241,7 +321,18 @@ export default function OrcamentoPublico() {
                   orcamentoId={orcamento.$id}
                   isLoading={confirmarMutation.isPending}
                   onConfirmar={(arquivo, observacao) => {
-                    confirmarMutation.mutate({ orcamento_id: orcamento.$id, arquivoFile: arquivo, observacao });
+                  setPaymentStatus('loading');
+                  setPaymentTime(new Date().toLocaleString('pt-BR', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                  }));
+                  confirmarMutation.mutate(
+                    { orcamento_id: orcamento.$id, arquivoFile: arquivo, observacao },
+                    {
+                      onSuccess: () => setPaymentStatus('success'),
+                      onError: () => { setPaymentStatus('idle'); toast.error('Erro ao confirmar pagamento.'); }
+                    }
+                  );
                   }}
                 />
               </div>

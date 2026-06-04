@@ -70,14 +70,14 @@ export function UploadComprovante({ orcamentoId, onConfirmar, isLoading }: Uploa
           <p className="text-xs text-slate-500 font-medium mt-2">Tamanho máximo: 5MB</p>
         </div>
       ) : (
-        <div className="border border-slate-200 rounded-xl p-4 flex items-start justify-between bg-slate-100/30">
+        <div className="border border-[#e5e5e7] rounded-xl p-4 flex items-start justify-between bg-[#f5f5f7]">
           <div className="flex items-center space-x-4 overflow-hidden">
             <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
                <FileIcon className="w-6 h-6" />
             </div>
             <div className="min-w-0">
-              <p className="font-medium text-sm truncate pr-4 text-slate-900">{selectedFile.name}</p>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="font-medium text-sm truncate pr-4 text-[#1d1d1f]">{selectedFile.name}</p>
+              <p className="text-xs text-[#6e6e73] mt-1">
                 {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
               </p>
             </div>
@@ -90,16 +90,30 @@ export function UploadComprovante({ orcamentoId, onConfirmar, isLoading }: Uploa
 
       <div className="space-y-2 pt-2">
         <label className="text-sm font-bold text-slate-700">Observação (Opcional)</label>
-        <Textarea 
-           placeholder="Deixe uma mensagem para o gestor se necessário..."
-           className="resize-none h-24 border-slate-200 focus:border-slate-400"
-           value={observacao}
-           onChange={(e) => setObservacao(e.target.value)}
+        <textarea
+          placeholder="Deixe uma mensagem para o gestor se necessário..."
+          value={observacao}
+          onChange={(e) => setObservacao(e.target.value)}
+          rows={3}
+          style={{
+            width: '100%',
+            resize: 'none',
+            padding: '12px 14px',
+            fontSize: 15,
+            color: '#1d1d1f',
+            background: '#ffffff',
+            border: '1px solid #e5e5e7',
+            borderRadius: 12,
+            outline: 'none',
+            fontFamily: 'inherit',
+          }}
+          onFocus={e => e.target.style.borderColor = '#FBB03B'}
+          onBlur={e => e.target.style.borderColor = '#e5e5e7'}
         />
       </div>
 
       <button 
-        className="w-full py-3 rounded-full bg-[#FBB03B] hover:bg-[#f0a830] text-black text-[16px] font-semibold transition-colors tracking-tight disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full h-12 rounded-full font-semibold text-[16px] bg-[#FBB03B] hover:bg-[#f0a830] text-black transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         onClick={handleSubmit} 
         disabled={!selectedFile || isLoading}
       >
