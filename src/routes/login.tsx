@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useNavigate, Navigate } from 'react-router';
 import { Input } from '../components/ui/input';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { KVMark, KV_P1, KV_P2 } from '../components/brand/KVMark';
 
@@ -11,6 +11,7 @@ export default function Login() {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [errorMsg, setErrorMsg] = React.useState('');
+  const [showPassword, setShowPassword] = React.useState(false);
 
   if (isAuthenticated) return <Navigate to="/admin" replace />;
 
@@ -87,16 +88,26 @@ export default function Login() {
               >
                 Senha
               </label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
-                disabled={isLoggingIn}
-                className="h-11 text-[14px] rounded-[10px] border-(--card-border) bg-(--card-bg) focus-visible:ring-1 focus-visible:ring-[#FBB03B] focus-visible:border-[#FBB03B]"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                  disabled={isLoggingIn}
+                  className="h-11 text-[14px] rounded-[10px] border-(--card-border) bg-(--card-bg) pr-10 focus-visible:ring-1 focus-visible:ring-[#FBB03B] focus-visible:border-[#FBB03B]"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(p => !p)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6e6e73] hover:text-[#1d1d1f] transition-colors"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
 
             <button
