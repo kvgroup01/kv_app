@@ -45,6 +45,15 @@ export interface Page {
   criado_em: string
   atualizado_em: string
   integrations?: PageIntegrations
+  domain_id?: string | null
+  page_slug?: string | null
+  seo?: {
+    enable_indexing?: boolean
+    title?: string
+    description?: string
+    keywords?: string
+    favicon_url?: string
+  }
 }
 
 export function usePages(clienteId: string | null) {

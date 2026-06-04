@@ -592,18 +592,19 @@ export default function InstagramAnalytics() {
     string | null
   >(null);
 
-  const handleDisconnect = async (profileId: string, profileName: string) => {
-    if (!confirm(`Desconectar @${profileName}?`)) return;
+  const handleDisconnect = async (profileId: string, username: string | null | undefined) => {
+    if (!username) username = "perfil";
+    if (!confirm(`Desconectar @${username}?`)) return;
     try {
       const { error } = await supabase
         .from("instagram_profiles")
         .delete()
         .eq("id", profileId);
       if (error) throw error;
-      toast.success("Perfil desconectado");
+      toast.success(`@${username} desconectado`);
       queryClient.invalidateQueries({ queryKey: ["instagram-profiles"] });
     } catch {
-      toast.error("Erro ao desconectar");
+      toast.error("Erro ao desconectar perfil");
     }
   };
 

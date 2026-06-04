@@ -68,7 +68,7 @@ export default function OrcamentoPublico() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 p-4 md:p-8 flex justify-center items-start pt-12">
+      <div data-theme="light" style={{ colorScheme: 'light' }} className="light min-h-screen bg-slate-50 p-4 md:p-8 flex justify-center items-start pt-12">
         <Skeleton className="h-[600px] w-full max-w-2xl rounded-xl" />
       </div>
     );
@@ -78,7 +78,7 @@ export default function OrcamentoPublico() {
     const isPermissionError = error?.message?.includes('insufficient_permissions') || error?.message?.includes('unauthorized');
     
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+      <div data-theme="light" style={{ colorScheme: 'light' }} className="light min-h-screen bg-slate-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full text-center space-y-6">
           <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto">
             <AlertCircle className="w-10 h-10 text-red-500" />
@@ -106,8 +106,8 @@ export default function OrcamentoPublico() {
   const isPago = orcamento.status === 'pago';
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8 flex justify-center items-start pt-8 pb-16">
-      <Card className="w-full max-w-2xl shadow-xl overflow-hidden border-t-8 border-t-slate-800">
+    <div data-theme="light" style={{ colorScheme: 'light' }} className="light min-h-screen bg-slate-50 p-4 md:p-8 flex justify-center items-start pt-8 pb-16">
+      <Card className="w-full max-w-2xl shadow-xl overflow-hidden border-t-8 border-t-slate-800 bg-white text-slate-900">
         
         {/* Banner Status */}
         {isPago && (
