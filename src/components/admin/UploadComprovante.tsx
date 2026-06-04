@@ -99,7 +99,7 @@ export function UploadComprovante({ orcamentoId, onConfirmar, isLoading }: Uploa
       </div>
 
       <button 
-        style={{ width: '100%', height: 48, background: '#FBB03B', color: '#000', border: 'none', borderRadius: 9999, fontSize: 16, fontWeight: 600, cursor: selectedFile && !isLoading ? 'pointer' : 'not-allowed', letterSpacing: '-0.2px', opacity: !selectedFile || isLoading ? 0.7 : 1 }} 
+        className="w-full py-3 rounded-full bg-[#FBB03B] hover:bg-[#f0a830] text-black text-[16px] font-semibold transition-colors tracking-tight disabled:opacity-50 disabled:cursor-not-allowed"
         onClick={handleSubmit} 
         disabled={!selectedFile || isLoading}
       >

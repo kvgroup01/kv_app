@@ -69,39 +69,30 @@ export default function OrcamentoPublico() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen" style={{ colorScheme: 'light', background: '#f8fafc', color: '#0f172a' }}>
-        <div className="min-h-screen bg-[#f8fafc] p-4 md:p-8 flex justify-center items-start pt-12">
-          <Skeleton className="h-[600px] w-full max-w-2xl rounded-xl" />
-        </div>
+      <div className="min-h-screen bg-[#f5f5f7] flex justify-center items-start pt-16 px-4">
+        <Skeleton className="h-[500px] w-full max-w-xl rounded-2xl" />
       </div>
     );
   }
 
   if (error || !orcamento) {
-    const isPermissionError = error?.message?.includes('insufficient_permissions') || error?.message?.includes('unauthorized');
-    
     return (
-      <div className="min-h-screen" style={{ colorScheme: 'light', background: '#f8fafc', color: '#0f172a' }}>
-        <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-4">
-          <div className="max-w-md w-full text-center space-y-6">
-          <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto">
-            <AlertCircle className="w-10 h-10 text-red-500" />
-          </div>
-          <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-slate-900">
-              {isPermissionError ? 'Acesso restrito' : 'Orçamento não encontrado'}
-            </h1>
-            <p className="text-slate-600">
-              {isPermissionError 
-                ? 'As permissões do Appwrite não estão configuradas para acesso público. Vá ao Console > Database > orcamentos > Settings e adicione permissão de LEITURA para a role "Any".'
-                : 'Este link pode estar quebrado, expirado ou o orçamento foi deletado do sistema.'}
-            </p>
-            <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
-              Tentar novamente
-            </Button>
-          </div>
+      <div className="min-h-screen bg-[#f5f5f7] flex flex-col items-center justify-center px-6 text-center gap-6">
+        <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center">
+          <AlertCircle className="w-8 h-8 text-red-500" />
         </div>
-      </div>
+        <div className="space-y-2 max-w-sm">
+          <h1 className="text-2xl font-semibold text-[#1d1d1f] tracking-tight">Orçamento não encontrado</h1>
+          <p className="text-[15px] text-[#6e6e73] leading-relaxed">
+            Este link pode estar quebrado, expirado ou o orçamento foi deletado do sistema.
+          </p>
+        </div>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-6 py-2.5 rounded-full border border-[#e5e5e7] bg-white text-[#1d1d1f] text-[15px] font-medium hover:bg-[#f5f5f7] transition-colors"
+        >
+          Tentar novamente
+        </button>
       </div>
     );
   }
@@ -111,134 +102,141 @@ export default function OrcamentoPublico() {
   const isPago = orcamento.status === 'pago';
 
   return (
-    <div style={{ colorScheme: 'light', background: '#f5f5f7', minHeight: '100vh', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+    <div className="min-h-screen bg-[#f5f5f7]" style={{ colorScheme: 'light', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
   
-      {/* NAV — estilo global-nav Apple, mas com identidade KV */}
-      <nav style={{ background: '#1d1d1f', height: 52, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <KVMark size={20} color="#FBB03B" />
-          <span style={{ color: '#ffffff', fontWeight: 600, fontSize: 15, letterSpacing: '-0.2px' }}>
-            KV<span style={{ color: '#FBB03B' }}>GROUP</span>
+      {/* NAV */}
+      <nav className="bg-[#1d1d1f] h-12 flex items-center justify-center sticky top-0 z-10">
+        <div className="flex items-center gap-2.5">
+          <KVMark size={18} color="#FBB03B" />
+          <span className="text-white font-semibold text-[15px] tracking-tight">
+            KV<span className="text-[#FBB03B]">GROUP</span>
           </span>
         </div>
       </nav>
   
-      {/* Banners de status — fora do card */}
+      {/* Banners de status */}
       {isPago && (
-        <div style={{ background: '#1d1d1f', color: '#fff', padding: '10px 24px', textAlign: 'center', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-          <CircleCheck style={{ width: 16, height: 16, color: '#34c759' }} />
+        <div className="bg-[#1d1d1f] text-white py-2.5 px-4 flex items-center justify-center gap-2 text-sm font-medium">
+          <CircleCheck className="w-4 h-4 text-[#34c759] shrink-0" />
           Pagamento confirmado — Obrigado!
         </div>
       )}
       {orcamento.status === 'cancelado' && (
-        <div style={{ background: '#f5f5f7', color: '#6e6e73', padding: '10px 24px', textAlign: 'center', fontSize: 14, borderBottom: '1px solid #e5e5e7' }}>
+        <div className="bg-white text-[#6e6e73] py-2.5 px-4 flex items-center justify-center gap-2 text-sm border-b border-[#e5e5e7]">
+          <AlertCircle className="w-4 h-4 shrink-0" />
           Este orçamento foi cancelado.
         </div>
       )}
   
       {/* CONTEÚDO */}
-      <div style={{ maxWidth: 640, margin: '0 auto', padding: '48px 20px 80px' }}>
+      <div className="w-full max-w-xl mx-auto px-4 sm:px-6 py-8 pb-16">
   
         {/* Card principal */}
-        <div style={{ background: '#ffffff', borderRadius: 18, border: '1px solid #e5e5e7', overflow: 'hidden' }}>
+        <div className="bg-white rounded-2xl border border-[#e5e5e7] overflow-hidden">
   
-          {/* Cabeçalho do documento */}
-          <div style={{ padding: '40px 40px 32px', borderBottom: '1px solid #f0f0f0' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
+          {/* Cabeçalho */}
+          <div className="px-6 sm:px-8 pt-8 pb-6 border-b border-[#f0f0f0]">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
               <div>
-                <h1 style={{ fontSize: 28, fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.374px', margin: 0 }}>
+                <h1 className="text-2xl sm:text-3xl font-semibold text-[#1d1d1f] tracking-tight leading-tight">
                   Proposta Comercial
                 </h1>
-                <p style={{ fontSize: 14, color: '#6e6e73', marginTop: 4, marginBottom: 0 }}>
-                  Acordo de prestação de serviços
-                </p>
+                <p className="text-[14px] text-[#6e6e73] mt-1">Acordo de prestação de serviços</p>
               </div>
-              <div style={{ textAlign: 'right', fontSize: 13, color: '#6e6e73', lineHeight: 1.8 }}>
-                <div>Emissão: <span style={{ color: '#1d1d1f', fontWeight: 500 }}>{fmtDataString(orcamento.$createdAt)}</span></div>
-                <div>Válido por: <span style={{ color: '#1d1d1f', fontWeight: 500 }}>7 dias úteis</span></div>
+              <div className="text-[13px] text-[#6e6e73] space-y-0.5 sm:text-right">
+                <p>Emissão: <span className="text-[#1d1d1f] font-medium">{fmtDataString(orcamento.$createdAt)}</span></p>
+                <p>Válido por: <span className="text-[#1d1d1f] font-medium">7 dias úteis</span></p>
               </div>
             </div>
           </div>
   
           {/* Faturado para */}
-          <div style={{ padding: '24px 40px', background: '#f5f5f7', borderBottom: '1px solid #f0f0f0' }}>
-            <div style={{ fontSize: 11, fontWeight: 600, color: '#6e6e73', letterSpacing: '0.6px', textTransform: 'uppercase', marginBottom: 6 }}>
-              Faturado para
-            </div>
-            <div style={{ fontSize: 20, fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.3px' }}>
-              {orcamento.cliente_nome}
-            </div>
+          <div className="px-6 sm:px-8 py-5 bg-[#f5f5f7] border-b border-[#f0f0f0]">
+            <p className="text-[10px] font-semibold text-[#8e8e93] uppercase tracking-widest mb-1">Faturado para</p>
+            <p className="text-[18px] sm:text-xl font-semibold text-[#1d1d1f] tracking-tight">{orcamento.cliente_nome}</p>
           </div>
   
           {/* Itens */}
-          <div style={{ padding: '32px 40px' }}>
-            {/* Cabeçalho da tabela */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto auto', gap: '0 24px', paddingBottom: 12, borderBottom: '1px solid #f0f0f0', marginBottom: 16 }}>
+          <div className="px-6 sm:px-8 py-6">
+  
+            {/* Cabeçalho da tabela — escondido no mobile, visível sm+ */}
+            <div className="hidden sm:grid sm:grid-cols-[1fr_auto_auto_auto] gap-x-6 pb-3 border-b border-[#f0f0f0] mb-3">
               {['Serviço', 'Qtd', 'Valor Un.', 'Subtotal'].map((h, i) => (
-                <span key={h} style={{ fontSize: 11, fontWeight: 600, color: '#6e6e73', letterSpacing: '0.6px', textTransform: 'uppercase', textAlign: i > 0 ? 'right' : 'left' }}>
+                <span key={h} className={`text-[10px] font-semibold text-[#8e8e93] uppercase tracking-widest ${i > 0 ? 'text-right' : ''}`}>
                   {h}
                 </span>
               ))}
             </div>
   
-            {/* Linhas */}
-            {itensFormatados.map((item: any, idx: number) => (
-              <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr auto auto auto', gap: '0 24px', padding: '12px 0', borderBottom: '1px solid #f5f5f7' }}>
-                <span style={{ fontSize: 15, color: '#1d1d1f', fontWeight: 500 }}>{item.descricao}</span>
-                <span style={{ fontSize: 15, color: '#6e6e73', textAlign: 'right' }}>{item.quantidade}x</span>
-                <span style={{ fontSize: 15, color: '#6e6e73', textAlign: 'right' }}>{fmtBRL(item.valor_unitario)}</span>
-                <span style={{ fontSize: 15, color: '#1d1d1f', fontWeight: 600, textAlign: 'right' }}>{fmtBRL(item.quantidade * item.valor_unitario)}</span>
-              </div>
-            ))}
+            {/* Linhas dos itens */}
+            <div className="space-y-0 divide-y divide-[#f5f5f7]">
+              {itensFormatados.map((item: any, idx: number) => (
+                <div key={idx} className="py-4">
+                  {/* Mobile: layout em bloco */}
+                  <div className="sm:hidden">
+                    <p className="text-[15px] font-medium text-[#1d1d1f] mb-1">{item.descricao}</p>
+                    <div className="flex justify-between text-[13px] text-[#6e6e73]">
+                      <span>{item.quantidade}x · {fmtBRL(item.valor_unitario)}</span>
+                      <span className="font-semibold text-[#1d1d1f]">{fmtBRL(item.quantidade * item.valor_unitario)}</span>
+                    </div>
+                  </div>
+                  {/* Desktop: grid */}
+                  <div className="hidden sm:grid sm:grid-cols-[1fr_auto_auto_auto] gap-x-6 items-center">
+                    <span className="text-[15px] font-medium text-[#1d1d1f]">{item.descricao}</span>
+                    <span className="text-[14px] text-[#6e6e73] text-right">{item.quantidade}x</span>
+                    <span className="text-[14px] text-[#6e6e73] text-right">{fmtBRL(item.valor_unitario)}</span>
+                    <span className="text-[14px] font-semibold text-[#1d1d1f] text-right">{fmtBRL(item.quantidade * item.valor_unitario)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
   
             {/* Total */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 20, marginTop: 8 }}>
-              <span style={{ fontSize: 17, fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.374px' }}>Total a pagar</span>
-              <span style={{ fontSize: 24, fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.374px' }}>{fmtBRL(orcamento.valor_total)}</span>
+            <div className="flex justify-between items-center pt-5 mt-2 border-t-2 border-[#f0f0f0]">
+              <span className="text-[17px] font-semibold text-[#1d1d1f] tracking-tight">Total a pagar</span>
+              <span className="text-[22px] sm:text-2xl font-semibold text-[#1d1d1f] tracking-tight">{fmtBRL(orcamento.valor_total)}</span>
             </div>
           </div>
   
-          {/* Seção PIX */}
+          {/* PIX + Upload */}
           {!isPago && orcamento.status !== 'cancelado' && (
             <>
-              <div style={{ background: '#f5f5f7', borderTop: '1px solid #f0f0f0', borderBottom: '1px solid #f0f0f0', padding: '40px 40px 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-                {/* Badge */}
-                <div style={{ display: 'inline-block', background: '#fff', border: '1px solid #e5e5e7', borderRadius: 9999, padding: '5px 16px', fontSize: 11, fontWeight: 600, color: '#1d1d1f', letterSpacing: '0.6px', textTransform: 'uppercase', marginBottom: 20 }}>
+              <div className="bg-[#f5f5f7] border-t border-[#f0f0f0] px-6 sm:px-8 py-8 flex flex-col items-center text-center">
+                <span className="inline-block bg-white border border-[#e5e5e7] rounded-full px-4 py-1.5 text-[11px] font-semibold text-[#1d1d1f] uppercase tracking-widest mb-5">
                   Pague com PIX
-                </div>
-                <p style={{ fontSize: 15, color: '#6e6e73', maxWidth: 320, margin: '0 auto 28px', lineHeight: 1.5 }}>
-                  Escaneie o código com o aplicativo do seu banco para pagamento imediato.
+                </span>
+                <p className="text-[14px] text-[#6e6e73] max-w-xs mb-7 leading-relaxed">
+                  Escaneie o código com o app do seu banco para pagamento imediato.
                 </p>
                 {qrCodeData ? (
-                  <div style={{ background: '#fff', padding: 12, borderRadius: 12, border: '1px solid #e5e5e7', marginBottom: 24, display: 'inline-block' }}>
-                    <img src={qrCodeData} alt="QR Code PIX" style={{ width: 160, height: 160, display: 'block' }} />
+                  <div className="bg-white p-3 rounded-xl border border-[#e5e5e7] mb-7 inline-block">
+                    <img src={qrCodeData} alt="QR Code PIX" className="w-40 h-40 sm:w-44 sm:h-44 block" />
                   </div>
                 ) : (
-                  <Skeleton className="w-[160px] h-[160px] rounded-xl mb-6" />
+                  <Skeleton className="w-40 h-40 rounded-xl mb-7" />
                 )}
   
                 {/* PIX Copia e Cola */}
-                <div style={{ width: '100%', maxWidth: 400 }}>
-                  <div style={{ fontSize: 10, fontWeight: 600, color: '#8e8e93', letterSpacing: '0.6px', textTransform: 'uppercase', marginBottom: 8, textAlign: 'left' }}>
+                <div className="w-full max-w-sm">
+                  <p className="text-[10px] font-semibold text-[#8e8e93] uppercase tracking-widest mb-2 text-left">
                     PIX Copia e Cola
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', background: '#fff', border: '1px solid #e5e5e7', borderRadius: 10, padding: '10px 16px', gap: 12 }}>
-                    <span style={{ fontFamily: 'monospace', fontSize: 12, color: '#8e8e93', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  </p>
+                  <div className="flex items-center bg-white border border-[#e5e5e7] rounded-xl px-4 py-3 gap-3">
+                    <span className="font-mono text-[12px] text-[#8e8e93] flex-1 truncate min-w-0">
                       {orcamento.pix_chave} (Código gerado)
                     </span>
                     <button
                       onClick={copyPix}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#FBB03B', fontWeight: 600, fontSize: 13, padding: '4px 0', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6 }}
+                      className="shrink-0 flex items-center gap-1.5 text-[#FBB03B] font-semibold text-[13px] hover:opacity-70 transition-opacity"
                     >
-                      <Copy style={{ width: 14, height: 14 }} />
+                      <Copy className="w-3.5 h-3.5" />
                       Copiar
                     </button>
                   </div>
                 </div>
               </div>
   
-              {/* Upload Comprovante */}
-              <div style={{ padding: '32px 40px' }}>
+              <div className="px-6 sm:px-8 py-8 border-t border-[#f0f0f0]">
                 <UploadComprovante
                   orcamentoId={orcamento.$id}
                   isLoading={confirmarMutation.isPending}
@@ -253,8 +251,8 @@ export default function OrcamentoPublico() {
         </div>
   
         {/* Footer */}
-        <div style={{ textAlign: 'center', marginTop: 24, fontSize: 12, color: '#8e8e93', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-          <Receipt style={{ width: 12, height: 12 }} />
+        <div className="flex items-center justify-center gap-1.5 mt-6 text-[12px] text-[#8e8e93]">
+          <Receipt className="w-3 h-3" />
           Gerado automaticamente por KVision
         </div>
   
