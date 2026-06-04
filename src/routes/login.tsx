@@ -30,7 +30,7 @@ export default function Login() {
     <div className="min-h-screen w-full flex">
 
       {/* ══ PAINEL ESQUERDO — Formulário ══ */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-(--content-bg) min-h-screen">
+      <div className="light flex-1 flex flex-col items-center justify-center px-6 py-12 min-h-screen" style={{ background: '#f5f5f7', colorScheme: 'light' }}>
         <div className="w-full max-w-[360px]">
 
           {/* Logo mobile (só aparece em telas pequenas) */}
