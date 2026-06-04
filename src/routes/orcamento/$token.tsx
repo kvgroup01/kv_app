@@ -111,134 +111,154 @@ export default function OrcamentoPublico() {
   const isPago = orcamento.status === 'pago';
 
   return (
-  <div style={{ colorScheme: 'light', background: '#f5f5f5', minHeight: '100vh' }}>
-    <div className="min-h-screen bg-[#f5f5f5] p-4 md:p-8 flex justify-center items-start pt-8 pb-16">
-      <div className="w-full max-w-2xl space-y-0">
-
-        {/* Header com logo KV */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <div className="bg-black rounded-lg p-2 flex items-center justify-center">
-              <KVMark size={22} color="#FBB03B" />
-            </div>
-            <span className="font-bold text-lg text-black tracking-tight">
-              KV<span className="text-[#FBB03B]">ision</span>
-            </span>
-          </div>
-          <span className="text-xs text-slate-400 font-medium">Proposta Comercial</span>
+    <div style={{ colorScheme: 'light', background: '#f5f5f7', minHeight: '100vh', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+  
+      {/* NAV — estilo global-nav Apple, mas com identidade KV */}
+      <nav style={{ background: '#1d1d1f', height: 52, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <KVMark size={20} color="#FBB03B" />
+          <span style={{ color: '#ffffff', fontWeight: 600, fontSize: 15, letterSpacing: '-0.2px' }}>
+            KV<span style={{ color: '#FBB03B' }}>GROUP</span>
+          </span>
         </div>
-
+      </nav>
+  
+      {/* Banners de status — fora do card */}
+      {isPago && (
+        <div style={{ background: '#1d1d1f', color: '#fff', padding: '10px 24px', textAlign: 'center', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+          <CircleCheck style={{ width: 16, height: 16, color: '#34c759' }} />
+          Pagamento confirmado — Obrigado!
+        </div>
+      )}
+      {orcamento.status === 'cancelado' && (
+        <div style={{ background: '#f5f5f7', color: '#6e6e73', padding: '10px 24px', textAlign: 'center', fontSize: 14, borderBottom: '1px solid #e5e5e7' }}>
+          Este orçamento foi cancelado.
+        </div>
+      )}
+  
+      {/* CONTEÚDO */}
+      <div style={{ maxWidth: 640, margin: '0 auto', padding: '48px 20px 80px' }}>
+  
         {/* Card principal */}
-        <div style={{ background: '#ffffff', borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '1px solid #e5e7eb' }}>
-
-          {/* Faixa superior amarela */}
-          <div className="h-1.5 bg-[#FBB03B] w-full" />
-
-          {/* Banners de status */}
-          {isPago && (
-            <div className="bg-emerald-500 text-white px-8 py-3 flex items-center justify-center gap-2 text-sm font-medium">
-              <CircleCheck className="w-4 h-4" /> Pagamento Confirmado — Obrigado!
-            </div>
-          )}
-          {orcamento.status === 'cancelado' && (
-            <div className="bg-slate-200 text-slate-600 px-8 py-3 flex items-center justify-center gap-2 text-sm font-medium">
-              <AlertCircle className="w-4 h-4" /> Este orçamento foi cancelado.
-            </div>
-          )}
-
-          <div className="p-8 md:p-10 space-y-8">
-
-            {/* Cabeçalho da proposta */}
-            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-6 border-b border-slate-100">
+        <div style={{ background: '#ffffff', borderRadius: 18, border: '1px solid #e5e5e7', overflow: 'hidden' }}>
+  
+          {/* Cabeçalho do documento */}
+          <div style={{ padding: '40px 40px 32px', borderBottom: '1px solid #f0f0f0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
               <div>
-                <h1 className="text-2xl font-bold text-slate-900">Proposta Comercial</h1>
-                <p className="text-sm text-slate-500 mt-1">Acordo de prestação de serviços</p>
+                <h1 style={{ fontSize: 28, fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.374px', margin: 0 }}>
+                  Proposta Comercial
+                </h1>
+                <p style={{ fontSize: 14, color: '#6e6e73', marginTop: 4, marginBottom: 0 }}>
+                  Acordo de prestação de serviços
+                </p>
               </div>
-              <div className="text-sm text-slate-500 space-y-1 sm:text-right">
-                <p>Emissão: <span className="font-semibold text-slate-800">{fmtDataString(orcamento.$createdAt)}</span></p>
-                <p>Válido por: <span className="font-semibold text-slate-800">7 dias úteis</span></p>
+              <div style={{ textAlign: 'right', fontSize: 13, color: '#6e6e73', lineHeight: 1.8 }}>
+                <div>Emissão: <span style={{ color: '#1d1d1f', fontWeight: 500 }}>{fmtDataString(orcamento.$createdAt)}</span></div>
+                <div>Válido por: <span style={{ color: '#1d1d1f', fontWeight: 500 }}>7 dias úteis</span></div>
               </div>
             </div>
-
-            {/* Faturado para */}
-            <div className="bg-[#FBB03B]/8 border border-[#FBB03B]/20 rounded-xl p-5">
-              <p className="text-[10px] text-[#FBB03B] uppercase tracking-widest font-bold mb-1">Faturado para</p>
-              <p className="text-xl font-bold text-slate-900">{orcamento.cliente_nome}</p>
+          </div>
+  
+          {/* Faturado para */}
+          <div style={{ padding: '24px 40px', background: '#f5f5f7', borderBottom: '1px solid #f0f0f0' }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: '#6e6e73', letterSpacing: '0.6px', textTransform: 'uppercase', marginBottom: 6 }}>
+              Faturado para
             </div>
-
-            {/* Tabela de itens */}
-            <div>
-              <div className="grid grid-cols-12 text-[10px] uppercase tracking-widest font-bold text-slate-400 pb-3 border-b border-slate-100">
-                <span className="col-span-6">Serviço</span>
-                <span className="col-span-2 text-center">Qtd</span>
-                <span className="col-span-2 text-right">Valor Un.</span>
-                <span className="col-span-2 text-right">Subtotal</span>
+            <div style={{ fontSize: 20, fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.3px' }}>
+              {orcamento.cliente_nome}
+            </div>
+          </div>
+  
+          {/* Itens */}
+          <div style={{ padding: '32px 40px' }}>
+            {/* Cabeçalho da tabela */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto auto', gap: '0 24px', paddingBottom: 12, borderBottom: '1px solid #f0f0f0', marginBottom: 16 }}>
+              {['Serviço', 'Qtd', 'Valor Un.', 'Subtotal'].map((h, i) => (
+                <span key={h} style={{ fontSize: 11, fontWeight: 600, color: '#6e6e73', letterSpacing: '0.6px', textTransform: 'uppercase', textAlign: i > 0 ? 'right' : 'left' }}>
+                  {h}
+                </span>
+              ))}
+            </div>
+  
+            {/* Linhas */}
+            {itensFormatados.map((item: any, idx: number) => (
+              <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr auto auto auto', gap: '0 24px', padding: '12px 0', borderBottom: '1px solid #f5f5f7' }}>
+                <span style={{ fontSize: 15, color: '#1d1d1f', fontWeight: 500 }}>{item.descricao}</span>
+                <span style={{ fontSize: 15, color: '#6e6e73', textAlign: 'right' }}>{item.quantidade}x</span>
+                <span style={{ fontSize: 15, color: '#6e6e73', textAlign: 'right' }}>{fmtBRL(item.valor_unitario)}</span>
+                <span style={{ fontSize: 15, color: '#1d1d1f', fontWeight: 600, textAlign: 'right' }}>{fmtBRL(item.quantidade * item.valor_unitario)}</span>
               </div>
-              <div className="space-y-3 mt-4">
-                {itensFormatados.map((item: any, idx: number) => (
-                  <div key={idx} className="grid grid-cols-12 text-sm items-center">
-                    <span className="col-span-6 font-medium text-slate-800">{item.descricao}</span>
-                    <span className="col-span-2 text-center text-slate-500">{item.quantidade}x</span>
-                    <span className="col-span-2 text-right text-slate-500">{fmtBRL(item.valor_unitario)}</span>
-                    <span className="col-span-2 text-right font-semibold text-slate-800">{fmtBRL(item.quantidade * item.valor_unitario)}</span>
+            ))}
+  
+            {/* Total */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 20, marginTop: 8 }}>
+              <span style={{ fontSize: 17, fontWeight: 600, color: '#1d1d1f', letterSpacing: '-0.374px' }}>Total a pagar</span>
+              <span style={{ fontSize: 24, fontWeight: 600, color: '#FBB03B', letterSpacing: '-0.374px' }}>{fmtBRL(orcamento.valor_total)}</span>
+            </div>
+          </div>
+  
+          {/* Seção PIX */}
+          {!isPago && orcamento.status !== 'cancelado' && (
+            <>
+              <div style={{ background: '#f5f5f7', borderTop: '1px solid #f0f0f0', borderBottom: '1px solid #f0f0f0', padding: '40px 40px 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                {/* Badge */}
+                <div style={{ display: 'inline-block', background: '#fff', border: '1px solid #e5e5e7', borderRadius: 9999, padding: '5px 16px', fontSize: 11, fontWeight: 600, color: '#1d1d1f', letterSpacing: '0.6px', textTransform: 'uppercase', marginBottom: 20 }}>
+                  Pague com PIX
+                </div>
+                <p style={{ fontSize: 15, color: '#6e6e73', maxWidth: 320, margin: '0 auto 28px', lineHeight: 1.5 }}>
+                  Escaneie o código com o aplicativo do seu banco para pagamento imediato.
+                </p>
+                {qrCodeData ? (
+                  <div style={{ background: '#fff', padding: 12, borderRadius: 12, border: '1px solid #e5e5e7', marginBottom: 24, display: 'inline-block' }}>
+                    <img src={qrCodeData} alt="QR Code PIX" style={{ width: 160, height: 160, display: 'block' }} />
                   </div>
-                ))}
-              </div>
-              <div className="mt-6 pt-5 border-t-2 border-slate-100 flex justify-between items-center">
-                <span className="text-lg font-bold text-slate-900">Total a pagar</span>
-                <span className="text-2xl font-bold text-[#FBB03B]">{fmtBRL(orcamento.valor_total)}</span>
-              </div>
-            </div>
-
-            {/* Seção PIX + Upload */}
-            {!isPago && orcamento.status !== 'cancelado' && (
-              <>
-                <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 flex flex-col items-center text-center">
-                  <div className="inline-flex items-center gap-2 bg-[#FBB03B]/10 text-[#c17f00] text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-4">
-                    Pague com PIX
+                ) : (
+                  <Skeleton className="w-[160px] h-[160px] rounded-xl mb-6" />
+                )}
+  
+                {/* PIX Copia e Cola */}
+                <div style={{ width: '100%', maxWidth: 400 }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: '#8e8e93', letterSpacing: '0.6px', textTransform: 'uppercase', marginBottom: 8, textAlign: 'left' }}>
+                    PIX Copia e Cola
                   </div>
-                  <p className="text-sm text-slate-500 mb-6 max-w-sm">Escaneie o código com o app do seu banco para pagamento imediato.</p>
-                  {qrCodeData ? (
-                    <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-200 mb-6">
-                      <img src={qrCodeData} alt="QR Code PIX" className="w-[180px] h-[180px]" />
-                    </div>
-                  ) : (
-                    <Skeleton className="w-[180px] h-[180px] rounded-xl mb-6" />
-                  )}
-                  <div className="w-full space-y-1.5">
-                    <p className="text-[9px] text-slate-400 uppercase tracking-widest font-bold text-left">PIX Copia e Cola</p>
-                    <div className="flex items-center gap-2 bg-white border border-slate-200 px-4 py-3 rounded-xl">
-                      <span className="font-mono text-xs text-slate-500 truncate flex-1">{orcamento.pix_chave} (Código gerado)</span>
-                      <Button size="sm" variant="ghost" className="h-8 gap-1.5 text-[#FBB03B] hover:text-[#c17f00] hover:bg-[#FBB03B]/10 shrink-0 font-bold text-xs" onClick={copyPix}>
-                        <Copy className="h-3.5 w-3.5" /> Copiar
-                      </Button>
-                    </div>
+                  <div style={{ display: 'flex', alignItems: 'center', background: '#fff', border: '1px solid #e5e5e7', borderRadius: 10, padding: '10px 16px', gap: 12 }}>
+                    <span style={{ fontFamily: 'monospace', fontSize: 12, color: '#8e8e93', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {orcamento.pix_chave} (Código gerado)
+                    </span>
+                    <button
+                      onClick={copyPix}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#FBB03B', fontWeight: 600, fontSize: 13, padding: '4px 0', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6 }}
+                    >
+                      <Copy style={{ width: 14, height: 14 }} />
+                      Copiar
+                    </button>
                   </div>
                 </div>
-
-                <div className="pt-2">
-                  <UploadComprovante
-                    orcamentoId={orcamento.$id}
-                    isLoading={confirmarMutation.isPending}
-                    onConfirmar={(arquivo, observacao) => {
-                      confirmarMutation.mutate({ orcamento_id: orcamento.$id, arquivoFile: arquivo, observacao });
-                    }}
-                  />
-                </div>
-              </>
-            )}
-
-          </div>
-
-          {/* Footer */}
-          <div className="border-t border-slate-100 px-8 py-4 flex items-center justify-center gap-2 bg-slate-50/50">
-            <Receipt className="w-3.5 h-3.5 text-slate-300" />
-            <span className="text-xs text-slate-400 font-medium">Gerado automaticamente por KVision</span>
-          </div>
-
+              </div>
+  
+              {/* Upload Comprovante */}
+              <div style={{ padding: '32px 40px' }}>
+                <UploadComprovante
+                  orcamentoId={orcamento.$id}
+                  isLoading={confirmarMutation.isPending}
+                  onConfirmar={(arquivo, observacao) => {
+                    confirmarMutation.mutate({ orcamento_id: orcamento.$id, arquivoFile: arquivo, observacao });
+                  }}
+                />
+              </div>
+            </>
+          )}
+  
         </div>
+  
+        {/* Footer */}
+        <div style={{ textAlign: 'center', marginTop: 24, fontSize: 12, color: '#8e8e93', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          <Receipt style={{ width: 12, height: 12 }} />
+          Gerado automaticamente por KVision
+        </div>
+  
       </div>
     </div>
-  </div>
-);
+  );
 }

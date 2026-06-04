@@ -57,7 +57,7 @@ export function UploadComprovante({ orcamentoId, onConfirmar, isLoading }: Uploa
           {...getRootProps()} 
           className={cn(
             "border-2 border-dashed rounded-xl p-10 flex flex-col items-center justify-center text-center cursor-pointer transition-colors duration-200",
-            isDragActive ? "border-primary bg-primary/5" : "border-slate-200 bg-slate-50 hover:bg-slate-100"
+            isDragActive ? "border-primary bg-primary/5" : "border-slate-200 bg-[#f5f5f7] hover:bg-slate-100"
           )}
         >
           <input {...getInputProps()} />
@@ -98,13 +98,13 @@ export function UploadComprovante({ orcamentoId, onConfirmar, isLoading }: Uploa
         />
       </div>
 
-      <Button 
-        className="w-full h-12 text-md font-bold bg-[#FBB03B] hover:bg-[#f0a830] text-black transition-all shadow-lg" 
+      <button 
+        style={{ width: '100%', height: 48, background: '#FBB03B', color: '#000', border: 'none', borderRadius: 9999, fontSize: 16, fontWeight: 600, cursor: selectedFile && !isLoading ? 'pointer' : 'not-allowed', letterSpacing: '-0.2px', opacity: !selectedFile || isLoading ? 0.7 : 1 }} 
         onClick={handleSubmit} 
         disabled={!selectedFile || isLoading}
       >
         {isLoading ? "Enviando..." : "Confirmar pagamento"}
-      </Button>
+      </button>
 
     </div>
   );
