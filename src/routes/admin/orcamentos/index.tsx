@@ -100,7 +100,7 @@ export default function OrcamentosIndex() {
           <h2 className="text-[22px] font-semibold text-(--text-primary)">Orçamentos</h2>
           <p className="text-[13px] text-(--text-secondary) mt-1">Gere propostas comerciais e envie links de pagamento.</p>
         </div>
-        <Button onClick={() => navigate('/admin/orcamentos/novo')} className="w-full sm:w-auto bg-white dark:bg-[#1c1c1e] text-black hover:bg-zinc-200 h-10 px-6 rounded-lg text-[13px] font-medium">
+        <Button onClick={() => navigate('/admin/orcamentos/novo')} className="w-full sm:w-auto bg-[#FBB03B] hover:bg-[#f0a830] text-black h-10 px-6 rounded-lg text-[13px] font-medium">
           <Plus className="mr-2 h-4 w-4" /> Novo orçamento
         </Button>
       </div>
