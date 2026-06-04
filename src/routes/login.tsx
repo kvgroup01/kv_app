@@ -30,24 +30,27 @@ export default function Login() {
   return (
     <div className="min-h-screen w-full flex">
 
-      {/* ══ PAINEL ESQUERDO — Formulário ══ */}
-      <div className="light flex-1 flex flex-col items-center justify-center px-6 py-12 min-h-screen" style={{ background: '#f5f5f7', colorScheme: 'light' }}>
+      {/* ══ PAINEL ESQUERDO — Formulário (sempre light) ══ */}
+      <div
+        className="flex-1 flex flex-col items-center justify-center px-6 py-12 min-h-screen"
+        style={{ background: '#f5f5f7', colorScheme: 'light' }}
+      >
         <div className="w-full max-w-[360px]">
 
-          {/* Logo mobile (só aparece em telas pequenas) */}
+          {/* Logo — só mobile */}
           <div className="flex items-center gap-2.5 mb-10 lg:hidden">
-            <KVMark size={26} color="#FBB03B" />
-            <span className="font-semibold text-[17px] text-(--text-primary)" style={{ letterSpacing: '-0.3px' }}>
-              KV<span style={{ color: 'var(--kvmark-color)' }}>ision</span>
+            <KVMark size={26} color="#1A1A1A" />
+            <span className="font-semibold text-[17px] text-[#1A1A1A]" style={{ letterSpacing: '-0.3px' }}>
+              KV<span style={{ color: '#FBB03B' }}>ision</span>
             </span>
           </div>
 
           {/* Título */}
           <div className="mb-8">
-            <h1 className="text-[28px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.374px' }}>
+            <h1 className="text-[28px] font-semibold text-[#1A1A1A]" style={{ letterSpacing: '-0.374px' }}>
               Entrar
             </h1>
-            <p className="text-[14px] text-(--text-tertiary) mt-1.5">
+            <p className="text-[14px] text-[#6e6e73] mt-1.5">
               Acesse sua conta para continuar
             </p>
           </div>
@@ -56,20 +59,18 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="space-y-5">
 
             {errorMsg && (
-              <div className="flex items-start gap-2.5 bg-red-500/8 border border-red-500/20 rounded-[10px] px-3.5 py-3">
+              <div className="flex items-start gap-2.5 rounded-[10px] px-3.5 py-3" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
                 <AlertCircle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" />
-                <p className="text-[13px] text-red-400 leading-snug">{errorMsg}</p>
+                <p className="text-[13px] text-red-500 leading-snug">{errorMsg}</p>
               </div>
             )}
 
+            {/* E-mail */}
             <div className="space-y-1.5">
-              <label
-                htmlFor="email"
-                className="block text-[11px] font-semibold text-(--text-secondary) uppercase tracking-wider"
-              >
+              <label htmlFor="email" className="block text-[11px] font-semibold text-[#6e6e73] uppercase tracking-wider">
                 Endereço de e-mail
               </label>
-              <Input
+              <input
                 id="email"
                 type="email"
                 placeholder="gestor@kvgroup.com.br"
@@ -77,19 +78,25 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
                 disabled={isLoggingIn}
-                className="h-11 text-[14px] rounded-[10px] border-(--card-border) bg-(--card-bg) focus-visible:ring-1 focus-visible:ring-[#FBB03B] focus-visible:border-[#FBB03B]"
+                style={{
+                  width: '100%', height: 44, padding: '0 14px',
+                  fontSize: 14, color: '#1A1A1A', background: '#ffffff',
+                  border: '1px solid #e5e5e7', borderRadius: 10,
+                  outline: 'none', fontFamily: 'inherit',
+                  opacity: isLoggingIn ? 0.5 : 1,
+                }}
+                onFocus={e => e.target.style.borderColor = '#FBB03B'}
+                onBlur={e => e.target.style.borderColor = '#e5e5e7'}
               />
             </div>
 
+            {/* Senha */}
             <div className="space-y-1.5">
-              <label
-                htmlFor="password"
-                className="block text-[11px] font-semibold text-(--text-secondary) uppercase tracking-wider"
-              >
+              <label htmlFor="password" className="block text-[11px] font-semibold text-[#6e6e73] uppercase tracking-wider">
                 Senha
               </label>
               <div className="relative">
-                <Input
+                <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
@@ -97,23 +104,45 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   autoComplete="current-password"
                   disabled={isLoggingIn}
-                  className="h-11 text-[14px] rounded-[10px] border-(--card-border) bg-(--card-bg) pr-10 focus-visible:ring-1 focus-visible:ring-[#FBB03B] focus-visible:border-[#FBB03B]"
+                  style={{
+                    width: '100%', height: 44, padding: '0 40px 0 14px',
+                    fontSize: 14, color: '#1A1A1A', background: '#ffffff',
+                    border: '1px solid #e5e5e7', borderRadius: 10,
+                    outline: 'none', fontFamily: 'inherit',
+                    opacity: isLoggingIn ? 0.5 : 1,
+                  }}
+                  onFocus={e => e.target.style.borderColor = '#FBB03B'}
+                  onBlur={e => e.target.style.borderColor = '#e5e5e7'}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(p => !p)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6e6e73] hover:text-[#1d1d1f] transition-colors"
                   tabIndex={-1}
+                  style={{
+                    position: 'absolute', right: 12, top: '50%',
+                    transform: 'translateY(-50%)', background: 'none',
+                    border: 'none', cursor: 'pointer', color: '#a0a0a5',
+                    display: 'flex', alignItems: 'center',
+                  }}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
+            {/* Botão */}
             <button
               type="submit"
               disabled={isLoggingIn}
-              className="btn-brand w-full h-11 mt-1 text-[14px]"
+              style={{
+                width: '100%', height: 44, marginTop: 4,
+                background: isLoggingIn ? '#f5a623' : '#FBB03B',
+                color: '#000000', border: 'none', borderRadius: 9999,
+                fontSize: 14, fontWeight: 600, cursor: isLoggingIn ? 'not-allowed' : 'pointer',
+                letterSpacing: '-0.2px', fontFamily: 'inherit',
+                opacity: isLoggingIn ? 0.7 : 1,
+                transition: 'background 150ms ease',
+              }}
             >
               {isLoggingIn ? 'Entrando...' : 'Entrar'}
             </button>
@@ -121,42 +150,36 @@ export default function Login() {
           </form>
 
           {/* Footer */}
-          <p className="text-[11px] text-(--text-tertiary) text-center mt-10">
+          <p className="text-[11px] text-[#a0a0a5] text-center mt-10">
             KV Group © {new Date().getFullYear()} — Todos os direitos reservados
           </p>
 
         </div>
       </div>
 
-      {/* ══ PAINEL DIREITO — Marca ══ */}
-      <div className="hidden lg:flex lg:w-[52%] xl:w-[55%] relative flex-col items-start justify-end overflow-hidden bg-[#0a0a0a] p-14">
+      {/* ══ PAINEL DIREITO — Marca (sempre dark) ══ */}
+      <div className="hidden lg:flex lg:w-[52%] xl:w-[55%] relative flex-col items-start justify-end overflow-hidden p-14" style={{ background: '#0a0a0a' }}>
 
-        {/* KVMark gigante de fundo — decorativo */}
+        {/* KVMark watermark */}
         <div
           aria-hidden
           className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
           style={{ opacity: 0.06 }}
         >
-          <svg
-            viewBox="339 774 3873 2963"
-            className="w-[110%] h-[110%]"
-            style={{ fill: '#ffffff' }}
-          >
+          <svg viewBox="339 774 3873 2963" className="w-[110%] h-[110%]" style={{ fill: '#ffffff' }}>
             <path d={KV_P1} />
             <path d={KV_P2} />
           </svg>
         </div>
 
-        {/* Gradiente sutil no canto */}
+        {/* Gradiente amarelo sutil */}
         <div
           aria-hidden
           className="absolute inset-0 pointer-events-none"
-          style={{
-            background: 'radial-gradient(ellipse at 80% 20%, rgba(251,176,59,0.08) 0%, transparent 60%)',
-          }}
+          style={{ background: 'radial-gradient(ellipse at 80% 20%, rgba(251,176,59,0.08) 0%, transparent 60%)' }}
         />
 
-        {/* Logo no topo */}
+        {/* Logo */}
         <div className="absolute top-10 left-12 flex items-center gap-2.5">
           <KVMark size={22} color="#FBB03B" />
           <span className="font-semibold text-[15px] text-white" style={{ letterSpacing: '-0.2px' }}>
@@ -164,36 +187,25 @@ export default function Login() {
           </span>
         </div>
 
-        {/* Conteúdo de fundo — cartão de destaque */}
+        {/* Card de destaque */}
         <div className="relative z-10 w-full">
           <div
-            className="rounded-[20px] border p-8 mb-6"
-            style={{
-              background: 'rgba(255,255,255,0.04)',
-              borderColor: 'rgba(255,255,255,0.08)',
-              backdropFilter: 'blur(12px)',
-            }}
+            className="rounded-[20px] p-8 mb-6"
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)' }}
           >
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-[#FBB03B]/10 border border-[#FBB03B]/20 rounded-full px-3 py-1 mb-5">
+            <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-5" style={{ background: 'rgba(251,176,59,0.1)', border: '1px solid rgba(251,176,59,0.2)' }}>
               <div className="w-1.5 h-1.5 rounded-full bg-[#FBB03B]" />
-              <span className="text-[11px] font-semibold text-[#FBB03B] uppercase tracking-wider">
-                Plataforma KV Group
-              </span>
+              <span className="text-[11px] font-semibold text-[#FBB03B] uppercase tracking-wider">Plataforma KV Group</span>
             </div>
 
-            <h2
-              className="text-[26px] font-semibold text-white mb-3 leading-tight"
-              style={{ letterSpacing: '-0.374px' }}
-            >
+            <h2 className="text-[26px] font-semibold text-white mb-3 leading-tight" style={{ letterSpacing: '-0.374px' }}>
               Gestão inteligente<br />de tráfego pago
             </h2>
-            <p className="text-[14px] text-white/50 leading-relaxed max-w-sm">
+            <p className="text-[14px] leading-relaxed max-w-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
               Conecte contas Meta Ads, sincronize métricas automaticamente e visualize dashboards analíticos completos para seus clientes.
             </p>
 
-            {/* Stats */}
-            <div className="flex gap-6 mt-7 pt-6 border-t border-white/8">
+            <div className="flex gap-6 mt-7 pt-6" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
               {[
                 { label: 'Dashboards', value: 'Ao vivo' },
                 { label: 'Meta Ads', value: 'Integrado' },
@@ -201,7 +213,7 @@ export default function Login() {
               ].map((s) => (
                 <div key={s.label}>
                   <p className="text-[13px] font-semibold text-white">{s.value}</p>
-                  <p className="text-[11px] text-white/40 mt-0.5">{s.label}</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{s.label}</p>
                 </div>
               ))}
             </div>
@@ -209,7 +221,6 @@ export default function Login() {
         </div>
 
       </div>
-
     </div>
   );
 }
