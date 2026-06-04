@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useNavigate, Link } from 'react-router';
-import { Plus, Copy, MoreVertical, Eye, CircleCheck, XCircle, Trash2, FileText } from 'lucide-react';
+import { Plus, Copy, MoreVertical, Eye, CircleCheck, XCircle, Trash2, FileText, ExternalLink, Download } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { useOrcamentos, useAtualizarStatusOrcamento, useDeletarOrcamento } from '../../../hooks/useOrcamentos';
@@ -29,6 +29,9 @@ import {
 import { fmtBRL, fmtDataString } from '../../../lib/utils';
 import { CONFIG } from '../../../lib/constants';
 import { cn } from '../../../lib/utils';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../../../components/ui/sheet';
+import { Separator } from '../../../components/ui/separator';
+import { supabase } from '../../../lib/supabase';
 
 export default function OrcamentosIndex() {
   const navigate = useNavigate();
@@ -37,6 +40,30 @@ export default function OrcamentosIndex() {
   const deletarMut = useDeletarOrcamento();
 
   const [orcamentoToDelete, setOrcamentoToDelete] = React.useState<string | null>(null);
+
+  const [detalhesOrcamento, setDetalhesOrcamento] = React.useState<any | null>(null);
+  const [pagamento, setPagamento] = React.useState<any | null>(null);
+  const [loadingPagamento, setLoadingPagamento] = React.useState(false);
+
+  const handleVerDetalhes = async (orcamento: any) => {
+    setDetalhesOrcamento(orcamento);
+    setPagamento(null);
+    setLoadingPagamento(true);
+    try {
+      const { data } = await supabase
+        .from('pagamentos')
+        .select('*')
+        .eq('orcamento_id', orcamento.$id)
+        .order('criado_em', { ascending: false })
+        .limit(1)
+        .single();
+      setPagamento(data);
+    } catch {
+      setPagamento(null);
+    } finally {
+      setLoadingPagamento(false);
+    }
+  };
 
   // Ordenação: mais recente primeiro
   const listaOrdenada = React.useMemo(() => {
@@ -156,7 +183,7 @@ export default function OrcamentosIndex() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-48 bg-(--card-bg) border-(--card-border) text-(--text-primary)">
-                              <DropdownMenuItem onClick={() => window.open(`/orcamento/${orcamento.token}`, '_blank')} className="cursor-pointer hover:bg-(--card-hover)">
+                              <DropdownMenuItem onClick={() => handleVerDetalhes(orcamento)} className="cursor-pointer hover:bg-(--card-hover)">
                                 <Eye className="mr-2 h-4 w-4 text-(--text-tertiary)" /> Ver detalhes
                               </DropdownMenuItem>
                               <DropdownMenuSeparator className="bg-(--card-border)" />
@@ -210,6 +237,129 @@ export default function OrcamentosIndex() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Sheet open={!!detalhesOrcamento} onOpenChange={(open) => !open && setDetalhesOrcamento(null)}>
+        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+          {detalhesOrcamento && (
+            <>
+              <SheetHeader className="mb-6">
+                <SheetTitle className="text-lg font-semibold">Detalhes do Orçamento</SheetTitle>
+              </SheetHeader>
+
+              {/* Informações do orçamento */}
+              <div className="space-y-4">
+                <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+                  <p className="text-[11px] font-semibold text-(--text-tertiary) uppercase tracking-widest">Proposta</p>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-(--text-secondary)">Cliente</span>
+                      <span className="font-medium text-(--text-primary)">{detalhesOrcamento.cliente_nome}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-(--text-secondary)">Emissão</span>
+                      <span className="font-medium text-(--text-primary)">{fmtDataString(detalhesOrcamento.$createdAt)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-(--text-secondary)">Valor total</span>
+                      <span className="font-semibold text-(--text-primary)">{fmtBRL(detalhesOrcamento.valor_total)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-(--text-secondary)">Status</span>
+                      <span>{getStatusBadge(detalhesOrcamento.status)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Itens */}
+                <div className="space-y-2">
+                  <p className="text-[11px] font-semibold text-(--text-tertiary) uppercase tracking-widest">Itens</p>
+                  {(() => {
+                    const itens = typeof detalhesOrcamento.itens === 'string'
+                      ? JSON.parse(detalhesOrcamento.itens)
+                      : detalhesOrcamento.itens;
+                    return (Array.isArray(itens) ? itens : []).map((item: any, idx: number) => (
+                      <div key={idx} className="flex justify-between text-sm py-2 border-b border-(--card-border)">
+                        <span className="text-(--text-primary) max-w-[60%]">{item.descricao}</span>
+                        <span className="text-(--text-secondary)">{item.quantidade}x · {fmtBRL(item.quantidade * item.valor_unitario)}</span>
+                      </div>
+                    ));
+                  })()}
+                </div>
+
+                <Separator />
+
+                {/* Pagamento */}
+                <div className="space-y-3">
+                  <p className="text-[11px] font-semibold text-(--text-tertiary) uppercase tracking-widest">Pagamento</p>
+                  {loadingPagamento ? (
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-2/3" />
+                    </div>
+                  ) : pagamento ? (
+                    <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-(--text-secondary)">Data do pagamento</span>
+                        <span className="font-medium text-(--text-primary)">
+                          {new Date(pagamento.criado_em).toLocaleString('pt-BR', {
+                            day: '2-digit', month: '2-digit', year: 'numeric',
+                            hour: '2-digit', minute: '2-digit'
+                          })}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-(--text-secondary)">Método</span>
+                        <span className="font-medium text-(--text-primary) uppercase">{pagamento.metodo || 'PIX'}</span>
+                      </div>
+                      {pagamento.observacao && (
+                        <div className="text-sm">
+                          <span className="text-(--text-secondary) block mb-1">Observação do cliente</span>
+                          <p className="text-(--text-primary) bg-muted/50 rounded-lg p-2 text-[13px]">{pagamento.observacao}</p>
+                        </div>
+                      )}
+                      {pagamento.comprovante_url && (
+                        <div className="pt-2 space-y-2">
+                          <p className="text-[11px] font-semibold text-(--text-tertiary) uppercase tracking-widest">Comprovante</p>
+                          {pagamento.comprovante_url.match(/\.(jpg|jpeg|png|webp)$/i) ? (
+                            <img
+                              src={pagamento.comprovante_url}
+                              alt="Comprovante"
+                              className="w-full rounded-xl border border-(--card-border) object-cover max-h-64"
+                            />
+                          ) : null}
+                          <a
+                            href={pagamento.comprovante_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-sm text-[#FBB03B] hover:underline"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            Abrir comprovante
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-(--text-tertiary) italic">Nenhum pagamento registrado ainda.</p>
+                  )}
+                </div>
+
+                <Separator />
+
+                {/* Link do orçamento */}
+                <Button
+                  variant="outline"
+                  className="w-full gap-2"
+                  onClick={() => window.open(`/orcamento/${detalhesOrcamento.token}`, '_blank')}
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Ver proposta completa
+                </Button>
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
