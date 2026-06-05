@@ -94,10 +94,10 @@ export function OrcamentoPreview({ clienteNome, itens, setItens, pixChave, setPi
     <div style={{ minHeight: '100%', background: '#f5f5f7', fontFamily: 'system-ui, -apple-system, sans-serif', colorScheme: 'light' }}>
 
       {/* NAV */}
-      <nav style={{ background: '#1d1d1f', height: 52, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 37 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <KVMark size={18} color="#FBB03B" />
-          <span style={{ color: '#fff', fontWeight: 600, fontSize: 15 }}>
+      <nav style={{ background: '#1d1d1f', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 37 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <KVMark size={26} color="#FBB03B" />
+          <span style={{ color: '#fff', fontWeight: 600, fontSize: 17 }}>
             KV<span style={{ color: '#FBB03B' }}>GROUP</span>
           </span>
         </div>

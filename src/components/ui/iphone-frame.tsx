@@ -29,13 +29,13 @@ export function IphoneFrame({ children, scale = 0.72 }: IphoneFrameProps) {
         <div
           style={{
             position: 'absolute',
-            top: 0,
+            top: 12 * scale,
             left: '50%',
             transform: 'translateX(-50%)',
-            width: 126 * scale,
-            height: 37 * scale,
+            width: 120 * scale,
+            height: 34 * scale,
             background: '#1d1d1f',
-            borderRadius: `0 0 ${20 * scale}px ${20 * scale}px`,
+            borderRadius: 9999,
             zIndex: 20,
           }}
         />
