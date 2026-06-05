@@ -17,6 +17,8 @@ import {
 } from '../../../components/ui/dialog';
 import { Input } from '../../../components/ui/input';
 import { CONFIG } from '../../../lib/constants';
+import { IphoneFrame } from '../../../components/ui/iphone-frame';
+import { OrcamentoPreview } from '../../../components/admin/OrcamentoPreview';
 
 export default function OrcamentoNovo() {
   const navigate = useNavigate();
@@ -24,6 +26,11 @@ export default function OrcamentoNovo() {
   const criarMut = useCriarOrcamento();
   
   const [successToken, setSuccessToken] = React.useState<string | null>(null);
+  const [previewData, setPreviewData] = React.useState({
+    clienteNome: '',
+    itens: [{ descricao: '', quantidade: 1, valor_unitario: 0 }],
+    pixChave: '',
+  });
 
   const handleSubmit = (data: OrcamentoFormData) => {
     // Calcula valor total pra salvar na store para rankings
@@ -62,7 +69,7 @@ export default function OrcamentoNovo() {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto pb-12 animate-fade-in">
+    <div className="space-y-6 max-w-7xl mx-auto pb-12 animate-fade-in">
       <div className="flex items-center gap-3 mb-6">
         <Button variant="ghost" size="icon" onClick={() => navigate('/admin/orcamentos')} className="h-8 w-8 text-(--text-tertiary) hover:text-(--text-primary) hover:bg-(--card-hover) rounded-[8px]">
           <ArrowLeft className="h-4 w-4" />
@@ -73,12 +80,36 @@ export default function OrcamentoNovo() {
         </div>
       </div>
 
-      <div className="mt-8">
-         <OrcamentoForm 
-           clientes={clientes} 
-           onSubmit={handleSubmit} 
-           isLoading={criarMut.isPending || isLoadingClientes} 
-         />
+      {/* Layout split */}
+      <div className="flex flex-col xl:flex-row gap-8 items-start">
+        
+        {/* Formulário */}
+        <div className="flex-1 min-w-0 w-full">
+          <OrcamentoForm 
+            clientes={clientes} 
+            onSubmit={handleSubmit} 
+            isLoading={criarMut.isPending || isLoadingClientes} 
+            onDataChange={setPreviewData}
+          />
+        </div>
+
+        {/* Preview mobile sticky */}
+        <div className="hidden xl:flex flex-col items-center gap-4 sticky top-8">
+          <div className="text-[11px] font-semibold text-(--text-tertiary) uppercase tracking-wider">
+            Preview do cliente
+          </div>
+          <IphoneFrame scale={0.42}>
+            <OrcamentoPreview
+              clienteNome={previewData.clienteNome}
+              itens={previewData.itens}
+              pixChave={previewData.pixChave}
+            />
+          </IphoneFrame>
+          <p className="text-[11px] text-(--text-tertiary) text-center max-w-[180px]">
+            Assim o cliente verá o link gerado
+          </p>
+        </div>
+
       </div>
 
       <Dialog open={!!successToken} onOpenChange={(open) => {

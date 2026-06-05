@@ -23,9 +23,10 @@ interface OrcamentoFormProps {
   clientes: Cliente[];
   onSubmit: (data: OrcamentoFormData) => void;
   isLoading?: boolean;
+  onDataChange?: (data: { clienteNome: string; itens: OrcamentoFormData['itens']; pixChave: string }) => void;
 }
 
-export function OrcamentoForm({ clientes, onSubmit, isLoading }: OrcamentoFormProps) {
+export function OrcamentoForm({ clientes, onSubmit, isLoading, onDataChange }: OrcamentoFormProps) {
   // Seção 1 states
   const [modoCliente, setModoCliente] = React.useState<'existente' | 'avulso'>('existente');
   const [clienteSelecionado, setClienteSelecionado] = React.useState<string>("");
@@ -40,6 +41,16 @@ export function OrcamentoForm({ clientes, onSubmit, isLoading }: OrcamentoFormPr
   const [qrCodeImg, setQrCodeImg] = React.useState("");
 
   const totalCalculado = itens.reduce((acc, item) => acc + (item.quantidade * item.valor_unitario), 0);
+
+  // Notificar pai das mudanças
+  React.useEffect(() => {
+    if (!onDataChange) return;
+    const isAvulso = modoCliente === 'avulso';
+    const finalNome = isAvulso
+      ? nomeAvulso
+      : clientes.find(c => c.$id === clienteSelecionado)?.nome || '';
+    onDataChange({ clienteNome: finalNome, itens, pixChave });
+  }, [modoCliente, nomeAvulso, clienteSelecionado, itens, pixChave, clientes]);
 
   // Gera o QRCode sempre que a chave e o valor total mudam
   React.useEffect(() => {
