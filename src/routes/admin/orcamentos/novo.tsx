@@ -82,10 +82,10 @@ export default function OrcamentoNovo() {
       </div>
 
       {/* Layout split */}
-      <div className="flex flex-col xl:flex-row gap-8 items-start">
+      <div className="flex flex-col xl:flex-row gap-10 items-start">
         
-        {/* Formulário */}
-        <div className="flex-1 min-w-0 w-full">
+        {/* Formulário — largura fixa à esquerda */}
+        <div className="w-full xl:w-[520px] shrink-0">
           <OrcamentoForm
             clientes={clientes}
             isLoading={criarMut.isPending || isLoadingClientes}
@@ -103,12 +103,12 @@ export default function OrcamentoNovo() {
           />
         </div>
 
-        {/* Preview mobile sticky */}
-        <div className="hidden xl:flex flex-col items-center gap-4 sticky top-8">
+        {/* Preview — ocupa o restante, sticky */}
+        <div className="hidden xl:flex flex-col items-center gap-3 sticky top-8 flex-1">
           <div className="text-[11px] font-semibold text-(--text-tertiary) uppercase tracking-wider">
             Preview do cliente
           </div>
-          <IphoneFrame scale={0.42}>
+          <IphoneFrame scale={0.72}>
             <OrcamentoPreview
               clienteNome={clienteNome}
               itens={itens}
@@ -117,7 +117,7 @@ export default function OrcamentoNovo() {
               setPixChave={setPixChave}
             />
           </IphoneFrame>
-          <p className="text-[11px] text-(--text-tertiary) text-center max-w-[180px]">
+          <p className="text-[11px] text-(--text-tertiary) text-center">
             Clique nos textos para editar
           </p>
         </div>

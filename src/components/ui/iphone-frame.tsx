@@ -5,60 +5,65 @@ interface IphoneFrameProps {
   scale?: number;
 }
 
-export function IphoneFrame({ children, scale = 0.38 }: IphoneFrameProps) {
+export function IphoneFrame({ children, scale = 0.72 }: IphoneFrameProps) {
+  const W = 393;
+  const H = 852;
+
   return (
-    <div className="relative flex items-center justify-center" style={{ width: 393 * scale, height: 852 * scale }}>
-      {/* Corpo do iPhone */}
+    <div
+      className="relative flex items-center justify-center shrink-0"
+      style={{ width: W * scale, height: H * scale }}
+    >
+      {/* Corpo */}
       <div
-        className="relative overflow-hidden rounded-[54px] border-[8px] border-[#1d1d1f] bg-white shadow-2xl"
-        style={{ width: 393 * scale, height: 852 * scale, borderRadius: 54 * scale, borderWidth: 8 * scale }}
+        className="relative bg-white overflow-hidden"
+        style={{
+          width: W * scale,
+          height: H * scale,
+          borderRadius: 54 * scale,
+          border: `${8 * scale}px solid #1d1d1f`,
+          boxShadow: '0 24px 48px rgba(0,0,0,0.25)',
+        }}
       >
         {/* Dynamic Island */}
         <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 bg-[#1d1d1f] z-10"
           style={{
+            position: 'absolute',
+            top: 0,
+            left: '50%',
+            transform: 'translateX(-50%)',
             width: 126 * scale,
             height: 37 * scale,
+            background: '#1d1d1f',
             borderRadius: `0 0 ${20 * scale}px ${20 * scale}px`,
-            top: 0,
+            zIndex: 20,
           }}
         />
 
-        {/* Conteúdo escalado */}
+        {/* Área de conteúdo — scrollable na escala original */}
         <div
           style={{
-            width: 393,
-            height: 852,
-            transform: `scale(${scale})`,
-            transformOrigin: 'top left',
-            overflow: 'hidden',
             position: 'absolute',
             top: 0,
             left: 0,
+            width: W,
+            height: H,
+            transform: `scale(${scale})`,
+            transformOrigin: 'top left',
+            overflowY: 'auto',
+            overflowX: 'hidden',
           }}
         >
           {children}
         </div>
       </div>
 
-      {/* Botão lateral direito */}
-      <div
-        className="absolute right-0 bg-[#1d1d1f] rounded-r-md"
-        style={{ width: 4 * scale, height: 80 * scale, right: -(4 * scale), top: 180 * scale }}
-      />
+      {/* Botão direito */}
+      <div style={{ position: 'absolute', right: -(3 * scale), top: 180 * scale, width: 3 * scale, height: 80 * scale, background: '#1d1d1f', borderRadius: '0 4px 4px 0' }} />
       {/* Botões volume esquerdo */}
-      <div
-        className="absolute left-0 bg-[#1d1d1f] rounded-l-md"
-        style={{ width: 4 * scale, height: 40 * scale, left: -(4 * scale), top: 140 * scale }}
-      />
-      <div
-        className="absolute left-0 bg-[#1d1d1f] rounded-l-md"
-        style={{ width: 4 * scale, height: 65 * scale, left: -(4 * scale), top: 195 * scale }}
-      />
-      <div
-        className="absolute left-0 bg-[#1d1d1f] rounded-l-md"
-        style={{ width: 4 * scale, height: 65 * scale, left: -(4 * scale), top: 275 * scale }}
-      />
+      <div style={{ position: 'absolute', left: -(3 * scale), top: 140 * scale, width: 3 * scale, height: 40 * scale, background: '#1d1d1f', borderRadius: '4px 0 0 4px' }} />
+      <div style={{ position: 'absolute', left: -(3 * scale), top: 195 * scale, width: 3 * scale, height: 65 * scale, background: '#1d1d1f', borderRadius: '4px 0 0 4px' }} />
+      <div style={{ position: 'absolute', left: -(3 * scale), top: 275 * scale, width: 3 * scale, height: 65 * scale, background: '#1d1d1f', borderRadius: '4px 0 0 4px' }} />
     </div>
   );
 }

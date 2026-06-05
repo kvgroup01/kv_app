@@ -83,7 +83,7 @@ export function OrcamentoPreview({ clienteNome, itens, setItens, pixChave, setPi
     <div style={{ minHeight: '100vh', background: '#f5f5f7', fontFamily: 'system-ui, -apple-system, sans-serif', colorScheme: 'light' }}>
 
       {/* NAV */}
-      <nav style={{ background: '#1d1d1f', height: 52, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <nav style={{ background: '#1d1d1f', height: 52, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 37 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <KVMark size={18} color="#FBB03B" />
           <span style={{ color: '#fff', fontWeight: 600, fontSize: 15 }}>
