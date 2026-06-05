@@ -111,6 +111,51 @@ export default function OrcamentoPublico() {
   const itensFormatados = Array.isArray(parsedItens) ? parsedItens : [];
   const isPago = orcamento.status === 'pago';
 
+  React.useEffect(() => {
+    if (!orcamento) return;
+
+    // Título da aba
+    document.title = `Proposta para ${orcamento.cliente_nome} · KV Group`;
+
+    // Meta description
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+      metaDesc = document.createElement('meta');
+      metaDesc.setAttribute('name', 'description');
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.setAttribute(
+      'content',
+      `Proposta comercial da KV Group para ${orcamento.cliente_nome}. Valor: R$ ${orcamento.valor_total?.toFixed(2).replace('.', ',')}. Pague via PIX com segurança.`
+    );
+
+    // OG title
+    let ogTitle = document.querySelector('meta[property="og:title"]');
+    if (!ogTitle) {
+      ogTitle = document.createElement('meta');
+      ogTitle.setAttribute('property', 'og:title');
+      document.head.appendChild(ogTitle);
+    }
+    ogTitle.setAttribute('content', `Proposta para ${orcamento.cliente_nome} · KV Group`);
+
+    // OG description
+    let ogDesc = document.querySelector('meta[property="og:description"]');
+    if (!ogDesc) {
+      ogDesc = document.createElement('meta');
+      ogDesc.setAttribute('property', 'og:description');
+      document.head.appendChild(ogDesc);
+    }
+    ogDesc.setAttribute(
+      'content',
+      'Clique para visualizar e pagar sua proposta comercial da KV Group.'
+    );
+
+    // Restaurar ao desmontar
+    return () => {
+      document.title = 'KVision';
+    };
+  }, [orcamento]);
+
   if (paymentStatus === 'loading') {
     return (
       <div className="min-h-screen bg-[#f5f5f7] flex flex-col items-center justify-center gap-6 px-6" style={{ colorScheme: 'light', fontFamily: 'system-ui, -apple-system, sans-serif' }}>

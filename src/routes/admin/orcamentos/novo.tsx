@@ -84,8 +84,8 @@ export default function OrcamentoNovo() {
       {/* Layout split */}
       <div className="flex flex-col xl:flex-row gap-10 items-start">
         
-        {/* Formulário — largura fixa à esquerda */}
-        <div className="w-full xl:w-[520px] shrink-0">
+        {/* Formulário — responsivo, cresce normalmente */}
+        <div className="flex-1 min-w-0">
           <OrcamentoForm
             clientes={clientes}
             isLoading={criarMut.isPending || isLoadingClientes}
@@ -103,12 +103,12 @@ export default function OrcamentoNovo() {
           />
         </div>
 
-        {/* Preview — ocupa o restante, sticky */}
-        <div className="hidden xl:flex flex-col items-center gap-3 sticky top-8 flex-1">
+        {/* Preview — largura fixa, sticky */}
+        <div className="hidden xl:flex flex-col items-center gap-3 sticky top-8 shrink-0">
           <div className="text-[11px] font-semibold text-(--text-tertiary) uppercase tracking-wider">
             Preview do cliente
           </div>
-          <IphoneFrame scale={0.72}>
+          <IphoneFrame scale={0.85}>
             <OrcamentoPreview
               clienteNome={clienteNome}
               itens={itens}

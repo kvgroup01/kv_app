@@ -60,21 +60,25 @@ async function confirmPagamento(orcamento_id: string, arquivoFile: File, observa
     comprovante_url = publicUrlData.publicUrl;
   }
   
-  const { data, error } = await supabase.from('pagamentos').insert([{
+  const { error } = await supabase.from('pagamentos').insert([{
     orcamento_id,
     valor: 0, // Precisaria buscar valor, simplificando aqui
     metodo: 'pix',
-    comprovante_url,
-    observacao,
-    status: 'confirmado'
-  }]).select().single();
+    comprovante_url: comprovante_url || null,
+    observacao: observacao || null,
+    status: 'confirmado',
+    criado_em: new Date().toISOString(),
+  }]);
   
-  if (error) throw error;
+  if (error) {
+    console.error('[pagamentos insert error]', error);
+    throw error;
+  }
   
   // Atualiza orcamento para pago
   await updateStatusOrcamento(orcamento_id, 'pago');
   
-  return { ...data, $id: data.id, $createdAt: data.criado_em };
+  return { orcamento_id, criado_em: new Date().toISOString() };
 }
 
 async function fetchPagamentos() {
