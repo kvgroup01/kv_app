@@ -113,26 +113,29 @@ export default function OrcamentosIndex() {
 
   if (isLoading) {
     return (
-      <div className="space-y-12">
-        <Skeleton className="h-20 w-1/3" />
-        <Skeleton className="h-[400px] w-full rounded-xl" />
+      <div className="space-y-8 animate-fade-in">
+        <div className="flex justify-between items-center">
+          <Skeleton className="h-7 w-36 rounded-[8px]" />
+          <Skeleton className="h-9 w-36 rounded-full" />
+        </div>
+        <Skeleton className="h-[400px] w-full rounded-[14px]" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8 animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-[22px] font-semibold text-(--text-primary)">Orçamentos</h2>
           <p className="text-[13px] text-(--text-secondary) mt-1">Gere propostas comerciais e envie links de pagamento.</p>
         </div>
-        <Button onClick={() => navigate('/admin/orcamentos/novo')} className="w-full sm:w-auto bg-[#FBB03B] hover:bg-[#f0a830] text-black h-10 px-6 rounded-lg text-[13px] font-medium">
-          <Plus className="mr-2 h-4 w-4" /> Novo orçamento
+        <Button onClick={() => navigate('/admin/orcamentos/novo')} className="btn-brand h-9 px-5 text-[13px] rounded-full w-full sm:w-auto">
+          <Plus className="mr-1.5 h-3.5 w-3.5" /> Novo orçamento
         </Button>
       </div>
 
-      <div className="bg-(--card-bg) border border-(--card-border) rounded-[12px] overflow-hidden shadow-premium">
+      <div className="bg-(--card-bg) border border-(--card-border) rounded-[14px] overflow-hidden">
         {!isLoading && listaOrdenada.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-12 py-24 text-center">
             <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-6">
@@ -140,7 +143,9 @@ export default function OrcamentosIndex() {
             </div>
             <h3 className="text-lg font-semibold text-(--text-primary) mb-2">Nenhum orçamento</h3>
             <p className="text-(--text-secondary) text-[13px] mb-8 max-w-sm">Voce ainda não gerou propostas ou links de cobrança.</p>
-            <Button onClick={() => navigate('/admin/orcamentos/novo')} variant="outline" className="border-(--card-border) hover:bg-[#1a1a1a]">Criar primeiro orçamento</Button>
+            <Button onClick={() => navigate('/admin/orcamentos/novo')} className="btn-brand h-9 px-5 text-[13px] rounded-full">
+              <Plus className="mr-1.5 h-3.5 w-3.5" /> Criar primeiro orçamento
+            </Button>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -226,7 +231,7 @@ export default function OrcamentosIndex() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-transparent border-(--card-border) hover:bg-white dark:bg-[#1c1c1e]/5">Cancelar</AlertDialogCancel>
+            <AlertDialogCancel className="border-(--card-border) text-(--text-secondary) bg-transparent">Cancelar</AlertDialogCancel>
             <AlertDialogAction 
               onClick={() => orcamentoToDelete && handleDeletar(orcamentoToDelete)}
               className="bg-red-500 text-white hover:bg-red-600 border-none"
@@ -243,12 +248,14 @@ export default function OrcamentosIndex() {
           {detalhesOrcamento && (
             <>
               <SheetHeader className="mb-6">
-                <SheetTitle className="text-lg font-semibold">Detalhes do Orçamento</SheetTitle>
+                <SheetTitle className="text-[17px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.2px' }}>
+                  Detalhes do Orçamento
+                </SheetTitle>
               </SheetHeader>
 
               {/* Informações do orçamento */}
               <div className="space-y-4">
-                <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+                <div className="bg-(--card-hover) border border-(--card-border) rounded-[12px] p-4 space-y-3">
                   <p className="text-[11px] font-semibold text-(--text-tertiary) uppercase tracking-widest">Proposta</p>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
@@ -297,7 +304,7 @@ export default function OrcamentosIndex() {
                       <Skeleton className="h-4 w-2/3" />
                     </div>
                   ) : pagamento ? (
-                    <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+                    <div className="bg-(--card-hover) border border-(--card-border) rounded-[12px] p-4 space-y-3">
                       <div className="flex justify-between text-sm">
                         <span className="text-(--text-secondary)">Data do pagamento</span>
                         <span className="font-medium text-(--text-primary)">
@@ -349,7 +356,7 @@ export default function OrcamentosIndex() {
                 {/* Link do orçamento */}
                 <Button
                   variant="outline"
-                  className="w-full gap-2"
+                  className="w-full gap-2 border-(--card-border) text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--card-hover) rounded-[10px]"
                   onClick={() => window.open(`/orcamento/${detalhesOrcamento.token}`, '_blank')}
                 >
                   <ExternalLink className="w-4 h-4" />
