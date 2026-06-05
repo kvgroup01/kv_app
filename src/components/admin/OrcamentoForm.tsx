@@ -23,7 +23,7 @@ interface OrcamentoFormProps {
   clientes: Cliente[];
   isLoading?: boolean;
   onSubmit: () => void;
-  // Estado controlado pelo pai:
+  // Estado controlado pelo pai
   modoCliente: 'existente' | 'avulso';
   setModoCliente: (v: 'existente' | 'avulso') => void;
   clienteSelecionado: string;
@@ -44,13 +44,11 @@ export function OrcamentoForm({
   itens, setItens,
   pixChave, setPixChave,
 }: OrcamentoFormProps) {
-  // Apenas estados locais visuais
   const [comboboxOpen, setComboboxOpen] = React.useState(false);
-  const [qrCodeImg, setQrCodeImg] = React.useState("");
+  const [qrCodeImg, setQrCodeImg] = React.useState('');
 
   const totalCalculado = itens.reduce((acc, item) => acc + (item.quantidade * item.valor_unitario), 0);
 
-  // Gera o QRCode sempre que a chave e o valor total mudam
   React.useEffect(() => {
     if (pixChave && totalCalculado > 0) {
       const payload = gerarPayloadPix(pixChave, totalCalculado, "Gestor KVision", "SÃO PAULO");
@@ -58,46 +56,42 @@ export function OrcamentoForm({
         if (!err) setQrCodeImg(url);
       });
     } else {
-      setQrCodeImg("");
+      setQrCodeImg('');
     }
   }, [pixChave, totalCalculado]);
 
   const handleAddItem = () => {
-    setItens([...itens, { descricao: '', quantidade: 1, valor_unitario: 0 }]);
+    setItens(prev => [...prev, { descricao: '', quantidade: 1, valor_unitario: 0 }]);
   };
 
   const handleRemoveItem = (index: number) => {
-    const newItens = [...itens];
-    newItens.splice(index, 1);
-    // Garantir que sempre tenha no minimo 1 item
-    if (newItens.length === 0) {
-      newItens.push({ descricao: '', quantidade: 1, valor_unitario: 0 });
-    }
-    setItens(newItens);
+    setItens(prev => {
+      const next = [...prev];
+      next.splice(index, 1);
+      return next.length === 0 ? [{ descricao: '', quantidade: 1, valor_unitario: 0 }] : next;
+    });
   };
 
-  const handleItemChange = (index: number, field: keyof typeof itens[0], value: any) => {
-    const newItens = [...itens];
-    newItens[index] = { ...newItens[index], [field]: value };
-    setItens(newItens);
-  };
-
-  // O onSubmit apenas passamos do componente pai
-  const handleBotaoSubmit = () => {
-    onSubmit();
+  const handleItemChange = (index: number, field: string, value: any) => {
+    setItens(prev => prev.map((item, i) =>
+      i === index ? { ...item, [field]: value } : item
+    ));
   };
 
   return (
     <div className="space-y-6">
+      {/* Seção 1 */}
       <Card className="bg-(--card-bg) border-(--card-border) rounded-[14px]">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-[15px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.2px' }}>1. Identificação do Cliente</CardTitle>
-            <Button 
-               variant="ghost" 
-               size="sm" 
-               className="text-[12px] text-(--text-tertiary) hover:text-(--text-primary) h-7 px-3 rounded-[7px]"
-               onClick={() => setModoCliente(m => m === 'existente' ? 'avulso' : 'existente')}
+            <CardTitle className="text-[15px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.2px' }}>
+              1. Identificação do Cliente
+            </CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-[12px] text-(--text-tertiary) hover:text-(--text-primary) h-7 px-3 rounded-[7px]"
+              onClick={() => setModoCliente(modoCliente === 'existente' ? 'avulso' : 'existente')}
             >
               Mudar para {modoCliente === 'existente' ? 'Avulso' : 'Cadastrado'}
             </Button>
@@ -109,19 +103,14 @@ export function OrcamentoForm({
               <label className="text-sm font-medium">Selecione o Cliente</label>
               <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
                 <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={comboboxOpen}
-                    className="w-full justify-between"
-                  >
+                  <Button variant="outline" role="combobox" aria-expanded={comboboxOpen} className="w-full justify-between border-(--card-border)">
                     {clienteSelecionado
                       ? clientes.find((c) => c.$id === clienteSelecionado)?.nome
                       : "Buscar cliente armazenado..."}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[400px] p-0" align="start">
+                <PopoverContent className="w-[400px] p-0 bg-(--card-bg) border-(--card-border)" align="start">
                   <Command>
                     <CommandInput placeholder="Procurar cliente..." />
                     <CommandList>
@@ -131,17 +120,9 @@ export function OrcamentoForm({
                           <CommandItem
                             key={cliente.$id}
                             value={cliente.nome}
-                            onSelect={() => {
-                              setClienteSelecionado(cliente.$id);
-                              setComboboxOpen(false);
-                            }}
+                            onSelect={() => { setClienteSelecionado(cliente.$id); setComboboxOpen(false); }}
                           >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                clienteSelecionado === cliente.$id ? "opacity-100" : "opacity-0"
-                              )}
-                            />
+                            <Check className={cn("mr-2 h-4 w-4", clienteSelecionado === cliente.$id ? "opacity-100" : "opacity-0")} />
                             {cliente.nome}
                           </CommandItem>
                         ))}
@@ -154,16 +135,18 @@ export function OrcamentoForm({
           ) : (
             <div className="space-y-2">
               <label className="text-sm font-medium">Nome do Cliente Avulso</label>
-              <Input 
-                 placeholder="Digite o nome do cliente" 
-                 value={nomeAvulso} 
-                 onChange={(e) => setNomeAvulso(e.target.value)} 
+              <Input
+                placeholder="Digite o nome do cliente"
+                value={nomeAvulso}
+                onChange={(e) => setNomeAvulso(e.target.value)}
+                className="bg-(--card-hover) border-(--card-border)"
               />
             </div>
           )}
         </CardContent>
       </Card>
 
+      {/* Seção 2 */}
       <Card className="bg-(--card-bg) border-(--card-border) rounded-[14px]">
         <CardHeader>
           <CardTitle className="text-[15px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.2px' }}>2. Itens do Serviço</CardTitle>
@@ -185,26 +168,27 @@ export function OrcamentoForm({
                 {itens.map((item, idx) => (
                   <TableRow key={idx}>
                     <TableCell>
-                      <Input 
-                        placeholder="Ex: Gestão de Tráfego" 
-                        value={item.descricao} 
-                        onChange={(e) => handleItemChange(idx, 'descricao', e.target.value)} 
+                      <Input
+                        placeholder="Ex: Gestão de Tráfego"
+                        value={item.descricao}
+                        onChange={(e) => handleItemChange(idx, 'descricao', e.target.value)}
+                        className="bg-(--card-hover) border-(--card-border)"
                       />
                     </TableCell>
                     <TableCell>
-                      <Input 
-                        type="number" 
-                        min="1" 
-                        value={item.quantidade} 
-                        onChange={(e) => handleItemChange(idx, 'quantidade', parseInt(e.target.value) || 0)} 
+                      <Input
+                        type="number" min="1"
+                        value={item.quantidade}
+                        onChange={(e) => handleItemChange(idx, 'quantidade', parseInt(e.target.value) || 0)}
+                        className="bg-(--card-hover) border-(--card-border)"
                       />
                     </TableCell>
                     <TableCell>
-                      <Input 
-                        type="number" 
-                        placeholder="0.00"
-                        value={item.valor_unitario} 
-                        onChange={(e) => handleItemChange(idx, 'valor_unitario', parseFloat(e.target.value) || 0)} 
+                      <Input
+                        type="number" placeholder="0.00"
+                        value={item.valor_unitario}
+                        onChange={(e) => handleItemChange(idx, 'valor_unitario', parseFloat(e.target.value) || 0)}
+                        className="bg-(--card-hover) border-(--card-border)"
                       />
                     </TableCell>
                     <TableCell className="font-medium bg-(--card-hover) text-(--text-primary)">
@@ -220,21 +204,20 @@ export function OrcamentoForm({
               </TableBody>
             </Table>
           </div>
-          
+
           <div className="flex justify-between items-end">
-             <Button variant="outline" onClick={handleAddItem} className="border-(--card-border) text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--card-hover) rounded-[8px] text-[13px] h-9">
-               <Plus className="mr-2 h-4 w-4" /> Adicionar Item
-             </Button>
-             
-             <div className="bg-(--card-hover) border border-(--card-border) rounded-[10px] p-4 flex items-center gap-6">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-(--text-tertiary)">Total a Pagar</span>
-                <span className="text-[28px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.5px' }}>{fmtBRL(totalCalculado)}</span>
-             </div>
+            <Button variant="outline" onClick={handleAddItem} className="border-(--card-border) text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--card-hover) rounded-[8px] text-[13px] h-9">
+              <Plus className="mr-2 h-4 w-4" /> Adicionar Item
+            </Button>
+            <div className="bg-(--card-hover) border border-(--card-border) rounded-[10px] p-4 flex items-center gap-6">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-(--text-tertiary)">Total a Pagar</span>
+              <span className="text-[28px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.5px' }}>{fmtBRL(totalCalculado)}</span>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Seção 3: PIX Checkout */}
+      {/* Seção 3 */}
       <Card className="bg-(--card-bg) border-(--card-border) rounded-[14px]">
         <CardHeader>
           <CardTitle className="text-[15px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.2px' }}>3. Configuração de Recebimento</CardTitle>
@@ -243,39 +226,38 @@ export function OrcamentoForm({
         <CardContent className="grid md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="text-sm font-medium">Chave PIX do Gestor</label>
-            <Input 
-               placeholder="CPF, CNPJ, Email ou Telefone" 
-               value={pixChave} 
-               onChange={(e) => setPixChave(e.target.value)} 
-               autoComplete="off"
+            <Input
+              placeholder="CPF, CNPJ, Email ou Telefone"
+              value={pixChave}
+              onChange={(e) => setPixChave(e.target.value)}
+              autoComplete="off"
+              className="bg-(--card-hover) border-(--card-border)"
             />
-            <p className="text-xs text-muted-foreground mt-2">
+            <p className="text-xs text-(--text-tertiary) mt-2">
               A chave será automaticamente vinculada ao payload PIX com base no valor total apurado acima.
             </p>
-
-            <Button className="btn-brand w-full mt-6 h-11 text-[14px]" onClick={handleBotaoSubmit} disabled={isLoading}>
-               {isLoading ? 'Gerando...' : 'Gerar Link de Orçamento'}
+            <Button className="btn-brand w-full mt-6 h-11 text-[14px]" onClick={onSubmit} disabled={isLoading}>
+              {isLoading ? 'Gerando...' : 'Gerar Link de Orçamento'}
             </Button>
           </div>
 
           <div className="flex flex-col items-center justify-center border-2 border-dashed border-(--card-border) rounded-[12px] p-6 bg-(--card-hover)">
-              {qrCodeImg ? (
-                 <div className="flex flex-col items-center space-y-4">
-                   <div className="p-2 bg-white rounded-xl shadow-sm border">
-                      <img src={qrCodeImg} alt="QR Code" className="w-[180px] h-[180px]" />
-                   </div>
-                   <span className="text-[12px] font-medium text-emerald-500">Preview do QR Code</span>
-                 </div>
-              ) : (
-                <div className="flex flex-col items-center text-(--text-tertiary) space-y-3 opacity-50">
-                   <QrCode className="h-12 w-12" />
-                   <span className="text-[13px] font-medium">Aguardando dados...</span>
+            {qrCodeImg ? (
+              <div className="flex flex-col items-center space-y-4">
+                <div className="p-2 bg-white rounded-xl shadow-sm border border-(--card-border)">
+                  <img src={qrCodeImg} alt="QR Code" className="w-[180px] h-[180px]" />
                 </div>
-              )}
+                <span className="text-[12px] font-medium text-emerald-500">Preview do QR Code</span>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center text-(--text-tertiary) space-y-3 opacity-50">
+                <QrCode className="h-12 w-12" />
+                <span className="text-[13px] font-medium">Aguardando dados...</span>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
-
     </div>
   );
 }
