@@ -111,13 +111,6 @@ export default function OrcamentoPublico() {
   const itensFormatados = Array.isArray(parsedItens) ? parsedItens : [];
   const isPago = orcamento.status === 'pago';
 
-  React.useEffect(() => {
-    if (!orcamento) return;
-    document.title = `Proposta · ${orcamento.cliente_nome} · KV Group`;
-    return () => {
-      document.title = 'KVision';
-    };
-  }, [orcamento?.cliente_nome]);
 
   if (paymentStatus === 'loading') {
     return (
