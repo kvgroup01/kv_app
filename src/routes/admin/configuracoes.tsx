@@ -119,12 +119,12 @@ export default function Configuracoes() {
   return (
     <div className="space-y-10 max-w-[1200px] mx-auto pb-20">
       <div className="flex flex-col gap-1">
-        <h2 className="text-2xl md:text-3xl font-bold text-(--text-primary) tracking-tight">Centro de Comando</h2>
-        <p className="text-(--text-secondary) text-sm">Gerencie sua identidade, conexões e equipe KV Group.</p>
+        <h2 className="text-[22px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.374px' }}>Configurações</h2>
+        <p className="text-[13px] text-(--text-secondary) mt-1">Gerencie sua identidade, conexões e equipe KV Group.</p>
       </div>
 
       <Tabs defaultValue="perfil" className="space-y-8">
-        <TabsList className="flex flex-nowrap overflow-x-auto gap-1 w-full scrollbar-none bg-(--card-bg) p-1 rounded-xl border border-(--card-border)">
+        <TabsList className="flex flex-nowrap overflow-x-auto gap-1 w-full scrollbar-none bg-(--card-bg) p-1 rounded-[12px] border border-(--card-border)">
           <TabsTrigger value="geral" className="px-6 rounded-lg data-[state=active]:bg-[#FBB03B] data-[state=active]:text-black transition-all gap-2 text-xs font-semibold uppercase tracking-wider min-w-fit whitespace-nowrap">
             <BarChart3 className="h-4 w-4" /> Geral
           </TabsTrigger>
@@ -148,7 +148,7 @@ export default function Configuracoes() {
         {/* --- GERAL --- */}
         <TabsContent value="geral" className="space-y-8 animate-in fade-in duration-500">
            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className="bg-(--card-bg) border-(--card-border) shadow-premium overflow-hidden">
+              <Card className="bg-(--card-bg) border-(--card-border) rounded-[14px] overflow-hidden">
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between mb-4">
                     <div className="p-2 bg-emerald-500/10 rounded-lg">
@@ -161,7 +161,7 @@ export default function Configuracoes() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-(--card-bg) border-(--card-border) shadow-premium overflow-hidden">
+              <Card className="bg-(--card-bg) border-(--card-border) rounded-[14px] overflow-hidden">
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between mb-4">
                     <div className="p-2 bg-blue-500/10 rounded-lg">
@@ -174,7 +174,7 @@ export default function Configuracoes() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-(--card-bg) border-(--card-border) shadow-premium overflow-hidden">
+              <Card className="bg-(--card-bg) border-(--card-border) rounded-[14px] overflow-hidden">
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between mb-4">
                     <div className="p-2 bg-amber-500/10 rounded-lg">
@@ -187,7 +187,7 @@ export default function Configuracoes() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-(--card-bg) border-(--card-border) shadow-premium overflow-hidden border-2 border-zinc-100 dark:border-white/5">
+              <Card className="bg-(--card-bg) border-(--card-border) rounded-[14px] overflow-hidden border-2 border-zinc-100 dark:border-white/5">
                 <CardContent className="pt-6 flex flex-col items-center justify-center text-center h-full">
                   <h3 className="text-[11px] font-bold text-(--text-tertiary) uppercase mb-3">Status do Sistema</h3>
                   <div className="flex items-center gap-2">
@@ -199,34 +199,34 @@ export default function Configuracoes() {
            </div>
 
            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-             <Card className="bg-(--card-bg) border-(--card-border) shadow-premium">
+             <Card className="bg-(--card-bg) border-(--card-border) rounded-[14px]">
                <CardHeader>
                  <CardTitle className="text-lg">Atalhos Rápidos</CardTitle>
                  <CardDescription>Acesso imediato às principais funcionalidades.</CardDescription>
                </CardHeader>
                <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Button variant="outline" className="h-20 flex flex-col gap-2 border-(--card-border) hover:bg-white dark:bg-[#1c1c1e]/5 active:scale-95 transition-all">
+                  <Button variant="outline" className="h-20 flex flex-col gap-2 border-(--card-border) hover:bg-(--card-hover) hover:border-[#FBB03B]/30 active:scale-95 transition-all rounded-[12px]">
                     <LayoutDashboard className="h-5 w-5 text-blue-500" />
                     <span className="text-xs font-bold uppercase tracking-widest">Dashboard Geral</span>
                   </Button>
-                  <Button variant="outline" className="h-20 flex flex-col gap-2 border-(--card-border) hover:bg-white dark:bg-[#1c1c1e]/5 active:scale-95 transition-all">
+                  <Button variant="outline" className="h-20 flex flex-col gap-2 border-(--card-border) hover:bg-(--card-hover) hover:border-[#FBB03B]/30 active:scale-95 transition-all rounded-[12px]">
                     <Users2 className="h-5 w-5 text-emerald-500" />
                     <span className="text-xs font-bold uppercase tracking-widest">Lista de Clientes</span>
                   </Button>
-                  <Button variant="outline" className="h-20 flex flex-col gap-2 border-(--card-border) hover:bg-white dark:bg-[#1c1c1e]/5 active:scale-95 transition-all">
+                  <Button variant="outline" className="h-20 flex flex-col gap-2 border-(--card-border) hover:bg-(--card-hover) hover:border-[#FBB03B]/30 active:scale-95 transition-all rounded-[12px]">
                     <FileText className="h-5 w-5 text-violet-500" />
                     <span className="text-xs font-bold uppercase tracking-widest">Novo Orçamento</span>
                   </Button>
-                  <Button variant="outline" className="h-20 flex flex-col gap-2 border-(--card-border) hover:bg-white dark:bg-[#1c1c1e]/5 active:scale-95 transition-all">
+                  <Button variant="outline" className="h-20 flex flex-col gap-2 border-(--card-border) hover:bg-(--card-hover) hover:border-[#FBB03B]/30 active:scale-95 transition-all rounded-[12px]">
                     <Shield className="h-5 w-5 text-rose-500" />
                     <span className="text-xs font-bold uppercase tracking-widest">Segurança</span>
                   </Button>
                </CardContent>
              </Card>
 
-             <Card className="bg-(--card-bg) border-(--card-border) shadow-premium flex flex-col justify-center items-center text-center p-10">
-                <div className="w-16 h-16 bg-white dark:bg-[#1c1c1e]/5 rounded-full flex items-center justify-center mb-6 border border-white/10">
-                  <Globe className="h-8 w-8 text-white/40" />
+             <Card className="bg-(--card-bg) border-(--card-border) rounded-[14px] flex flex-col justify-center items-center text-center p-10">
+                <div className="w-16 h-16 bg-(--card-hover) border border-(--card-border) rounded-full flex items-center justify-center mb-6">
+                  <Globe className="h-8 w-8 text-(--text-tertiary)" />
                 </div>
                 <h3 className="text-xl font-bold mb-2">KV Group v1.5.0</h3>
                 <p className="text-sm text-(--text-secondary) max-w-[280px]">Você está utilizando a versão mais recente do sistema de gestão.</p>
@@ -238,7 +238,7 @@ export default function Configuracoes() {
         {/* --- PERFIL --- */}
         <TabsContent value="perfil" className="space-y-8 animate-in fade-in duration-500">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="md:col-span-1 bg-(--card-bg) border-(--card-border) shadow-premium overflow-hidden border-t-4 border-t-blue-500">
+            <Card className="md:col-span-1 bg-(--card-bg) border-(--card-border) rounded-[14px] overflow-hidden border-t-4 border-t-[#FBB03B]">
               <CardHeader className="text-center pb-2">
                 <div className="relative mx-auto w-24 h-24 mb-4">
                   <Avatar className="w-24 h-24 border-2 border-white/10 shadow-xl rounded-2xl">
@@ -247,7 +247,7 @@ export default function Configuracoes() {
                       {usuario?.user_metadata?.nome?.substring(0, 2) || 'AD'}
                     </AvatarFallback>
                   </Avatar>
-                  <label htmlFor="photo-upload" className="absolute -bottom-2 -right-2 bg-white dark:bg-[#1c1c1e] text-black p-2 rounded-xl shadow-lg cursor-pointer hover:bg-zinc-200 transition-colors border border-zinc-300">
+                  <label htmlFor="photo-upload" className="absolute -bottom-2 -right-2 bg-(--card-bg) border border-(--card-border) text-(--text-primary) p-2 rounded-xl shadow-lg cursor-pointer hover:bg-(--card-hover) transition-colors">
                     <Camera className="h-4 w-4" />
                     <input id="photo-upload" type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={isUpdatingPhoto} />
                   </label>
@@ -269,7 +269,7 @@ export default function Configuracoes() {
               </CardContent>
             </Card>
 
-            <Card className="md:col-span-2 bg-(--card-bg) border-(--card-border) shadow-premium">
+            <Card className="md:col-span-2 bg-(--card-bg) border-(--card-border) rounded-[14px]">
               <CardHeader>
                 <CardTitle className="text-lg">Informações Pessoais</CardTitle>
                 <CardDescription>Mantenha seus dados atualizados para contato.</CardDescription>
@@ -297,7 +297,7 @@ export default function Configuracoes() {
                   <Button 
                     onClick={handleUpdateProfile} 
                     disabled={isUpdatingProfile}
-                    className="bg-white dark:bg-[#1c1c1e] text-black hover:bg-zinc-200 h-11 px-8 font-bold"
+                    className="btn-brand h-11 px-8"
                   >
                     {isUpdatingProfile ? 'Salvando...' : 'Salvar Alterações'}
                   </Button>
@@ -333,7 +333,7 @@ export default function Configuracoes() {
         {/* --- EQUIPE --- */}
         <TabsContent value="equipe" className="space-y-6 animate-in fade-in duration-500">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Card className="bg-(--card-bg) border-(--card-border) shadow-premium">
+            <Card className="bg-(--card-bg) border-(--card-border) rounded-[14px]">
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                   <CardTitle className="text-lg">Membros Ativos</CardTitle>
@@ -341,7 +341,7 @@ export default function Configuracoes() {
                 </div>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button className="bg-white dark:bg-[#1c1c1e] text-black hover:bg-zinc-200">
+                    <Button className="btn-brand h-9 px-4 text-[13px]">
                       <UserPlus className="mr-2 h-4 w-4" /> Convidar
                     </Button>
                   </DialogTrigger>
@@ -355,13 +355,13 @@ export default function Configuracoes() {
                       <Input value={conviteEmail} onChange={e => setConviteEmail(e.target.value)} placeholder="exemplo@gmail.com" className="bg-background border-(--card-border) h-11" />
                     </div>
                     <DialogFooter>
-                      <Button onClick={handleConvidar} className="bg-white dark:bg-[#1c1c1e] text-black">Enviar convite</Button>
+                      <Button onClick={handleConvidar} className="btn-brand">Enviar convite</Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-muted rounded-xl border border-(--card-border)">
+                <div className="flex items-center justify-between p-4 bg-(--card-hover) rounded-[10px] border border-(--card-border)">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-9 w-9 border border-white/10">
                       <AvatarImage src={photoUrl} />
@@ -381,7 +381,7 @@ export default function Configuracoes() {
 
         {/* --- ORGANIZAÇÃO --- */}
         <TabsContent value="organizacao" className="space-y-6 animate-in fade-in duration-500">
-          <Card className="bg-(--card-bg) border-(--card-border) shadow-premium">
+          <Card className="bg-(--card-bg) border-(--card-border) rounded-[14px]">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle className="text-lg">Pastas de Clientes</CardTitle>
@@ -389,7 +389,7 @@ export default function Configuracoes() {
               </div>
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button className="bg-white dark:bg-[#1c1c1e] text-black hover:bg-zinc-200">
+                  <Button className="btn-brand h-9 px-4 text-[13px]">
                     <FolderPlus className="mr-2 h-4 w-4" /> Nova Pasta
                   </Button>
                 </DialogTrigger>
@@ -417,7 +417,7 @@ export default function Configuracoes() {
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button onClick={handleCriarPasta} className="bg-white dark:bg-[#1c1c1e] text-black">Criar</Button>
+                    <Button onClick={handleCriarPasta} className="btn-brand">Criar</Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
@@ -425,7 +425,7 @@ export default function Configuracoes() {
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {pastas?.map((p: any) => (
-                  <div key={p.$id} className="flex items-center justify-between p-4 bg-muted rounded-xl border border-(--card-border)">
+                  <div key={p.$id} className="flex items-center justify-between p-4 bg-(--card-hover) rounded-[10px] border border-(--card-border)">
                     <div className="flex items-center gap-3">
                       <div className={`w-3 h-3 rounded-full ${p.cor}`} />
                       <span className="font-bold text-sm tracking-tight">{p.nome}</span>
@@ -456,7 +456,7 @@ export default function Configuracoes() {
 
         {/* --- SEGURANCA --- */}
         <TabsContent value="seguranca" className="space-y-6 animate-in fade-in duration-500">
-           <Card className="bg-(--card-bg) border-(--card-border) shadow-premium">
+           <Card className="bg-(--card-bg) border-(--card-border) rounded-[14px]">
               <CardHeader>
                 <CardTitle className="text-lg">Alterar Senha</CardTitle>
                 <CardDescription>Mantenha sua conta protegida com uma senha complexa.</CardDescription>
@@ -478,7 +478,7 @@ export default function Configuracoes() {
                    <Button 
                      onClick={handleAlterarSenha} 
                      disabled={isChangingPassword || !senhaAtual || !novaSenha}
-                     className="bg-white dark:bg-[#1c1c1e] text-black hover:bg-zinc-200 h-11 px-8 font-bold"
+                     className="btn-brand h-11 px-8"
                    >
                      {isChangingPassword ? 'Atualizando...' : 'Atualizar Senha'}
                    </Button>
