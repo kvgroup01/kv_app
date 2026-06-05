@@ -44,14 +44,14 @@ export default function FunisIndex() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <GitBranch className="h-8 w-8 text-(--text-primary)" />
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Funis</h1>
+            <GitBranch className="h-5 w-5 text-(--text-tertiary)" />
+            <h2 className="text-[22px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.374px' }}>Funis</h2>
           </div>
-          <p className="text-muted-foreground mt-1">Crie e gerencie os fluxos do seu funil</p>
+          <p className="text-[13px] text-(--text-secondary) mt-1">Crie e gerencie os fluxos do seu funil</p>
         </div>
         
-        <Button onClick={() => navigate('/admin/funis/novo')}>
-          <Plus className="h-4 w-4 mr-2" />
+        <Button onClick={() => navigate('/admin/funis/novo')} className="btn-brand h-9 px-4 text-[13px] rounded-full">
+          <Plus className="h-3.5 w-3.5 mr-1.5" />
           Novo Funil
         </Button>
       </div>
@@ -71,25 +71,25 @@ export default function FunisIndex() {
           ))}
         </div>
       ) : funis?.length === 0 ? (
-        <Card className="flex flex-col items-center justify-center p-12 text-center border-dashed">
-          <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-            <GitBranch className="h-10 w-10 text-(--text-tertiary)" />
+        <Card className="flex flex-col items-center justify-center py-24 text-center border-dashed bg-(--card-bg) border-(--card-border) rounded-[14px]">
+          <div className="h-14 w-14 rounded-full bg-(--card-hover) border border-(--card-border) flex items-center justify-center mb-4">
+            <GitBranch className="h-6 w-6 text-(--text-tertiary)" />
           </div>
-          <h3 className="text-xl font-semibold mb-2">Nenhum funil criado ainda</h3>
-          <p className="text-muted-foreground mb-6 max-w-sm">
+          <h3 className="text-[15px] font-semibold text-(--text-primary) mb-1">Nenhum funil criado ainda</h3>
+          <p className="text-[13px] text-(--text-tertiary) mb-6 max-w-sm">
             Comece a mapear a jornada visualizando o seu fluxo de conversão.
           </p>
-          <Button onClick={() => navigate('/admin/funis/novo')}>
+          <Button onClick={() => navigate('/admin/funis/novo')} className="btn-brand h-9 px-4 text-[13px] rounded-full">
             Criar primeiro funil
           </Button>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {funis?.map((funil: any) => (
-            <Card key={funil.id || funil.$id} className="h-full flex flex-col group overflow-hidden border transition-colors hover:border-primary/50">
+            <Card key={funil.id || funil.$id} className="h-full flex flex-col group overflow-hidden bg-(--card-bg) border border-(--card-border) rounded-[14px] hover:border-[#FBB03B]/30 transition-colors">
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">
-                  <CardTitle className="text-lg leading-tight line-clamp-1" title={funil.nome}>
+                  <CardTitle className="text-[15px] font-semibold text-(--text-primary) leading-tight line-clamp-1" title={funil.nome} style={{ letterSpacing: '-0.2px' }}>
                     {funil.nome}
                   </CardTitle>
                   <DropdownMenu>
@@ -98,7 +98,7 @@ export default function FunisIndex() {
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" className="bg-(--card-bg) border-(--card-border) text-(--text-primary)">
                       <DropdownMenuItem onClick={() => navigate(`/admin/funis/${funil.id || funil.$id}/canvas`)}>
                         <Pencil className="h-4 w-4 mr-2" />
                         Editar Canvas
@@ -114,16 +114,16 @@ export default function FunisIndex() {
                   </DropdownMenu>
                 </div>
                 {funil.descricao && (
-                  <CardDescription className="line-clamp-2 text-sm mt-1">
+                  <CardDescription className="line-clamp-2 text-[13px] text-(--text-tertiary) mt-1">
                     {funil.descricao}
                   </CardDescription>
                 )}
               </CardHeader>
-              <CardContent className="flex-1 text-xs text-muted-foreground">
+              <CardContent className="flex-1 text-[12px] text-(--text-tertiary)">
                 <p>Criado em: {new Date(funil.criado_em).toLocaleDateString()}</p>
               </CardContent>
               <div 
-                className="p-4 border-t bg-muted/20 cursor-pointer hover:bg-muted/40 transition-colors flex items-center justify-center text-sm font-medium"
+                className="p-4 border-t border-(--card-border) bg-(--card-hover) cursor-pointer hover:bg-[#FBB03B]/5 hover:text-[#FBB03B] transition-colors flex items-center justify-center text-[13px] font-medium text-(--text-secondary)"
                 onClick={() => navigate(`/admin/funis/${funil.id || funil.$id}/canvas`)}
               >
                 Abrir Canvas
@@ -134,7 +134,7 @@ export default function FunisIndex() {
       )}
 
       <AlertDialog open={!!funilDeletar} onOpenChange={(open) => !open && setFunilDeletar(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-(--card-bg) border-(--card-border)">
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir funil?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -142,7 +142,7 @@ export default function FunisIndex() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel className="border-(--card-border) text-(--text-secondary)">Cancelar</AlertDialogCancel>
             <AlertDialogAction 
               onClick={confirmarExclusao}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"

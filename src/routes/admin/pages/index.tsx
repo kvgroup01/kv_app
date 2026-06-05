@@ -87,26 +87,25 @@ export default function PagesIndex() {
   const isLoading = clientesLoading || pagesLoading;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2 text-foreground">
-            <FileText className="w-6 h-6 text-[#FBB03B]" />
-            Páginas
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
+          <div className="flex items-center gap-2">
+            <FileText className="w-5 h-5 text-(--text-tertiary)" />
+            <h2 className="text-[22px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.374px' }}>Páginas</h2>
+          </div>
+          <p className="text-[13px] text-(--text-secondary) mt-1">
             Gerencie as landing pages dos seus clientes
           </p>
         </div>
-        <button
+        <Button
           onClick={() => setShowCreateModal(true)}
-          style={{ backgroundColor: '#FBB03B', color: '#1A1A1A' }}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
+          className="btn-brand h-9 px-4 text-[13px] rounded-full"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="h-3.5 w-3.5 mr-1.5" />
           Nova página
-        </button>
+        </Button>
       </div>
 
       {/* Conteúdo */}
@@ -123,21 +122,18 @@ export default function PagesIndex() {
         </div>
       ) : todasPaginas.length === 0 ? (
         // Estado vazio geral
-        <div className="flex flex-col items-center justify-center py-32 text-muted-foreground gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center">
-            <Globe className="w-8 h-8 opacity-40" />
+        <div className="flex flex-col items-center justify-center py-24 text-center border-dashed bg-(--card-bg) border border-(--card-border) rounded-[14px]">
+          <div className="h-14 w-14 rounded-full bg-(--card-hover) border border-(--card-border) flex items-center justify-center mb-4">
+            <Globe className="h-6 w-6 text-(--text-tertiary)" />
           </div>
-          <div className="text-center">
-            <p className="font-medium text-foreground">Nenhuma página criada ainda</p>
-            <p className="text-sm mt-1">Crie a primeira landing page de um cliente</p>
-          </div>
-          <button
+          <h3 className="text-[15px] font-semibold text-(--text-primary) mb-1">Nenhuma página criada ainda</h3>
+          <p className="text-[13px] text-(--text-tertiary) mb-6 max-w-sm">Crie a primeira landing page de um cliente.</p>
+          <Button
             onClick={() => setShowCreateModal(true)}
-            style={{ backgroundColor: '#FBB03B', color: '#1A1A1A' }}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity mt-2"
+            className="btn-brand h-9 px-4 text-[13px] rounded-full"
           >
-            <Plus className="w-4 h-4" /> Criar primeira página
-          </button>
+            Criar primeira página
+          </Button>
         </div>
       ) : (
         // Seções por cliente
@@ -165,32 +161,32 @@ export default function PagesIndex() {
                     {paginas.map(page => (
                       <div
                         key={page.id}
-                        className="border border-border rounded-xl p-5 bg-card hover:border-[#FBB03B]/40 transition-colors flex flex-col gap-3 cursor-pointer"
+                        className="bg-(--card-bg) border border-(--card-border) rounded-[14px] p-5 hover:border-[#FBB03B]/30 hover:bg-[#FBB03B]/5 transition-colors flex flex-col gap-3 cursor-pointer group"
                         onClick={() => navigate(`/admin/pages/${page.id}`)}
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-[15px] text-foreground truncate">{page.nome}</h3>
-                            <p className="text-xs text-muted-foreground truncate mt-0.5">/{page.slug}</p>
+                            <h3 className="font-semibold text-[15px] text-(--text-primary) mb-1" style={{ letterSpacing: '-0.2px' }}>{page.nome}</h3>
+                            <p className="text-[13px] text-(--text-tertiary) truncate">/{page.slug}</p>
                           </div>
                           {page.status === "published" ? (
-                            <span className="shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#FBB03B]/15 text-[#b07800] dark:text-[#FBB03B]">
+                            <span className="shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-[4px] bg-emerald-500/10 text-emerald-500">
                               Publicada
                             </span>
                           ) : (
-                            <span className="shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                            <span className="shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-[4px] bg-(--card-hover) text-(--text-tertiary)">
                               Rascunho
                             </span>
                           )}
                         </div>
 
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-[12px] text-(--text-tertiary)">
                           Atualizada {formatDistanceToNow(new Date(page.atualizado_em), { locale: ptBR, addSuffix: true })}
                         </p>
 
-                        <div className="flex gap-2 mt-auto pt-2 border-t border-border" onClick={e => e.stopPropagation()}>
+                        <div className="flex gap-2 mt-auto pt-4 border-t border-(--card-border)" onClick={e => e.stopPropagation()}>
                           <button
-                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-sm font-medium text-foreground bg-transparent hover:bg-accent transition-colors cursor-pointer"
+                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-[10px] border border-(--card-border) text-[13px] font-medium text-(--text-secondary) bg-transparent hover:bg-(--card-hover) hover:text-(--text-primary) transition-colors cursor-pointer"
                             onClick={() => navigate(`/admin/pages/${page.id}`)}
                           >
                             <Pencil className="w-3.5 h-3.5" /> Editar
@@ -200,13 +196,13 @@ export default function PagesIndex() {
                               href={`/${page.slug}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex items-center justify-center px-2.5 rounded-lg border border-border text-muted-foreground hover:bg-accent transition-colors cursor-pointer"
+                              className="flex items-center justify-center px-2.5 rounded-[10px] border border-(--card-border) text-(--text-secondary) hover:bg-(--card-hover) hover:text-(--text-primary) transition-colors cursor-pointer"
                             >
                               <ExternalLink className="w-3.5 h-3.5" />
                             </a>
                           )}
                           <button
-                            className="flex items-center justify-center px-2.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer"
+                            className="flex items-center justify-center px-2.5 rounded-[10px] text-(--text-tertiary) hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
                             onClick={() => handleDelete(page)}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -218,10 +214,10 @@ export default function PagesIndex() {
                     {/* Card "Nova página" para este cliente */}
                     <button
                       onClick={() => { setSelectedClienteId(cliente.id); setShowCreateModal(true); }}
-                      className="border-2 border-dashed border-border rounded-xl p-5 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-[#FBB03B]/50 hover:text-[#FBB03B] transition-colors min-h-[120px] group cursor-pointer"
+                      className="border border-dashed border-(--card-border) bg-(--card-bg) rounded-[14px] p-5 flex flex-col items-center justify-center gap-2 text-(--text-tertiary) hover:bg-[#FBB03B]/5 hover:border-[#FBB03B]/30 hover:text-[#FBB03B] transition-colors min-h-[120px] group cursor-pointer"
                     >
                       <Plus className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                      <span className="text-sm font-medium">Nova página</span>
+                      <span className="text-[13px] font-medium">Nova página</span>
                     </button>
                   </div>
                 </div>

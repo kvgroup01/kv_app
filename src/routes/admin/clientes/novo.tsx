@@ -57,7 +57,7 @@ export default function NovoCliente() {
   };
 
   return (
-    <div className="space-y-8 max-w-[560px] mx-auto pb-20">
+    <div className="space-y-8 max-w-[560px] mx-auto pb-20 animate-fade-in">
       <div className="flex items-center gap-4">
         <Button
           variant="ghost"
@@ -169,7 +169,7 @@ export default function NovoCliente() {
             <Button
               type="submit"
               disabled={criarMut.isPending || !nome || !slug}
-              className="h-10 px-8 bg-(--text-primary) text-(--card-bg) hover:opacity-90 font-medium text-[13px]"
+              className="btn-brand h-10 px-8 text-[13px] rounded-full"
             >
               {criarMut.isPending ? 'Criando...' : 'Finalizar Cadastro'}
             </Button>

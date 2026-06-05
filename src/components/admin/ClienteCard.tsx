@@ -50,12 +50,12 @@ export function ClienteCard({ cliente, onEditar, onDeletar, onMoverPasta }: Clie
   };
 
   return (
-    <div className="group bg-(--card-bg) border border-(--card-border) rounded-[12px] p-6 shadow-premium hover:border-[#2a2a2a] transition-all duration-200">
+    <div className="group bg-(--card-bg) border border-(--card-border) rounded-[14px] p-6 hover:border-[#FBB03B]/30 transition-all duration-200">
       {/* Header (Avatar + Actions) */}
       <div className="flex justify-between items-start mb-6">
         <Avatar className="h-14 w-14 rounded-[10px] border border-(--card-border) shadow-sm">
           <AvatarImage src={cliente.logo_url} alt={cliente.nome} className="object-cover" />
-          <AvatarFallback className="bg-primary text-primary-foreground font-semibold rounded-[10px] text-lg">
+          <AvatarFallback className="bg-[#1d1d1f] text-white font-semibold rounded-[10px] text-lg dark:bg-(--card-hover) dark:text-(--text-primary)">
             {getInitials(cliente.nome)}
           </AvatarFallback>
         </Avatar>
@@ -102,7 +102,7 @@ export function ClienteCard({ cliente, onEditar, onDeletar, onMoverPasta }: Clie
           </span>
           <span className={cn(
             "text-[11px] px-2 py-0.5 rounded-[4px] font-medium uppercase tracking-tight border border-transparent",
-            cliente.ativo ? "bg-emerald-500/10 text-emerald-500" : "bg-white/5 text-(--text-tertiary)"
+            cliente.ativo ? "bg-emerald-500/10 text-emerald-500" : "bg-(--card-hover) text-(--text-tertiary)"
           )}>
             {cliente.ativo ? 'Ativo' : 'Inativo'}
           </span>

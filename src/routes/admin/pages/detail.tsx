@@ -257,22 +257,22 @@ export default function PageDetail() {
   ];
 
   return (
-    <div className="space-y-0 -mt-2">
+    <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <button
           onClick={() => navigate("/admin/pages")}
-          className="p-1.5 rounded-lg hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
+          className="h-8 w-8 flex items-center justify-center text-(--text-tertiary) hover:text-(--text-primary) hover:bg-(--card-hover) rounded-[8px] transition-colors"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-4 h-4" />
         </button>
-        <h1 className="text-xl font-bold text-foreground flex-1 truncate">{page.nome}</h1>
+        <h2 className="text-[22px] font-semibold text-(--text-primary) flex-1 truncate" style={{ letterSpacing: '-0.374px' }}>{page.nome}</h2>
 
         {/* Status badge */}
-        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+        <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-[4px] ${
           page.status === "published"
-            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-            : "bg-muted text-muted-foreground"
+            ? "bg-emerald-500/10 text-emerald-500"
+            : "bg-(--card-hover) text-(--text-tertiary)"
         }`}>
           {page.status === "published" ? "Publicada" : "Rascunho"}
         </span>
@@ -294,10 +294,9 @@ export default function PageDetail() {
         {/* Abrir Editor */}
         <button
           onClick={() => navigate(`/admin/pages/${page.id}/editor`)}
-          style={{ backgroundColor: "#FBB03B", color: "#1A1A1A" }}
-          className="flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
+          className="btn-brand h-9 px-4 text-[13px] rounded-full flex items-center gap-2"
         >
-          <Pencil className="w-4 h-4" /> Abrir Editor
+          <Pencil className="w-3.5 h-3.5 mr-1" /> Abrir Editor
         </button>
 
         {/* Menu */}
@@ -323,48 +322,46 @@ export default function PageDetail() {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-border mb-6">
-        <div className="flex gap-0 overflow-x-auto pb-[-2px]">
+        <div className="flex gap-1 overflow-x-auto pb-[-2px] bg-(--card-hover) p-1 rounded-[12px] border border-(--card-border) w-fit mb-6">
           {tabs.map(tab => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2 text-[13px] font-medium rounded-[8px] transition-colors ${
                 activeTab === tab.key
-                  ? "border-[#FBB03B] text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
+                  ? "bg-(--card-bg) text-(--text-primary) shadow-sm"
+                  : "text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--card-bg)/50"
               }`}
             >
               {tab.icon} {tab.label}
             </button>
           ))}
         </div>
-      </div>
 
       {/* Tab: Resumo */}
       {activeTab === "resumo" && (
         <div className="space-y-4">
-          <div className="border border-border rounded-xl p-5 bg-card space-y-4">
+          <div className="bg-(--card-bg) border border-(--card-border) rounded-[14px] p-5 space-y-4">
             <div>
               <p className="text-xs text-muted-foreground mb-1">URL da página</p>
               <div className="flex items-center gap-2">
-                <code className="flex-1 text-sm bg-muted px-3 py-2 rounded-lg truncate text-foreground">
+                <code className="flex-1 text-[13px] bg-(--card-hover) text-(--text-secondary) px-3 py-2 rounded-[10px] truncate">
                   {window.location.origin}/p/{page.slug}
                 </code>
-                <button onClick={handleCopyLink} className="p-2 hover:bg-accent rounded-lg transition-colors">
-                  <Copy className="w-4 h-4 text-muted-foreground" />
+                <button onClick={handleCopyLink} className="p-2 hover:bg-(--card-hover) text-(--text-tertiary) hover:text-(--text-primary) rounded-[10px] transition-colors">
+                  <Copy className="w-4 h-4" />
                 </button>
                 {page.status === "published" && (
-                  <a href={`/p/${page.slug}`} target="_blank" rel="noopener noreferrer" className="p-2 hover:bg-accent rounded-lg transition-colors">
+                  <a href={`/p/${page.slug}`} target="_blank" rel="noopener noreferrer" className="p-2 hover:bg-(--card-hover) text-(--text-tertiary) hover:text-(--text-primary) rounded-[10px] transition-colors border border-transparent hover:border-(--card-border)">
                     <ExternalLink className="w-4 h-4 text-muted-foreground" />
                   </a>
                 )}
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border">
+            <div className="grid grid-cols-2 gap-4 pt-4 mt-4 border-t border-(--card-border)">
               <div>
-                <p className="text-xs text-muted-foreground mb-0.5">Status</p>
-                <p className="text-sm font-medium text-foreground">
+                <p className="text-[12px] font-semibold text-(--text-tertiary) uppercase tracking-wider mb-1">Status</p>
+                <p className="text-[13px] font-medium text-(--text-primary)">
                   {page.status === "published" ? "Publicada" : "Rascunho"}
                 </p>
               </div>

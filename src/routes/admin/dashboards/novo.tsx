@@ -200,28 +200,28 @@ export default function NovoDashboard() {
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-20">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/admin/dashboards')}>
+        <Button variant="ghost" size="icon" onClick={() => navigate('/admin/dashboards')} className="h-8 w-8 text-(--text-tertiary) hover:text-(--text-primary) hover:bg-(--card-hover) rounded-[8px]">
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Novo Dashboard</h1>
+        <h2 className="text-[22px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.374px' }}>Novo Dashboard</h2>
       </div>
 
       {/* Indicador de fluxo */}
       <div className="flex items-center justify-between relative mt-8 mb-12 px-6">
-        <div className="absolute left-[5%] top-1/2 -translate-y-1/2 w-[90%] h-0.5 bg-muted -z-10" />
+        <div className="absolute left-[5%] top-1/2 -translate-y-1/2 w-[90%] h-px bg-(--card-border) -z-10" />
         {steps.map((step, idx) => (
-          <div key={step.id} className="flex flex-col items-center gap-2 z-10 bg-background px-2">
+          <div key={step.id} className="flex flex-col items-center gap-2 z-10 bg-(--content-bg) px-2">
             <div className={cn(
               "h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold transition-all",
               passo > step.id ? "bg-[#FBB03B] text-black" :
               passo === step.id ? "bg-[#FBB03B] text-black outline outline-2 outline-[#FBB03B]/50" :
-              "bg-muted text-muted-foreground border-2 border-muted"
+              "bg-(--card-hover) text-(--text-tertiary) border border-(--card-border)"
             )}>
               {passo > step.id ? <Check className="h-4 w-4 stroke-[3]" /> : step.id}
             </div>
             <span className={cn(
               "text-xs font-semibold whitespace-nowrap",
-              passo >= step.id ? "text-foreground" : "text-muted-foreground"
+              passo >= step.id ? "text-foreground" : "text-(--text-tertiary)"
             )}>{step.label}</span>
           </div>
         ))}
@@ -229,10 +229,10 @@ export default function NovoDashboard() {
 
       {/* Passo 1 */}
       {passo === 1 && (
-        <Card className="border-border">
+        <Card className="bg-(--card-bg) border border-(--card-border) rounded-[14px]">
           <CardHeader>
-            <CardTitle>Identificação</CardTitle>
-            <CardDescription>Configure as informações básicas do lançamento</CardDescription>
+            <CardTitle className="text-[15px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.2px' }}>Identificação</CardTitle>
+            <CardDescription className="text-[13px] text-(--text-tertiary)">Configure as informações básicas do lançamento</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
@@ -305,15 +305,15 @@ export default function NovoDashboard() {
 
       {/* Passo 2 */}
       {passo === 2 && (
-        <Card className="border-border">
+        <Card className="bg-(--card-bg) border border-(--card-border) rounded-[14px]">
           <CardHeader>
-            <CardTitle>Quais dados você vai coletar?</CardTitle>
-            <CardDescription>Defina as colunas que serão guardadas de cada chumbo/lead.</CardDescription>
+            <CardTitle className="text-[15px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.2px' }}>Quais dados você vai coletar?</CardTitle>
+            <CardDescription className="text-[13px] text-(--text-tertiary)">Defina as colunas que serão guardadas de cada chumbo/lead.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-3">
               {form.colunas.map(col => (
-                <div key={col.nome} className="flex items-center justify-between p-3 border rounded-lg bg-card shadow-sm">
+                <div key={col.nome} className="flex items-center justify-between p-3 border border-(--card-border) rounded-[10px] bg-(--card-hover)">
                   <div className="flex items-center gap-3">
                     {col.fixo ? <Lock className="h-4 w-4 text-muted-foreground" /> : <div className="w-4" />}
                     <span className="font-semibold text-sm">{col.nome}</span>
@@ -358,7 +358,7 @@ export default function NovoDashboard() {
                 </div>
               </div>
             ) : (
-              <Button variant="outline" className="w-full border-dashed" onClick={() => setShowAddColuna(true)}>
+              <Button variant="outline" className="w-full border-dashed border-(--card-border) text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--card-hover) rounded-[10px] text-[13px]" onClick={() => setShowAddColuna(true)}>
                 <Plus className="h-4 w-4 mr-2" /> Adicionar coluna customizada
               </Button>
             )}
@@ -369,7 +369,7 @@ export default function NovoDashboard() {
       {/* Passo 3 */}
       {passo === 3 && (
         <div className="space-y-6">
-          <Card className="border-(--brand)/30 bg-(--brand)/5">
+          <Card className="bg-[#FBB03B]/5 border border-[#FBB03B]/20 rounded-[14px]">
             <CardHeader className="pb-3">
               <CardTitle className="text-(--brand) flex items-center gap-2">
                 <CircleCheck className="h-5 w-5" /> Seu webhook está pronto!
@@ -392,8 +392,8 @@ export default function NovoDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="border-border">
-            <CardHeader className="pb-3 border-b">
+          <Card className="bg-(--card-bg) border border-(--card-border) rounded-[14px]">
+            <CardHeader className="pb-3 border-b border-(--card-border)">
               <CardTitle className="text-base font-semibold">Payload de exemplo (JSON)</CardTitle>
             </CardHeader>
             <CardContent className="pt-4 relative">
@@ -411,8 +411,8 @@ export default function NovoDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="border-border">
-            <CardHeader className="pb-3 border-b">
+          <Card className="bg-(--card-bg) border border-(--card-border) rounded-[14px]">
+            <CardHeader className="pb-3 border-b border-(--card-border)">
               <CardTitle className="text-base font-semibold">Código JavaScript para Landing Page</CardTitle>
             </CardHeader>
             <CardContent className="pt-4 relative">
@@ -443,10 +443,10 @@ export default function NovoDashboard() {
       {/* Passo 4 */}
       {passo === 4 && (
         <div className="space-y-6">
-          <Card className="border-border">
+          <Card className="bg-(--card-bg) border border-(--card-border) rounded-[14px]">
             <CardHeader>
-              <CardTitle>Contas de Integração</CardTitle>
-              <CardDescription>Conecte sua conta de anúncios para extrair investimentos e relatórios automaticamente.</CardDescription>
+              <CardTitle className="text-[15px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.2px' }}>Contas de Integração</CardTitle>
+              <CardDescription className="text-[13px] text-(--text-tertiary)">Conecte sua conta de anúncios para extrair investimentos e relatórios automaticamente.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
                
@@ -512,10 +512,10 @@ export default function NovoDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="border-border">
+          <Card className="bg-(--card-bg) border border-(--card-border) rounded-[14px]">
             <CardHeader>
-              <CardTitle>Palavra-chave de filtro</CardTitle>
-              <CardDescription>Todas as campanhas que aparecerem no dashboard precisam conter esta palavra-chave no nome.</CardDescription>
+              <CardTitle className="text-[15px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.2px' }}>Palavra-chave de filtro</CardTitle>
+              <CardDescription className="text-[13px] text-(--text-tertiary)">Todas as campanhas que aparecerem no dashboard precisam conter esta palavra-chave no nome.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                <div className="flex items-center gap-2">
@@ -607,7 +607,7 @@ export default function NovoDashboard() {
 
       {/* Passo 5 */}
       {passo === 5 && (
-        <Card className="border-[var(--brand)]/20">
+        <Card className="bg-(--card-bg) border border-[#FBB03B]/20 rounded-[14px]">
           <CardHeader className="text-center pb-2">
             <div className="w-16 h-16 bg-[#FBB03B]/10 text-[#FBB03B] rounded-full flex items-center justify-center mx-auto mb-4">
               <Check className="h-8 w-8 stroke-[3]" />
@@ -659,7 +659,7 @@ export default function NovoDashboard() {
              <Button 
                 variant="outline" 
                 size="lg" 
-                className="w-full sm:w-1/2" 
+                className="w-full sm:w-1/2 border-(--card-border) text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--card-hover) rounded-[10px] text-[13px] h-10" 
                 onClick={() => handleSalvar('rascunho')}
                 disabled={criarLancamentoMutation.isPending}
               >
@@ -667,7 +667,7 @@ export default function NovoDashboard() {
              </Button>
              <Button 
                 size="lg" 
-                className="w-full sm:w-1/2" 
+                className="btn-brand w-full sm:w-1/2 h-10 text-[13px] rounded-full" 
                 onClick={() => handleSalvar('ativo')}
                 disabled={criarLancamentoMutation.isPending}
               >
@@ -679,12 +679,12 @@ export default function NovoDashboard() {
 
       {/* Controles do Footer */}
       {passo < 5 && (
-        <div className="flex justify-between items-center pt-8 border-t">
+        <div className="flex justify-between items-center pt-6 border-t border-(--card-border)">
           <Button 
             variant="ghost" 
             onClick={() => setPasso(p => Math.max(1, p - 1))}
             disabled={passo === 1}
-            className="text-muted-foreground"
+            className="text-(--text-tertiary) hover:text-(--text-primary) text-[13px] rounded-[8px]"
           >
             Voltar
           </Button>
@@ -692,6 +692,7 @@ export default function NovoDashboard() {
           <Button 
             onClick={() => setPasso(p => Math.min(5, p + 1))}
             disabled={!isPassoAtualValid()}
+            className="btn-brand h-9 px-6 text-[13px] rounded-full"
           >
             Continuar
           </Button>

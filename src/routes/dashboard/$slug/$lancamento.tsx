@@ -345,7 +345,7 @@ function DashboardContent({
         </section>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {secaoAtiva("funil") && (
           <section>
             <h3 className="text-xl font-bold mb-4">
@@ -405,7 +405,7 @@ function DashboardContent({
         </section>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {secaoAtiva("ranking_publicos") && (
           <section>
             <h3 className="text-xl font-bold mb-4">
@@ -538,9 +538,9 @@ function DashboardContent({
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 lg:px-8 py-6 lg:py-8">
+      <main className="container mx-auto px-4 lg:px-8 py-6 lg:py-8 animate-fade-in">
         <Tabs defaultValue="leads" className="space-y-6">
-          <TabsList className="bg-muted p-1">
+          <TabsList className="flex gap-1 overflow-x-auto pb-[-2px] bg-(--card-hover) p-1 rounded-[12px] border border-(--card-border) w-full md:w-fit scrollbar-none">
             <TabsTrigger value="leads" className="w-32">
               {dataLancamento.tipo === "whatsapp" ? "WhatsApp" : "Visão Geral"}
             </TabsTrigger>
@@ -565,7 +565,7 @@ function DashboardContent({
                     tipo="whatsapp"
                     isLoading={isLoadingDashboard}
                   />
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <FunnelWhatsApp
                       metricas={metricas}
                       onVendasChange={() => {}}
@@ -582,7 +582,7 @@ function DashboardContent({
                     tipo="whatsapp"
                     dateRange={dateRange}
                   />
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <RankingTable
                       titulo="Melhores Públicos"
                       items={publicos}
@@ -620,7 +620,7 @@ function DashboardContent({
                   tipo="whatsapp"
                   isLoading={isLoadingDashboard}
                 />
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <FunnelWhatsApp
                     metricas={metricas}
                     onVendasChange={() => {}}
@@ -637,7 +637,7 @@ function DashboardContent({
                   tipo="whatsapp"
                   dateRange={dateRange}
                 />
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <RankingTable
                     titulo="Melhores Públicos"
                     items={publicos}

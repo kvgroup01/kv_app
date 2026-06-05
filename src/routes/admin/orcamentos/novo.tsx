@@ -62,14 +62,14 @@ export default function OrcamentoNovo() {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto pb-12">
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/admin/orcamentos')}>
-          <ArrowLeft className="h-5 w-5" />
+    <div className="space-y-6 max-w-4xl mx-auto pb-12 animate-fade-in">
+      <div className="flex items-center gap-3 mb-6">
+        <Button variant="ghost" size="icon" onClick={() => navigate('/admin/orcamentos')} className="h-8 w-8 text-(--text-tertiary) hover:text-(--text-primary) hover:bg-(--card-hover) rounded-[8px]">
+          <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Novo orçamento</h2>
-          <p className="text-muted-foreground">Preencha os serviços e gere seu link de checkout.</p>
+          <h2 className="text-[22px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.374px' }}>Novo orçamento</h2>
+          <p className="text-[13px] text-(--text-secondary) mt-0.5">Preencha os serviços e gere seu link de checkout.</p>
         </div>
       </div>
 
@@ -86,26 +86,20 @@ export default function OrcamentoNovo() {
       }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-emerald-600">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100">
-                 ✓
-              </span>
-              Pronto! Orçamento gerado
+            <DialogTitle className="flex items-center gap-2.5 text-[17px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.2px' }}>
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500 text-sm font-bold">✓</span>
+              Orçamento gerado!
             </DialogTitle>
-            <DialogDescription>
-              O novo link já está ativo, preparado para envio e pronto para coletar pagamentos PIX com seu QRCode gerado.
+            <DialogDescription className="text-[13px] text-(--text-secondary)">
+              O link já está ativo e pronto para envio. Compartilhe com o cliente para receber via PIX.
             </DialogDescription>
           </DialogHeader>
           
           <div className="flex flex-col space-y-2 my-4">
-            <div className="flex items-center space-x-2 bg-muted/30 p-2 border rounded-md">
-              <Input 
-                readOnly 
-                value={linkPublico} 
-                className="bg-transparent border-none focus-visible:ring-0 shadow-none font-medium truncate" 
-              />
-              <Button size="sm" variant="secondary" onClick={copyLink}>
-                <Copy className="h-4 w-4 mr-2" /> Copiar
+            <div className="flex items-center gap-2 bg-(--card-hover) border border-(--card-border) p-2 rounded-[10px]">
+              <Input readOnly value={linkPublico} className="bg-transparent border-none focus-visible:ring-0 shadow-none text-[13px] text-(--text-primary) truncate h-8" />
+              <Button size="sm" variant="outline" onClick={copyLink} className="shrink-0 h-8 text-[12px] border-(--card-border) text-(--text-secondary) hover:text-(--text-primary) rounded-[7px]">
+                <Copy className="h-3.5 w-3.5 mr-1.5" /> Copiar
               </Button>
             </div>
             {CONFIG.APP_URL !== window.location.origin && (
@@ -116,13 +110,11 @@ export default function OrcamentoNovo() {
           </div>
 
           <DialogFooter className="flex flex-col sm:flex-row sm:justify-start gap-2 border-t pt-4">
-            <Button variant="outline" onClick={() => window.open(linkInterno, '_blank')} className="w-full sm:w-auto">
-              <ExternalLink className="h-4 w-4 mr-2" />
-              Ver Orçamento
+            <Button variant="outline" onClick={() => window.open(linkInterno, '_blank')} className="w-full sm:w-auto border-(--card-border) text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--card-hover) rounded-[8px] text-[13px]">
+              <ExternalLink className="h-3.5 w-3.5 mr-1.5" /> Ver Orçamento
             </Button>
-            <Button onClick={() => setSuccessToken(null)} className="w-full sm:w-auto">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Criar outro orçamento
+            <Button onClick={() => setSuccessToken(null)} className="btn-brand w-full sm:w-auto text-[13px] rounded-full">
+              <RefreshCw className="h-3.5 w-3.5 mr-1.5" /> Criar outro
             </Button>
           </DialogFooter>
         </DialogContent>

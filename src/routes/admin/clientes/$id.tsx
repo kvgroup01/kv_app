@@ -101,7 +101,7 @@ export default function EditarCliente() {
     <div className="space-y-10 max-w-[1000px] mx-auto pb-20">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-6">
-          <Button variant="ghost" size="icon" className="h-10 w-10 text-(--text-tertiary) hover:text-(--text-primary) hover:bg-white dark:bg-[#1c1c1e]/5 rounded-lg border border-transparent hover:border-(--card-border)" onClick={() => navigate('/admin/clientes')}>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-(--text-tertiary) hover:text-(--text-primary) hover:bg-(--card-hover) rounded-[8px]" onClick={() => navigate('/admin/clientes')}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
@@ -110,7 +110,7 @@ export default function EditarCliente() {
           </div>
         </div>
         {cliente && (
-           <Button variant="outline" className="h-10 px-6 border-(--card-border) hover:bg-[#1a1a1a] text-(--text-primary) text-[13px] font-medium" onClick={() => window.open(`${CONFIG.APP_URL}/dashboard/${cliente.slug}`, '_blank')}>
+           <Button variant="outline" className="h-9 px-4 border-(--card-border) text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--card-hover) text-[13px] rounded-[10px]" onClick={() => window.open(`${CONFIG.APP_URL}/dashboard/${cliente.slug}`, '_blank')}>
              <ExternalLink className="mr-2 h-4 w-4" /> Link do Dashboard
            </Button>
         )}
@@ -118,7 +118,7 @@ export default function EditarCliente() {
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* BLOCO 1: Informações Gerais */}
-        <div className="group relative bg-(--card-bg) border border-(--card-border) rounded-[12px] p-8 shadow-premium hover:border-[#2a2a2a] transition-all duration-200">
+        <div className="relative bg-(--card-bg) border border-(--card-border) rounded-[14px] p-8 transition-all duration-200">
           <div className="absolute top-0 left-6 right-6 h-[3px] bg-(--accent-blue) rounded-full" />
           
           <div className="mb-10">
@@ -131,7 +131,7 @@ export default function EditarCliente() {
                <div className="space-y-2">
                  <Label className="text-[13px] text-(--text-secondary)">Status da Conta</Label>
                  <Select value={ativo} onValueChange={setAtivo} disabled={atualizarMut.isPending}>
-                   <SelectTrigger className="h-11 bg-black/40 border-(--card-border) focus:ring-1 focus:ring-blue-500 rounded-lg">
+                   <SelectTrigger className="h-11 bg-(--card-hover) border-(--card-border) text-(--text-primary) focus:ring-1 focus:ring-blue-500 rounded-lg">
                      <SelectValue />
                    </SelectTrigger>
                    <SelectContent className="bg-(--card-bg) border-(--card-border) text-(--text-primary)">
@@ -152,7 +152,7 @@ export default function EditarCliente() {
                    value={nome}
                    onChange={e => setNome(e.target.value)}
                    disabled={atualizarMut.isPending}
-                   className="h-11 bg-black/40 border-(--card-border) focus-visible:ring-1 focus-visible:ring-blue-500"
+                   className="h-11 bg-(--card-hover) border-(--card-border) focus-visible:ring-1 focus-visible:ring-blue-500"
                    placeholder="Ex: Agência KV Group"
                  />
                </div>
@@ -167,7 +167,7 @@ export default function EditarCliente() {
                    value={slug}
                    onChange={e => setSlug(e.target.value)}
                    disabled={atualizarMut.isPending}
-                   className="h-11 bg-black/40 border-(--card-border) focus-visible:ring-1 focus-visible:ring-blue-500 font-mono text-[14px]"
+                   className="h-11 bg-(--card-hover) border-(--card-border) focus-visible:ring-1 focus-visible:ring-blue-500 font-mono text-[14px]"
                    placeholder="agencia-kv"
                 />
                 <div className="absolute right-4 top-1/2 -translate-y-1/2">
@@ -184,7 +184,7 @@ export default function EditarCliente() {
               <div className="space-y-2">
                 <Label className="text-[13px] text-(--text-secondary)">Tipo de Campanha</Label>
                 <Select value={tipoCampanha} onValueChange={setTipoCampanha} disabled={atualizarMut.isPending}>
-                  <SelectTrigger className="h-11 bg-black/40 border-(--card-border) rounded-lg">
+                  <SelectTrigger className="h-11 bg-(--card-hover) border-(--card-border) text-(--text-primary) rounded-lg">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-(--card-bg) border-(--card-border) text-(--text-primary)">
@@ -198,7 +198,7 @@ export default function EditarCliente() {
               <div className="space-y-2">
                 <Label className="text-[13px] text-(--text-secondary)">Pasta Organizacional</Label>
                 <Select value={pastaId} onValueChange={setPastaId} disabled={atualizarMut.isPending}>
-                  <SelectTrigger className="h-11 bg-black/40 border-(--card-border) rounded-lg">
+                  <SelectTrigger className="h-11 bg-(--card-hover) border-(--card-border) text-(--text-primary) rounded-lg">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-(--card-bg) border-(--card-border) text-(--text-primary)">
@@ -219,7 +219,7 @@ export default function EditarCliente() {
                  value={logoUrl}
                  onChange={e => setLogoUrl(e.target.value)}
                  disabled={atualizarMut.isPending}
-                 className="h-11 bg-black/40 border-(--card-border)"
+                 className="h-11 bg-(--card-hover) border-(--card-border)"
                  placeholder="https://exemplo.com/logo.png"
               />
             </div>
@@ -227,7 +227,7 @@ export default function EditarCliente() {
         </div>
 
         {/* BLOCO 2: Fonte de Dados */}
-        <div className="group relative bg-(--card-bg) border border-(--card-border) rounded-[12px] p-8 shadow-premium hover:border-[#2a2a2a] transition-all duration-200 animate-in fade-in slide-in-from-bottom-2">
+        <div className="relative bg-(--card-bg) border border-(--card-border) rounded-[14px] p-8 transition-all duration-200 animate-in fade-in slide-in-from-bottom-2">
           <div className="absolute top-0 left-6 right-6 h-[3px] bg-purple-500 rounded-full" />
           
           <div className="mb-10">
@@ -241,7 +241,7 @@ export default function EditarCliente() {
             <div className="space-y-2">
                <Label className="text-[13px] text-(--text-secondary)">Modo de Consumo</Label>
                <Select value={fonteDados} onValueChange={setFonteDados} disabled={atualizarMut.isPending}>
-                  <SelectTrigger className="h-11 bg-black/40 border-(--card-border) rounded-lg text-[14px]">
+                  <SelectTrigger className="h-11 bg-(--card-hover) border-(--card-border) text-(--text-primary) rounded-lg text-[14px]">
                      <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-(--card-bg) border-(--card-border) text-(--text-primary)">
@@ -264,7 +264,7 @@ export default function EditarCliente() {
                    value={spreadsheetId}
                    onChange={e => setSpreadsheetId(e.target.value)}
                    disabled={atualizarMut.isPending}
-                   className="h-11 bg-black/40 border-(--card-border) font-mono text-[13px]"
+                   className="h-11 bg-(--card-hover) border-(--card-border) font-mono text-[13px]"
                    placeholder="1ABCdefGHIjklMNOpqrSTUvwxYZ..."
                 />
                 <p className="text-[11px] text-(--text-tertiary) italic px-1 mt-2">
@@ -282,10 +282,10 @@ export default function EditarCliente() {
             )}
 
             <div className="pt-10 flex justify-end gap-4 border-t border-(--card-border)">
-              <Button type="button" variant="ghost" className="h-11 px-8 text-(--text-tertiary) hover:text-(--text-primary) hover:bg-white dark:bg-[#1c1c1e]/5" onClick={() => navigate('/admin/clientes')} disabled={atualizarMut.isPending}>
+              <Button type="button" variant="ghost" className="h-10 px-6 text-(--text-tertiary) hover:text-(--text-primary) hover:bg-(--card-hover) rounded-[8px] text-[13px]" onClick={() => navigate('/admin/clientes')} disabled={atualizarMut.isPending}>
                 Descartar
               </Button>
-              <Button type="submit" disabled={atualizarMut.isPending || !nome || !slug || (fonteDados === 'sheets' && !spreadsheetId)} className="h-11 px-10 bg-white dark:bg-[#1c1c1e] text-black hover:bg-zinc-200 text-[13px] font-semibold shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+              <Button type="submit" disabled={atualizarMut.isPending || !nome || !slug || (fonteDados === 'sheets' && !spreadsheetId)} className="btn-brand h-10 px-8 text-[13px] rounded-full">
                 {atualizarMut.isPending ? 'Sincronizando...' : 'Salvar Fonte & Perfil'}
               </Button>
             </div>

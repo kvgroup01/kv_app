@@ -319,7 +319,7 @@ export function LeadsTable({ lancamentoId, isLoading }: LeadsTableProps) {
       <div className="border rounded-md">
         <div className="w-full overflow-auto max-h-[600px]">
           <table className="w-full text-sm">
-            <thead className="bg-muted sticky top-0 z-10 shadow-sm border-b">
+            <thead className="bg-(--card-hover) sticky top-0 z-10 shadow-sm border-b border-(--card-border)">
               <tr>
                 <th className="p-3 text-left font-medium w-[40px]">
                   <Checkbox 
@@ -348,7 +348,7 @@ export function LeadsTable({ lancamentoId, isLoading }: LeadsTableProps) {
                 </tr>
               ) : (
                 leadsFiltrados.map((lead) => (
-                  <tr key={lead.$id} className="border-b last:border-0 hover:bg-muted/50">
+                  <tr key={lead.$id} className="border-b border-(--card-border) last:border-0 hover:bg-(--card-hover)">
                     <td className="p-3">
                       <Checkbox 
                         checked={selected.has(lead.$id)}

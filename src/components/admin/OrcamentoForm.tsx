@@ -106,13 +106,14 @@ export function OrcamentoForm({ clientes, onSubmit, isLoading }: OrcamentoFormPr
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="bg-(--card-bg) border-(--card-border) rounded-[14px]">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>1. Identificação do Cliente</CardTitle>
+            <CardTitle className="text-[15px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.2px' }}>1. Identificação do Cliente</CardTitle>
             <Button 
                variant="ghost" 
                size="sm" 
+               className="text-[12px] text-(--text-tertiary) hover:text-(--text-primary) h-7 px-3 rounded-[7px]"
                onClick={() => setModoCliente(m => m === 'existente' ? 'avulso' : 'existente')}
             >
               Mudar para {modoCliente === 'existente' ? 'Avulso' : 'Cadastrado'}
@@ -180,13 +181,13 @@ export function OrcamentoForm({ clientes, onSubmit, isLoading }: OrcamentoFormPr
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="bg-(--card-bg) border-(--card-border) rounded-[14px]">
         <CardHeader>
-          <CardTitle>2. Itens do Serviço</CardTitle>
-          <CardDescription>Adicione as descrições e custos do pacote</CardDescription>
+          <CardTitle className="text-[15px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.2px' }}>2. Itens do Serviço</CardTitle>
+          <CardDescription className="text-[13px] text-(--text-tertiary)">Adicione as descrições e custos do pacote</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="border rounded-md overflow-x-auto">
+          <div className="border border-(--card-border) rounded-[10px] overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -223,7 +224,7 @@ export function OrcamentoForm({ clientes, onSubmit, isLoading }: OrcamentoFormPr
                         onChange={(e) => handleItemChange(idx, 'valor_unitario', parseFloat(e.target.value) || 0)} 
                       />
                     </TableCell>
-                    <TableCell className="font-medium bg-muted/20">
+                    <TableCell className="font-medium bg-(--card-hover) text-(--text-primary)">
                       {fmtBRL(item.quantidade * item.valor_unitario)}
                     </TableCell>
                     <TableCell>
@@ -238,23 +239,23 @@ export function OrcamentoForm({ clientes, onSubmit, isLoading }: OrcamentoFormPr
           </div>
           
           <div className="flex justify-between items-end">
-             <Button variant="outline" onClick={handleAddItem}>
+             <Button variant="outline" onClick={handleAddItem} className="border-(--card-border) text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--card-hover) rounded-[8px] text-[13px] h-9">
                <Plus className="mr-2 h-4 w-4" /> Adicionar Item
              </Button>
              
-             <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-center space-x-6">
-                <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mr-4">Total a Pagar</span>
-                <span className="text-3xl font-bold tracking-tight text-primary">{fmtBRL(totalCalculado)}</span>
+             <div className="bg-(--card-hover) border border-(--card-border) rounded-[10px] p-4 flex items-center gap-6">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-(--text-tertiary)">Total a Pagar</span>
+                <span className="text-[28px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.5px' }}>{fmtBRL(totalCalculado)}</span>
              </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Seção 3: PIX Checkout */}
-      <Card>
+      <Card className="bg-(--card-bg) border-(--card-border) rounded-[14px]">
         <CardHeader>
-          <CardTitle>3. Configuração de Recebimento</CardTitle>
-          <CardDescription>O QR Code será gerado nativamente e embutido no orçamento público</CardDescription>
+          <CardTitle className="text-[15px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.2px' }}>3. Configuração de Recebimento</CardTitle>
+          <CardDescription className="text-[13px] text-(--text-tertiary)">O QR Code será gerado e embutido no link público do orçamento</CardDescription>
         </CardHeader>
         <CardContent className="grid md:grid-cols-2 gap-6">
           <div className="space-y-2">
@@ -269,23 +270,23 @@ export function OrcamentoForm({ clientes, onSubmit, isLoading }: OrcamentoFormPr
               A chave será automaticamente vinculada ao payload PIX com base no valor total apurado acima.
             </p>
 
-            <Button className="w-full mt-6" size="lg" onClick={handleSubmit} disabled={isLoading}>
-               Gerar Link de Orçamento
+            <Button className="btn-brand w-full mt-6 h-11 text-[14px]" onClick={handleSubmit} disabled={isLoading}>
+               {isLoading ? 'Gerando...' : 'Gerar Link de Orçamento'}
             </Button>
           </div>
 
-          <div className="flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-6 bg-muted/20">
+          <div className="flex flex-col items-center justify-center border-2 border-dashed border-(--card-border) rounded-[12px] p-6 bg-(--card-hover)">
               {qrCodeImg ? (
                  <div className="flex flex-col items-center space-y-4">
                    <div className="p-2 bg-white rounded-xl shadow-sm border">
                       <img src={qrCodeImg} alt="QR Code" className="w-[180px] h-[180px]" />
                    </div>
-                   <span className="text-sm font-medium text-emerald-600 dark:text-emerald-500">Preview do QR Code</span>
+                   <span className="text-[12px] font-medium text-emerald-500">Preview do QR Code</span>
                  </div>
               ) : (
-                <div className="flex flex-col items-center text-muted-foreground space-y-3 opacity-60">
-                   <QrCode className="h-16 w-16" />
-                   <span className="text-sm font-medium">Aguardando dados...</span>
+                <div className="flex flex-col items-center text-(--text-tertiary) space-y-3 opacity-50">
+                   <QrCode className="h-12 w-12" />
+                   <span className="text-[13px] font-medium">Aguardando dados...</span>
                 </div>
               )}
           </div>
