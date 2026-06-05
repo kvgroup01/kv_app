@@ -186,10 +186,10 @@ export default function OrcamentoPublico() {
     <div className="min-h-screen bg-[#f5f5f7]" style={{ colorScheme: 'light', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
   
       {/* NAV */}
-      <nav className="bg-[#1d1d1f] h-12 flex items-center justify-center sticky top-0 z-10">
-        <div className="flex items-center gap-2.5">
-          <KVMark size={18} color="#FBB03B" />
-          <span className="text-white font-semibold text-[15px] tracking-tight">
+      <nav className="bg-[#1d1d1f] h-16 flex items-center justify-center sticky top-0 z-10">
+        <div className="flex items-center gap-3">
+          <KVMark size={26} color="#FBB03B" />
+          <span className="text-white font-semibold text-[17px] tracking-tight">
             KV<span className="text-[#FBB03B]">GROUP</span>
           </span>
         </div>
