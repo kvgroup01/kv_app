@@ -31,6 +31,7 @@ export default function OrcamentoPublico() {
   const confirmarMutation = useConfirmarPagamento();
   
   const [qrCodeData, setQrCodeData] = React.useState<string>('');
+  const [pixPayload, setPixPayload] = React.useState<string>('');
 
   React.useEffect(() => {
     const generateQR = async () => {
@@ -46,6 +47,7 @@ export default function OrcamentoPublico() {
           
           const url = await QRCode.toDataURL(payload, { width: 250, margin: 1 });
           setQrCodeData(url);
+          setPixPayload(payload);
         } catch (err) {
           console.error('Erro ao gerar QR Code PIX:', err);
         }
@@ -56,25 +58,12 @@ export default function OrcamentoPublico() {
   }, [orcamento]);
 
   const copyPix = () => {
-    if (qrCodeData && orcamento?.pix_chave) {
-      // Re-gerar o payload puro (sem ser base64 de imagem)
-      const generatePayload = async () => {
-        try {
-          const { gerarPayloadPix } = await import('../../lib/utils');
-          const payload = gerarPayloadPix(
-            orcamento.pix_chave, 
-            orcamento.valor_total, 
-            'Gestor de Trafego', 
-            'Sao Paulo'
-          );
-          navigator.clipboard.writeText(payload);
-          toast.success('PIX Copia e Cola copiado!');
-        } catch (err) {
-          toast.error('Erro ao copiar payload PIX');
-        }
-      };
-      generatePayload();
+    if (!pixPayload) {
+      toast.error('Código PIX ainda não foi gerado');
+      return;
     }
+    navigator.clipboard.writeText(pixPayload);
+    toast.success('PIX Copia e Cola copiado!');
   };
 
   if (isLoading) {
@@ -304,7 +293,7 @@ export default function OrcamentoPublico() {
                   </p>
                   <div className="flex items-center bg-white border border-[#e5e5e7] rounded-xl px-4 py-3 gap-3">
                     <span className="font-mono text-[12px] text-[#8e8e93] flex-1 truncate min-w-0">
-                      {orcamento.pix_chave} (Código gerado)
+                      {pixPayload || 'Gerando código...'}
                     </span>
                     <button
                       onClick={copyPix}
