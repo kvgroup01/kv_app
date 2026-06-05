@@ -3,6 +3,7 @@ import { useParams } from 'react-router';
 import { AlertCircle, CircleCheck, Copy, Receipt } from 'lucide-react';
 import { toast } from 'sonner';
 import QRCode from 'qrcode';
+import confetti from 'canvas-confetti';
 
 import { useOrcamentoPorToken, useConfirmarPagamento } from '../../hooks/useOrcamentos';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -56,6 +57,40 @@ export default function OrcamentoPublico() {
 
     generateQR();
   }, [orcamento]);
+
+  React.useEffect(() => {
+    if (paymentStatus !== 'success') return;
+
+    const timer = setTimeout(() => {
+      const end = Date.now() + 3 * 1000;
+      const colors = ['#FBB03B', '#ffffff', '#f5f5f7', '#bc842c'];
+
+      const frame = () => {
+        if (Date.now() > end) return;
+        confetti({
+          particleCount: 2,
+          angle: 60,
+          spread: 55,
+          startVelocity: 60,
+          origin: { x: 0, y: 0.5 },
+          colors,
+        });
+        confetti({
+          particleCount: 2,
+          angle: 120,
+          spread: 55,
+          startVelocity: 60,
+          origin: { x: 1, y: 0.5 },
+          colors,
+        });
+        requestAnimationFrame(frame);
+      };
+
+      frame();
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [paymentStatus]);
 
   const copyPix = () => {
     if (!pixPayload) {
