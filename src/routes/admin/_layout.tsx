@@ -25,9 +25,9 @@ export default function AdminLayout() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen w-full flex flex-col items-center justify-center gap-4 bg-muted/20">
-        <Skeleton className="h-16 w-16 rounded-xl" />
-        <Skeleton className="h-4 w-[250px]" />
+      <div className="min-h-screen w-full flex flex-col items-center justify-center gap-3 bg-(--content-bg)">
+        <Skeleton className="h-12 w-12 rounded-[10px]" />
+        <Skeleton className="h-3 w-[180px]" />
       </div>
     );
   }
@@ -63,8 +63,8 @@ export default function AdminLayout() {
         </div>
       ) : (
         <main className={cn(
-          "flex-1 w-full h-full min-h-screen relative p-4 md:p-8 lg:p-10 pb-20 overflow-y-auto overflow-x-hidden transition-all duration-300",
-          isSidebarCollapsed ? "md:ml-20" : "md:ml-64"
+          "flex-1 w-full h-full min-h-screen relative p-4 md:p-6 lg:p-8 pb-20 overflow-y-auto overflow-x-hidden transition-all duration-300",
+          isSidebarCollapsed ? "md:ml-[68px]" : "md:ml-[220px]"
         )}>
            {/* O Outlet renderiza as rotas filhas ali dentro */}
            <div className="max-w-[1400px] mx-auto w-full">
