@@ -26,36 +26,37 @@ export default function OrcamentoNovo() {
   const criarMut = useCriarOrcamento();
   
   const [successToken, setSuccessToken] = React.useState<string | null>(null);
-  const [previewData, setPreviewData] = React.useState({
-    clienteNome: '',
-    itens: [{ descricao: '', quantidade: 1, valor_unitario: 0 }],
-    pixChave: '',
-  });
+  
+  // Estado compartilhado
+  const [modoCliente, setModoCliente] = React.useState<'existente' | 'avulso'>('existente');
+  const [clienteSelecionado, setClienteSelecionado] = React.useState('');
+  const [nomeAvulso, setNomeAvulso] = React.useState('');
+  const [itens, setItens] = React.useState([{ descricao: '', quantidade: 1, valor_unitario: 0 }]);
+  const [pixChave, setPixChave] = React.useState('');
 
-  const handleSubmit = (data: OrcamentoFormData) => {
-    // Calcula valor total pra salvar na store para rankings
-    const valor_total = data.itens.reduce((acc, i) => acc + (i.quantidade * i.valor_unitario), 0);
+  const clienteNome = React.useMemo(() => {
+    if (modoCliente === 'avulso') return nomeAvulso;
+    return clientes.find(c => c.$id === clienteSelecionado)?.nome || '';
+  }, [modoCliente, nomeAvulso, clienteSelecionado, clientes]);
+
+  const handleSubmit = () => {
+    if (!clienteNome) { toast.error('Informe o nome do cliente.'); return; }
+    if (!pixChave) { toast.error('Informe a chave PIX.'); return; }
+    const itensValidos = itens.filter(i => i.descricao.trim() !== '' && i.valor_unitario > 0);
+    if (itensValidos.length === 0) { toast.error('Adicione pelo menos um item.'); return; }
 
     criarMut.mutate({
-      cliente_id: data.cliente_id || null,
-      cliente_nome: data.cliente_nome,
-      itens: data.itens,
-      pix_chave: data.pix_chave,
+      cliente_id: modoCliente === 'existente' ? clienteSelecionado : undefined,
+      cliente_nome: clienteNome,
+      itens: itensValidos,
+      pix_chave: pixChave,
     }, {
       onSuccess: (responseData) => {
-        // AppWrite retorna o doc criado
-        if (responseData && responseData.token) {
-          setSuccessToken(responseData.token);
-          toast.success("Orçamento gerado com sucesso!");
-        } else {
-           // Fallback seguro caso não retorne o Objeto no interceptor (devido ao MOCK atual)
-           setSuccessToken('demo-token-1234');
-           toast.success("Orçamento gerado com sucesso!");
-        }
+        setSuccessToken(responseData?.token || 'demo-token-1234');
+        toast.success('Orçamento gerado com sucesso!');
       },
       onError: (err: any) => {
-        console.error("Erro ao criar orçamento:", err);
-        toast.error(`Erro ao gerar Orçamento: ${err.message || 'Erro desconhecido'}`);
+        toast.error(`Erro: ${err.message || 'Erro desconhecido'}`);
       }
     });
   };
@@ -85,11 +86,20 @@ export default function OrcamentoNovo() {
         
         {/* Formulário */}
         <div className="flex-1 min-w-0 w-full">
-          <OrcamentoForm 
-            clientes={clientes} 
-            onSubmit={handleSubmit} 
-            isLoading={criarMut.isPending || isLoadingClientes} 
-            onDataChange={setPreviewData}
+          <OrcamentoForm
+            clientes={clientes}
+            isLoading={criarMut.isPending || isLoadingClientes}
+            modoCliente={modoCliente}
+            setModoCliente={setModoCliente}
+            clienteSelecionado={clienteSelecionado}
+            setClienteSelecionado={setClienteSelecionado}
+            nomeAvulso={nomeAvulso}
+            setNomeAvulso={setNomeAvulso}
+            itens={itens}
+            setItens={setItens}
+            pixChave={pixChave}
+            setPixChave={setPixChave}
+            onSubmit={handleSubmit}
           />
         </div>
 
@@ -100,13 +110,15 @@ export default function OrcamentoNovo() {
           </div>
           <IphoneFrame scale={0.42}>
             <OrcamentoPreview
-              clienteNome={previewData.clienteNome}
-              itens={previewData.itens}
-              pixChave={previewData.pixChave}
+              clienteNome={clienteNome}
+              itens={itens}
+              setItens={setItens}
+              pixChave={pixChave}
+              setPixChave={setPixChave}
             />
           </IphoneFrame>
           <p className="text-[11px] text-(--text-tertiary) text-center max-w-[180px]">
-            Assim o cliente verá o link gerado
+            Clique nos textos para editar
           </p>
         </div>
 

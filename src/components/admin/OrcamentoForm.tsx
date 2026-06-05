@@ -21,36 +21,34 @@ export interface OrcamentoFormData {
 
 interface OrcamentoFormProps {
   clientes: Cliente[];
-  onSubmit: (data: OrcamentoFormData) => void;
   isLoading?: boolean;
-  onDataChange?: (data: { clienteNome: string; itens: OrcamentoFormData['itens']; pixChave: string }) => void;
+  onSubmit: () => void;
+  // Estado controlado pelo pai:
+  modoCliente: 'existente' | 'avulso';
+  setModoCliente: (v: 'existente' | 'avulso') => void;
+  clienteSelecionado: string;
+  setClienteSelecionado: (v: string) => void;
+  nomeAvulso: string;
+  setNomeAvulso: (v: string) => void;
+  itens: { descricao: string; quantidade: number; valor_unitario: number }[];
+  setItens: React.Dispatch<React.SetStateAction<{ descricao: string; quantidade: number; valor_unitario: number }[]>>;
+  pixChave: string;
+  setPixChave: (v: string) => void;
 }
 
-export function OrcamentoForm({ clientes, onSubmit, isLoading, onDataChange }: OrcamentoFormProps) {
-  // Seção 1 states
-  const [modoCliente, setModoCliente] = React.useState<'existente' | 'avulso'>('existente');
-  const [clienteSelecionado, setClienteSelecionado] = React.useState<string>("");
-  const [nomeAvulso, setNomeAvulso] = React.useState("");
+export function OrcamentoForm({
+  clientes, isLoading, onSubmit,
+  modoCliente, setModoCliente,
+  clienteSelecionado, setClienteSelecionado,
+  nomeAvulso, setNomeAvulso,
+  itens, setItens,
+  pixChave, setPixChave,
+}: OrcamentoFormProps) {
+  // Apenas estados locais visuais
   const [comboboxOpen, setComboboxOpen] = React.useState(false);
-
-  // Seção 2 states
-  const [itens, setItens] = React.useState([{ descricao: '', quantidade: 1, valor_unitario: 0 }]);
-
-  // Seção 3 states
-  const [pixChave, setPixChave] = React.useState("");
   const [qrCodeImg, setQrCodeImg] = React.useState("");
 
   const totalCalculado = itens.reduce((acc, item) => acc + (item.quantidade * item.valor_unitario), 0);
-
-  // Notificar pai das mudanças
-  React.useEffect(() => {
-    if (!onDataChange) return;
-    const isAvulso = modoCliente === 'avulso';
-    const finalNome = isAvulso
-      ? nomeAvulso
-      : clientes.find(c => c.$id === clienteSelecionado)?.nome || '';
-    onDataChange({ clienteNome: finalNome, itens, pixChave });
-  }, [modoCliente, nomeAvulso, clienteSelecionado, itens, pixChave, clientes]);
 
   // Gera o QRCode sempre que a chave e o valor total mudam
   React.useEffect(() => {
@@ -84,35 +82,9 @@ export function OrcamentoForm({ clientes, onSubmit, isLoading, onDataChange }: O
     setItens(newItens);
   };
 
-  const handleSubmit = () => {
-    // Validations basic
-    const isAvulso = modoCliente === 'avulso';
-    const finalNome = isAvulso ? nomeAvulso : clientes.find(c => c.$id === clienteSelecionado)?.nome || '';
-    const finalId = isAvulso ? undefined : clienteSelecionado;
-
-    if (!finalNome) {
-      toast.error("Por favor, informe o nome do cliente.");
-      return;
-    }
-
-    if (!pixChave) {
-      toast.error("Por favor, informe a chave PIX.");
-      return;
-    }
-
-    // Clean empty items
-    const itensValidos = itens.filter(i => i.descricao.trim() !== '' && i.valor_unitario > 0);
-    if(itensValidos.length === 0) {
-      toast.error("Adicione pelo menos um item com descrição e valor.");
-      return;
-    }
-
-    onSubmit({
-      cliente_id: finalId,
-      cliente_nome: finalNome,
-      itens: itensValidos,
-      pix_chave: pixChave
-    });
+  // O onSubmit apenas passamos do componente pai
+  const handleBotaoSubmit = () => {
+    onSubmit();
   };
 
   return (
@@ -281,7 +253,7 @@ export function OrcamentoForm({ clientes, onSubmit, isLoading, onDataChange }: O
               A chave será automaticamente vinculada ao payload PIX com base no valor total apurado acima.
             </p>
 
-            <Button className="btn-brand w-full mt-6 h-11 text-[14px]" onClick={handleSubmit} disabled={isLoading}>
+            <Button className="btn-brand w-full mt-6 h-11 text-[14px]" onClick={handleBotaoSubmit} disabled={isLoading}>
                {isLoading ? 'Gerando...' : 'Gerar Link de Orçamento'}
             </Button>
           </div>
