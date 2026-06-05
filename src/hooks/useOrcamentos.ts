@@ -42,6 +42,25 @@ async function deleteOrcamento(id: string) {
   return true;
 }
 
+async function editarOrcamento(id: string, itens: any[], pix_chave: string) {
+  const valor_total = itens.reduce(
+    (acc, item) => acc + (item.quantidade * item.valor_unitario), 0
+  );
+  const { data, error } = await supabase
+    .from('orcamentos')
+    .update({
+      itens: JSON.stringify(itens),
+      valor_total,
+      pix_chave,
+      atualizado_em: new Date().toISOString(),
+    })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return { ...data, $id: data.id, $createdAt: data.criado_em };
+}
+
 // Em Supabase precisamos subir o arquivo no bucket 'pagamentos' (ou similar) primeiro, e então inserir o registro
 async function confirmPagamento(orcamento_id: string, arquivoFile: File, observacao?: string) {
   const fileExt = arquivoFile.name.split('.').pop();
@@ -164,6 +183,17 @@ export function useDeletarOrcamento() {
   
   return useMutation({
     mutationFn: (id: string) => deleteOrcamento(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ORCAMENTOS_KEY });
+    },
+  });
+}
+
+export function useEditarOrcamento() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, itens, pix_chave }: { id: string; itens: any[]; pix_chave: string }) =>
+      editarOrcamento(id, itens, pix_chave),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ORCAMENTOS_KEY });
     },

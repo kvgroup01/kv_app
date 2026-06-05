@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { useNavigate, Link } from 'react-router';
-import { Plus, Copy, MoreVertical, Eye, CircleCheck, XCircle, Trash2, FileText, ExternalLink, Download } from 'lucide-react';
+import { Plus, Copy, MoreVertical, Eye, CircleCheck, XCircle, Trash2, FileText, ExternalLink, Download, Pencil, Trash } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { useOrcamentos, useAtualizarStatusOrcamento, useDeletarOrcamento } from '../../../hooks/useOrcamentos';
+import { useOrcamentos, useAtualizarStatusOrcamento, useDeletarOrcamento, useEditarOrcamento } from '../../../hooks/useOrcamentos';
 import { Card, CardContent } from '../../../components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../components/ui/table';
 import { Button } from '../../../components/ui/button';
@@ -38,8 +38,36 @@ export default function OrcamentosIndex() {
   const { data: orcamentos, isLoading } = useOrcamentos();
   const updateStatusMut = useAtualizarStatusOrcamento();
   const deletarMut = useDeletarOrcamento();
+  const editarMut = useEditarOrcamento();
 
   const [orcamentoToDelete, setOrcamentoToDelete] = React.useState<string | null>(null);
+
+  const [orcamentoEditando, setOrcamentoEditando] = React.useState<any | null>(null);
+  const [editItens, setEditItens] = React.useState<{ descricao: string; quantidade: number; valor_unitario: number }[]>([]);
+  const [editPixChave, setEditPixChave] = React.useState('');
+
+  const handleAbrirEdicao = (orcamento: any) => {
+    const itens = typeof orcamento.itens === 'string' ? JSON.parse(orcamento.itens) : orcamento.itens;
+    setEditItens(Array.isArray(itens) ? itens : []);
+    setEditPixChave(orcamento.pix_chave || '');
+    setOrcamentoEditando(orcamento);
+  };
+
+  const handleSalvarEdicao = () => {
+    if (!orcamentoEditando) return;
+    const itensValidos = editItens.filter(i => i.descricao.trim() !== '' && i.valor_unitario > 0);
+    if (itensValidos.length === 0) { toast.error('Adicione pelo menos um item válido.'); return; }
+    if (!editPixChave.trim()) { toast.error('Informe a chave PIX.'); return; }
+    editarMut.mutate(
+      { id: orcamentoEditando.$id, itens: itensValidos, pix_chave: editPixChave },
+      {
+        onSuccess: () => { toast.success('Orçamento atualizado!'); setOrcamentoEditando(null); },
+        onError: () => toast.error('Erro ao salvar alterações.'),
+      }
+    );
+  };
+
+  const editTotal = editItens.reduce((acc, i) => acc + i.quantidade * i.valor_unitario, 0);
 
   const [detalhesOrcamento, setDetalhesOrcamento] = React.useState<any | null>(null);
   const [pagamento, setPagamento] = React.useState<any | null>(null);
@@ -191,6 +219,11 @@ export default function OrcamentosIndex() {
                               <DropdownMenuItem onClick={() => handleVerDetalhes(orcamento)} className="cursor-pointer hover:bg-(--card-hover)">
                                 <Eye className="mr-2 h-4 w-4 text-(--text-tertiary)" /> Ver detalhes
                               </DropdownMenuItem>
+                              {orcamento.status !== 'pago' && (
+                                <DropdownMenuItem onClick={() => handleAbrirEdicao(orcamento)} className="cursor-pointer hover:bg-(--card-hover)">
+                                  <Pencil className="mr-2 h-4 w-4 text-(--text-tertiary)" /> Editar orçamento
+                                </DropdownMenuItem>
+                              )}
                               <DropdownMenuSeparator className="bg-(--card-border)" />
                               {orcamento.status !== 'pago' && (
                                 <DropdownMenuItem onClick={() => handleChangeStatus(orcamento.$id, 'pago')} className="cursor-pointer hover:bg-(--card-hover)">
@@ -362,6 +395,97 @@ export default function OrcamentosIndex() {
                   <ExternalLink className="w-4 h-4" />
                   Ver proposta completa
                 </Button>
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
+
+      {/* Sheet de Edição */}
+      <Sheet open={!!orcamentoEditando} onOpenChange={(open) => !open && setOrcamentoEditando(null)}>
+        <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+          {orcamentoEditando && (
+            <>
+              <SheetHeader className="mb-6">
+                <SheetTitle className="text-[17px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.2px' }}>
+                  Editar — {orcamentoEditando.cliente_nome}
+                </SheetTitle>
+              </SheetHeader>
+
+              <div className="space-y-6">
+                {/* Itens */}
+                <div className="space-y-3">
+                  <p className="text-[11px] font-semibold text-(--text-tertiary) uppercase tracking-widest">Itens do Serviço</p>
+                  {editItens.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-2 bg-(--card-hover) border border-(--card-border) rounded-[10px] p-3">
+                      <div className="flex-1 space-y-2">
+                        <input
+                          className="w-full bg-transparent text-[13px] text-(--text-primary) border-b border-(--card-border) pb-1 outline-none focus:border-[#FBB03B]"
+                          placeholder="Descrição do serviço"
+                          value={item.descricao}
+                          onChange={e => setEditItens(prev => prev.map((it, i) => i === idx ? { ...it, descricao: e.target.value } : it))}
+                        />
+                        <div className="flex gap-2">
+                          <input
+                            type="number"
+                            className="w-16 bg-transparent text-[12px] text-(--text-secondary) border-b border-(--card-border) pb-1 outline-none focus:border-[#FBB03B]"
+                            placeholder="Qtd"
+                            value={item.quantidade}
+                            onChange={e => setEditItens(prev => prev.map((it, i) => i === idx ? { ...it, quantidade: parseFloat(e.target.value) || 0 } : it))}
+                          />
+                          <input
+                            type="number"
+                            className="flex-1 bg-transparent text-[12px] text-(--text-secondary) border-b border-(--card-border) pb-1 outline-none focus:border-[#FBB03B]"
+                            placeholder="Valor unitário"
+                            value={item.valor_unitario}
+                            onChange={e => setEditItens(prev => prev.map((it, i) => i === idx ? { ...it, valor_unitario: parseFloat(e.target.value) || 0 } : it))}
+                          />
+                          <span className="text-[12px] font-semibold text-(--text-primary) whitespace-nowrap self-end pb-1">
+                            {fmtBRL(item.quantidade * item.valor_unitario)}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setEditItens(prev => prev.filter((_, i) => i !== idx))}
+                        className="h-7 w-7 flex items-center justify-center rounded-[7px] text-red-400 hover:bg-red-500/10 transition-colors shrink-0"
+                      >
+                        <Trash className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => setEditItens(prev => [...prev, { descricao: '', quantidade: 1, valor_unitario: 0 }])}
+                    className="text-[13px] text-[#FBB03B] hover:underline font-medium"
+                  >
+                    + Adicionar item
+                  </button>
+                </div>
+
+                {/* Total */}
+                <div className="flex justify-between items-center py-3 border-t border-(--card-border)">
+                  <span className="text-[13px] font-semibold text-(--text-secondary)">Total a pagar</span>
+                  <span className="text-[20px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.3px' }}>{fmtBRL(editTotal)}</span>
+                </div>
+
+                {/* PIX */}
+                <div className="space-y-2">
+                  <p className="text-[11px] font-semibold text-(--text-tertiary) uppercase tracking-widest">Chave PIX</p>
+                  <input
+                    className="w-full bg-(--card-hover) border border-(--card-border) rounded-[10px] px-3 py-2.5 text-[13px] text-(--text-primary) outline-none focus:border-[#FBB03B] transition-colors"
+                    placeholder="CPF, CNPJ, Email ou Telefone"
+                    value={editPixChave}
+                    onChange={e => setEditPixChave(e.target.value)}
+                  />
+                </div>
+
+                {/* Botão salvar */}
+                <button
+                  onClick={handleSalvarEdicao}
+                  disabled={editarMut.isPending}
+                  className="w-full h-11 rounded-full bg-[#FBB03B] text-black font-semibold text-[14px] hover:bg-[#f5a623] transition-colors disabled:opacity-50"
+                >
+                  {editarMut.isPending ? 'Salvando...' : 'Salvar alterações'}
+                </button>
               </div>
             </>
           )}
