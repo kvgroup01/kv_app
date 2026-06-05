@@ -218,13 +218,13 @@ export default function IntegracoesPage() {
     return (
       <div className="max-w-5xl mx-auto mt-8 p-6 space-y-8">
         <div>
-          <h1 className="text-2xl md:text-[28px] font-bold text-(--text-primary)">Integrações</h1>
-          <p className="text-[14px] text-(--text-secondary) mt-1">Conecte suas ferramentas e fontes de dados.</p>
+          <h2 className="text-[22px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.374px' }}>Integrações</h2>
+          <p className="text-[13px] text-(--text-secondary) mt-1">Conecte suas ferramentas e fontes de dados.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
           {/* SEÇÃO 1: Meta Ads */}
-          <Card className="bg-(--card-bg) border-(--card-border) shadow-sm rounded-xl flex flex-col overflow-hidden">
+          <Card className="bg-(--card-bg) border-(--card-border) rounded-[14px] flex flex-col overflow-hidden">
             <CardHeader className="pb-4">
               <div className="flex items-center gap-3 flex-nowrap">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Meta_Platforms_Inc._logo_%28cropped%29.svg" alt="Meta" style={{ height: 24, width: 'auto' }} className="shrink-0" />
@@ -305,7 +305,7 @@ export default function IntegracoesPage() {
                     <Button
                       variant="outline"
                       onClick={handleConnect}
-                      className="w-full border-(--card-border) text-(--text-primary) hover:bg-background h-11"
+                      className="w-full border-(--card-border) text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--card-hover) h-10 rounded-[10px] text-[13px]"
                     >
                       Adicionar conta
                     </Button>
@@ -333,7 +333,7 @@ export default function IntegracoesPage() {
           </Card>
 
           {/* SEÇÃO 2: Google Sheets */}
-          <Card className="bg-(--card-bg) border-(--card-border) shadow-sm rounded-xl flex flex-col overflow-hidden">
+          <Card className="bg-(--card-bg) border-(--card-border) rounded-[14px] flex flex-col overflow-hidden">
             <CardHeader className="pb-4">
               <div className="flex items-center gap-3 flex-nowrap">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/Google_Sheets_logo_%282014-2020%29.svg" alt="Google Sheets" style={{ height: 24, width: 'auto' }} className="shrink-0" />
@@ -399,8 +399,8 @@ export default function IntegracoesPage() {
   if (loading || step === 'loading_accounts') {
     return (
       <div className="max-w-lg mx-auto mt-24 p-8 text-center space-y-4">
-        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        <p className="text-(--text-secondary)">Buscando suas contas de anúncio...</p>
+        <div className="w-10 h-10 border-4 border-[#FBB03B] border-t-transparent rounded-full animate-spin mx-auto"></div>
+        <p className="text-[13px] text-(--text-secondary) mt-2">Buscando suas contas de anúncio...</p>
       </div>
     );
   }
@@ -410,10 +410,10 @@ export default function IntegracoesPage() {
     return (
       <div className="max-w-2xl mx-auto mt-8 p-6 space-y-6">
         <div>
-          <h2 className="text-xl font-semibold">
+          <h2 className="text-[18px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.2px' }}>
             {!selectedBM ? 'Selecionar Business Manager' : 'Selecionar contas de anúncio'}
           </h2>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-[13px] text-(--text-secondary) mt-1">
             Conectado como <strong>{userName}</strong> ({userEmail})
           </p>
         </div>
@@ -432,7 +432,7 @@ export default function IntegracoesPage() {
               <div 
                 key={bm.id}
                 onClick={() => setSelectedBM(bm)}
-                className="p-4 rounded-xl border border-(--card-border) bg-(--card-bg) cursor-pointer hover:border-blue-500 transition-colors"
+                className="p-4 rounded-[12px] border border-(--card-border) bg-(--card-bg) cursor-pointer hover:border-[#FBB03B]/50 transition-colors"
               >
                 <div className="flex items-center justify-between">
                   <div>
@@ -468,7 +468,7 @@ export default function IntegracoesPage() {
                   onClick={() => toggleAccount(acc.id)}
                   className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors ${
                     selectedAccounts.includes(acc.id)
-                      ? 'border-blue-500 bg-blue-500/10'
+                      ? 'border-[#FBB03B] bg-[#FBB03B]/8'
                       : 'border-(--card-border) hover:border-(--text-tertiary)'
                   }`}
                 >
@@ -496,7 +496,7 @@ export default function IntegracoesPage() {
           
           {selectedBM && (
             <Button
-              className="flex-1 bg-blue-600 hover:bg-blue-500 text-white h-11"
+              className="btn-brand flex-1 h-10 text-[13px]"
               disabled={selectedAccounts.length === 0}
               onClick={handleSave}
             >
@@ -513,7 +513,7 @@ export default function IntegracoesPage() {
   // Tela de sucesso
   return (
     <div className="max-w-lg mx-auto mt-24 p-6">
-      <Card className="bg-(--card-bg) border-(--card-border) shadow-premium">
+      <Card className="bg-(--card-bg) border-(--card-border) rounded-[14px]">
         <CardContent className="pt-8 pb-8 text-center space-y-6">
           <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto">
             <Check className="h-8 w-8 text-green-500" />
@@ -525,7 +525,7 @@ export default function IntegracoesPage() {
               O token é válido por 60 dias.
             </p>
           </div>
-          <Button className="w-full bg-(--text-primary) text-(--body-bg) hover:bg-(--text-secondary) h-11" onClick={() => navigate('/admin')}>
+          <Button className="btn-brand w-full h-10 text-[13px]" onClick={() => navigate('/admin')}>
             Voltar para Dashboard
           </Button>
         </CardContent>
