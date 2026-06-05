@@ -247,7 +247,7 @@ function ProfileDashboard({ profile }: { profile: any }) {
   return (
     <div className="space-y-6 mb-12">
       {/* Header Profile */}
-      <Card className="bg-gradient-to-r from-card to-muted/20 border-border">
+      <Card className="bg-(--card-bg) border border-(--card-border) rounded-[14px]">
         <CardContent className="p-6">
           <div className="flex flex-col sm:flex-row items-center gap-6 justify-between">
             <div className="flex items-center gap-4">
@@ -263,24 +263,24 @@ function ProfileDashboard({ profile }: { profile: any }) {
                 )}
               </div>
               <div>
-                <h3 className="text-xl font-bold">
+                <h3 className="text-[17px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.2px' }}>
                   {profile.name || profile.username}
                 </h3>
-                <p className="text-muted-foreground">@{profile.username}</p>
+                <p className="text-[13px] text-(--text-secondary)">@{profile.username}</p>
                 <div className="flex items-center gap-4 mt-2">
                   <div className="text-sm">
-                    <span className="font-bold text-foreground">
+                    <span className="font-semibold text-(--text-primary)">
                       {formatNumber(profile.followers_count)}
                     </span>
-                    <span className="text-muted-foreground ml-1">
+                    <span className="text-[13px] text-(--text-tertiary) ml-1">
                       Seguidores
                     </span>
                   </div>
                   <div className="text-sm">
-                    <span className="font-bold text-foreground">
+                    <span className="font-semibold text-(--text-primary)">
                       {formatNumber(profile.media_count)}
                     </span>
-                    <span className="text-muted-foreground ml-1">Posts</span>
+                    <span className="text-[13px] text-(--text-tertiary) ml-1">Posts</span>
                   </div>
                 </div>
               </div>
@@ -296,7 +296,7 @@ function ProfileDashboard({ profile }: { profile: any }) {
                 onClick={handleSync}
                 disabled={syncing}
                 variant="outline"
-                className="gap-2 shrink-0"
+                className="gap-2 shrink-0 border-(--card-border) text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--card-hover) rounded-[10px] text-[13px]"
               >
                 <RefreshCw
                   className={`h-4 w-4 ${syncing ? "animate-spin" : ""}`}
@@ -310,38 +310,38 @@ function ProfileDashboard({ profile }: { profile: any }) {
 
       {/* Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-card">
+        <Card className="bg-(--card-bg) border border-(--card-border) rounded-[14px]">
           <CardContent className="p-5 flex flex-col justify-center h-full">
-            <p className="text-sm font-medium text-muted-foreground mb-1">
+            <p className="text-[11px] font-semibold text-(--text-secondary) uppercase tracking-wider mb-2">
               Alcance Total
             </p>
-            <p className="text-2xl font-bold">{formatNumber(totalReach)}</p>
+            <p className="text-[26px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.5px' }}>{formatNumber(totalReach)}</p>
           </CardContent>
         </Card>
-        <Card className="bg-card">
+        <Card className="bg-(--card-bg) border border-(--card-border) rounded-[14px]">
           <CardContent className="p-5 flex flex-col justify-center h-full">
-            <p className="text-sm font-medium text-muted-foreground mb-1">
+            <p className="text-[11px] font-semibold text-(--text-secondary) uppercase tracking-wider mb-2">
               {seguidoresLabel}
             </p>
-            <p className="text-2xl font-bold">
+            <p className="text-[26px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.5px' }}>
               {formatNumber(seguidoresMetrica)}
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-card">
+        <Card className="bg-(--card-bg) border border-(--card-border) rounded-[14px]">
           <CardContent className="p-5 flex flex-col justify-center h-full">
-            <p className="text-sm font-medium text-muted-foreground mb-1">
+            <p className="text-[11px] font-semibold text-(--text-secondary) uppercase tracking-wider mb-2">
               Total Views
             </p>
-            <p className="text-2xl font-bold">{formatNumber(totalViews)}</p>
+            <p className="text-[26px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.5px' }}>{formatNumber(totalViews)}</p>
           </CardContent>
         </Card>
-        <Card className="bg-card">
+        <Card className="bg-(--card-bg) border border-(--card-border) rounded-[14px]">
           <CardContent className="p-5 flex flex-col justify-center h-full">
-            <p className="text-sm font-medium text-muted-foreground mb-1">
+            <p className="text-[11px] font-semibold text-(--text-secondary) uppercase tracking-wider mb-2">
               Interações
             </p>
-            <p className="text-2xl font-bold">
+            <p className="text-[26px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.5px' }}>
               {formatNumber(totalInteractions)}
             </p>
           </CardContent>
@@ -349,11 +349,11 @@ function ProfileDashboard({ profile }: { profile: any }) {
       </div>
 
       {/* Charts */}
-      <Card className="bg-card">
+      <Card className="bg-(--card-bg) border border-(--card-border) rounded-[14px]">
         <CardHeader>
-          <CardTitle className="text-lg">Alcance & Crescimento</CardTitle>
-          <CardDescription>
-            Evolução de impressões e seguidores neste período
+          <CardTitle className="text-[15px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.2px' }}>Alcance & Crescimento</CardTitle>
+          <CardDescription className="text-[13px] text-(--text-tertiary)">
+            Evolução de alcance e seguidores no período
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -464,8 +464,8 @@ function ProfileDashboard({ profile }: { profile: any }) {
                   className={cn(
                     "px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-[2px]",
                     tipoFiltro === tab.key
-                      ? "border-primary text-primary"
-                      : "border-transparent text-muted-foreground hover:text-foreground",
+                      ? "border-[#FBB03B] text-[#FBB03B]"
+                      : "border-transparent text-(--text-tertiary) hover:text-(--text-primary)",
                   )}
                 >
                   {tab.label} ({tab.count})
@@ -487,7 +487,7 @@ function ProfileDashboard({ profile }: { profile: any }) {
               return (
                 <Card
                   key={post.id}
-                  className="overflow-hidden group flex flex-col bg-card hover:border-primary/50 transition-colors"
+                  className="overflow-hidden group flex flex-col bg-(--card-bg) border border-(--card-border) rounded-[14px] hover:border-[#FBB03B]/30 transition-colors"
                 >
                   <div className="relative aspect-square bg-muted">
                     {post.media_type === "VIDEO" && videoAtivo === post.id ? (
@@ -573,7 +573,7 @@ function ProfileDashboard({ profile }: { profile: any }) {
           </div>
           {postsPaginados.length < mediaExibida.length && (
             <div className="flex justify-center mt-6">
-              <Button variant="outline" onClick={() => setPagina((p) => p + 1)}>
+              <Button variant="outline" onClick={() => setPagina((p) => p + 1)} className="border-(--card-border) text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--card-hover) rounded-[10px] text-[13px]">
                 Ver mais ({mediaExibida.length - postsPaginados.length}{" "}
                 restantes)
               </Button>
@@ -637,11 +637,11 @@ export default function InstagramAnalytics() {
     <div className="container mx-auto p-4 md:p-8 space-y-8 animate-in fade-in-50 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
+          <h1 className="text-[22px] font-semibold text-(--text-primary) flex items-center gap-2" style={{ letterSpacing: '-0.374px' }}>
             <Instagram className="h-8 w-8 text-[#E1306C]" />
             Instagram Analytics
           </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <p className="text-[13px] text-(--text-secondary) mt-1">
             Acompanhe o engajamento e alcance dos seus perfis
           </p>
         </div>
@@ -673,7 +673,7 @@ export default function InstagramAnalytics() {
               <div key={profile.id} className="relative group h-full">
                 <button
                   onClick={() => setPerfilSelecionado(profile.id)}
-                  className="flex flex-col items-center gap-3 p-6 rounded-xl border bg-card hover:border-primary hover:shadow-md transition-all w-full h-full"
+                  className="flex flex-col items-center gap-3 p-6 rounded-[14px] border border-(--card-border) bg-(--card-bg) hover:border-[#FBB03B]/50 transition-all w-full h-full"
                 >
                   {profile.profile_picture_url ? (
                     <img
@@ -713,7 +713,7 @@ export default function InstagramAnalytics() {
 
             <button
               onClick={handleConectar}
-              className="flex flex-col items-center gap-3 p-6 rounded-xl border border-dashed hover:border-primary hover:bg-muted/50 transition-all text-muted-foreground"
+              className="flex flex-col items-center gap-3 p-6 rounded-[14px] border border-dashed border-(--card-border) hover:border-[#FBB03B]/50 hover:bg-(--card-hover) transition-all text-(--text-tertiary)"
             >
               <div className="w-16 h-16 rounded-full border-2 border-dashed flex items-center justify-center">
                 <Plus className="w-6 h-6" />
