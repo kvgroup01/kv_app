@@ -151,9 +151,16 @@ function normalizarTexto(texto: string): string {
 }
 
 export function gerarPayloadPix(chave: string, valor: number, nome: string, cidade: string): string {
-  // Limpar a chave (remover espaços, hífens, pontuação)
-  let chaveLimpa = chave.replace(/[\s\.\-\(\)]/g, '');
-  
+  let chaveLimpa: string;
+
+  if (chave.includes('@')) {
+    // Chave e-mail: não remover pontos, apenas trim
+    chaveLimpa = chave.trim();
+  } else {
+    // CPF, CNPJ, telefone: remover toda formatação incluindo barra do CNPJ
+    chaveLimpa = chave.replace(/[\s\.\-\(\)\/]/g, '');
+  }
+
   // Se for celular (11 dígitos começando com DDD) e não tiver o +55, adicionar
   if (chaveLimpa.length === 11 && /^\d+$/.test(chaveLimpa)) {
     chaveLimpa = `+55${chaveLimpa}`;
