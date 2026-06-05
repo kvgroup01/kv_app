@@ -73,59 +73,59 @@ export default function FinanceiroIndex() {
       case 'pendente':
         return <span className="text-[11px] px-2 py-0.5 rounded-[4px] font-medium uppercase tracking-tight bg-amber-500/10 text-amber-500">Pendente</span>;
       case 'cancelado':
-        return <span className="text-[11px] px-2 py-0.5 rounded-[4px] font-medium uppercase tracking-tight bg-white dark:bg-[#1c1c1e]/5 text-(--text-tertiary)">Cancelado</span>;
+        return <span className="text-[11px] px-2 py-0.5 rounded-[4px] font-medium uppercase tracking-tight bg-(--card-hover) text-(--text-tertiary)">Cancelado</span>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
   };
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8 animate-fade-in">
       <div>
-        <h2 className="text-[22px] font-semibold text-(--text-primary)">Financeiro</h2>
+        <h2 className="text-[22px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.374px' }}>Financeiro</h2>
         <p className="text-[13px] text-(--text-secondary) mt-1">Acompanhamento e conferência de fluxos de caixa.</p>
       </div>
 
       {isLoading ? (
-        <div className="grid gap-6 md:grid-cols-3">
-           {Array.from({length: 3}).map((_, i) => <Skeleton key={i} className="h-32 w-full rounded-[12px]" />)}
+        <div className="grid gap-4 md:grid-cols-3">
+           {Array.from({length: 3}).map((_, i) => <Skeleton key={i} className="h-[110px] w-full rounded-[14px]" />)}
         </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-3">
-          <div className="group relative bg-(--card-bg) border border-(--card-border) rounded-[12px] p-6 shadow-premium hover:border-[#2a2a2a] transition-all duration-200">
-            <div className="absolute top-0 left-6 right-6 h-[3px] bg-(--accent-green) rounded-full" />
-            <div className="flex justify-between items-start mb-4">
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="group relative bg-(--card-bg) border border-(--card-border) rounded-[14px] p-5 hover:border-[color:var(--brand,#FBB03B)]/30 transition-all duration-200 overflow-hidden">
+            <div className="absolute top-0 left-6 right-6 h-[2px] bg-(--accent-green) rounded-full" />
+            <div className="flex justify-between items-start mb-3">
               <span className="text-[11px] uppercase tracking-[0.8px] font-medium text-(--text-secondary)">Total Recebido (Mês)</span>
-              <DollarSign className="h-[18px] w-[18px] text-(--accent-green)" />
+              <DollarSign className="h-[16px] w-[16px] text-(--accent-green)" />
             </div>
-            <div className="text-[32px] font-semibold text-(--text-primary)">{fmtBRL(rcbMes)}</div>
-            <p className="text-[13px] text-(--text-tertiary) mt-1">Valores já liquidados</p>
+            <div className="text-[28px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.5px' }}>{fmtBRL(rcbMes)}</div>
+            <p className="text-[12px] text-(--text-tertiary) mt-1">Valores já liquidados</p>
           </div>
 
-          <div className="group relative bg-(--card-bg) border border-(--card-border) rounded-[12px] p-6 shadow-premium hover:border-[#2a2a2a] transition-all duration-200">
-            <div className="absolute top-0 left-6 right-6 h-[3px] bg-(--accent-amber) rounded-full" />
-            <div className="flex justify-between items-start mb-4">
+          <div className="group relative bg-(--card-bg) border border-(--card-border) rounded-[14px] p-5 hover:border-[color:var(--brand,#FBB03B)]/30 transition-all duration-200 overflow-hidden">
+            <div className="absolute top-0 left-6 right-6 h-[2px] bg-(--accent-amber) rounded-full" />
+            <div className="flex justify-between items-start mb-3">
               <span className="text-[11px] uppercase tracking-[0.8px] font-medium text-(--text-secondary)">Aguardando Pagamento</span>
-              <Activity className="h-[18px] w-[18px] text-(--accent-amber)" />
+              <Activity className="h-[16px] w-[16px] text-(--accent-amber)" />
             </div>
-            <div className="text-[32px] font-semibold text-(--text-primary)">{fmtBRL(aguardando)}</div>
-            <p className="text-[13px] text-(--text-tertiary) mt-1">Pendências em aberto</p>
+            <div className="text-[28px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.5px' }}>{fmtBRL(aguardando)}</div>
+            <p className="text-[12px] text-(--text-tertiary) mt-1">Pendências em aberto</p>
           </div>
 
-          <div className="group relative bg-(--card-bg) border border-(--card-border) rounded-[12px] p-6 shadow-premium hover:border-[#2a2a2a] transition-all duration-200">
-            <div className="absolute top-0 left-6 right-6 h-[3px] bg-(--accent-blue) rounded-full" />
-            <div className="flex justify-between items-start mb-4">
+          <div className="group relative bg-(--card-bg) border border-(--card-border) rounded-[14px] p-5 hover:border-[color:var(--brand,#FBB03B)]/30 transition-all duration-200 overflow-hidden">
+            <div className="absolute top-0 left-6 right-6 h-[2px] bg-(--accent-blue) rounded-full" />
+            <div className="flex justify-between items-start mb-3">
               <span className="text-[11px] uppercase tracking-[0.8px] font-medium text-(--text-secondary)">Orçamentos Criados</span>
-              <FileText className="h-[18px] w-[18px] text-(--accent-blue)" />
+              <FileText className="h-[16px] w-[16px] text-(--accent-blue)" />
             </div>
-            <div className="text-[32px] font-semibold text-(--text-primary)">{criadosMes}</div>
-            <p className="text-[13px] text-(--text-tertiary) mt-1">Volume de propostas no mês</p>
+            <div className="text-[28px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.5px' }}>{criadosMes}</div>
+            <p className="text-[12px] text-(--text-tertiary) mt-1">Volume de propostas no mês</p>
           </div>
         </div>
       )}
 
       {/* Toolbar e Filtros da Tabela */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-muted p-2 rounded-xl border border-(--card-border) shadow-premium">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-(--card-bg) p-2 rounded-[12px] border border-(--card-border)">
         <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-full sm:w-[200px] bg-transparent border-none focus:ring-0 text-[13px] h-10 text-(--text-secondary)">
@@ -145,7 +145,7 @@ export default function FinanceiroIndex() {
         </div>
       </div>
 
-      <div className="bg-(--card-bg) border border-(--card-border) rounded-[12px] overflow-hidden shadow-premium">
+      <div className="bg-(--card-bg) border border-(--card-border) rounded-[14px] overflow-hidden">
         {isLoading ? (
           <div className="p-6 space-y-4">
              {Array.from({length: 4}).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
