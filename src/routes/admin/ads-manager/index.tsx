@@ -49,7 +49,7 @@ function StatusToggle({ status, onClick, loading }: { status: string; onClick: (
     >
       <span
         className={cn(
-          "pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white dark:bg-[#1c1c1e] shadow-lg ring-0 transition duration-200 ease-in-out",
+          "pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out",
           isActive ? "translate-x-4" : "translate-x-0",
           loading && "animate-pulse"
         )}
@@ -183,20 +183,19 @@ export default function AdsManagerPage() {
   const avgCtr = filteredItems.length > 0 ? (filteredItems.reduce((acc: number, cur: any) => acc + (cur.metricas?.ctr || 0), 0) / filteredItems.length) : 0;
 
   return (
-    <div className="space-y-0 animate-in fade-in-50 duration-500 container mx-auto p-4 md:p-8">
-      <div className="py-2 mb-4">
-        <h1 className="text-3xl font-bold tracking-tight inline-flex items-center gap-3">
-          <LayoutDashboard className="w-8 h-8 text-[#FBB03B]" />
+    <div className="space-y-6 animate-fade-in">
+      <div>
+        <h2 className="text-[22px] font-semibold text-(--text-primary)" style={{ letterSpacing: '-0.374px' }}>
           Gerenciador de Anúncios
-        </h1>
-        <p className="text-muted-foreground mt-2">
+        </h2>
+        <p className="text-[13px] text-(--text-secondary) mt-1">
           Visualize e gerencie campanhas no estilo Meta Ads
         </p>
       </div>
 
-      <div className="border rounded-t-lg bg-card p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+      <div className="bg-(--card-bg) border border-(--card-border) rounded-[12px] p-3 flex flex-col sm:flex-row gap-3 items-start sm:items-center">
         <Select value={selectedClienteId || ""} onValueChange={setSelectedClienteId}>
-          <SelectTrigger className="w-full sm:w-64">
+          <SelectTrigger className="w-full sm:w-64 border-(--card-border) bg-(--card-hover) text-(--text-primary) rounded-[8px] text-[13px]">
             <SelectValue placeholder="Selecionar conta Meta Ads..." />
           </SelectTrigger>
           <SelectContent>
@@ -209,7 +208,7 @@ export default function AdsManagerPage() {
         </Select>
 
         {selectedAccountId && (
-          <Badge variant="outline" className="text-xs">Conta: {selectedAccountId}</Badge>
+          <Badge variant="outline" className="text-[11px] border-(--card-border) text-(--text-tertiary)">Conta: {selectedAccountId}</Badge>
         )}
 
         <div className="flex-1" />
@@ -218,16 +217,16 @@ export default function AdsManagerPage() {
       </div>
 
       {checkedIds.length > 0 && (
-        <div className="bg-[#FBB03B]/10 border border-[#FBB03B]/30 p-3 flex items-center gap-3">
-          <span className="text-sm font-medium">{checkedIds.length} selecionado(s)</span>
-          <Button variant="outline" size="sm" onClick={handleAtivar}>Ativar</Button>
-          <Button variant="outline" size="sm" onClick={handlePausar}>Pausar</Button>
-          <Button variant="ghost" size="sm" onClick={() => setCheckedIds([])}>Limpar seleção</Button>
+        <div className="bg-[#FBB03B]/8 border border-[#FBB03B]/20 rounded-[10px] p-3 flex items-center gap-3">
+          <span className="text-[13px] font-medium text-(--text-primary)">{checkedIds.length} selecionado(s)</span>
+          <Button variant="outline" size="sm" className="h-7 text-[12px] border-(--card-border) text-(--text-secondary) hover:bg-(--card-hover) rounded-[7px]" onClick={handleAtivar}>Ativar</Button>
+          <Button variant="outline" size="sm" className="h-7 text-[12px] border-(--card-border) text-(--text-secondary) hover:bg-(--card-hover) rounded-[7px]" onClick={handlePausar}>Pausar</Button>
+          <Button variant="ghost" size="sm" className="h-7 text-[12px] text-(--text-tertiary) hover:text-(--text-primary) rounded-[7px]" onClick={() => setCheckedIds([])}>Limpar</Button>
         </div>
       )}
 
-      <div className="border-x border-b border-border bg-card">
-        <div className="flex flex-wrap border-b border-border">
+      <div className="bg-(--card-bg) border border-(--card-border) rounded-[14px] overflow-hidden">
+        <div className="flex flex-wrap border-b border-(--card-border)">
           <button
             onClick={() => {
               setCheckedIds([]);
@@ -235,7 +234,7 @@ export default function AdsManagerPage() {
             }}
             className={cn(
               "px-4 py-3 text-sm transition-colors",
-              activeTab === "campanhas" ? "border-b-2 border-[#FBB03B] text-foreground font-semibold -mb-[2px]" : "text-muted-foreground hover:text-foreground"
+              activeTab === "campanhas" ? "border-b-2 border-[#FBB03B] text-(--text-primary) font-semibold -mb-[2px] text-[13px]" : "text-(--text-tertiary) hover:text-(--text-primary) text-[13px]"
             )}
           >
             Campanhas ({campaigns.length})
@@ -250,7 +249,7 @@ export default function AdsManagerPage() {
             }}
             className={cn(
               "px-4 py-3 text-sm transition-colors",
-              activeTab === "conjuntos" ? "border-b-2 border-[#FBB03B] text-foreground font-semibold -mb-[2px]" : "text-muted-foreground hover:text-foreground"
+              activeTab === "conjuntos" ? "border-b-2 border-[#FBB03B] text-(--text-primary) font-semibold -mb-[2px] text-[13px]" : "text-(--text-tertiary) hover:text-(--text-primary) text-[13px]"
             )}
           >
             Conjuntos de anúncios ({adsets.length})
@@ -265,38 +264,38 @@ export default function AdsManagerPage() {
             }}
             className={cn(
               "px-4 py-3 text-sm transition-colors",
-              activeTab === "anuncios" ? "border-b-2 border-[#FBB03B] text-foreground font-semibold -mb-[2px]" : "text-muted-foreground hover:text-foreground"
+              activeTab === "anuncios" ? "border-b-2 border-[#FBB03B] text-(--text-primary) font-semibold -mb-[2px] text-[13px]" : "text-(--text-tertiary) hover:text-(--text-primary) text-[13px]"
             )}
           >
             Anúncios ({ads.length})
           </button>
         </div>
 
-        <div className="flex flex-wrap gap-3 items-center p-3 border-b border-border">
+        <div className="flex flex-wrap gap-3 items-center p-3 border-b border-(--card-border)">
           <Input 
             placeholder="Pesquisar por nome..." 
             value={searchQuery} 
             onChange={(e) => setSearchQuery(e.target.value)} 
-            className="w-full sm:w-64 border-[#FBB03B]/30 focus-visible:ring-[#FBB03B]"
+            className="w-full sm:w-64 h-8 text-[13px] border-(--card-border) bg-(--card-hover) focus-visible:ring-[#FBB03B] rounded-[8px]"
           />
           <div className="flex gap-2">
             <Button
               variant={statusFilter === "TODOS" ? "default" : "outline"}
               size="sm"
               onClick={() => setStatusFilter("TODOS")}
-              className={statusFilter === "TODOS" ? "bg-[#FBB03B] text-black hover:bg-[#FBB03B]/80" : ""}
+              className={statusFilter === "TODOS" ? "h-7 text-[12px] rounded-[7px] bg-[#FBB03B] text-black hover:bg-[#f5a623]" : "h-7 text-[12px] rounded-[7px] border-(--card-border) text-(--text-secondary) hover:bg-(--card-hover)"}
             >Todos</Button>
             <Button
               variant={statusFilter === "ACTIVE" ? "default" : "outline"}
               size="sm"
               onClick={() => setStatusFilter("ACTIVE")}
-              className={statusFilter === "ACTIVE" ? "bg-green-600 hover:bg-green-700" : ""}
+              className={statusFilter === "ACTIVE" ? "h-7 text-[12px] rounded-[7px] bg-green-600 hover:bg-green-700 text-white" : "h-7 text-[12px] rounded-[7px] border-(--card-border) text-(--text-secondary) hover:bg-(--card-hover)"}
             >Ativos</Button>
             <Button
               variant={statusFilter === "PAUSED" ? "default" : "outline"}
               size="sm"
               onClick={() => setStatusFilter("PAUSED")}
-              className={statusFilter === "PAUSED" ? "bg-yellow-600 hover:bg-yellow-700 text-white" : ""}
+              className={statusFilter === "PAUSED" ? "h-7 text-[12px] rounded-[7px] bg-amber-500 hover:bg-amber-600 text-black" : "h-7 text-[12px] rounded-[7px] border-(--card-border) text-(--text-secondary) hover:bg-(--card-hover)"}
             >Pausados</Button>
           </div>
 
@@ -325,9 +324,9 @@ export default function AdsManagerPage() {
 
         <div className="p-0">
           {!selectedAccountId ? (
-            <div className="h-64 flex flex-col items-center justify-center text-center p-6 bg-card rounded-b-lg">
-              <LayoutDashboard className="w-12 h-12 text-muted-foreground/50 mb-4" />
-              <p className="text-muted-foreground">Selecione um cliente para começar</p>
+            <div className="h-64 flex flex-col items-center justify-center text-center p-6">
+              <LayoutDashboard className="w-10 h-10 text-(--text-tertiary) opacity-30 mb-3" />
+              <p className="text-[13px] text-(--text-tertiary)">Selecione uma conta para começar</p>
             </div>
           ) : isLoadingTab ? (
             <table className="w-full text-sm">
@@ -346,7 +345,7 @@ export default function AdsManagerPage() {
           ) : (
             <div className="overflow-x-auto rounded-b-lg">
               <table className="w-full text-sm text-left whitespace-nowrap">
-                <thead className="bg-muted/50 text-xs text-muted-foreground border-b uppercase">
+                <thead className="bg-(--card-hover) text-[10px] text-(--text-tertiary) border-b border-(--card-border) uppercase tracking-wider">
                   <tr>
                     <th className="p-3 font-medium w-10 text-center">
                       <input 
@@ -374,7 +373,7 @@ export default function AdsManagerPage() {
                 </thead>
                 <tbody>
                   {filteredItems.map((item: any) => (
-                    <tr key={item.id} className="border-t border-border hover:bg-muted/30 transition-colors">
+                    <tr key={item.id} className="border-t border-(--card-border) hover:bg-(--card-hover) transition-colors">
                       <td className="p-3 text-center">
                         <input 
                           type="checkbox"
@@ -404,7 +403,7 @@ export default function AdsManagerPage() {
                           <div className="overflow-hidden">
                             <span className="font-medium truncate block">{item.nome}</span>
                             {activeTab !== "campanhas" && item.campaign_nome && (
-                              <span className="text-xs text-muted-foreground truncate block">{item.campaign_nome}</span>
+                              <span className="text-[11px] text-(--text-tertiary) truncate block">{item.campaign_nome}</span>
                             )}
                           </div>
                         </div>
@@ -418,7 +417,7 @@ export default function AdsManagerPage() {
                     </tr>
                   ))}
                 </tbody>
-                <tfoot className="bg-muted/30 font-semibold border-t">
+                <tfoot className="bg-(--card-hover) font-semibold border-t border-(--card-border) text-[13px] text-(--text-primary)">
                   <tr>
                     <td className="p-3 text-center">—</td>
                     <td className="p-3">—</td>
