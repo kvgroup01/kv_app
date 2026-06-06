@@ -298,18 +298,20 @@ export function useAdsManagerAdsetsByMultipleCampaigns(
   campaignIds: string[],
   from?: Date,
   to?: Date,
+  accountId?: string | null,
 ) {
   return useQuery({
-    queryKey: ["ads-manager-adsets-filtered", campaignIds.join(","), toDateStr(from), toDateStr(to)],
+    queryKey: ["ads-manager-adsets-filtered", campaignIds.join(","), toDateStr(from), toDateStr(to), accountId],
     queryFn: async (): Promise<{ adsets: Array<AdsAdset & { campaign_nome: string; lancamento_id: string }> }> => {
       const params = new URLSearchParams({ campaignIds: campaignIds.join(",") });
+      if (accountId) params.append("accountId", accountId);
       if (from) params.append("from", toDateStr(from));
       if (to) params.append("to", toDateStr(to));
       const res = await fetch(`${VPS}/ads-manager/adsets-filtered?${params}`);
       if (!res.ok) throw new Error("Erro ao buscar conjuntos");
       return res.json();
     },
-    enabled: campaignIds.length > 0,
+    enabled: campaignIds.length > 0 && !!accountId,
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
   });
@@ -320,18 +322,20 @@ export function useAdsManagerAdsByMultipleAdsets(
   adsetIds: string[],
   from?: Date,
   to?: Date,
+  accountId?: string | null,
 ) {
   return useQuery({
-    queryKey: ["ads-manager-ads-filtered", adsetIds.join(","), toDateStr(from), toDateStr(to)],
+    queryKey: ["ads-manager-ads-filtered", adsetIds.join(","), toDateStr(from), toDateStr(to), accountId],
     queryFn: async (): Promise<{ ads: AdsAd[] }> => {
       const params = new URLSearchParams({ adsetIds: adsetIds.join(",") });
+      if (accountId) params.append("accountId", accountId);
       if (from) params.append("from", toDateStr(from));
       if (to) params.append("to", toDateStr(to));
       const res = await fetch(`${VPS}/ads-manager/ads-filtered?${params}`);
       if (!res.ok) throw new Error("Erro ao buscar anúncios");
       return res.json();
     },
-    enabled: adsetIds.length > 0,
+    enabled: adsetIds.length > 0 && !!accountId,
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
   });

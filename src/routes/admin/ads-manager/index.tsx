@@ -78,8 +78,8 @@ export default function AdsManagerPage() {
   const { data: overviewData } = useAdsManagerOverview();
   const contas = overviewData?.accounts || [];
   const { data: campData, isLoading: loadingCamps } = useAdsManagerCampaigns(selectedAccountId, dateRange?.from, dateRange?.to);
-  const { data: adsetsData, isLoading: loadingAdsets } = useAdsManagerAdsetsByMultipleCampaigns(filterCampaignIds, dateRange?.from, dateRange?.to);
-  const { data: adsData, isLoading: loadingAds } = useAdsManagerAdsByMultipleAdsets(filterAdsetIds, dateRange?.from, dateRange?.to);
+  const { data: adsetsData, isLoading: loadingAdsets } = useAdsManagerAdsetsByMultipleCampaigns(filterCampaignIds, dateRange?.from, dateRange?.to, selectedAccountId);
+  const { data: adsData, isLoading: loadingAds } = useAdsManagerAdsByMultipleAdsets(filterAdsetIds, dateRange?.from, dateRange?.to, selectedAccountId);
 
   const campaigns = campData?.campaigns || [];
   const adsets = adsetsData?.adsets || [];
@@ -118,16 +118,11 @@ export default function AdsManagerPage() {
 
   const handleToggle = async (item: any) => {
     const newStatus = (item.status?.toUpperCase() === "ACTIVE" || item.status?.toUpperCase() === "ATIVO") ? "PAUSED" : "ACTIVE";
-    const metaId = activeTab === "anuncios"
-      ? item.meta_ad_id
-      : activeTab === "campanhas"
-      ? (item.meta_campaign_id || item.id)
-      : (item.meta_adset_id || item.id);
-    const lancId = item.lancamento_id || selectedLancamentoId;
-    if (!lancId) { toast.error("Lançamento não encontrado para obter token"); return; }
+    const metaId = item.meta_ad_id || item.meta_campaign_id || item.id;
+    if (!selectedAccountId) { toast.error("Conta não selecionada"); return; }
     setTogglingId(item.id);
     try {
-      await toggleEntityStatus(metaId, activeTab === "campanhas" ? "campaign" : activeTab === "conjuntos" ? "adset" : "ad", newStatus, lancId);
+      await toggleEntityStatus(metaId, activeTab === "campanhas" ? "campaign" : activeTab === "conjuntos" ? "adset" : "ad", newStatus, selectedAccountId);
       toast.success(`${newStatus === "ACTIVE" ? "Ativado" : "Pausado"} com sucesso!`);
       queryClient.invalidateQueries({ queryKey: ["ads-manager-campaigns"] });
       if (activeTab === "conjuntos" || filterCampaignIds.length > 0) queryClient.invalidateQueries({ queryKey: ["ads-manager-adsets-filtered"] });
