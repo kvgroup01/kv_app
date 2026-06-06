@@ -403,7 +403,16 @@ export default function AdsManagerPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="p-3 text-right">{formatNum(item.metricas?.resultados)}</td>
+                      <td className="p-3 text-right">
+                        <div className="flex flex-col items-end">
+                          <span>{formatNum(item.metricas?.resultados)}</span>
+                          {item.metricas?.tipo_resultado && (
+                            <span className="text-[10px] text-(--text-tertiary) leading-tight mt-0.5 max-w-[120px] truncate">
+                              {item.metricas.tipo_resultado}
+                            </span>
+                          )}
+                        </div>
+                      </td>
                       <td className="p-3 text-right">{formatNum(item.metricas?.alcance)}</td>
                       <td className="p-3 text-right">{formatNum(item.metricas?.impressoes)}</td>
                       <td className="p-3 text-right">{formatNum(item.metricas?.cliques)}</td>
