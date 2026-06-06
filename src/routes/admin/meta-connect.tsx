@@ -126,15 +126,18 @@ export default function IntegracoesPage() {
     // Escuta mensagem do popup quando autenticação completar
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
-      if (event.data?.type !== 'META_AUTH_SUCCESS') return;
+      if (event.data?.type !== 'META_AUTH_SUCCESS' && event.data?.type !== 'META_AUTH_ERROR') return;
 
       window.removeEventListener('message', handleMessage);
       popup?.close();
 
-      // Atualiza a URL com os dados recebidos do popup
+      if (event.data?.type === 'META_AUTH_ERROR') {
+        toast.error('Erro na autenticação com Meta: ' + (event.data.error || 'Tente novamente.'));
+        return;
+      }
+
       const { token: newToken, expires_in, user_id, user_name, user_email } = event.data;
       
-      // Simula o recebimento dos query params sem redirecionar
       setStep('loading_accounts');
       setUserName(user_name);
       setUserEmail(user_email);
