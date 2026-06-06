@@ -30,10 +30,9 @@ function formatBRL(v: number) {
 }
 
 function formatNum(v: number) {
+  if (!v && v !== 0) return "—";
   if (!v) return "—";
-  if (v >= 1_000_000) return (v / 1_000_000).toFixed(1) + "M";
-  if (v >= 1_000) return (v / 1_000).toFixed(1) + "k";
-  return String(Math.round(v));
+  return new Intl.NumberFormat('pt-BR').format(Math.round(v));
 }
 
 function StatusToggle({ status, onClick, loading }: { status: string; onClick: () => void; loading?: boolean }) {
